@@ -1,0 +1,12 @@
+diff -r -U 3 minecraft\net\minecraft\tags\TagCollection.java minecraft_patched\net\minecraft\tags\TagCollection.java
+--- minecraft\net\minecraft\tags\TagCollection.java
++++ minecraft_patched\net\minecraft\tags\TagCollection.java
+@@ -118,7 +118,7 @@
+ 
+          while(iterator.hasNext()) {
+             Entry<ResourceLocation, Tag.Builder<T>> entry1 = iterator.next();
+-            if (((Tag.Builder)entry1.getValue()).func_200160_a(this::func_199910_a)) {
++            if (((Tag.Builder)entry1.getValue()).func_200160_a((Function<ResourceLocation, Tag<T>>)this::func_199910_a)) {
+                flag = true;
+                this.func_199912_a((entry1.getValue()).func_200051_a(entry1.getKey()));
+                iterator.remove();

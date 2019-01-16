@@ -1,0 +1,26 @@
+diff -r -U 3 minecraft\net\minecraft\server\dedicated\DedicatedServer.java minecraft_patched\net\minecraft\server\dedicated\DedicatedServer.java
+--- minecraft\net\minecraft\server\dedicated\DedicatedServer.java
++++ minecraft_patched\net\minecraft\server\dedicated\DedicatedServer.java
+@@ -89,7 +89,7 @@
+       };
+    }
+ 
+-   protected boolean func_71197_b() throws IOException {
++   public boolean func_71197_b() throws IOException {
+       Thread thread = new Thread("Server console handler") {
+          public void run() {
+             BufferedReader bufferedreader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
+@@ -321,11 +321,11 @@
+       return p_71230_1_;
+    }
+ 
+-   protected void func_71240_o() {
++   public void func_71240_o() {
+       System.exit(0);
+    }
+ 
+-   protected void func_502277_b(BooleanSupplier p_502277_1_) {
++   public void func_502277_b(BooleanSupplier p_502277_1_) {
+       super.func_502277_b(p_502277_1_);
+       this.func_71333_ah();
+    }

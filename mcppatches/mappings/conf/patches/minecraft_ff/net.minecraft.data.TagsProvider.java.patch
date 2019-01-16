@@ -1,0 +1,12 @@
+diff -r -U 3 minecraft\net\minecraft\data\TagsProvider.java minecraft_patched\net\minecraft\data\TagsProvider.java
+--- minecraft\net\minecraft\data\TagsProvider.java
++++ minecraft_patched\net\minecraft\data\TagsProvider.java
+@@ -48,7 +48,7 @@
+          ResourceLocation resourcelocation = ((Tag)entry.getKey()).func_199886_b();
+          Tag.Builder tag$builder = entry.getValue();
+          tagcollection.getClass();
+-         if (!tag$builder.func_200160_a(tagcollection::func_199910_a)) {
++         if (!tag$builder.func_200160_a((Function<ResourceLocation, Tag<T>>)tagcollection::func_199910_a)) {
+             throw new UnsupportedOperationException("Unsupported referencing of tags!");
+          }
+ 

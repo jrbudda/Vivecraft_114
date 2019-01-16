@@ -1,0 +1,30 @@
+diff -r -U 3 minecraft\net\minecraft\client\particle\ParticleManager.java minecraft_patched\net\minecraft\client\particle\ParticleManager.java
+--- minecraft\net\minecraft\client\particle\ParticleManager.java
++++ minecraft_patched\net\minecraft\client\particle\ParticleManager.java
+@@ -140,7 +140,7 @@
+ 
+    @Nullable
+    private <T extends IParticleData> Particle func_199927_b(T p_199927_1_, double p_199927_2_, double p_199927_4_, double p_199927_6_, double p_199927_8_, double p_199927_10_, double p_199927_12_) {
+-      IParticleFactory<T> iparticlefactory = this.field_178932_g.get(IRegistry.field_501025_u.func_501997_a(p_199927_1_.func_197554_b()));
++      IParticleFactory<T> iparticlefactory = (IParticleFactory<T>) this.field_178932_g.get(IRegistry.field_501025_u.func_501997_a(p_199927_1_.func_197554_b()));
+       return iparticlefactory == null ? null : iparticlefactory.func_199234_a(p_199927_1_, this.field_78878_a, p_199927_2_, p_199927_4_, p_199927_6_, p_199927_8_, p_199927_10_, p_199927_12_);
+    }
+ 
+@@ -273,13 +273,14 @@
+                      CrashReport crashreport = CrashReport.func_85055_a(throwable, "Rendering Particle");
+                      CrashReportCategory crashreportcategory = crashreport.func_85058_a("Particle being rendered");
+                      crashreportcategory.func_189529_a("Particle", particle::toString);
++                     final int iF = i;
+                      crashreportcategory.func_189529_a("Particle Type", () -> {
+-                        if (i == 0) {
++                        if (iF == 0) {
+                            return "MISC_TEXTURE";
+-                        } else if (i == 1) {
++                        } else if (iF == 1) {
+                            return "TERRAIN_TEXTURE";
+                         } else {
+-                           return i == 3 ? "ENTITY_PARTICLE_TEXTURE" : "Unknown - " + i;
++                           return iF == 3 ? "ENTITY_PARTICLE_TEXTURE" : "Unknown - " + iF;
+                         }
+                      });
+                      throw new ReportedException(crashreport);

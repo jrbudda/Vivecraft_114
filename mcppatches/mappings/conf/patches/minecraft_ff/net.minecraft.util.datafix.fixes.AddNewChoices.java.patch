@@ -1,0 +1,25 @@
+diff -r -U 3 minecraft\net\minecraft\util\datafix\fixes\AddNewChoices.java minecraft_patched\net\minecraft\util\datafix\fixes\AddNewChoices.java
+--- minecraft\net\minecraft\util\datafix\fixes\AddNewChoices.java
++++ minecraft_patched\net\minecraft\util\datafix\fixes\AddNewChoices.java
+@@ -5,6 +5,8 @@
+ import com.mojang.datafixers.DSL.TypeReference;
+ import com.mojang.datafixers.schemas.Schema;
+ import com.mojang.datafixers.types.templates.TaggedChoice.TaggedChoiceType;
++import com.mojang.datafixers.util.Pair;
++
+ import java.util.function.Function;
+ 
+ public class AddNewChoices extends DataFix {
+@@ -29,10 +31,10 @@
+       } else {
+          return this.fixTypeEverywhere(p_206290_1_, p_206290_2_, p_206290_3_, (p_209687_2_) -> {
+             return (p_206291_2_) -> {
+-               if (!p_206290_3_.hasType(p_206291_2_.getFirst())) {
++               if (!((TaggedChoiceType)p_206290_3_).hasType(p_206291_2_.getFirst())) {
+                   throw new IllegalArgumentException(String.format("Unknown type %s in %s ", p_206291_2_.getFirst(), this.field_206293_b));
+                } else {
+-                  return p_206291_2_;
++                  return (Pair)p_206291_2_;
+                }
+             };
+          });

@@ -1,0 +1,20 @@
+--- a/optifine/Utils.java
++++ b/optifine/Utils.java
+@@ -36,7 +36,7 @@
+         String s = System.getProperty("user.home", ".");
+         File file1 = null;
+ 
+-        switch ($SWITCH_TABLE$optifine$Utils$OS()[getPlatform().ordinal()])
++        switch (getPlatform().ordinal())
+         {
+             case 1:
+             case 2:
+@@ -362,7 +362,7 @@
+ 
+                     if (object instanceof Object[])
+                     {
+-                        Object[] aobject = object;
++                        Object[] aobject = (Object[]) object;
+                         stringbuffer.append(arrayToCommaSeparatedString(aobject));
+                     }
+                     else

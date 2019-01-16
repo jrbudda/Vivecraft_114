@@ -1,0 +1,25 @@
+diff -r -U 3 minecraft\net\minecraft\util\datafix\fixes\SpawnEggNames.java minecraft_patched\net\minecraft\util\datafix\fixes\SpawnEggNames.java
+--- minecraft\net\minecraft\util\datafix\fixes\SpawnEggNames.java
++++ minecraft_patched\net\minecraft\util\datafix\fixes\SpawnEggNames.java
+@@ -107,10 +107,10 @@
+             short short1 = dynamic.getShort("Damage");
+             Optional<? extends Typed<?>> optional1 = p_206359_6_.getOptionalTyped(opticfinder2);
+             Optional<? extends Typed<?>> optional2 = optional1.<Typed<?>>flatMap((p_207479_1_) -> {
+-               return p_207479_1_.getOptionalTyped(opticfinder3);
++               return (Optional)p_207479_1_.getOptionalTyped(opticfinder3);
+             });
+             Optional<? extends Typed<?>> optional3 = optional2.<Typed<?>>flatMap((p_207482_1_) -> {
+-               return p_207482_1_.getOptionalTyped(opticfinder4);
++               return (Optional)p_207482_1_.getOptionalTyped(opticfinder4);
+             });
+             Optional<String> optional4 = optional3.<String>flatMap((p_207481_1_) -> {
+                return p_207481_1_.getOptional(opticfinder1);
+@@ -122,7 +122,7 @@
+                Typed<?> typed2 = typed1.getOrCreateTyped(opticfinder3);
+                Typed<?> typed3 = typed2.getOrCreateTyped(opticfinder4);
+                Dynamic<?> dynamic1 = typed3.write().set("id", dynamic.createString(s));
+-               Typed<?> typed4 = (Typed)((Optional)this.getOutputSchema().getTypeRaw(TypeReferences.field_211299_o).readTyped(dynamic1).getSecond()).orElseThrow(() -> {
++               Typed<?> typed4 = (Typed)(this.getOutputSchema().getTypeRaw(TypeReferences.field_211299_o).readTyped(dynamic1).getSecond()).orElseThrow(() -> {
+                   return new IllegalStateException("Could not parse new entity");
+                });
+                typed = p_206359_6_.set(opticfinder2, typed1.set(opticfinder3, typed2.set(opticfinder4, typed4)));

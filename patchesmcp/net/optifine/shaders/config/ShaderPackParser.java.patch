@@ -1,0 +1,65 @@
+--- a/net/optifine/shaders/config/ShaderPackParser.java
++++ b/net/optifine/shaders/config/ShaderPackParser.java
+@@ -259,7 +259,7 @@
+         String s = "profile.";
+         List<ShaderProfile> list = new ArrayList<ShaderProfile>();
+ 
+-        for (String s1 : props.keySet())
++        for (String s1 : (Set<String>)(Set<?>)props.keySet())
+         {
+             if (s1.startsWith(s))
+             {
+@@ -292,7 +292,7 @@
+         Pattern pattern = Pattern.compile("program\\.([^.]+)\\.enabled");
+         Map<String, IExpressionBool> map = new HashMap<String, IExpressionBool>();
+ 
+-        for (String s1 : props.keySet())
++        for (String s1 : (Set<String>)(Set<?>)props.keySet())
+         {
+             Matcher matcher = pattern.matcher(s1);
+ 
+@@ -747,7 +747,7 @@
+         Map<String, IExpression> map = new HashMap<String, IExpression>();
+         List<CustomUniform> list = new ArrayList<CustomUniform>();
+ 
+-        for (String s4 : props.keySet())
++        for (String s4 : (Set<String>)(Set<?>)props.keySet())
+         {
+             String[] astring = Config.tokenize(s4, ".");
+ 
+@@ -844,7 +844,7 @@
+ 
+     public static void parseAlphaStates(Properties props)
+     {
+-        for (String s : props.keySet())
++        for (String s : (Set<String>)(Set<?>)props.keySet())
+         {
+             String[] astring = Config.tokenize(s, ".");
+ 
+@@ -908,7 +908,7 @@
+ 
+     public static void parseBlendStates(Properties props)
+     {
+-        for (String s : props.keySet())
++        for (String s : (Set<String>)(Set<?>)props.keySet())
+         {
+             String[] astring = Config.tokenize(s, ".");
+ 
+@@ -983,7 +983,7 @@
+ 
+     public static void parseRenderScales(Properties props)
+     {
+-        for (String s : props.keySet())
++        for (String s : (Set<String>)(Set<?>)props.keySet())
+         {
+             String[] astring = Config.tokenize(s, ".");
+ 
+@@ -1047,7 +1047,7 @@
+ 
+     public static void parseBuffersFlip(Properties props)
+     {
+-        for (String s : props.keySet())
++        for (String s : (Set<String>)(Set<?>)props.keySet())
+         {
+             String[] astring = Config.tokenize(s, ".");
+ 

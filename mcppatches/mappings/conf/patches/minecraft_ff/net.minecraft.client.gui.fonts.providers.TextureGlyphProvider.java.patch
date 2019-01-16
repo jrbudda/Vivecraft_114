@@ -1,0 +1,12 @@
+diff -r -U 3 minecraft\net\minecraft\client\gui\fonts\providers\TextureGlyphProvider.java minecraft_patched\net\minecraft\client\gui\fonts\providers\TextureGlyphProvider.java
+--- minecraft\net\minecraft\client\gui\fonts\providers\TextureGlyphProvider.java
++++ minecraft_patched\net\minecraft\client\gui\fonts\providers\TextureGlyphProvider.java
+@@ -188,7 +188,7 @@
+       }
+ 
+       public float func_211575_m() {
+-         return super.func_211575_m() + 7.0F - (float)this.field_211589_h;
++         return IGlyphInfo.super.func_211575_m() + 7.0F - (float)this.field_211589_h;
+       }
+ 
+       public void func_211573_a(int p_211573_1_, int p_211573_2_) {

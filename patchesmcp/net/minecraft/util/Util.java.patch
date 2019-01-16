@@ -1,0 +1,11 @@
+--- a/net/minecraft/util/Util.java
++++ b/net/minecraft/util/Util.java
+@@ -270,7 +270,7 @@
+         {
+             try
+             {
+-                Process process = (Process)AccessController.doPrivileged(() ->
++                Process process = (Process)AccessController.doPrivileged((PrivilegedAction) () ->
+                 {
+                     try {
+                         return Runtime.getRuntime().exec(this.getOpenCommandLine(url));

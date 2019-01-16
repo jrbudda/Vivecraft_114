@@ -1,0 +1,12 @@
+diff -r -U 3 minecraft\net\minecraft\world\IWorldReaderBase.java minecraft_patched\net\minecraft\world\IWorldReaderBase.java
+--- minecraft\net\minecraft\world\IWorldReaderBase.java
++++ minecraft_patched\net\minecraft\world\IWorldReaderBase.java
+@@ -125,7 +125,7 @@
+       Predicate<VoxelShape> predicate = (p_502126_1_) -> {
+          return !p_502126_1_.func_197766_b() && ShapeUtils.func_197879_c(p_502120_1_, p_502126_1_, IBooleanFunction.AND);
+       };
+-      Stream<VoxelShape> stream = StreamSupport.<VoxelShape>stream(BlockPos.MutableBlockPos.func_191531_b(i, k, i1, j - 1, l - 1, j1 - 1).spliterator(), false).<VoxelShape>map((p_502125_12_) -> {
++      Stream<VoxelShape> stream = StreamSupport.stream(BlockPos.MutableBlockPos.func_191531_b(i, k, i1, j - 1, l - 1, j1 - 1).spliterator(), false).<VoxelShape>map((p_502125_12_) -> {
+          int k1 = p_502125_12_.func_177958_n();
+          int l1 = p_502125_12_.func_177956_o();
+          int i2 = p_502125_12_.func_177952_p();

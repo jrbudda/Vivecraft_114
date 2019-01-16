@@ -1,0 +1,67 @@
+--- a/net/optifine/shaders/Shaders.java
++++ b/net/optifine/shaders/Shaders.java
+@@ -103,6 +103,7 @@
+ import net.optifine.util.TimedEvent;
+ import org.apache.commons.io.IOUtils;
+ import org.lwjgl.BufferUtils;
++import org.lwjgl.opengl.ARBFragmentShader;
+ import org.lwjgl.opengl.ARBGeometryShader4;
+ import org.lwjgl.opengl.ARBShaderObjects;
+ import org.lwjgl.opengl.ARBVertexShader;
+@@ -799,6 +800,7 @@
+ 
+     public static void loadShaderPack()
+     {
++    	mc = Minecraft.getInstance();
+         boolean flag = shaderPackLoaded;
+         boolean flag1 = isOldLighting();
+         shaderPackLoaded = false;
+@@ -1067,7 +1069,7 @@
+         Set set = props.keySet();
+         List<ICustomTexture> list = new ArrayList<ICustomTexture>();
+ 
+-        for (String s1 : set)
++        for (String s1 : (Set<String>)(Set<?>)set)
+         {
+             if (s1.startsWith(s))
+             {
+@@ -2277,11 +2279,11 @@
+ 
+     private static int getDrawBuffer(Program p, String str, int i)
+     {
+-        int i = 0;
++        int d = 0;
+ 
+         if (i >= str.length())
+         {
+-            return i;
++            return d;
+         }
+         else
+         {
+@@ -4120,13 +4122,13 @@
+     {
+         if (currentWorld != world)
+         {
+-            World world = currentWorld;
++            World oldworld = currentWorld;
+             currentWorld = world;
+             setCameraOffset(mc.getRenderViewEntity());
+ 
+-            if (world != null && world != null)
++            if (oldworld != null && world != null)
+             {
+-                int i = world.dimension.getType().getId();
++                int i = oldworld.dimension.getType().getId();
+                 int j = world.dimension.getType().getId();
+                 boolean flag = shaderPackDimensions.contains(i);
+                 boolean flag1 = shaderPackDimensions.contains(j);
+@@ -5475,7 +5477,7 @@
+                         Lang.loadLocaleData(inputstream, properties);
+                         inputstream.close();
+ 
+-                        for (String s5 : properties.keySet())
++                        for (String s5 : (Set<String>)(Set<?>)properties.keySet())
+                         {
+                             String s6 = properties.getProperty(s5);
+                             shaderPackResources.put(s5, s6);

@@ -1,0 +1,39 @@
+diff -r -U 3 minecraft\net\minecraft\server\integrated\IntegratedServer.java minecraft_patched\net\minecraft\server\integrated\IntegratedServer.java
+--- minecraft\net\minecraft\server\integrated\IntegratedServer.java
++++ minecraft_patched\net\minecraft\server\integrated\IntegratedServer.java
+@@ -58,7 +58,7 @@
+       this.field_71350_m = this.func_71242_L() ? WorldServerDemo.field_73071_a : p_i46523_4_;
+    }
+ 
+-   protected void func_71247_a(String p_71247_1_, String p_71247_2_, long p_71247_3_, WorldType p_71247_5_, JsonElement p_71247_6_) {
++   public void func_71247_a(String p_71247_1_, String p_71247_2_, long p_71247_3_, WorldType p_71247_5_, JsonElement p_71247_6_) {
+       this.func_71237_c(p_71247_1_);
+       this.field_71305_c = new WorldServer[3];
+       this.field_71312_k = new long[this.field_71305_c.length][100];
+@@ -80,7 +80,7 @@
+       this.func_501301_a(worldsaveddatastorage);
+    }
+ 
+-   protected boolean func_71197_b() throws IOException {
++   public boolean func_71197_b() throws IOException {
+       field_147148_h.info("Starting integrated minecraft server version 1.13.2");
+       this.func_71229_d(true);
+       this.func_71251_e(true);
+@@ -94,7 +94,7 @@
+       return true;
+    }
+ 
+-   protected void func_502276_a(BooleanSupplier p_502276_1_) {
++   public void func_502276_a(BooleanSupplier p_502276_1_) {
+       boolean flag = this.field_71348_o;
+       this.field_71348_o = Minecraft.func_71410_x().func_147114_u() != null && Minecraft.func_71410_x().func_147113_T();
+       if (!flag && this.field_71348_o) {
+@@ -201,7 +201,7 @@
+       return false;
+    }
+ 
+-   protected void func_71228_a(CrashReport p_71228_1_) {
++   public void func_71228_a(CrashReport p_71228_1_) {
+       this.field_71349_l.func_71404_a(p_71228_1_);
+    }
+ 

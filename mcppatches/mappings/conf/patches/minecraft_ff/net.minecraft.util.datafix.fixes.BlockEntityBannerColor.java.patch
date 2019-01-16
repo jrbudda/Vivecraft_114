@@ -1,0 +1,21 @@
+diff -r -U 3 minecraft\net\minecraft\util\datafix\fixes\BlockEntityBannerColor.java minecraft_patched\net\minecraft\util\datafix\fixes\BlockEntityBannerColor.java
+--- minecraft\net\minecraft\util\datafix\fixes\BlockEntityBannerColor.java
++++ minecraft_patched\net\minecraft\util\datafix\fixes\BlockEntityBannerColor.java
+@@ -7,6 +7,8 @@
+ import com.mojang.datafixers.schemas.Schema;
+ import java.util.Optional;
+ import java.util.function.Function;
++import java.util.stream.Stream;
++
+ import net.minecraft.util.datafix.TypeReferences;
+ 
+ public class BlockEntityBannerColor extends NamedEntityFix {
+@@ -27,7 +29,7 @@
+             });
+          });
+          p_209641_0_.getClass();
+-         return (Dynamic)DataFixUtils.orElse(optional.map(p_209641_0_::createList), p_209641_0_);
++         return (Dynamic)DataFixUtils.orElse(optional.map((x) -> p_209641_0_.createList((Stream)x)), p_209641_0_);
+       });
+       return p_209643_1_;
+    }

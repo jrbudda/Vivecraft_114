@@ -1,0 +1,215 @@
+--- a/net/minecraft/entity/item/EntityBoat.java
++++ b/net/minecraft/entity/item/EntityBoat.java
+@@ -7,6 +7,8 @@
+ import net.minecraft.block.BlockPlanks;
+ import net.minecraft.block.material.Material;
+ import net.minecraft.block.state.IBlockState;
++import net.minecraft.client.Minecraft;
++import net.minecraft.client.entity.EntityPlayerSP;
+ import net.minecraft.entity.Entity;
+ import net.minecraft.entity.EntityLivingBase;
+ import net.minecraft.entity.MoverType;
+@@ -23,6 +25,7 @@
+ import net.minecraft.network.datasync.DataSerializers;
+ import net.minecraft.network.datasync.EntityDataManager;
+ import net.minecraft.network.play.client.CPacketSteerBoat;
++import net.optifine.reflect.Reflector;
+ import net.minecraft.util.DamageSource;
+ import net.minecraft.util.EntityDamageSourceIndirect;
+ import net.minecraft.util.EntitySelectors;
+@@ -569,7 +572,10 @@
+ 
+                                 if (!list.isEmpty())
+                                 {
+-                                    f += iblockstate.getBlock().slipperiness;
++                                	if (Reflector.forgeExists())
++                                		f += Reflector.callFloat(iblockstate.getBlock(), Reflector.ForgeBlock_getSlipperiness, iblockstate, this.world, blockpos$pooledmutableblockpos, this);
++                                	else 
++                                		f += iblockstate.getBlock().slipperiness;
+                                     ++k1;
+                                 }
+ 
+@@ -704,7 +710,7 @@
+             if (this.status == EntityBoat.Status.IN_WATER)
+             {
+                 d2 = (this.waterLevel - this.getEntityBoundingBox().minY) / (double)this.height;
+-                this.momentum = 0.9F;
++                this.momentum = 0.95F;
+             }
+             else if (this.status == EntityBoat.Status.UNDER_FLOWING_WATER)
+             {
+@@ -732,7 +738,7 @@
+ 
+             this.motionX *= (double)this.momentum;
+             this.motionZ *= (double)this.momentum;
+-            this.deltaRotation *= this.momentum;
++            this.deltaRotation *= this.momentum*this.momentum;
+             this.motionY += d1;
+ 
+             if (d2 > 0.0D)
+@@ -746,42 +752,108 @@
+     }
+ 
+     private void controlBoat()
+-    {
+-        if (this.isBeingRidden())
+-        {
+-            float f = 0.0F;
+-
+-            if (this.leftInputDown)
+-            {
+-                this.deltaRotation += -1.0F;
+-            }
+-
+-            if (this.rightInputDown)
+-            {
+-                ++this.deltaRotation;
+-            }
+-
+-            if (this.rightInputDown != this.leftInputDown && !this.forwardInputDown && !this.backInputDown)
+-            {
+-                f += 0.005F;
+-            }
+-
+-            this.rotationYaw += this.deltaRotation;
+-
+-            if (this.forwardInputDown)
+-            {
+-                f += 0.04F;
+-            }
+-
+-            if (this.backInputDown)
+-            {
+-                f -= 0.005F;
+-            }
+-
+-            this.motionX += (double)(MathHelper.sin(-this.rotationYaw * 0.017453292F) * f);
+-            this.motionZ += (double)(MathHelper.cos(this.rotationYaw * 0.017453292F) * f);
+-            this.setPaddleState(this.rightInputDown && !this.leftInputDown || this.forwardInputDown, this.leftInputDown && !this.rightInputDown || this.forwardInputDown);
+-        }
++    { //client only
++    	if (this.isBeingRidden())
++    	{
++    		float f = 0.0F;
++
++    		if (this.leftInputDown)
++    		{
++    			this.deltaRotation += -1.0F;
++    		}
++
++    		if (this.rightInputDown)
++    		{
++    			++this.deltaRotation;
++    		}
++
++    		if (this.rightInputDown != this.leftInputDown && !this.forwardInputDown && !this.backInputDown)
++    		{
++    			f += 0.005F;
++    		}
++
++    		this.rotationYaw += this.deltaRotation;
++
++    		if (this.forwardInputDown)
++    		{
++    			f += 0.04F;
++    		}
++
++    		if (this.backInputDown)
++    		{
++    			f -= 0.005F;
++    		}
++
++    		Minecraft mc = Minecraft.getMinecraft();
++
++    		if(this.forwardInputDown && !mc.vrSettings.seated){
++    			//controller-based
++    			float yaw = Minecraft.getMinecraft().vrPlayer.vrdata_world_pre.getController(1).getYaw();          
++    			if(mc.vrSettings.vehicleRotation){
++    				//tank controls
++    				float end = this.rotationYaw % 360;
++    				float start = yaw;
++    				float difference = Math.abs(end - start);
++
++    				if (difference > 180)
++    					if (end > start)
++    						start += 360;
++    					else
++    						end += 360;
++
++    				difference = end - start;
++    				
++    				f = 0;
++    				
++    				if (Math.abs(difference) < 30){
++    					f = 0.04f;
++    				} 
++    				else if (Math.abs(difference) > 150) {
++    					f = -0.005F;
++    				}
++    				else if(difference < 0){
++    					this.deltaRotation +=1;
++    					f = 0.005f;
++    				} else if(difference > 0) {
++    					this.deltaRotation -=1;
++    					f = 0.005f;
++    				}
++
++    				f*=0.5;
++
++    				this.motionX += (double)(MathHelper.sin(-this.rotationYaw* 0.017453292F) * f);
++    				this.motionZ += (double)(MathHelper.cos(this.rotationYaw * 0.017453292F) * f);
++    			} else {
++    				//point to move
++    				this.motionX += (double)(MathHelper.sin(-yaw* 0.017453292F) * f);
++    				this.motionZ += (double)(MathHelper.cos(yaw * 0.017453292F) * f);
++    				this.rotationYaw =yaw;
++    			}
++
++    		} else {
++    			//roomscale or vanilla behavior
++    			if(mc.rowTracker.isRowing()){
++    				this.deltaRotation += mc.rowTracker.forces[0] *50;
++    				this.deltaRotation -= mc.rowTracker.forces[1] *50;
++    				
++    				if (deltaRotation < 0) this.leftInputDown = true;
++    				if (deltaRotation > 0) this.rightInputDown = true;
++
++
++				    f=(float)(mc.rowTracker.forces[0] + mc.rowTracker.forces[1]);
++    				if(f > 0.005) this.forwardInputDown = true;
++
++
++    				this.motionX += (double)(MathHelper.sin(-this.rotationYaw * 0.017453292F) * f);
++    				this.motionZ += (double)(MathHelper.cos(this.rotationYaw * 0.017453292F) * f);
++    			}else{
++    				//default boat (seated mode)
++    				this.motionX += (double)(MathHelper.sin(-this.rotationYaw * 0.017453292F) * f);
++    				this.motionZ += (double)(MathHelper.cos(this.rotationYaw * 0.017453292F) * f);            	
++    			}
++    		}
++    		this.setPaddleState(this.rightInputDown && !this.leftInputDown || this.forwardInputDown, this.leftInputDown && !this.rightInputDown || this.forwardInputDown);
++    	}
+     }
+ 
+     public void updatePassenger(Entity passenger)
+@@ -1081,4 +1153,20 @@
+             return values()[0];
+         }
+     }
++
++    // Forge: Fix MC-119811 by instantly completing lerp on board
++    @Override
++    protected void addPassenger(Entity passenger)
++    {
++        super.addPassenger(passenger);
++        if(this.canPassengerSteer() && this.lerpSteps > 0)
++        {
++            this.lerpSteps = 0;
++            this.posX = this.lerpX;
++            this.posY = this.lerpY;
++            this.posZ = this.lerpZ;
++            this.rotationYaw = (float)this.lerpYaw;
++            this.rotationPitch = (float)this.lerpPitch;
++        }
++    }
+ }

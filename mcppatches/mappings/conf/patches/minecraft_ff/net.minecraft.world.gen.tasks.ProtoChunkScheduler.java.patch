@@ -1,0 +1,45 @@
+diff -r -U 3 minecraft\net\minecraft\world\gen\tasks\ProtoChunkScheduler.java minecraft_patched\net\minecraft\world\gen\tasks\ProtoChunkScheduler.java
+--- minecraft\net\minecraft\world\gen\tasks\ProtoChunkScheduler.java
++++ minecraft_patched\net\minecraft\world\gen\tasks\ProtoChunkScheduler.java
+@@ -30,8 +30,8 @@
+    private final IChunkGenerator<?> field_202875_d;
+    private final IChunkLoader field_202876_e;
+    private final IThreadListener field_202877_f;
+-   private final Long2ObjectMap<Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.acu$a> field_202878_g = new ExpiringMap<Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.acu$a>(8192, 5000) {
+-      protected boolean func_205609_a_(Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.acu$a p_205609_1_) {
++   private final Long2ObjectMap<Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.FutureWrapper> field_202878_g = new ExpiringMap<Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.FutureWrapper>(8192, 5000) {
++      protected boolean func_205609_a_(Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.FutureWrapper p_205609_1_) {
+          ChunkPrimer chunkprimer = (ChunkPrimer)p_205609_1_.func_202917_a();
+          return !chunkprimer.func_205748_B() && !chunkprimer.func_201593_f();
+       }
+@@ -50,7 +50,7 @@
+    }
+ 
+    @Nullable
+-   protected Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.acu$a func_501978_a(ChunkPos p_501978_1_, boolean p_501978_2_) {
++   protected Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.FutureWrapper func_501978_a(ChunkPos p_501978_1_, boolean p_501978_2_) {
+       synchronized(this.field_202876_e) {
+          return p_501978_2_ ? (Scheduler.FutureWrapper)this.field_202878_g.computeIfAbsent(p_501978_1_.func_201841_a(), (p_502054_2_) -> {
+             ChunkPrimer chunkprimer;
+@@ -78,18 +78,18 @@
+       return p_201493_2_.func_202126_a(this.field_202874_c, this.field_202875_d, p_201493_3_, p_201493_1_.field_77276_a, p_201493_1_.field_77275_b);
+    }
+ 
+-   protected Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.acu$a func_205606_a_(ChunkPos p_205606_1_, Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.acu$a p_205606_2_) {
++   protected Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.FutureWrapper func_205606_a_(ChunkPos p_205606_1_, Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.FutureWrapper p_205606_2_) {
+       ((ChunkPrimer)p_205606_2_.func_202917_a()).func_205747_a(1);
+       return p_205606_2_;
+    }
+ 
+-   protected void func_205607_b_(ChunkPos p_205607_1_, Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.acu$a p_205607_2_) {
++   protected void func_205607_b_(ChunkPos p_205607_1_, Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.FutureWrapper p_205607_2_) {
+       ((ChunkPrimer)p_205607_2_.func_202917_a()).func_205747_a(-1);
+    }
+ 
+    public void func_502053_a(BooleanSupplier p_502053_1_) {
+       synchronized(this.field_202876_e) {
+-         for(Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.a scheduler : this.field_202878_g.values()) {
++         for(Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.FutureWrapper scheduler : this.field_202878_g.values()) {
+             ChunkPrimer chunkprimer = (ChunkPrimer)scheduler.func_202917_a();
+             if (chunkprimer.func_201593_f() && chunkprimer.func_201589_g().func_202129_d() == ChunkStatus.Type.PROTOCHUNK) {
+                try {

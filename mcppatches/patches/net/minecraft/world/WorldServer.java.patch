@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/WorldServer.java
++++ b/net/minecraft/world/WorldServer.java
+@@ -124,7 +124,7 @@
+         super(p_i40_2_, p_i40_3_, p_i40_4_, p_i40_5_.create(), p_i40_6_, false);
+         Predicate predicate = (p_205341_0_) ->
+         {
+-            return p_205341_0_ == null || p_205341_0_.getDefaultState().isAir();
++            return p_205341_0_ == null || ((Block) p_205341_0_).getDefaultState().isAir();
+         };
+         IRegistry iregistry1 = IRegistry.BLOCK;
+         IRegistry.BLOCK.getClass();

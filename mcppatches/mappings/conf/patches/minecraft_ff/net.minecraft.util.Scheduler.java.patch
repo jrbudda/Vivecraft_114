@@ -1,0 +1,50 @@
+diff -r -U 3 minecraft\net\minecraft\util\Scheduler.java minecraft_patched\net\minecraft\util\Scheduler.java
+--- minecraft\net\minecraft\util\Scheduler.java
++++ minecraft_patched\net\minecraft\util\Scheduler.java
+@@ -32,8 +32,8 @@
+    private final ExecutorService field_202857_c;
+    private final AtomicInteger field_202858_d = new AtomicInteger(1);
+    private final List<CompletableFuture<R>> field_202859_e = Lists.<CompletableFuture<R>>newArrayList();
+-   private CompletableFuture<R> field_202860_f = CompletableFuture.<R>completedFuture((Object)null);
+-   private CompletableFuture<R> field_202861_g = CompletableFuture.<R>completedFuture((Object)null);
++   private CompletableFuture<R> field_202860_f = CompletableFuture.<R>completedFuture(null);
++   private CompletableFuture<R> field_202861_g = CompletableFuture.<R>completedFuture(null);
+    private final Supplier<Map<T, CompletableFuture<R>>> field_202862_h;
+    private final Supplier<Map<T, CompletableFuture<Void>>> field_202863_i;
+    private final T field_202864_j;
+@@ -54,7 +54,7 @@
+          this.field_202857_c = new ForkJoinPool(p_i48724_2_ - 1, (p_202853_2_) -> {
+             return new ForkJoinWorkerThread(p_202853_2_) {
+                {
+-                  this.setName(p_202853_1_ + "-Worker-" + Scheduler.this.field_202858_d.getAndIncrement());
++                  this.setName(p_i48724_1_ + "-Worker-" + Scheduler.this.field_202858_d.getAndIncrement());
+                }
+             };
+          }, (p_202848_0_, p_202848_1_) -> {
+@@ -88,12 +88,12 @@
+       return completablefuture1;
+    }
+ 
+-   protected Scheduler<K, T, R>.acu$a func_201494_a_(K p_201494_1_) {
++   protected Scheduler<K, T, R>.FutureWrapper func_201494_a_(K p_201494_1_) {
+       return this.func_501978_a(p_201494_1_, true);
+    }
+ 
+    @Nullable
+-   protected abstract Scheduler<K, T, R>.acu$a func_501978_a(K p_501978_1_, boolean p_501978_2_);
++   protected abstract Scheduler<K, T, R>.FutureWrapper func_501978_a(K p_501978_1_, boolean p_501978_2_);
+ 
+    public void func_202854_b() throws InterruptedException {
+       this.field_202855_a.shutdown();
+@@ -117,9 +117,9 @@
+       });
+    }
+ 
+-   protected abstract void func_205607_b_(K var1, Scheduler<K, T, R>.acu$a var2);
++   protected abstract void func_205607_b_(K var1, Scheduler<K, T, R>.FutureWrapper var2);
+ 
+-   protected abstract Scheduler<K, T, R>.acu$a func_205606_a_(K var1, Scheduler<K, T, R>.acu$a var2);
++   protected abstract Scheduler<K, T, R>.FutureWrapper func_205606_a_(K var1, Scheduler<K, T, R>.FutureWrapper var2);
+ 
+    public final class FutureWrapper {
+       private final Map<T, CompletableFuture<R>> field_202920_b;

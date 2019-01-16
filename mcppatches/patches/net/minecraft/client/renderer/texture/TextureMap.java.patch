@@ -1,0 +1,42 @@
+--- a/net/minecraft/client/renderer/texture/TextureMap.java
++++ b/net/minecraft/client/renderer/texture/TextureMap.java
+@@ -113,8 +113,8 @@
+         ConnectedTextures.updateIcons(this);
+         CustomItems.updateIcons(this);
+         BetterGrass.updateIcons(this);
+-        int l = TextureUtils.getGLMaximumTextureSize();
+-        Stitcher stitcher = new Stitcher(l, l, 0, this.mipmapLevels);
++        int li = TextureUtils.getGLMaximumTextureSize();
++        Stitcher stitcher = new Stitcher(li, li, 0, this.mipmapLevels);
+         this.clear();
+         int i = Integer.MAX_VALUE;
+         int j = this.getMinSpriteSize();
+@@ -249,7 +249,7 @@
+ 
+                     if (Config.isShaders())
+                     {
+-                        List list = stitcher.getStichSlots();
++                        List<TextureAtlasSprite> list = stitcher.getStichSlots();
+ 
+                         if (Shaders.configNormalMap)
+                         {
+@@ -789,7 +789,7 @@
+ 
+     private int detectMinimumSpriteSize(Set<ResourceLocation> p_detectMinimumSpriteSize_1_, IResourceManager p_detectMinimumSpriteSize_2_, int p_detectMinimumSpriteSize_3_)
+     {
+-        Map map = new HashMap();
++        Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+ 
+         for (ResourceLocation resourcelocation : p_detectMinimumSpriteSize_1_)
+         {
+@@ -832,8 +832,8 @@
+         }
+ 
+         int l = 0;
+-        Set set = map.keySet();
+-        Set set1 = new TreeSet(set);
++        Set<Integer> set = map.keySet();
++        Set<Integer> set1 = new TreeSet(set);
+ 
+         for (int j1 : set1)
+         {

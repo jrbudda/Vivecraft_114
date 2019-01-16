@@ -1,0 +1,21 @@
+--- a/./Start.java
++++ b/./Start.java
+@@ -6,6 +6,8 @@
+ import java.net.URL;
+ import java.util.ArrayList;
+ import java.util.Arrays;
++import java.util.Random;
++import java.util.UUID;
+ 
+ import joptsimple.ArgumentAcceptingOptionSpec;
+ import joptsimple.OptionParser;
+@@ -19,7 +21,8 @@
+ {
+     public static void main(String[] args) throws Exception
+     {
+-        args = concat(new String[] {"--version", "mcp", "--accessToken", "0", "--assetsDir", "assets", "--assetIndex", "1.12.2", "--userProperties", "{}"}, args);
++    	Random r = new Random();
++        args = concat(new String[] {"--version", "mcp", "--accessToken", "0", "--assetsDir", "assets", "--assetIndex", "1.12.2", "--userProperties", "{}","--uuid",new UUID(r.nextLong(), r.nextLong()).toString()}, args);
+         OptionParser optionParser = new OptionParser();
+         optionParser.allowsUnrecognizedOptions();
+         ArgumentAcceptingOptionSpec username = optionParser.accepts("username").withRequiredArg();

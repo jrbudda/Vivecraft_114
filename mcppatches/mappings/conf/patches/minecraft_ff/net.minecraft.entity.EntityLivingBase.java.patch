@@ -1,0 +1,12 @@
+diff -r -U 3 minecraft\net\minecraft\entity\EntityLivingBase.java minecraft_patched\net\minecraft\entity\EntityLivingBase.java
+--- minecraft\net\minecraft\entity\EntityLivingBase.java
++++ minecraft_patched\net\minecraft\entity\EntityLivingBase.java
+@@ -2149,7 +2149,7 @@
+    }
+ 
+    protected void func_204802_c(int p_204802_1_, boolean p_204802_2_) {
+-      int i = this.field_70180_af.func_187225_a(field_184621_as);
++      int i = (int)this.field_70180_af.func_187225_a(field_184621_as);
+       if (p_204802_2_) {
+          i = i | p_204802_1_;
+       } else {

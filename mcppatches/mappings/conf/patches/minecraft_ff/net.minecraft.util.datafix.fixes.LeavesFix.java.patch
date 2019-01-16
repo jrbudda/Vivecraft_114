@@ -1,0 +1,30 @@
+diff -r -U 3 minecraft\net\minecraft\util\datafix\fixes\LeavesFix.java minecraft_patched\net\minecraft\util\datafix\fixes\LeavesFix.java
+--- minecraft\net\minecraft\util\datafix\fixes\LeavesFix.java
++++ minecraft_patched\net\minecraft\util\datafix\fixes\LeavesFix.java
+@@ -62,7 +62,7 @@
+       if (!(type1 instanceof ListType)) {
+          throw new IllegalStateException("Expecting sections to be a list.");
+       } else {
+-         Type<?> type2 = (type1).getElement();
++         Type<?> type2 = ((com.mojang.datafixers.types.templates.List.ListType)type1).getElement();
+          OpticFinder<?> opticfinder2 = DSL.typeFinder(type2);
+          return this.fixTypeEverywhereTyped("Leaves fix", type, (p_208422_4_) -> {
+             return p_208422_4_.updateTyped(opticfinder, (p_208420_3_) -> {
+@@ -295,7 +295,7 @@
+             throw new IllegalStateException("Block state type is not what was expected.");
+          } else {
+             Optional<List<Pair<String, Dynamic<?>>>> optional = p_i32_1_.<List<Pair<String, Dynamic<?>>>>getOptional(this.b);
+-            this.c = (List)optional.<Dynamic<?>>map((p_a_0_) -> {
++            this.c = (List)optional.map((p_a_0_) -> {
+                return (List)p_a_0_.stream().map(Pair::getSecond).collect(Collectors.toList());
+             }).orElse(ImmutableList.of());
+             Dynamic<?> dynamic = (Dynamic)p_i32_1_.get(DSL.remainderFinder());
+@@ -318,7 +318,7 @@
+       public Typed<?> a(Typed<?> p_a_1_) {
+          return this.b() ? p_a_1_ : p_a_1_.update(DSL.remainderFinder(), (p_c_1_) -> {
+             return p_c_1_.set("BlockStates", p_c_1_.createLongList(Arrays.stream(this.e.func_188143_a())));
+-         }).set(this.b, this.c.stream().map((p_b_0_) -> {
++         }).set((OpticFinder)this.b, this.c.stream().map((p_b_0_) -> {
+             return Pair.of(TypeReferences.field_211296_l.typeName(), p_b_0_);
+          }).collect(Collectors.toList()));
+       }

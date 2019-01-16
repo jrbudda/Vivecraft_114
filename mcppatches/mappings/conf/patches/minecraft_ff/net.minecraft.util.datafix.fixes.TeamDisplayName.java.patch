@@ -1,0 +1,12 @@
+diff -r -U 3 minecraft\net\minecraft\util\datafix\fixes\TeamDisplayName.java minecraft_patched\net\minecraft\util\datafix\fixes\TeamDisplayName.java
+--- minecraft\net\minecraft\util\datafix\fixes\TeamDisplayName.java
++++ minecraft_patched\net\minecraft\util\datafix\fixes\TeamDisplayName.java
+@@ -33,7 +33,7 @@
+                         return ITextComponent.Serializer.func_150696_a(new TextComponentString(p_211879_0_));
+                      });
+                      p_211875_0_.getClass();
+-                     return (Dynamic)DataFixUtils.orElse(optional.map(p_211875_0_::createString), p_211878_1_);
++                     return (Dynamic)DataFixUtils.orElse(optional.map((x)->p_211875_0_.createString((String)x)), p_211878_1_);
+                   });
+                });
+             };

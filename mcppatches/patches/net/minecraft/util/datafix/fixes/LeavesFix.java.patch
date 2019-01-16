@@ -1,0 +1,11 @@
+--- a/net/minecraft/util/datafix/fixes/LeavesFix.java
++++ b/net/minecraft/util/datafix/fixes/LeavesFix.java
+@@ -378,7 +378,7 @@
+             else
+             {
+                 Optional < List < Pair < String, Dynamic<? >>> > optional = p_i35_1_. < List < Pair < String, Dynamic<? >>> > getOptional(this.b);
+-                this.c = (List)optional. < Dynamic<? >> map((p_a_0_) ->
++                this.c = (List)optional.map((p_a_0_) ->
+                 {
+                     return (List)p_a_0_.stream().map(Pair::getSecond).collect(Collectors.toList());
+                 }).orElse(ImmutableList.of());

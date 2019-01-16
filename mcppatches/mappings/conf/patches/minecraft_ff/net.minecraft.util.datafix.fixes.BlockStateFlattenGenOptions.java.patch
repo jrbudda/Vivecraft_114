@@ -1,0 +1,12 @@
+diff -r -U 3 minecraft\net\minecraft\util\datafix\fixes\BlockStateFlattenGenOptions.java minecraft_patched\net\minecraft\util\datafix\fixes\BlockStateFlattenGenOptions.java
+--- minecraft\net\minecraft\util\datafix\fixes\BlockStateFlattenGenOptions.java
++++ minecraft_patched\net\minecraft\util\datafix\fixes\BlockStateFlattenGenOptions.java
+@@ -38,7 +38,7 @@
+       return p_209636_1_.getString("generatorName").equalsIgnoreCase("flat") ? p_209636_1_.update("generatorOptions", (p_209634_1_) -> {
+          Optional optional = p_209634_1_.getStringValue().map(this::func_199180_a);
+          p_209634_1_.getClass();
+-         return (Dynamic)DataFixUtils.orElse(optional.map(p_209634_1_::createString), p_209634_1_);
++         return (Dynamic)DataFixUtils.orElse(optional.map((x)->p_209634_1_.createString((String)x)), p_209634_1_);
+       }) : p_209636_1_;
+    }
+ 

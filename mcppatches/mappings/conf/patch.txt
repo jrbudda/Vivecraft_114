@@ -1,0 +1,2389 @@
+diff U3 net/minecraft/advancements/AdvancementManager.java net/minecraft/advancements/AdvancementManager.java
+--- net/minecraft/advancements/AdvancementManager.java
++++ net/minecraft/advancements/AdvancementManager.java
+@@ -27,7 +27,7 @@
+ public class AdvancementManager implements IResourceManagerReloadListener
+ {
+     private static final Logger LOGGER = LogManager.getLogger();
+-    private static final Gson GSON = (new GsonBuilder()).registerTypeHierarchyAdapter(Advancement.Builder.class, (p_210124_0_, p_210124_1_, p_210124_2_) ->
++    private static final Gson GSON = (new GsonBuilder()).registerTypeHierarchyAdapter(Advancement.Builder.class, (JsonDeserializer)(p_210124_0_, p_210124_1_, p_210124_2_) ->
+     {
+         JsonObject jsonobject = JsonUtils.getJsonObject(p_210124_0_, "advancement");
+         return Advancement.Builder.deserialize(jsonobject, p_210124_2_);
+diff U3 net/minecraft/advancements/CriteriaTriggers.java net/minecraft/advancements/CriteriaTriggers.java
+--- net/minecraft/advancements/CriteriaTriggers.java
++++ net/minecraft/advancements/CriteriaTriggers.java
+@@ -85,7 +85,7 @@
+     @Nullable
+     public static <T extends ICriterionInstance> ICriterionTrigger<T> get(ResourceLocation id)
+     {
+-        return REGISTRY.get(id);
++        return (ICriterionTrigger<T>) REGISTRY.get(id);
+     }
+ 
+     public static Iterable <? extends ICriterionTrigger<? >> getAll()
+diff U3 net/minecraft/advancements/PlayerAdvancements.java net/minecraft/advancements/PlayerAdvancements.java
+--- net/minecraft/advancements/PlayerAdvancements.java
++++ net/minecraft/advancements/PlayerAdvancements.java
+@@ -156,7 +156,7 @@
+ 
+                     Stream<Entry<ResourceLocation, AdvancementProgress>> stream = map.entrySet().stream().sorted(Comparator.comparing(Entry::getValue));
+ 
+-                    for (Entry<ResourceLocation, AdvancementProgress> entry : (List)stream.collect(Collectors.toList()))
++                    for (Entry<ResourceLocation, AdvancementProgress> entry : stream.collect(Collectors.toList()))
+                     {
+                         Advancement advancement = this.server.getAdvancementManager().getAdvancement(entry.getKey());
+ 
+diff U3 net/minecraft/advancements/criterion/MinMaxBounds.java net/minecraft/advancements/criterion/MinMaxBounds.java
+--- net/minecraft/advancements/criterion/MinMaxBounds.java
++++ net/minecraft/advancements/criterion/MinMaxBounds.java
+@@ -86,8 +86,8 @@
+             else
+             {
+                 JsonObject jsonobject = JsonUtils.getJsonObject(p_211331_0_, "value");
+-                T t = jsonobject.has("min") ? (Number)p_211331_2_.apply(jsonobject.get("min"), "min") : null;
+-                T t1 = jsonobject.has("max") ? (Number)p_211331_2_.apply(jsonobject.get("max"), "max") : null;
++                T t = jsonobject.has("min") ? p_211331_2_.apply(jsonobject.get("min"), "min") : null;
++                T t1 = jsonobject.has("max") ? p_211331_2_.apply(jsonobject.get("max"), "max") : null;
+                 return p_211331_3_.create(t, t1);
+             }
+         }
+@@ -276,11 +276,9 @@
+ 
+         public static MinMaxBounds.FloatBound func_211353_a(StringReader p_211353_0_, Function<Float, Float> p_211353_1_) throws CommandSyntaxException
+         {
+-            MinMaxBounds.IBoundReader minmaxbounds$iboundreader = MinMaxBounds.FloatBound::func_211352_a;
+-            Function function = Float::parseFloat;
+             BuiltInExceptionProvider builtinexceptionprovider = CommandSyntaxException.BUILT_IN_EXCEPTIONS;
+             CommandSyntaxException.BUILT_IN_EXCEPTIONS.getClass();
+-            return (MinMaxBounds.FloatBound)func_211337_a(p_211353_0_, minmaxbounds$iboundreader, function, builtinexceptionprovider::readerInvalidFloat, p_211353_1_);
++            return (MinMaxBounds.FloatBound)func_211337_a(p_211353_0_, MinMaxBounds.FloatBound::func_211352_a, Float::parseFloat, builtinexceptionprovider::readerInvalidFloat, p_211353_1_);
+         }
+     }
+ 
+@@ -364,11 +362,9 @@
+ 
+         public static MinMaxBounds.IntBound func_211341_a(StringReader p_211341_0_, Function<Integer, Integer> p_211341_1_) throws CommandSyntaxException
+         {
+-            MinMaxBounds.IBoundReader minmaxbounds$iboundreader = MinMaxBounds.IntBound::func_211338_a;
+-            Function function = Integer::parseInt;
+             BuiltInExceptionProvider builtinexceptionprovider = CommandSyntaxException.BUILT_IN_EXCEPTIONS;
+             CommandSyntaxException.BUILT_IN_EXCEPTIONS.getClass();
+-            return (MinMaxBounds.IntBound)func_211337_a(p_211341_0_, minmaxbounds$iboundreader, function, builtinexceptionprovider::readerInvalidInt, p_211341_1_);
++            return (MinMaxBounds.IntBound)func_211337_a(p_211341_0_, MinMaxBounds.IntBound::func_211338_a, Integer::parseInt, builtinexceptionprovider::readerInvalidInt, p_211341_1_);
+         }
+     }
+ }
+diff U3 net/minecraft/client/Minecraft.java net/minecraft/client/Minecraft.java
+--- net/minecraft/client/Minecraft.java
++++ net/minecraft/client/Minecraft.java
+@@ -463,6 +463,7 @@
+ 
+                     this.displayCrashReport(this.crashReporter);
+                 }
++            }
+                 catch (ReportedException reportedexception)
+                 {
+                     this.addGraphicsAndWorldToCrashReport(reportedexception.getCrashReport());
+diff U3 net/minecraft/client/MouseHelper.java net/minecraft/client/MouseHelper.java
+--- net/minecraft/client/MouseHelper.java
++++ net/minecraft/client/MouseHelper.java
+@@ -94,18 +94,19 @@
+                 double d0 = this.field_198040_e * (double)this.field_198036_a.mainWindow.getWidthScaled() / (double)this.field_198036_a.mainWindow.func_198105_m();
+                 double d1 = this.field_198041_f * (double)this.field_198036_a.mainWindow.getHeightScaled() / (double)this.field_198036_a.mainWindow.func_198083_n();
+ 
++                int p3f = p_198023_3_;
+                 if (flag)
+                 {
+                     GuiScreen.func_195121_a(() ->
+                     {
+-                        aboolean[0] = this.field_198036_a.currentScreen.mouseClicked(d0, d1, p_198023_3_);
++                        aboolean[0] = this.field_198036_a.currentScreen.mouseClicked(d0, d1, p3f);
+                     }, "mouseClicked event handler", this.field_198036_a.currentScreen.getClass().getCanonicalName());
+                 }
+                 else
+                 {
+                     GuiScreen.func_195121_a(() ->
+                     {
+-                        aboolean[0] = this.field_198036_a.currentScreen.mouseReleased(d0, d1, p_198023_3_);
++                        aboolean[0] = this.field_198036_a.currentScreen.mouseReleased(d0, d1, p3f);
+                     }, "mouseReleased event handler", this.field_198036_a.currentScreen.getClass().getCanonicalName());
+                 }
+             }
+diff U3 net/minecraft/client/audio/SoundManager.java net/minecraft/client/audio/SoundManager.java
+--- net/minecraft/client/audio/SoundManager.java
++++ net/minecraft/client/audio/SoundManager.java
+@@ -59,7 +59,7 @@
+ 
+     /** A counter for how long the sound manager has been running */
+     private int playTime;
+-    private final Map<String, ISound> playingSounds = HashBiMap.<String, ISound>create();
++    private final HashBiMap<String, ISound> playingSounds = HashBiMap.<String, ISound>create();
+     private final Map<ISound, String> invPlayingSounds;
+     private final Multimap<SoundCategory, String> categorySounds;
+     private final List<ITickableSound> tickableSounds;
+diff U3 net/minecraft/client/gui/GuiEventHandler.java net/minecraft/client/gui/GuiEventHandler.java
+--- net/minecraft/client/gui/GuiEventHandler.java
++++ net/minecraft/client/gui/GuiEventHandler.java
+@@ -56,7 +56,7 @@
+ 
+     public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_)
+     {
+-        return super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
++        return IGuiEventListenerDeferred.super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
+     }
+ 
+     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY)
+@@ -67,7 +67,7 @@
+     public boolean mouseReleased(double mouseX, double mouseY, int button)
+     {
+         this.func_195072_d(false);
+-        return super.mouseReleased(mouseX, mouseY, button);
++        return IGuiEventListenerDeferred.super.mouseReleased(mouseX, mouseY, button);
+     }
+ 
+     public void func_205725_b(@Nullable IGuiEventListener p_205725_1_)
+diff U3 net/minecraft/client/gui/GuiLabel.java net/minecraft/client/gui/GuiLabel.java
+--- net/minecraft/client/gui/GuiLabel.java
++++ net/minecraft/client/gui/GuiLabel.java
+@@ -9,15 +9,15 @@
+     protected int height;
+     public int x;
+     public int y;
+-    private final List<String> labels;
++    private List<String> labels;
+     private boolean centered;
+     public boolean visible;
+     private boolean labelBgEnabled;
+-    private final int textColor;
++    private int textColor;
+     private int backColor;
+     private int ulColor;
+     private int brColor;
+-    private final FontRenderer fontRenderer;
++    private FontRenderer fontRenderer;
+     private int border;
+ 
+     public void func_194997_a(int p_194997_1_, int p_194997_2_, float p_194997_3_)
+diff U3 net/minecraft/client/gui/GuiScreenRealmsProxy.java net/minecraft/client/gui/GuiScreenRealmsProxy.java
+--- net/minecraft/client/gui/GuiScreenRealmsProxy.java
++++ net/minecraft/client/gui/GuiScreenRealmsProxy.java
+@@ -226,7 +226,7 @@
+ 
+     public boolean mouseClicked(double x, double y, int button)
+     {
+-        return this.proxy.mouseClicked(x, y, button) ? true : func_205730_a(this, x, y, button);
++        return this.proxy.mouseClicked(x, y, button) ? true : super.mouseClicked(x, y, button);
+     }
+ 
+     public boolean mouseReleased(double p_mouseReleased_1_, double p_mouseReleased_3_, int p_mouseReleased_5_)
+diff U3 net/minecraft/client/gui/RealmsClickableScrolledSelectionListProxy.java net/minecraft/client/gui/RealmsClickableScrolledSelectionListProxy.java
+--- net/minecraft/client/gui/RealmsClickableScrolledSelectionListProxy.java
++++ net/minecraft/client/gui/RealmsClickableScrolledSelectionListProxy.java
+@@ -67,7 +67,7 @@
+ 
+     public boolean mouseClicked(double x, double y, int button)
+     {
+-        return this.field_207723_v.mouseClicked(x, y, button) ? true : func_207715_a(this, x, y, button);
++        return this.field_207723_v.mouseClicked(x, y, button) ? true : super.mouseClicked(x, y, button);
+     }
+ 
+     public boolean mouseReleased(double p_mouseReleased_1_, double p_mouseReleased_3_, int p_mouseReleased_5_)
+diff U3 net/minecraft/client/gui/achievement/GuiStats.java net/minecraft/client/gui/achievement/GuiStats.java
+--- net/minecraft/client/gui/achievement/GuiStats.java
++++ net/minecraft/client/gui/achievement/GuiStats.java
+@@ -120,7 +120,7 @@
+             guibutton1.enabled = false;
+         }
+ 
+-        this.field_195124_j.add(() ->
++        this.field_195124_j.add((IGuiEventListenerDeferred)() ->
+         {
+             return this.displaySlot;
+         });
+@@ -539,13 +539,13 @@
+                 }
+                 else if (StatsItem.this.field_195113_v.contains(StatsItem.this.field_195110_A))
+                 {
+-                    StatType<Block> stattype = StatsItem.this.field_195110_A;
++                    StatType stattype = field_195110_A;
+                     i = p_compare_1_ instanceof ItemBlock ? GuiStats.this.stats.func_199060_a(stattype, ((ItemBlock)p_compare_1_).getBlock()) : -1;
+                     j = p_compare_2_ instanceof ItemBlock ? GuiStats.this.stats.func_199060_a(stattype, ((ItemBlock)p_compare_2_).getBlock()) : -1;
+                 }
+                 else
+                 {
+-                    StatType<Item> stattype1 = StatsItem.this.field_195110_A;
++                    StatType stattype1 = field_195110_A;
+                     i = GuiStats.this.stats.func_199060_a(stattype1, p_compare_1_);
+                     j = GuiStats.this.stats.func_199060_a(stattype1, p_compare_2_);
+                 }
+diff U3 net/minecraft/client/gui/fonts/providers/TextureGlyphProvider.java net/minecraft/client/gui/fonts/providers/TextureGlyphProvider.java
+--- net/minecraft/client/gui/fonts/providers/TextureGlyphProvider.java
++++ net/minecraft/client/gui/fonts/providers/TextureGlyphProvider.java
+@@ -239,7 +239,7 @@
+ 
+         public float func_211575_m()
+         {
+-            return super.func_211575_m() + 7.0F - (float)this.field_211589_h;
++            return IGlyphInfo.super.func_211575_m() + 7.0F - (float)this.field_211589_h;
+         }
+ 
+         public void func_211573_a(int p_211573_1_, int p_211573_2_)
+diff U3 net/minecraft/client/gui/recipebook/GuiRecipeBook.java net/minecraft/client/gui/recipebook/GuiRecipeBook.java
+--- net/minecraft/client/gui/recipebook/GuiRecipeBook.java
++++ net/minecraft/client/gui/recipebook/GuiRecipeBook.java
+@@ -469,7 +469,7 @@
+     public boolean keyReleased(int p_keyReleased_1_, int p_keyReleased_2_, int p_keyReleased_3_)
+     {
+         this.field_199738_u = false;
+-        return super.keyReleased(p_keyReleased_1_, p_keyReleased_2_, p_keyReleased_3_);
++        return IGuiEventListener.super.keyReleased(p_keyReleased_1_, p_keyReleased_2_, p_keyReleased_3_);
+     }
+ 
+     public boolean charTyped(char p_charTyped_1_, int p_charTyped_2_)
+@@ -487,7 +487,7 @@
+             }
+             else
+             {
+-                return super.charTyped(p_charTyped_1_, p_charTyped_2_);
++                return IGuiEventListener.super.charTyped(p_charTyped_1_, p_charTyped_2_);
+             }
+         }
+         else
+diff U3 net/minecraft/client/particle/ParticleManager.java net/minecraft/client/particle/ParticleManager.java
+--- net/minecraft/client/particle/ParticleManager.java
++++ net/minecraft/client/particle/ParticleManager.java
+@@ -157,7 +157,7 @@
+     @Nullable
+     private <T extends IParticleData> Particle func_199927_b(T p_199927_1_, double p_199927_2_, double p_199927_4_, double p_199927_6_, double p_199927_8_, double p_199927_10_, double p_199927_12_)
+     {
+-        IParticleFactory<T> iparticlefactory = this.particleTypes.get(ParticleType.field_197577_a.getIDForObject(p_199927_1_.func_197554_b()));
++        IParticleFactory<T> iparticlefactory = (IParticleFactory<T>) this.particleTypes.get(ParticleType.field_197577_a.getIDForObject(p_199927_1_.func_197554_b()));
+         return iparticlefactory == null ? null : iparticlefactory.func_199234_a(p_199927_1_, this.world, p_199927_2_, p_199927_4_, p_199927_6_, p_199927_8_, p_199927_10_, p_199927_12_);
+     }
+ 
+@@ -331,18 +331,19 @@
+                             CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Rendering Particle");
+                             CrashReportCategory crashreportcategory = crashreport.makeCategory("Particle being rendered");
+                             crashreportcategory.addDetail("Particle", particle::toString);
++                            int iF = i;
+                             crashreportcategory.addDetail("Particle Type", () ->
+                             {
+-                                if (i == 0)
++                                if (iF == 0)
+                                 {
+                                     return "MISC_TEXTURE";
+                                 }
+-                                else if (i == 1)
++                                else if (iF == 1)
+                                 {
+                                     return "TERRAIN_TEXTURE";
+                                 }
+                                 else {
+-                                    return i == 3 ? "ENTITY_PARTICLE_TEXTURE" : "Unknown - " + i;
++                                    return iF == 3 ? "ENTITY_PARTICLE_TEXTURE" : "Unknown - " + iF;
+                                 }
+                             });
+                             throw new ReportedException(crashreport);
+diff U3 net/minecraft/client/renderer/FirstPersonRenderer.java net/minecraft/client/renderer/FirstPersonRenderer.java
+--- net/minecraft/client/renderer/FirstPersonRenderer.java
++++ net/minecraft/client/renderer/FirstPersonRenderer.java
+@@ -254,7 +254,7 @@
+         GlStateManager.rotate(200.0F, 1.0F, 0.0F, 0.0F);
+         GlStateManager.rotate(f * -135.0F, 0.0F, 1.0F, 0.0F);
+         GlStateManager.translate(f * 5.6F, 0.0F, 0.0F);
+-        RenderPlayer renderplayer = (RenderPlayer)this.renderManager.getEntityRenderObject(abstractclientplayer);
++        RenderPlayer renderplayer = (RenderPlayer)(Render)this.renderManager.getEntityRenderObject(abstractclientplayer);
+         GlStateManager.disableCull();
+ 
+         if (flag)
+diff U3 net/minecraft/client/renderer/block/model/ModelBakery.java net/minecraft/client/renderer/block/model/ModelBakery.java
+--- net/minecraft/client/renderer/block/model/ModelBakery.java
++++ net/minecraft/client/renderer/block/model/ModelBakery.java
+@@ -300,7 +300,7 @@
+                                 break label161;
+                             }
+ 
+-                            for (Pair<String, ModelBlockDefinition> pair : lvt_9_4_)
++                            for (Pair<String, ModelBlockDefinition> pair : (List<Pair<String, ModelBlockDefinition>>)lvt_9_4_)
+                             {
+                                 ModelBlockDefinition modelblockdefinition = pair.getSecond();
+                                 Map<IBlockState, IUnbakedModel> map2 = Maps.<IBlockState, IUnbakedModel>newIdentityHashMap();
+@@ -442,10 +442,9 @@
+         this.textureMap.func_195426_a(this.resourceManager, set1);
+         map.forEach((p_209599_1_, p_209599_2_) ->
+         {
+-            Function function = this::func_209597_a;
+             TextureMap texturemap = this.textureMap;
+             this.textureMap.getClass();
+-            IBakedModel ibakedmodel = p_209599_2_.func_209558_a(function, texturemap::func_195424_a, ModelRotation.X0_Y0, false);
++            IBakedModel ibakedmodel = p_209599_2_.func_209558_a(this::func_209597_a, texturemap::func_195424_a, ModelRotation.X0_Y0, false);
+ 
+             if (ibakedmodel != null)
+             {
+diff U3 net/minecraft/client/renderer/entity/RenderManager.java net/minecraft/client/renderer/entity/RenderManager.java
+--- net/minecraft/client/renderer/entity/RenderManager.java
++++ net/minecraft/client/renderer/entity/RenderManager.java
+@@ -158,7 +158,7 @@
+     {
+         this.renderEngine = renderEngineIn;
+         this.entityRenderMap.put(EntityCaveSpider.class, new RenderCaveSpider(this));
+-        this.entityRenderMap.put(EntitySpider.class, new RenderSpider<Entity>(this));
++        this.entityRenderMap.put(EntitySpider.class, new RenderSpider(this));
+         this.entityRenderMap.put(EntityPig.class, new RenderPig(this));
+         this.entityRenderMap.put(EntitySheep.class, new RenderSheep(this));
+         this.entityRenderMap.put(EntityCow.class, new RenderCow(this));
+@@ -236,7 +236,7 @@
+         this.entityRenderMap.put(EntityEvokerFangs.class, new RenderEvokerFangs(this));
+         this.entityRenderMap.put(EntityMinecartTNT.class, new RenderTntMinecart(this));
+         this.entityRenderMap.put(EntityMinecartMobSpawner.class, new RenderMinecartMobSpawner(this));
+-        this.entityRenderMap.put(EntityMinecart.class, new RenderMinecart<Entity>(this));
++        this.entityRenderMap.put(EntityMinecart.class, new RenderMinecart(this));
+         this.entityRenderMap.put(EntityBoat.class, new RenderBoat(this));
+         this.entityRenderMap.put(EntityFishHook.class, new RenderFish(this));
+         this.entityRenderMap.put(EntityAreaEffectCloud.class, new RenderAreaEffectCloud(this));
+@@ -266,11 +266,11 @@
+ 
+         if (render == null && entityClass != Entity.class)
+         {
+-            render = this.<Entity>getEntityClassRenderObject(entityClass.getSuperclass());
++            render = this.<Entity>getEntityClassRenderObject((Class<Entity>)entityClass.getSuperclass());
+             this.entityRenderMap.put(entityClass, render);
+         }
+ 
+-        return render;
++        return (Render<T>) render;
+     }
+ 
+     @Nullable
+diff U3 net/minecraft/client/renderer/texture/TextureManager.java net/minecraft/client/renderer/texture/TextureManager.java
+--- net/minecraft/client/renderer/texture/TextureManager.java
++++ net/minecraft/client/renderer/texture/TextureManager.java
+@@ -81,9 +81,10 @@
+             CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Registering texture");
+             CrashReportCategory crashreportcategory = crashreport.makeCategory("Resource location being registered");
+             crashreportcategory.addCrashSection("Resource location", textureLocation);
++            ITextureObject textureObjF = textureObj;
+             crashreportcategory.addDetail("Texture object class", () ->
+             {
+-                return textureObj.getClass().getName();
++                return textureObjF.getClass().getName();
+             });
+             throw new ReportedException(crashreport);
+         }
+diff U3 net/minecraft/client/renderer/texture/TextureUtil.java net/minecraft/client/renderer/texture/TextureUtil.java
+--- net/minecraft/client/renderer/texture/TextureUtil.java
++++ net/minecraft/client/renderer/texture/TextureUtil.java
+@@ -154,9 +154,9 @@
+ 
+             while (true)
+             {
+-                if (filechannel.read(bytebuffer) != -1)
++                if (filechannel.read(bytebuffer) == -1)
+                 {
+-                    continue;
++                    break;
+                 }
+             }
+         }
+diff U3 net/minecraft/client/renderer/texture/ThreadDownloadImageData.java net/minecraft/client/renderer/texture/ThreadDownloadImageData.java
+--- net/minecraft/client/renderer/texture/ThreadDownloadImageData.java
++++ net/minecraft/client/renderer/texture/ThreadDownloadImageData.java
+@@ -149,9 +149,9 @@
+                                 {
+                                     nativeimage = ThreadDownloadImageData.this.imageBuffer.func_195786_a(nativeimage);
+                                 }
+-
++                                NativeImage nativeimageF = nativeimage;
+                                 Minecraft.getMinecraft().addScheduledTask(() -> {
+-                                    ThreadDownloadImageData.this.func_195417_a(nativeimage);
++                                    ThreadDownloadImageData.this.func_195417_a(nativeimageF);
+                                 });
+                             }
+                             catch (IOException ioexception)
+diff U3 net/minecraft/client/renderer/tileentity/TileEntityRendererDispatcher.java net/minecraft/client/renderer/tileentity/TileEntityRendererDispatcher.java
+--- net/minecraft/client/renderer/tileentity/TileEntityRendererDispatcher.java
++++ net/minecraft/client/renderer/tileentity/TileEntityRendererDispatcher.java
+@@ -62,8 +62,8 @@
+         this.renderers.put(TileEntitySign.class, new TileEntitySignRenderer());
+         this.renderers.put(TileEntityMobSpawner.class, new TileEntityMobSpawnerRenderer());
+         this.renderers.put(TileEntityPiston.class, new TileEntityPistonRenderer());
+-        this.renderers.put(TileEntityChest.class, new TileEntityChestRenderer<TileEntity>());
+-        this.renderers.put(TileEntityEnderChest.class, new TileEntityChestRenderer<TileEntity>());
++        this.renderers.put(TileEntityChest.class, new TileEntityChestRenderer());
++        this.renderers.put(TileEntityEnderChest.class, new TileEntityChestRenderer());
+         this.renderers.put(TileEntityEnchantmentTable.class, new TileEntityEnchantmentTableRenderer());
+         this.renderers.put(TileEntityEndPortal.class, new TileEntityEndPortalRenderer());
+         this.renderers.put(TileEntityEndGateway.class, new TileEntityEndGatewayRenderer());
+@@ -87,11 +87,11 @@
+ 
+         if (tileentityrenderer == null && teClass != TileEntity.class)
+         {
+-            tileentityrenderer = this.<TileEntity>getRenderer(teClass.getSuperclass());
++            tileentityrenderer = this.<TileEntity>getRenderer((Class<TileEntity>)teClass.getSuperclass());
+             this.renderers.put(teClass, tileentityrenderer);
+         }
+ 
+-        return tileentityrenderer;
++        return (TileEntityRenderer<T>)tileentityrenderer;
+     }
+ 
+     @Nullable
+diff U3 net/minecraft/client/resources/ResourceIndex.java net/minecraft/client/resources/ResourceIndex.java
+--- net/minecraft/client/resources/ResourceIndex.java
++++ net/minecraft/client/resources/ResourceIndex.java
+@@ -91,7 +91,7 @@
+         return (Collection)this.resourceMap.keySet().stream().filter((p_211684_0_) ->
+         {
+             return !p_211684_0_.endsWith(".mcmeta");
+-        }).<String>map(ResourceLocation::new).<String>map(ResourceLocation::getPath).filter((p_211683_1_) ->
++        }).map(ResourceLocation::new).map(ResourceLocation::getPath).filter((p_211683_1_) ->
+         {
+             return p_211683_1_.startsWith(p_211685_1_ + "/");
+         }).filter(p_211685_3_).collect(Collectors.toList());
+diff U3 net/minecraft/client/resources/ResourceIndexFolder.java net/minecraft/client/resources/ResourceIndexFolder.java
+--- net/minecraft/client/resources/ResourceIndexFolder.java
++++ net/minecraft/client/resources/ResourceIndexFolder.java
+@@ -44,7 +44,7 @@
+ 
+             try
+             {
+-                Stream stream1 = stream.filter((p_211686_0_) ->
++                Stream<Path> stream1 = stream.filter((p_211686_0_) ->
+                 {
+                     return Files.isRegularFile(p_211686_0_);
+                 }).filter((p_211687_0_) ->
+diff U3 net/minecraft/client/shader/ShaderManager.java net/minecraft/client/shader/ShaderManager.java
+--- net/minecraft/client/shader/ShaderManager.java
++++ net/minecraft/client/shader/ShaderManager.java
+@@ -233,7 +233,7 @@
+                 }
+                 else if (object instanceof Integer)
+                 {
+-                    j = object;
++                    j = ((Integer)object).intValue();
+                 }
+ 
+                 if (j != -1)
+diff U3 net/minecraft/client/util/SearchTreeManager.java net/minecraft/client/util/SearchTreeManager.java
+--- net/minecraft/client/util/SearchTreeManager.java
++++ net/minecraft/client/util/SearchTreeManager.java
+@@ -28,7 +28,7 @@
+ 
+     public <T> ISearchTree<T> get(SearchTreeManager.Key<T> key)
+     {
+-        return this.trees.get(key);
++        return (ISearchTree<T>) this.trees.get(key);
+     }
+ 
+     public static class Key<T>
+diff U3 net/minecraft/command/Commands.java net/minecraft/command/Commands.java
+--- net/minecraft/command/Commands.java
++++ net/minecraft/command/Commands.java
+@@ -248,8 +248,7 @@
+             }
+             catch (Exception exception)
+             {
+-                TextComponentString textcomponentstring = new TextComponentString;
+-                textcomponentstring.<init>(exception.getMessage() == null ? exception.getClass().getName() : exception.getMessage());
++                TextComponentString textcomponentstring = new TextComponentString(exception.getMessage() == null ? exception.getClass().getName() : exception.getMessage());
+                 ITextComponent itextcomponent = textcomponentstring;
+ 
+                 if (field_197061_a.isDebugEnabled())
+@@ -294,7 +293,7 @@
+         {
+             if (commandnode.canUse(p_197052_3_))
+             {
+-                ArgumentBuilder < ISuggestionProvider, ? > argumentbuilder = commandnode.createBuilder();
++                ArgumentBuilder < ISuggestionProvider, ? > argumentbuilder = (ArgumentBuilder) commandnode.createBuilder();
+                 argumentbuilder.requires((p_197060_0_) ->
+                 {
+                     return true;
+diff U3 net/minecraft/command/arguments/ArgumentTypes.java net/minecraft/command/arguments/ArgumentTypes.java
+--- net/minecraft/command/arguments/ArgumentTypes.java
++++ net/minecraft/command/arguments/ArgumentTypes.java
+@@ -94,7 +94,7 @@
+ 
+     public static < T extends ArgumentType<? >> void func_197484_a(PacketBuffer p_197484_0_, T p_197484_1_)
+     {
+-        ArgumentTypes.Entry<T> entry = func_201040_a(p_197484_1_);
++        ArgumentTypes.Entry<T> entry = (ArgumentTypes.Entry<T>) func_201040_a(p_197484_1_);
+ 
+         if (entry == null)
+         {
+@@ -127,7 +127,7 @@
+ 
+     private static < T extends ArgumentType<? >> void func_201042_a(JsonObject p_201042_0_, T p_201042_1_)
+     {
+-        ArgumentTypes.Entry<T> entry = func_201040_a(p_201042_1_);
++        ArgumentTypes.Entry<T> entry = (ArgumentTypes.Entry<T>) func_201040_a(p_201042_1_);
+ 
+         if (entry == null)
+         {
+diff U3 net/minecraft/command/arguments/BlockPredicateArgument.java net/minecraft/command/arguments/BlockPredicateArgument.java
+--- net/minecraft/command/arguments/BlockPredicateArgument.java
++++ net/minecraft/command/arguments/BlockPredicateArgument.java
+@@ -183,7 +183,7 @@
+                         return false;
+                     }
+ 
+-                    Comparable<?> comparable = (Comparable)iproperty.parseValue(entry.getValue()).orElse((Object)null);
++                    Comparable<?> comparable = (Comparable)iproperty.parseValue(entry.getValue()).orElse(null);
+ 
+                     if (comparable == null)
+                     {
+diff U3 net/minecraft/command/arguments/BlockStateParser.java net/minecraft/command/arguments/BlockStateParser.java
+--- net/minecraft/command/arguments/BlockStateParser.java
++++ net/minecraft/command/arguments/BlockStateParser.java
+@@ -245,7 +245,7 @@
+         {
+             if (t instanceof Integer)
+             {
+-                p_201037_0_.suggest(t);
++                p_201037_0_.suggest((Integer)t);
+             }
+             else
+             {
+@@ -538,7 +538,7 @@
+ 
+         if (optional.isPresent())
+         {
+-            this.field_197270_l = (IBlockState)this.field_197270_l.func_206870_a(p_197253_1_, (Comparable)optional.get());
++            this.field_197270_l = (IBlockState)this.field_197270_l.func_206870_a(p_197253_1_, optional.get());
+             this.field_197267_i.put(p_197253_1_, optional.get());
+         }
+         else
+diff U3 net/minecraft/command/arguments/ObjectiveArgument.java net/minecraft/command/arguments/ObjectiveArgument.java
+--- net/minecraft/command/arguments/ObjectiveArgument.java
++++ net/minecraft/command/arguments/ObjectiveArgument.java
+@@ -91,7 +91,7 @@
+         else if (p_listSuggestions_1_.getSource() instanceof ISuggestionProvider)
+         {
+             ISuggestionProvider isuggestionprovider = (ISuggestionProvider)p_listSuggestions_1_.getSource();
+-            return isuggestionprovider.func_197009_a(p_listSuggestions_1_, p_listSuggestions_2_);
++            return isuggestionprovider.func_197009_a((CommandContext) p_listSuggestions_1_, p_listSuggestions_2_);
+         }
+         else
+         {
+diff U3 net/minecraft/command/arguments/ObjectiveCriteriaArgument.java net/minecraft/command/arguments/ObjectiveCriteriaArgument.java
+--- net/minecraft/command/arguments/ObjectiveCriteriaArgument.java
++++ net/minecraft/command/arguments/ObjectiveCriteriaArgument.java
+@@ -80,7 +80,7 @@
+ 
+     public <T> String func_199815_a(StatType<T> p_199815_1_, Object p_199815_2_)
+     {
+-        return StatBase.func_197918_a(p_199815_1_, p_199815_2_);
++        return StatBase.func_197918_a((StatType) p_199815_1_, p_199815_2_);
+     }
+ 
+     public Collection<String> getExamples()
+diff U3 net/minecraft/command/arguments/OperationArgument.java net/minecraft/command/arguments/OperationArgument.java
+--- net/minecraft/command/arguments/OperationArgument.java
++++ net/minecraft/command/arguments/OperationArgument.java
+@@ -62,7 +62,7 @@
+ 
+     private static OperationArgument.IOperation func_197177_a(String p_197177_0_) throws CommandSyntaxException
+     {
+-        return (OperationArgument.IOperation)(p_197177_0_.equals("><") ? (p_197175_0_, p_197175_1_) ->
++        return (OperationArgument.IOperation)(p_197177_0_.equals("><") ? (OperationArgument.IOperation)(p_197175_0_, p_197175_1_) ->
+         {
+             int i = p_197175_0_.getScorePoints();
+             p_197175_0_.setScorePoints(p_197175_1_.getScorePoints());
+diff U3 net/minecraft/command/arguments/SuggestionProviders.java net/minecraft/command/arguments/SuggestionProviders.java
+--- net/minecraft/command/arguments/SuggestionProviders.java
++++ net/minecraft/command/arguments/SuggestionProviders.java
+@@ -49,7 +49,7 @@
+         else
+         {
+             field_197506_e.put(p_197494_0_, p_197494_1_);
+-            return new SuggestionProviders.Wrapper(p_197494_0_, p_197494_1_);
++            return (SuggestionProvider<S>) new SuggestionProviders.Wrapper(p_197494_0_, p_197494_1_);
+         }
+     }
+ 
+diff U3 net/minecraft/command/impl/AdvancementCommand.java net/minecraft/command/impl/AdvancementCommand.java
+--- net/minecraft/command/impl/AdvancementCommand.java
++++ net/minecraft/command/impl/AdvancementCommand.java
+@@ -29,7 +29,7 @@
+     private static final SuggestionProvider<CommandSource> field_198218_a = (p_198206_0_, p_198206_1_) ->
+     {
+         Collection<Advancement> collection = ((CommandSource)p_198206_0_.getSource()).func_197028_i().getAdvancementManager().func_195438_b();
+-        List<String> list = (List)collection.stream().<String>map(Advancement::getId).<String>map(ResourceLocation::toString).collect(Collectors.toList());
++        List<String> list = (List)collection.stream().map(Advancement::getId).<String>map(ResourceLocation::toString).collect(Collectors.toList());
+         return ISuggestionProvider.func_197005_b(list, p_198206_1_);
+     };
+ 
+diff U3 net/minecraft/data/ItemTagsProvider.java net/minecraft/data/ItemTagsProvider.java
+--- net/minecraft/data/ItemTagsProvider.java
++++ net/minecraft/data/ItemTagsProvider.java
+@@ -78,7 +78,7 @@
+         {
+             List<Item> list = Lists.<Item>newArrayList();
+ 
+-            for (Block block : ((Tag.ListEntry)p_200439_1_).func_200578_a())
++            for (Block block : ((Tag.ListEntry<Block>)p_200439_1_).func_200578_a())
+             {
+                 Item item = block.func_199767_j();
+ 
+diff U3 net/minecraft/data/TagsProvider.java net/minecraft/data/TagsProvider.java
+--- net/minecraft/data/TagsProvider.java
++++ net/minecraft/data/TagsProvider.java
+@@ -55,13 +55,13 @@
+             Tag.Builder tag$builder = entry.getValue();
+             tagcollection.getClass();
+ 
+-            if (!tag$builder.func_200160_a(tagcollection::func_199910_a))
++            if (!tag$builder.func_200160_a((Function<ResourceLocation, Tag<T>>)tagcollection::func_199910_a))
+             {
+                 throw new UnsupportedOperationException("Unsupported referencing of tags!");
+             }
+ 
+             Tag<T> tag = ((Tag.Builder)entry.getValue()).func_200051_a(resourcelocation);
+-            RegistryNamespaced registrynamespaced = this.field_200435_c;
++            RegistryNamespaced<ResourceLocation, T> registrynamespaced = this.field_200435_c;
+             this.field_200435_c.getClass();
+             JsonObject jsonobject = tag.func_200571_a(registrynamespaced::getNameForObject);
+             Path path = this.func_200431_a(resourcelocation);
+diff U3 net/minecraft/entity/EntityLivingBase.java net/minecraft/entity/EntityLivingBase.java
+--- net/minecraft/entity/EntityLivingBase.java
++++ net/minecraft/entity/EntityLivingBase.java
+@@ -3110,7 +3110,7 @@
+ 
+     protected void func_204802_c(int p_204802_1_, boolean p_204802_2_)
+     {
+-        int i = this.dataManager.get(HAND_STATES);
++        int i = (int)(this.dataManager.get(HAND_STATES));
+ 
+         if (p_204802_2_)
+         {
+diff U3 net/minecraft/entity/EntityType.java net/minecraft/entity/EntityType.java
+--- net/minecraft/entity/EntityType.java
++++ net/minecraft/entity/EntityType.java
+@@ -461,7 +461,8 @@
+                 {
+                     type = DataFixesManager.func_210901_a().getSchema(DataFixUtils.makeKey(1519)).getChoiceType(TypeReferences.field_211298_n, p_206830_1_);
+                 }
+-                catch (IllegalStateException illegalstateexception)
++                // FIXME Skip fixers
++                catch (Exception illegalstateexception)
+                 {
+                     if (SharedConstants.field_206244_b)
+                     {
+diff U3 net/minecraft/entity/monster/AbstractIllager.java net/minecraft/entity/monster/AbstractIllager.java
+--- net/minecraft/entity/monster/AbstractIllager.java
++++ net/minecraft/entity/monster/AbstractIllager.java
+@@ -24,13 +24,13 @@
+ 
+     protected boolean isAggressive(int mask)
+     {
+-        int i = this.dataManager.get(AGGRESSIVE);
++        int i = (int) this.dataManager.get(AGGRESSIVE);
+         return (i & mask) != 0;
+     }
+ 
+     protected void setAggressive(int mask, boolean value)
+     {
+-        int i = this.dataManager.get(AGGRESSIVE);
++        int i = (int) this.dataManager.get(AGGRESSIVE);
+ 
+         if (value)
+         {
+diff U3 net/minecraft/entity/monster/EntityEnderman.java net/minecraft/entity/monster/EntityEnderman.java
+--- net/minecraft/entity/monster/EntityEnderman.java
++++ net/minecraft/entity/monster/EntityEnderman.java
+@@ -76,7 +76,7 @@
+         this.tasks.addTask(11, new EntityEnderman.AITakeBlock(this));
+         this.targetTasks.addTask(1, new EntityEnderman.AIFindPlayer(this));
+         this.targetTasks.addTask(2, new EntityAIHurtByTarget(this, false, new Class[0]));
+-        this.targetTasks.addTask(3, new EntityAINearestAttackableTarget(this, EntityEndermite.class, 10, true, false, EntityEndermite::isSpawnedByPlayer));
++        this.targetTasks.addTask(3, new EntityAINearestAttackableTarget(this, EntityEndermite.class, 10, true, false, (Predicate<EntityEndermite>)EntityEndermite::isSpawnedByPlayer));
+     }
+ 
+     protected void applyEntityAttributes()
+diff U3 net/minecraft/entity/monster/EntityIronGolem.java net/minecraft/entity/monster/EntityIronGolem.java
+--- net/minecraft/entity/monster/EntityIronGolem.java
++++ net/minecraft/entity/monster/EntityIronGolem.java
+@@ -68,7 +68,7 @@
+         this.targetTasks.addTask(2, new EntityAIHurtByTarget(this, false, new Class[0]));
+         this.targetTasks.addTask(3, new EntityAINearestAttackableTarget(this, EntityLiving.class, 10, false, true, (p_210132_0_) ->
+         {
+-            return p_210132_0_ != null && IMob.VISIBLE_MOB_SELECTOR.test(p_210132_0_) && !(p_210132_0_ instanceof EntityCreeper);
++            return p_210132_0_ != null && IMob.VISIBLE_MOB_SELECTOR.test((Entity) p_210132_0_) && !(p_210132_0_ instanceof EntityCreeper);
+         }));
+     }
+ 
+diff U3 net/minecraft/entity/monster/EntityShulker.java net/minecraft/entity/monster/EntityShulker.java
+--- net/minecraft/entity/monster/EntityShulker.java
++++ net/minecraft/entity/monster/EntityShulker.java
+@@ -583,7 +583,7 @@
+ 
+     public int getPeekTick()
+     {
+-        return this.dataManager.get(PEEK_TICK);
++        return (int) this.dataManager.get(PEEK_TICK);
+     }
+ 
+     /**
+diff U3 net/minecraft/entity/monster/EntitySlime.java net/minecraft/entity/monster/EntitySlime.java
+--- net/minecraft/entity/monster/EntitySlime.java
++++ net/minecraft/entity/monster/EntitySlime.java
+@@ -211,7 +211,7 @@
+ 
+     public EntityType <? extends EntitySlime > func_200600_R()
+     {
+-        return super.func_200600_R();
++        return (EntityType) super.func_200600_R();
+     }
+ 
+     /**
+diff U3 net/minecraft/entity/monster/EntitySpellcasterIllager.java net/minecraft/entity/monster/EntitySpellcasterIllager.java
+--- net/minecraft/entity/monster/EntitySpellcasterIllager.java
++++ net/minecraft/entity/monster/EntitySpellcasterIllager.java
+@@ -72,7 +72,7 @@
+ 
+     protected EntitySpellcasterIllager.SpellType getSpellType()
+     {
+-        return !this.world.isRemote ? this.activeSpell : EntitySpellcasterIllager.SpellType.getFromId(this.dataManager.get(SPELL));
++        return !this.world.isRemote ? this.activeSpell : EntitySpellcasterIllager.SpellType.getFromId((int) this.dataManager.get(SPELL));
+     }
+ 
+     protected void updateAITasks()
+diff U3 net/minecraft/entity/monster/EntityVex.java net/minecraft/entity/monster/EntityVex.java
+--- net/minecraft/entity/monster/EntityVex.java
++++ net/minecraft/entity/monster/EntityVex.java
+@@ -160,13 +160,13 @@
+ 
+     private boolean getVexFlag(int mask)
+     {
+-        int i = this.dataManager.get(VEX_FLAGS);
++        int i = (int) this.dataManager.get(VEX_FLAGS);
+         return (i & mask) != 0;
+     }
+ 
+     private void setVexFlag(int mask, boolean value)
+     {
+-        int i = this.dataManager.get(VEX_FLAGS);
++        int i = (int) this.dataManager.get(VEX_FLAGS);
+ 
+         if (value)
+         {
+diff U3 net/minecraft/entity/projectile/EntityTrident.java net/minecraft/entity/projectile/EntityTrident.java
+--- net/minecraft/entity/projectile/EntityTrident.java
++++ net/minecraft/entity/projectile/EntityTrident.java
+@@ -64,7 +64,7 @@
+ 
+         if ((this.field_203051_au || this.func_203047_q()) && this.shootingEntity != null)
+         {
+-            int i = this.dataManager.get(field_203053_g);
++            int i = (int) this.dataManager.get(field_203053_g);
+ 
+             if (i > 0 && !this.func_207403_q())
+             {
+diff U3 net/minecraft/init/Particles.java net/minecraft/init/Particles.java
+--- net/minecraft/init/Particles.java
++++ net/minecraft/init/Particles.java
+@@ -62,7 +62,7 @@
+ 
+     private static < T extends ParticleType<? >> T func_197589_a(String p_197589_0_)
+     {
+-        T t = ParticleType.field_197577_a.getObject(new ResourceLocation(p_197589_0_));
++        T t = (T) ParticleType.field_197577_a.getObject(new ResourceLocation(p_197589_0_));
+ 
+         if (t == null)
+         {
+diff U3 net/minecraft/item/ItemAxe.java net/minecraft/item/ItemAxe.java
+--- net/minecraft/item/ItemAxe.java
++++ net/minecraft/item/ItemAxe.java
+@@ -1,6 +1,7 @@
+ package net.minecraft.item;
+ 
+ import com.google.common.collect.Sets;
++import com.google.common.collect.ImmutableMap;
+ import com.google.common.collect.ImmutableMap.Builder;
+ import java.util.Map;
+ import java.util.Set;
+@@ -19,7 +20,7 @@
+ public class ItemAxe extends ItemTool
+ {
+     private static final Set<Block> EFFECTIVE_ON = Sets.newHashSet(Blocks.field_196662_n, Blocks.field_196664_o, Blocks.field_196666_p, Blocks.field_196668_q, Blocks.field_196670_r, Blocks.field_196672_s, Blocks.BOOKSHELF, Blocks.field_196626_Q, Blocks.field_196629_R, Blocks.field_196631_S, Blocks.field_196634_T, Blocks.field_196637_U, Blocks.field_196639_V, Blocks.field_196617_K, Blocks.field_196618_L, Blocks.field_196619_M, Blocks.field_196620_N, Blocks.field_196621_O, Blocks.field_196623_P, Blocks.CHEST, Blocks.PUMPKIN, Blocks.field_196625_cS, Blocks.field_196628_cT, Blocks.MELON_BLOCK, Blocks.LADDER, Blocks.field_196689_eF, Blocks.field_196691_eG, Blocks.field_196693_eH, Blocks.field_196695_eI, Blocks.field_196699_eK, Blocks.field_196697_eJ, Blocks.field_196663_cq, Blocks.field_196665_cr, Blocks.field_196667_cs, Blocks.field_196669_ct, Blocks.field_196673_cv, Blocks.field_196671_cu);
+-    protected static final Map<Block, Block> field_203176_a = (new Builder<Block, Block>()).put(Blocks.field_196626_Q, Blocks.field_209389_ab).put(Blocks.field_196617_K, Blocks.field_203204_R).put(Blocks.field_196639_V, Blocks.field_209394_ag).put(Blocks.field_196623_P, Blocks.field_203209_W).put(Blocks.field_196637_U, Blocks.field_209393_af).put(Blocks.field_196621_O, Blocks.field_203208_V).put(Blocks.field_196631_S, Blocks.field_209391_ad).put(Blocks.field_196619_M, Blocks.field_203206_T).put(Blocks.field_196634_T, Blocks.field_209392_ae).put(Blocks.field_196620_N, Blocks.field_203207_U).put(Blocks.field_196629_R, Blocks.field_209390_ac).put(Blocks.field_196618_L, Blocks.field_203205_S).build();
++    protected static final Map<Block, Block> field_203176_a = (new ImmutableMap.Builder<Block, Block>()).put(Blocks.field_196626_Q, Blocks.field_209389_ab).put(Blocks.field_196617_K, Blocks.field_203204_R).put(Blocks.field_196639_V, Blocks.field_209394_ag).put(Blocks.field_196623_P, Blocks.field_203209_W).put(Blocks.field_196637_U, Blocks.field_209393_af).put(Blocks.field_196621_O, Blocks.field_203208_V).put(Blocks.field_196631_S, Blocks.field_209391_ad).put(Blocks.field_196619_M, Blocks.field_203206_T).put(Blocks.field_196634_T, Blocks.field_209392_ae).put(Blocks.field_196620_N, Blocks.field_203207_U).put(Blocks.field_196629_R, Blocks.field_209390_ac).put(Blocks.field_196618_L, Blocks.field_203205_S).build();
+ 
+     protected ItemAxe(IItemTier p_i48530_1_, float p_i48530_2_, float p_i48530_3_, Item.Builder p_i48530_4_)
+     {
+diff U3 net/minecraft/item/ItemDebugStick.java net/minecraft/item/ItemDebugStick.java
+--- net/minecraft/item/ItemDebugStick.java
++++ net/minecraft/item/ItemDebugStick.java
+@@ -107,7 +107,7 @@
+ 
+     private static <T extends Comparable<T>> IBlockState func_195960_a(IBlockState p_195960_0_, IProperty<T> p_195960_1_, boolean p_195960_2_)
+     {
+-        return (IBlockState)p_195960_0_.func_206870_a(p_195960_1_, (Comparable)func_195959_a(p_195960_1_.getAllowedValues(), p_195960_0_.getValue(p_195960_1_), p_195960_2_));
++        return (IBlockState)p_195960_0_.func_206870_a(p_195960_1_, func_195959_a(p_195960_1_.getAllowedValues(), p_195960_0_.getValue(p_195960_1_), p_195960_2_));
+     }
+ 
+     private static <T> T func_195959_a(Iterable<T> p_195959_0_, @Nullable T p_195959_1_, boolean p_195959_2_)
+diff U3 net/minecraft/item/crafting/RecipeSerializers.java net/minecraft/item/crafting/RecipeSerializers.java
+--- net/minecraft/item/crafting/RecipeSerializers.java
++++ net/minecraft/item/crafting/RecipeSerializers.java
+@@ -14,19 +14,19 @@
+     private static final Map < String, IRecipeSerializer<? >> field_199590_p = Maps. < String, IRecipeSerializer<? >> newHashMap();
+     public static final IRecipeSerializer<ShapedRecipe> field_199575_a = func_199573_a(new ShapedRecipe.Serializer());
+     public static final IRecipeSerializer<ShapelessRecipe> field_199576_b = func_199573_a(new ShapelessRecipe.Serializer());
+-    public static final RecipeSerializers.SimpleSerializer<RecipesArmorDyes> field_199577_c = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_armordye", RecipesArmorDyes::new));
+-    public static final RecipeSerializers.SimpleSerializer<RecipeBookCloning> field_199578_d = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_bookcloning", RecipeBookCloning::new));
+-    public static final RecipeSerializers.SimpleSerializer<RecipesMapCloning> field_199579_e = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_mapcloning", RecipesMapCloning::new));
+-    public static final RecipeSerializers.SimpleSerializer<RecipesMapExtending> field_199580_f = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_mapextending", RecipesMapExtending::new));
+-    public static final RecipeSerializers.SimpleSerializer<FireworkRocketRecipe> field_199581_g = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_firework_rocket", FireworkRocketRecipe::new));
+-    public static final RecipeSerializers.SimpleSerializer<FireworkStarRecipe> field_199582_h = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_firework_star", FireworkStarRecipe::new));
+-    public static final RecipeSerializers.SimpleSerializer<FireworkStarFadeRecipe> field_199583_i = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_firework_star_fade", FireworkStarFadeRecipe::new));
+-    public static final RecipeSerializers.SimpleSerializer<RecipeRepairItem> field_199584_j = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_repairitem", RecipeRepairItem::new));
+-    public static final RecipeSerializers.SimpleSerializer<RecipeTippedArrow> field_199585_k = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_tippedarrow", RecipeTippedArrow::new));
+-    public static final RecipeSerializers.SimpleSerializer<BannerDuplicateRecipe> field_199586_l = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_bannerduplicate", BannerDuplicateRecipe::new));
+-    public static final RecipeSerializers.SimpleSerializer<BannerAddPatternRecipe> field_199587_m = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_banneraddpattern", BannerAddPatternRecipe::new));
+-    public static final RecipeSerializers.SimpleSerializer<ShieldRecipes> field_199588_n = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_shielddecoration", ShieldRecipes::new));
+-    public static final RecipeSerializers.SimpleSerializer<ShulkerBoxColoringRecipe> field_199589_o = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_shulkerboxcoloring", ShulkerBoxColoringRecipe::new));
++    public static final RecipeSerializers.SimpleSerializer<RecipesArmorDyes> field_199577_c = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_armordye", (Function<ResourceLocation, ?>)RecipesArmorDyes::new));
++    public static final RecipeSerializers.SimpleSerializer<RecipeBookCloning> field_199578_d = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_bookcloning", (Function<ResourceLocation, ?>)RecipeBookCloning::new));
++    public static final RecipeSerializers.SimpleSerializer<RecipesMapCloning> field_199579_e = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_mapcloning", (Function<ResourceLocation, ?>)RecipesMapCloning::new));
++    public static final RecipeSerializers.SimpleSerializer<RecipesMapExtending> field_199580_f = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_mapextending", (Function<ResourceLocation, ?>)RecipesMapExtending::new));
++    public static final RecipeSerializers.SimpleSerializer<FireworkRocketRecipe> field_199581_g = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_firework_rocket", (Function<ResourceLocation, ?>)FireworkRocketRecipe::new));
++    public static final RecipeSerializers.SimpleSerializer<FireworkStarRecipe> field_199582_h = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_firework_star", (Function<ResourceLocation, ?>)FireworkStarRecipe::new));
++    public static final RecipeSerializers.SimpleSerializer<FireworkStarFadeRecipe> field_199583_i = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_firework_star_fade", (Function<ResourceLocation, ?>)FireworkStarFadeRecipe::new));
++    public static final RecipeSerializers.SimpleSerializer<RecipeRepairItem> field_199584_j = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_repairitem", (Function<ResourceLocation, ?>)RecipeRepairItem::new));
++    public static final RecipeSerializers.SimpleSerializer<RecipeTippedArrow> field_199585_k = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_tippedarrow", (Function<ResourceLocation, ?>)RecipeTippedArrow::new));
++    public static final RecipeSerializers.SimpleSerializer<BannerDuplicateRecipe> field_199586_l = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_bannerduplicate", (Function<ResourceLocation, ?>)BannerDuplicateRecipe::new));
++    public static final RecipeSerializers.SimpleSerializer<BannerAddPatternRecipe> field_199587_m = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_banneraddpattern", (Function<ResourceLocation, ?>)BannerAddPatternRecipe::new));
++    public static final RecipeSerializers.SimpleSerializer<ShieldRecipes> field_199588_n = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_shielddecoration", (Function<ResourceLocation, ?>)ShieldRecipes::new));
++    public static final RecipeSerializers.SimpleSerializer<ShulkerBoxColoringRecipe> field_199589_o = (RecipeSerializers.SimpleSerializer)func_199573_a(new RecipeSerializers.SimpleSerializer("crafting_special_shulkerboxcoloring", (Function<ResourceLocation, ?>)ShulkerBoxColoringRecipe::new));
+     public static final IRecipeSerializer<FurnaceRecipe> field_201839_p = func_199573_a(new FurnaceRecipe.Serializer());
+ 
+     public static <S extends IRecipeSerializer<T>, T extends IRecipe> S func_199573_a(S p_199573_0_)
+@@ -77,7 +77,7 @@
+     {
+         p_199574_1_.writeResourceLocation(p_199574_0_.func_199560_c());
+         p_199574_1_.writeString(p_199574_0_.func_199559_b().func_199567_a());
+-        IRecipeSerializer<T> irecipeserializer = p_199574_0_.func_199559_b();
++        IRecipeSerializer<T> irecipeserializer = (IRecipeSerializer<T>) p_199574_0_.func_199559_b();
+         irecipeserializer.func_199427_a_(p_199574_1_, p_199574_0_);
+     }
+ 
+diff U3 net/minecraft/nbt/JsonToNBT.java net/minecraft/nbt/JsonToNBT.java
+--- net/minecraft/nbt/JsonToNBT.java
++++ net/minecraft/nbt/JsonToNBT.java
+@@ -322,15 +322,15 @@
+ 
+                 if (p_193603_2_ == 1)
+                 {
+-                    list.add((T)((NBTPrimitive)inbtbase).getByte());
++                    list.add((T)new Byte(((NBTPrimitive)inbtbase).getByte()));
+                 }
+                 else if (p_193603_2_ == 4)
+                 {
+-                    list.add((T)((NBTPrimitive)inbtbase).getLong());
++                    list.add((T)new Long(((NBTPrimitive)inbtbase).getLong()));
+                 }
+                 else
+                 {
+-                    list.add((T)((NBTPrimitive)inbtbase).getInt());
++                    list.add((T)new Integer(((NBTPrimitive)inbtbase).getInt()));
+                 }
+ 
+                 if (this.hasElementSeparator())
+diff U3 net/minecraft/nbt/NBTDynamicOps.java net/minecraft/nbt/NBTDynamicOps.java
+--- net/minecraft/nbt/NBTDynamicOps.java
++++ net/minecraft/nbt/NBTDynamicOps.java
+@@ -286,7 +286,7 @@
+ 
+     public Optional<ByteBuffer> getByteBuffer(INBTBase p_getByteBuffer_1_)
+     {
+-        return p_getByteBuffer_1_ instanceof NBTTagByteArray ? Optional.of(ByteBuffer.wrap(((NBTTagByteArray)p_getByteBuffer_1_).getByteArray())) : super.getByteBuffer(p_getByteBuffer_1_);
++        return p_getByteBuffer_1_ instanceof NBTTagByteArray ? Optional.of(ByteBuffer.wrap(((NBTTagByteArray)p_getByteBuffer_1_).getByteArray())) : DynamicOps.super.getByteBuffer(p_getByteBuffer_1_);
+     }
+ 
+     public INBTBase createByteList(ByteBuffer p_createByteList_1_)
+@@ -296,7 +296,7 @@
+ 
+     public Optional<IntStream> getIntStream(INBTBase p_getIntStream_1_)
+     {
+-        return p_getIntStream_1_ instanceof NBTTagIntArray ? Optional.of(Arrays.stream(((NBTTagIntArray)p_getIntStream_1_).getIntArray())) : super.getIntStream(p_getIntStream_1_);
++        return p_getIntStream_1_ instanceof NBTTagIntArray ? Optional.of(Arrays.stream(((NBTTagIntArray)p_getIntStream_1_).getIntArray())) : DynamicOps.super.getIntStream(p_getIntStream_1_);
+     }
+ 
+     public INBTBase createIntList(IntStream p_createIntList_1_)
+@@ -306,7 +306,7 @@
+ 
+     public Optional<LongStream> getLongStream(INBTBase p_getLongStream_1_)
+     {
+-        return p_getLongStream_1_ instanceof NBTTagLongArray ? Optional.of(Arrays.stream(((NBTTagLongArray)p_getLongStream_1_).func_197652_h())) : super.getLongStream(p_getLongStream_1_);
++        return p_getLongStream_1_ instanceof NBTTagLongArray ? Optional.of(Arrays.stream(((NBTTagLongArray)p_getLongStream_1_).func_197652_h())) : DynamicOps.super.getLongStream(p_getLongStream_1_);
+     }
+ 
+     public INBTBase createLongList(LongStream p_createLongList_1_)
+diff U3 net/minecraft/nbt/NBTUtil.java net/minecraft/nbt/NBTUtil.java
+--- net/minecraft/nbt/NBTUtil.java
++++ net/minecraft/nbt/NBTUtil.java
+@@ -295,7 +295,7 @@
+ 
+         if (optional.isPresent())
+         {
+-            return (S)(p_193590_0_.func_206870_a(p_193590_1_, (Comparable)optional.get()));
++            return (S)(p_193590_0_.func_206870_a(p_193590_1_, optional.get()));
+         }
+         else
+         {
+diff U3 net/minecraft/network/datasync/EntityDataManager.java net/minecraft/network/datasync/EntityDataManager.java
+--- net/minecraft/network/datasync/EntityDataManager.java
++++ net/minecraft/network/datasync/EntityDataManager.java
+@@ -129,7 +129,7 @@
+ 
+         try
+         {
+-            dataentry = this.entries.get(key.getId());
++            dataentry = (DataEntry<T>) this.entries.get(key.getId());
+         }
+         catch (Throwable throwable)
+         {
+diff U3 net/minecraft/particles/ParticleType.java net/minecraft/particles/ParticleType.java
+--- net/minecraft/particles/ParticleType.java
++++ net/minecraft/particles/ParticleType.java
+@@ -93,6 +93,6 @@
+ 
+     private static <T extends IParticleData> void func_197573_a(String p_197573_0_, boolean p_197573_1_, IParticleData.IDeserializer<T> p_197573_2_)
+     {
+-        field_197577_a.putObject(new ResourceLocation(p_197573_0_), new ParticleType<IParticleData>(new ResourceLocation(p_197573_0_), p_197573_1_, p_197573_2_));
++        field_197577_a.putObject(new ResourceLocation(p_197573_0_), new ParticleType(new ResourceLocation(p_197573_0_), p_197573_1_, p_197573_2_));
+     }
+ }
+diff U3 net/minecraft/server/dedicated/DedicatedServer.java net/minecraft/server/dedicated/DedicatedServer.java
+--- net/minecraft/server/dedicated/DedicatedServer.java
++++ net/minecraft/server/dedicated/DedicatedServer.java
+@@ -97,7 +97,7 @@
+     /**
+      * Initialises the server and starts it.
+      */
+-    protected boolean init() throws IOException
++    public boolean init() throws IOException
+     {
+         Thread thread = new Thread("Server console handler")
+         {
+@@ -410,12 +410,12 @@
+     /**
+      * Directly calls System.exit(0), instantly killing the program.
+      */
+-    protected void systemExitNow()
++    public void systemExitNow()
+     {
+         System.exit(0);
+     }
+ 
+-    protected void updateTimeLightAndEntities()
++    public void updateTimeLightAndEntities()
+     {
+         super.updateTimeLightAndEntities();
+         this.func_71333_ah();
+diff U3 net/minecraft/server/integrated/IntegratedServer.java net/minecraft/server/integrated/IntegratedServer.java
+--- net/minecraft/server/integrated/IntegratedServer.java
++++ net/minecraft/server/integrated/IntegratedServer.java
+@@ -62,7 +62,7 @@
+         this.worldSettings = this.isDemo() ? WorldServerDemo.DEMO_WORLD_SETTINGS : worldSettingsIn;
+     }
+ 
+-    protected void loadAllWorlds(String saveName, String worldNameIn, long seed, WorldType type, JsonElement generatorOptions)
++    public void loadAllWorlds(String saveName, String worldNameIn, long seed, WorldType type, JsonElement generatorOptions)
+     {
+         this.convertMapIfNeeded(saveName);
+         this.worlds = new WorldServer[3];
+@@ -135,7 +135,7 @@
+     /**
+      * Initialises the server and starts it.
+      */
+-    protected boolean init() throws IOException
++    public boolean init() throws IOException
+     {
+         LOGGER.info("Starting integrated minecraft server version 1.13");
+         this.setOnlineMode(true);
+@@ -153,7 +153,7 @@
+     /**
+      * Main function called by run() every loop.
+      */
+-    protected void tick()
++    public void tick()
+     {
+         boolean flag = this.isGamePaused;
+         this.isGamePaused = Minecraft.getMinecraft().getConnection() != null && Minecraft.getMinecraft().isGamePaused();
+@@ -268,7 +268,7 @@
+     /**
+      * Called on exit from the main run() loop.
+      */
+-    protected void finalTick(CrashReport report)
++    public void finalTick(CrashReport report)
+     {
+         this.mc.crashed(report);
+     }
+diff U3 net/minecraft/state/AbstractStateHolder.java net/minecraft/state/AbstractStateHolder.java
+--- net/minecraft/state/AbstractStateHolder.java
++++ net/minecraft/state/AbstractStateHolder.java
+@@ -49,7 +49,7 @@
+ 
+     public <T extends Comparable<T>> S cycleProperty(IProperty<T> property)
+     {
+-        return (S)this.func_206870_a(property, (Comparable)cyclePropertyValue(property.getAllowedValues(), this.getValue(property)));
++        return (S)this.func_206870_a(property, cyclePropertyValue(property.getAllowedValues(), this.getValue(property)));
+     }
+ 
+     protected static <T> T cyclePropertyValue(Collection<T> values, T currentValue)
+diff U3 net/minecraft/state/StateContainer.java net/minecraft/state/StateContainer.java
+--- net/minecraft/state/StateContainer.java
++++ net/minecraft/state/StateContainer.java
+@@ -55,10 +55,10 @@
+ 
+         for (A a : list)
+         {
+-            a.func_206874_a(map);
++            a.func_206874_a((Map<Map<IProperty<?>, Comparable<?>>, S>) map);
+         }
+ 
+-        this.validStates = ImmutableList.copyOf(list);
++        this.validStates = (ImmutableList<S>) ImmutableList.copyOf(list);
+     }
+ 
+     public ImmutableList<S> getValidStates()
+diff U3 net/minecraft/stats/IStatFormater.java net/minecraft/stats/IStatFormater.java
+--- net/minecraft/stats/IStatFormater.java
++++ net/minecraft/stats/IStatFormater.java
+@@ -7,6 +7,7 @@
+ public interface IStatFormater
+ {
+     DecimalFormat DECIMAL_FORMAT = new DecimalFormat("########0.00");
++    static NumberFormat numberformat = NumberFormat.getIntegerInstance(Locale.US);
+     IStatFormater DEFAULT = numberformat::format;
+     IStatFormater DIVIDE_BY_TEN = (p_lambda$static$0_0_) ->
+     {
+@@ -52,8 +53,4 @@
+ 
+     String format(int var1);
+ 
+-    static
+-    {
+-        NumberFormat numberformat = NumberFormat.getIntegerInstance(Locale.US);
+-    }
+ }
+diff U3 net/minecraft/tags/NetworkTagCollection.java net/minecraft/tags/NetworkTagCollection.java
+--- net/minecraft/tags/NetworkTagCollection.java
++++ net/minecraft/tags/NetworkTagCollection.java
+@@ -1,6 +1,8 @@
+ package net.minecraft.tags;
+ 
+ import com.google.common.collect.Lists;
++
++import java.util.Collection;
+ import java.util.List;
+ import java.util.Map.Entry;
+ import java.util.function.Function;
+@@ -50,7 +52,7 @@
+                 list.add(this.field_200044_a.getObjectById(p_200043_1_.readVarInt()));
+             }
+ 
+-            this.func_200039_c().put(resourcelocation, Tag.Builder.func_200047_a().func_200046_a(list).func_200051_a(resourcelocation));
++            this.func_200039_c().put(resourcelocation, (Tag<T>) Tag.Builder.func_200047_a().func_200046_a((Collection<Object>) list).func_200051_a(resourcelocation));
+         }
+     }
+ }
+diff U3 net/minecraft/tags/TagCollection.java net/minecraft/tags/TagCollection.java
+--- net/minecraft/tags/TagCollection.java
++++ net/minecraft/tags/TagCollection.java
+@@ -150,7 +150,7 @@
+             {
+                 Entry<ResourceLocation, Tag.Builder<T>> entry1 = iterator.next();
+ 
+-                if (((Tag.Builder)entry1.getValue()).func_200160_a(this::func_199910_a))
++                if (((Tag.Builder)entry1.getValue()).func_200160_a((Function<ResourceLocation, Tag<T>>)this::func_199910_a))
+                 {
+                     flag = true;
+                     this.func_199912_a((entry1.getValue()).func_200051_a(entry1.getKey()));
+diff U3 net/minecraft/util/ExpiringMap.java net/minecraft/util/ExpiringMap.java
+--- net/minecraft/util/ExpiringMap.java
++++ net/minecraft/util/ExpiringMap.java
+@@ -22,11 +22,11 @@
+     {
+         long i = Util.getTimeMs();
+         this.field_201844_b.put(p_201842_1_, i);
+-        ObjectIterator<Entry> objectiterator = this.field_201844_b.long2LongEntrySet().iterator();
++        ObjectIterator<it.unimi.dsi.fastutil.longs.Long2LongMap.Entry> objectiterator = this.field_201844_b.long2LongEntrySet().iterator();
+ 
+         while (objectiterator.hasNext())
+         {
+-            Entry entry = (Entry)objectiterator.next();
++          it.unimi.dsi.fastutil.longs.Long2LongMap.Entry entry = objectiterator.next();
+ 
+             if (i - entry.getLongValue() <= (long)this.field_201843_a || !this.func_205609_a_(super.get(entry.getLongKey())))
+             {
+diff U3 net/minecraft/util/Scheduler.java net/minecraft/util/Scheduler.java
+--- net/minecraft/util/Scheduler.java
++++ net/minecraft/util/Scheduler.java
+@@ -32,8 +32,8 @@
+     private final ExecutorService field_202857_c;
+     private final AtomicInteger field_202858_d = new AtomicInteger(1);
+     private final List<CompletableFuture<R>> field_202859_e = Lists.<CompletableFuture<R>>newArrayList();
+-    private CompletableFuture<R> field_202860_f = CompletableFuture.<R>completedFuture((Object)null);
+-    private CompletableFuture<R> field_202861_g = CompletableFuture.<R>completedFuture((Object)null);
++    private CompletableFuture<R> field_202860_f = CompletableFuture.<R>completedFuture(null);
++    private CompletableFuture<R> field_202861_g = CompletableFuture.<R>completedFuture(null);
+     private final Supplier<Map<T, CompletableFuture<R>>> field_202862_h;
+     private final Supplier<Map<T, CompletableFuture<Void>>> field_202863_i;
+     private final T field_202864_j;
+@@ -64,7 +64,7 @@
+                 return new ForkJoinWorkerThread(p_202853_2_)
+                 {
+                     {
+-                        this.setName(p_202853_1_ + "-Worker-" + Scheduler.this.field_202858_d.getAndIncrement());
++                        this.setName(p_i48724_1_ + "-Worker-" + Scheduler.this.field_202858_d.getAndIncrement());
+                     }
+                 };
+             }, (p_202848_0_, p_202848_1_) ->
+@@ -103,7 +103,7 @@
+         return completablefuture1;
+     }
+ 
+-    protected abstract Scheduler<K, T, R>.acr$a func_201494_a_(K p_201494_1_);
++    protected abstract Scheduler<K, T, R>.FutureWrapper func_201494_a_(K p_201494_1_);
+ 
+     public void func_202854_b() throws InterruptedException
+     {
+@@ -129,9 +129,9 @@
+         });
+     }
+ 
+-    protected abstract void func_205607_b_(K var1, Scheduler<K, T, R>.acr$a var2);
++    protected abstract void func_205607_b_(K var1, Scheduler<K, T, R>.FutureWrapper var2);
+ 
+-    protected abstract Scheduler<K, T, R>.acr$a func_205606_a_(K var1, Scheduler<K, T, R>.acr$a var2);
++    protected abstract Scheduler<K, T, R>.FutureWrapper func_205606_a_(K var1, Scheduler<K, T, R>.FutureWrapper var2);
+ 
+     public final class FutureWrapper
+     {
+diff U3 net/minecraft/util/Util.java net/minecraft/util/Util.java
+--- net/minecraft/util/Util.java
++++ net/minecraft/util/Util.java
+@@ -13,6 +13,7 @@
+ import java.nio.file.Path;
+ import java.nio.file.Paths;
+ import java.security.AccessController;
++import java.security.PrivilegedAction;
+ import java.security.PrivilegedActionException;
+ import java.security.PrivilegedExceptionAction;
+ import java.time.Instant;
+@@ -259,9 +260,16 @@
+         {
+             try
+             {
+-                Process process = (Process)AccessController.doPrivileged(() ->
++                Process process = (Process)AccessController.doPrivileged((PrivilegedAction<Process>)() ->
+                 {
++                  try
++                  {
+                     return Runtime.getRuntime().exec(this.func_195643_b(p_195639_1_));
++                  }
++                  catch(IOException e)
++                  {
++                    throw new RuntimeException(e.getMessage(), e);
++                  }
+                 });
+ 
+                 for (String s : IOUtils.readLines(process.getErrorStream()))
+@@ -273,9 +281,9 @@
+                 process.getErrorStream().close();
+                 process.getOutputStream().close();
+             }
+-            catch (IOException | PrivilegedActionException privilegedactionexception)
++            catch (Exception e)
+             {
+-                Util.LOGGER.error("Couldn't open url '{}'", p_195639_1_, privilegedactionexception);
++                Util.LOGGER.error("Couldn't open url '{}'", p_195639_1_, e);
+             }
+         }
+ 
+diff U3 net/minecraft/util/WorldChunkEnumerator.java net/minecraft/util/WorldChunkEnumerator.java
+--- net/minecraft/util/WorldChunkEnumerator.java
++++ net/minecraft/util/WorldChunkEnumerator.java
+@@ -97,7 +97,7 @@
+                 return list;
+             }
+ 
+-            arraylist = list;
++            arraylist = (ArrayList) list;
+         }
+         catch (Throwable var18)
+         {
+diff U3 net/minecraft/util/datafix/fixes/AddBedTileEntity.java net/minecraft/util/datafix/fixes/AddBedTileEntity.java
+--- net/minecraft/util/datafix/fixes/AddBedTileEntity.java
++++ net/minecraft/util/datafix/fixes/AddBedTileEntity.java
+@@ -11,6 +11,9 @@
+ import com.mojang.datafixers.schemas.Schema;
+ import com.mojang.datafixers.types.Type;
+ import com.mojang.datafixers.types.templates.List.ListType;
++import com.mojang.datafixers.util.Pair;
++
++import java.util.Iterator;
+ import java.util.List;
+ import java.util.Map;
+ import java.util.Optional;
+@@ -18,6 +21,7 @@
+ import java.util.function.Supplier;
+ import java.util.stream.Collectors;
+ import java.util.stream.Stream;
++
+ import net.minecraft.util.datafix.TypeReferences;
+ 
+ public class AddBedTileEntity extends DataFix
+@@ -53,7 +57,7 @@
+         return TypeRewriteRule.seq(this.fixTypeEverywhere("InjectBedBlockEntityType", this.getInputSchema().findChoiceType(TypeReferences.field_211294_j), this.getOutputSchema().findChoiceType(TypeReferences.field_211294_j), (p_212021_0_) ->
+         {
+             return (p_209696_0_) -> {
+-                return p_209696_0_;
++                return (Pair)p_209696_0_;
+             };
+         }), this.fixTypeEverywhereTyped("BedBlockEntityInjecter", this.getOutputSchema().getType(TypeReferences.field_211287_c), (p_207434_3_) ->
+         {
+@@ -62,21 +66,22 @@
+             int j = dynamic.getInt("xPos");
+             int k = dynamic.getInt("zPos");
+             List<TE> list = Lists.newArrayList((Iterable)typed.getOrCreate(opticfinder1));
+-            List <? extends Dynamic<? >> list1 = (List)((Stream)dynamic.get("Sections"). < Dynamic<? >> flatMap(Dynamic::getStream).orElse(Stream.empty())).collect(Collectors.toList());
++            List <? extends Dynamic<? >> list1 = (List)((Stream)dynamic.get("Sections").flatMap(Dynamic::getStream).orElse(Stream.empty())).collect(Collectors.toList());
+ 
+             for (int l = 0; l < list1.size(); ++l)
+             {
+                 Dynamic<?> dynamic1 = list1.get(l);
+                 int i1 = ((Number)dynamic1.get("Y").flatMap(Dynamic::getNumberValue).orElse(0)).intValue();
+-                Stream<Integer> stream = ((Stream)dynamic1.get("Blocks").<Integer>flatMap(Dynamic::getStream).orElse(Stream.empty())).<Integer>map((p_209698_0_) ->
++                Stream<Integer> stream = ((Stream)dynamic1.get("Blocks").flatMap(Dynamic::getStream).orElse(Stream.empty())).map((p_209698_0_) ->
+                 {
+-                    return ((Number)p_209698_0_.getNumberValue().orElse(0)).intValue();
++                    return ((Number)((Dynamic)p_209698_0_).getNumberValue().orElse(0)).intValue();
+                 });
+                 int j1 = 0;
+                 stream.getClass();
+ 
+-                for (int k1 : stream::iterator)
++                for (Iterator<Integer> it = stream.iterator(); it.hasNext();)
+                 {
++                    int k1 = it.next();
+                     if (416 == (k1 & 255) << 4)
+                     {
+                         int l1 = j1 & 15;
+@@ -88,7 +93,7 @@
+                         map.put(dynamic1.createString("y"), dynamic1.createInt(i2 + (i1 << 4)));
+                         map.put(dynamic1.createString("z"), dynamic1.createInt(j2 + (k << 4)));
+                         map.put(dynamic1.createString("color"), dynamic1.createShort((short)14));
+-                        list.add((TE)((Optional)type.read(dynamic1.createMap(map)).getSecond()).orElseThrow(() ->
++                        list.add((TE)(type.read(dynamic1.createMap(map)).getSecond()).orElseThrow(() ->
+                         {
+                             return new IllegalStateException("Could not parse newly created bed block entity.");
+                         }));
+diff U3 net/minecraft/util/datafix/fixes/AddNewChoices.java net/minecraft/util/datafix/fixes/AddNewChoices.java
+--- net/minecraft/util/datafix/fixes/AddNewChoices.java
++++ net/minecraft/util/datafix/fixes/AddNewChoices.java
+@@ -4,7 +4,10 @@
+ import com.mojang.datafixers.TypeRewriteRule;
+ import com.mojang.datafixers.DSL.TypeReference;
+ import com.mojang.datafixers.schemas.Schema;
++import com.mojang.datafixers.types.templates.TaggedChoice;
+ import com.mojang.datafixers.types.templates.TaggedChoice.TaggedChoiceType;
++import com.mojang.datafixers.util.Pair;
++
+ import java.util.function.Function;
+ 
+ public class AddNewChoices extends DataFix
+@@ -37,12 +40,12 @@
+             return this.fixTypeEverywhere(p_206290_1_, p_206290_2_, p_206290_3_, (p_209687_2_) ->
+             {
+                 return (p_206291_2_) -> {
+-                    if (!p_206290_3_.hasType(p_206291_2_.getFirst()))
++                    if (!((TaggedChoiceType)p_206290_3_).hasType(p_206291_2_.getFirst()))
+                     {
+                         throw new IllegalArgumentException(String.format("Unknown type %s in %s ", p_206291_2_.getFirst(), this.field_206293_b));
+                     }
+                     else {
+-                        return p_206291_2_;
++                        return (Pair)p_206291_2_;
+                     }
+                 };
+             });
+diff U3 net/minecraft/util/datafix/fixes/BlockEntityBannerColor.java net/minecraft/util/datafix/fixes/BlockEntityBannerColor.java
+--- net/minecraft/util/datafix/fixes/BlockEntityBannerColor.java
++++ net/minecraft/util/datafix/fixes/BlockEntityBannerColor.java
+@@ -7,6 +7,8 @@
+ import com.mojang.datafixers.schemas.Schema;
+ import java.util.Optional;
+ import java.util.function.Function;
++import java.util.stream.Stream;
++
+ import net.minecraft.util.datafix.TypeReferences;
+ 
+ public class BlockEntityBannerColor extends NamedEntityFix
+@@ -32,7 +34,7 @@
+                 });
+             });
+             p_209641_0_.getClass();
+-            return (Dynamic)DataFixUtils.orElse(optional.map(p_209641_0_::createList), p_209641_0_);
++            return (Dynamic)DataFixUtils.orElse(optional.map((x) -> p_209641_0_.createList((Stream)x)), p_209641_0_);
+         });
+         return p_209643_1_;
+     }
+diff U3 net/minecraft/util/datafix/fixes/BlockStateFlattenGenOptions.java net/minecraft/util/datafix/fixes/BlockStateFlattenGenOptions.java
+--- net/minecraft/util/datafix/fixes/BlockStateFlattenGenOptions.java
++++ net/minecraft/util/datafix/fixes/BlockStateFlattenGenOptions.java
+@@ -44,7 +44,7 @@
+         {
+             Optional optional = p_209634_1_.getStringValue().map(this::func_199180_a);
+             p_209634_1_.getClass();
+-            return (Dynamic)DataFixUtils.orElse(optional.map(p_209634_1_::createString), p_209634_1_);
++            return (Dynamic)DataFixUtils.orElse(optional.map((x)->p_209634_1_.createString((String)x)), p_209634_1_);
+         }) : p_209636_1_;
+     }
+ 
+diff U3 net/minecraft/util/datafix/fixes/BlockStateFlattenVillageCrops.java net/minecraft/util/datafix/fixes/BlockStateFlattenVillageCrops.java
+--- net/minecraft/util/datafix/fixes/BlockStateFlattenVillageCrops.java
++++ net/minecraft/util/datafix/fixes/BlockStateFlattenVillageCrops.java
+@@ -30,7 +30,7 @@
+     {
+         Optional optional = p_210590_0_.getStream().map(BlockStateFlattenVillageCrops::func_210586_a);
+         p_210590_0_.getClass();
+-        return (Dynamic)optional.<T>map(p_210590_0_::createList).orElse(p_210590_0_);
++        return (Dynamic)optional.<T>map((x)->p_210590_0_.createList((Stream)x)).orElse(p_210590_0_);
+     }
+ 
+     private static Stream <? extends Dynamic<? >> func_210586_a(Stream <? extends Dynamic<? >> p_210586_0_)
+diff U3 net/minecraft/util/datafix/fixes/BlockStateFlatternEntities.java net/minecraft/util/datafix/fixes/BlockStateFlatternEntities.java
+--- net/minecraft/util/datafix/fixes/BlockStateFlatternEntities.java
++++ net/minecraft/util/datafix/fixes/BlockStateFlatternEntities.java
+@@ -342,7 +342,7 @@
+         return p_211442_1_.update(type.finder(), type1, (p_211437_1_) ->
+         {
+             int i = p_211437_1_.map((p_211440_0_) -> {
+-                return (Integer)((Either)p_211440_0_.getSecond()).map((p_211436_0_) -> {
++                return (Integer)(p_211440_0_.getSecond()).map((p_211436_0_) -> {
+                     return p_211436_0_;
+                 }, BlockStateFlatternEntities::func_199171_a);
+             }, (p_211441_1_) -> {
+@@ -363,7 +363,7 @@
+         Dynamic<?> dynamic = (Dynamic)p_211434_1_.getOrCreate(DSL.remainderFinder());
+         return p_211434_1_.update(type.finder(), type1, (p_211432_2_) ->
+         {
+-            int i = ((Either)p_211432_2_.getSecond()).map((p_211435_0_) -> {
++            int i = (p_211432_2_.getSecond()).map((p_211435_0_) -> {
+                 return p_211435_0_;
+             }, BlockStateFlatternEntities::func_199171_a);
+             int j = dynamic.getInt(p_211434_3_) & 15;
+diff U3 net/minecraft/util/datafix/fixes/BookPagesStrictJSON.java net/minecraft/util/datafix/fixes/BookPagesStrictJSON.java
+--- net/minecraft/util/datafix/fixes/BookPagesStrictJSON.java
++++ net/minecraft/util/datafix/fixes/BookPagesStrictJSON.java
+@@ -11,6 +11,8 @@
+ import com.mojang.datafixers.types.Type;
+ import java.util.Optional;
+ import java.util.function.Function;
++import java.util.stream.Stream;
++
+ import net.minecraft.util.JsonUtils;
+ import net.minecraft.util.datafix.TypeReferences;
+ import net.minecraft.util.text.ITextComponent;
+@@ -98,7 +100,7 @@
+             });
+         });
+         p_209633_1_.getClass();
+-        return (Dynamic)DataFixUtils.orElse(optional.map(p_209633_1_::createList), p_209633_1_);
++        return (Dynamic)DataFixUtils.orElse(optional.map((x)->p_209633_1_.createList((Stream)x)), p_209633_1_);
+     }
+ 
+     public TypeRewriteRule makeRule()
+diff U3 net/minecraft/util/datafix/fixes/ChunkGenStatus.java net/minecraft/util/datafix/fixes/ChunkGenStatus.java
+--- net/minecraft/util/datafix/fixes/ChunkGenStatus.java
++++ net/minecraft/util/datafix/fixes/ChunkGenStatus.java
+@@ -40,7 +40,7 @@
+         return TypeRewriteRule.seq(this.fixTypeEverywhereTyped("ChunkToProtoChunkFix", type, this.getOutputSchema().getType(TypeReferences.field_211287_c), (p_209732_3_) ->
+         {
+             return p_209732_3_.updateTyped(opticfinder, type3, (p_207915_2_) -> {
+-                Optional <? extends Stream <? extends Dynamic<? >>> optional = p_207915_2_.getOptionalTyped(opticfinder1). < Stream <? extends Dynamic<? >>> map(Typed::write). < Stream <? extends Dynamic<? >>> flatMap(Dynamic::getStream);
++                Optional <? extends Stream <? extends Dynamic<? >>> optional = p_207915_2_.getOptionalTyped(opticfinder1).map(Typed::write).flatMap(Dynamic::getStream);
+                 Dynamic<?> dynamic = (Dynamic)p_207915_2_.get(DSL.remainderFinder());
+                 boolean flag = dynamic.getBoolean("TerrainPopulated") && (!dynamic.get("LightPopulated").flatMap(Dynamic::getNumberValue).isPresent() || dynamic.getBoolean("LightPopulated"));
+                 dynamic = dynamic.set("Status", dynamic.createString(flag ? "mobs_spawned" : "empty"));
+@@ -66,10 +66,10 @@
+ 
+                         dynamic = dynamic.set("Biomes", dynamic.createIntList(Arrays.stream(aint)));
+                     }
+-
++                    Dynamic dynamicF = dynamic;
+                     List < Dynamic<? >> list = (List)IntStream.range(0, 16). < Dynamic<? >> mapToObj((p_211428_1_) ->
+                     {
+-                        return dynamic.createList(Stream.empty());
++                        return dynamicF.createList(Stream.empty());
+                     }).collect(Collectors.toList());
+ 
+                     if (optional.isPresent())
+@@ -80,7 +80,7 @@
+                             int k = p_211426_2_.getInt("y");
+                             int l = p_211426_2_.getInt("z");
+                             short short1 = func_210975_a(j, k, l);
+-                            list.set(k >> 4, (list.get(k >> 4)).merge(dynamic.createShort(short1)));
++                            list.set(k >> 4, (list.get(k >> 4)).merge(dynamicF.createShort(short1)));
+                         });
+                         dynamic = dynamic.set("ToBeTicked", dynamic.createList(list.stream()));
+                     }
+@@ -91,7 +91,7 @@
+                     dynamic1 = dynamic;
+                 }
+ 
+-                return (Typed)((Optional)type3.readTyped(dynamic1).getSecond()).orElseThrow(() -> {
++                return (Typed)(type3.readTyped(dynamic1).getSecond()).orElseThrow(() -> {
+                     return new IllegalStateException("Could not read the new chunk");
+                 });
+             });
+diff U3 net/minecraft/util/datafix/fixes/ChunkPaletteFormat.java net/minecraft/util/datafix/fixes/ChunkPaletteFormat.java
+--- net/minecraft/util/datafix/fixes/ChunkPaletteFormat.java
++++ net/minecraft/util/datafix/fixes/ChunkPaletteFormat.java
+@@ -145,7 +145,7 @@
+         super(p_i49676_1_, p_i49676_2_);
+     }
+ 
+-    private static void func_209300_a(Map < String, Dynamic<? >> p_209300_0_, int p_209300_1_, String p_209300_2_, String p_209300_3_)
++    private static void func_209300_a(Map p_209300_0_, int p_209300_1_, String p_209300_2_, String p_209300_3_)
+     {
+         p_209300_0_.put(p_209300_1_ + "north", BlockStateFlatteningMap.func_210048_b("{Name:'minecraft:" + p_209300_2_ + "_wall_" + p_209300_3_ + "',Properties:{facing:'north'}}"));
+         p_209300_0_.put(p_209300_1_ + "east", BlockStateFlatteningMap.func_210048_b("{Name:'minecraft:" + p_209300_2_ + "_wall_" + p_209300_3_ + "',Properties:{facing:'east'}}"));
+@@ -158,7 +158,7 @@
+         }
+     }
+ 
+-    private static void func_209301_a(Map < String, Dynamic<? >> p_209301_0_, String p_209301_1_, int p_209301_2_)
++    private static void func_209301_a(Map p_209301_0_, String p_209301_1_, int p_209301_2_)
+     {
+         p_209301_0_.put("minecraft:" + p_209301_1_ + "eastlowerleftfalsefalse", BlockStateFlatteningMap.func_210048_b("{Name:'minecraft:" + p_209301_1_ + "',Properties:{facing:'east',half:'lower',hinge:'left',open:'false',powered:'false'}}"));
+         p_209301_0_.put("minecraft:" + p_209301_1_ + "eastlowerleftfalsetrue", BlockStateFlatteningMap.func_210048_b("{Name:'minecraft:" + p_209301_1_ + "',Properties:{facing:'east',half:'lower',hinge:'left',open:'false',powered:'true'}}"));
+@@ -226,7 +226,7 @@
+         p_209301_0_.put("minecraft:" + p_209301_1_ + "westupperrighttruetrue", BlockStateFlatteningMap.func_210048_b("{Name:'minecraft:" + p_209301_1_ + "',Properties:{facing:'west',half:'upper',hinge:'right',open:'true',powered:'true'}}"));
+     }
+ 
+-    private static void func_209307_a(Map < String, Dynamic<? >> p_209307_0_, int p_209307_1_, String p_209307_2_)
++    private static void func_209307_a(Map p_209307_0_, int p_209307_1_, String p_209307_2_)
+     {
+         p_209307_0_.put("southfalsefoot" + p_209307_1_, BlockStateFlatteningMap.func_210048_b("{Name:'minecraft:" + p_209307_2_ + "_bed',Properties:{facing:'south',occupied:'false',part:'foot'}}"));
+         p_209307_0_.put("westfalsefoot" + p_209307_1_, BlockStateFlatteningMap.func_210048_b("{Name:'minecraft:" + p_209307_2_ + "_bed',Properties:{facing:'west',occupied:'false',part:'foot'}}"));
+@@ -242,7 +242,7 @@
+         p_209307_0_.put("easttruehead" + p_209307_1_, BlockStateFlatteningMap.func_210048_b("{Name:'minecraft:" + p_209307_2_ + "_bed',Properties:{facing:'east',occupied:'true',part:'head'}}"));
+     }
+ 
+-    private static void func_209297_b(Map < String, Dynamic<? >> p_209297_0_, int p_209297_1_, String p_209297_2_)
++    private static void func_209297_b(Map p_209297_0_, int p_209297_1_, String p_209297_2_)
+     {
+         for (int i = 0; i < 16; ++i)
+         {
+@@ -283,7 +283,7 @@
+     private Dynamic<?> func_209712_b(Dynamic<?> p_209712_1_)
+     {
+         Optional <? extends Dynamic<? >> optional = p_209712_1_.get("Level");
+-        return optional.isPresent() && ((Dynamic)optional.get()).get("Sections").flatMap(Dynamic::getStream).isPresent() ? p_209712_1_.set("Level", (new ChunkPaletteFormat.UpgradeChunk(optional.get())).func_210058_a()) : p_209712_1_;
++        return optional.isPresent() && (optional.get()).get("Sections").flatMap(Dynamic::getStream).isPresent() ? p_209712_1_.set("Level", (new ChunkPaletteFormat.UpgradeChunk(optional.get())).func_210058_a()) : p_209712_1_;
+     }
+ 
+     public TypeRewriteRule makeRule()
+diff U3 net/minecraft/util/datafix/fixes/ChunkStructuresTemplateRenameFix.java net/minecraft/util/datafix/fixes/ChunkStructuresTemplateRenameFix.java
+--- net/minecraft/util/datafix/fixes/ChunkStructuresTemplateRenameFix.java
++++ net/minecraft/util/datafix/fixes/ChunkStructuresTemplateRenameFix.java
+@@ -14,7 +14,7 @@
+ 
+ public class ChunkStructuresTemplateRenameFix extends DataFix
+ {
+-    private static final ImmutableMap<String, Pair<String, ImmutableMap<String, String>>> field_207912_a = ImmutableMap.<String, Pair<String, ImmutableMap<String, String>>>builder().put("EndCity", Pair.of("ECP", ImmutableMap.builder().put("second_floor", "second_floor_1").put("third_floor", "third_floor_1").put("third_floor_c", "third_floor_2").build())).put("Mansion", Pair.of("WMP", ImmutableMap.builder().put("carpet_south", "carpet_south_1").put("carpet_west", "carpet_west_1").put("indoors_door", "indoors_door_1").put("indoors_wall", "indoors_wall_1").build())).put("Igloo", Pair.of("Iglu", ImmutableMap.builder().put("minecraft:igloo/igloo_bottom", "minecraft:igloo/bottom").put("minecraft:igloo/igloo_middle", "minecraft:igloo/middle").put("minecraft:igloo/igloo_top", "minecraft:igloo/top").build())).put("Ocean_Ruin", Pair.of("ORP", ImmutableMap.builder().put("minecraft:ruin/big_ruin1_brick", "minecraft:underwater_ruin/big_brick_1").put("minecraft:ruin/big_ruin2_brick", "minecraft:underwater_ruin/big_brick_2").put("minecraft:ruin/big_ruin3_brick", "minecraft:underwater_ruin/big_brick_3").put("minecraft:ruin/big_ruin8_brick", "minecraft:underwater_ruin/big_brick_8").put("minecraft:ruin/big_ruin1_cracked", "minecraft:underwater_ruin/big_cracked_1").put("minecraft:ruin/big_ruin2_cracked", "minecraft:underwater_ruin/big_cracked_2").put("minecraft:ruin/big_ruin3_cracked", "minecraft:underwater_ruin/big_cracked_3").put("minecraft:ruin/big_ruin8_cracked", "minecraft:underwater_ruin/big_cracked_8").put("minecraft:ruin/big_ruin1_mossy", "minecraft:underwater_ruin/big_mossy_1").put("minecraft:ruin/big_ruin2_mossy", "minecraft:underwater_ruin/big_mossy_2").put("minecraft:ruin/big_ruin3_mossy", "minecraft:underwater_ruin/big_mossy_3").put("minecraft:ruin/big_ruin8_mossy", "minecraft:underwater_ruin/big_mossy_8").put("minecraft:ruin/big_ruin_warm4", "minecraft:underwater_ruin/big_warm_4").put("minecraft:ruin/big_ruin_warm5", "minecraft:underwater_ruin/big_warm_5").put("minecraft:ruin/big_ruin_warm6", "minecraft:underwater_ruin/big_warm_6").put("minecraft:ruin/big_ruin_warm7", "minecraft:underwater_ruin/big_warm_7").put("minecraft:ruin/ruin1_brick", "minecraft:underwater_ruin/brick_1").put("minecraft:ruin/ruin2_brick", "minecraft:underwater_ruin/brick_2").put("minecraft:ruin/ruin3_brick", "minecraft:underwater_ruin/brick_3").put("minecraft:ruin/ruin4_brick", "minecraft:underwater_ruin/brick_4").put("minecraft:ruin/ruin5_brick", "minecraft:underwater_ruin/brick_5").put("minecraft:ruin/ruin6_brick", "minecraft:underwater_ruin/brick_6").put("minecraft:ruin/ruin7_brick", "minecraft:underwater_ruin/brick_7").put("minecraft:ruin/ruin8_brick", "minecraft:underwater_ruin/brick_8").put("minecraft:ruin/ruin1_cracked", "minecraft:underwater_ruin/cracked_1").put("minecraft:ruin/ruin2_cracked", "minecraft:underwater_ruin/cracked_2").put("minecraft:ruin/ruin3_cracked", "minecraft:underwater_ruin/cracked_3").put("minecraft:ruin/ruin4_cracked", "minecraft:underwater_ruin/cracked_4").put("minecraft:ruin/ruin5_cracked", "minecraft:underwater_ruin/cracked_5").put("minecraft:ruin/ruin6_cracked", "minecraft:underwater_ruin/cracked_6").put("minecraft:ruin/ruin7_cracked", "minecraft:underwater_ruin/cracked_7").put("minecraft:ruin/ruin8_cracked", "minecraft:underwater_ruin/cracked_8").put("minecraft:ruin/ruin1_mossy", "minecraft:underwater_ruin/mossy_1").put("minecraft:ruin/ruin2_mossy", "minecraft:underwater_ruin/mossy_2").put("minecraft:ruin/ruin3_mossy", "minecraft:underwater_ruin/mossy_3").put("minecraft:ruin/ruin4_mossy", "minecraft:underwater_ruin/mossy_4").put("minecraft:ruin/ruin5_mossy", "minecraft:underwater_ruin/mossy_5").put("minecraft:ruin/ruin6_mossy", "minecraft:underwater_ruin/mossy_6").put("minecraft:ruin/ruin7_mossy", "minecraft:underwater_ruin/mossy_7").put("minecraft:ruin/ruin8_mossy", "minecraft:underwater_ruin/mossy_8").put("minecraft:ruin/ruin_warm1", "minecraft:underwater_ruin/warm_1").put("minecraft:ruin/ruin_warm2", "minecraft:underwater_ruin/warm_2").put("minecraft:ruin/ruin_warm3", "minecraft:underwater_ruin/warm_3").put("minecraft:ruin/ruin_warm4", "minecraft:underwater_ruin/warm_4").put("minecraft:ruin/ruin_warm5", "minecraft:underwater_ruin/warm_5").put("minecraft:ruin/ruin_warm6", "minecraft:underwater_ruin/warm_6").put("minecraft:ruin/ruin_warm7", "minecraft:underwater_ruin/warm_7").put("minecraft:ruin/ruin_warm8", "minecraft:underwater_ruin/warm_8").put("minecraft:ruin/big_brick_1", "minecraft:underwater_ruin/big_brick_1").put("minecraft:ruin/big_brick_2", "minecraft:underwater_ruin/big_brick_2").put("minecraft:ruin/big_brick_3", "minecraft:underwater_ruin/big_brick_3").put("minecraft:ruin/big_brick_8", "minecraft:underwater_ruin/big_brick_8").put("minecraft:ruin/big_mossy_1", "minecraft:underwater_ruin/big_mossy_1").put("minecraft:ruin/big_mossy_2", "minecraft:underwater_ruin/big_mossy_2").put("minecraft:ruin/big_mossy_3", "minecraft:underwater_ruin/big_mossy_3").put("minecraft:ruin/big_mossy_8", "minecraft:underwater_ruin/big_mossy_8").put("minecraft:ruin/big_cracked_1", "minecraft:underwater_ruin/big_cracked_1").put("minecraft:ruin/big_cracked_2", "minecraft:underwater_ruin/big_cracked_2").put("minecraft:ruin/big_cracked_3", "minecraft:underwater_ruin/big_cracked_3").put("minecraft:ruin/big_cracked_8", "minecraft:underwater_ruin/big_cracked_8").put("minecraft:ruin/big_warm_4", "minecraft:underwater_ruin/big_warm_4").put("minecraft:ruin/big_warm_5", "minecraft:underwater_ruin/big_warm_5").put("minecraft:ruin/big_warm_6", "minecraft:underwater_ruin/big_warm_6").put("minecraft:ruin/big_warm_7", "minecraft:underwater_ruin/big_warm_7").build())).build();
++    private static final ImmutableMap<String, Pair<String, ImmutableMap<String, String>>> field_207912_a = (ImmutableMap)ImmutableMap.builder().put("EndCity", Pair.of("ECP", ImmutableMap.builder().put("second_floor", "second_floor_1").put("third_floor", "third_floor_1").put("third_floor_c", "third_floor_2").build())).put("Mansion", Pair.of("WMP", ImmutableMap.builder().put("carpet_south", "carpet_south_1").put("carpet_west", "carpet_west_1").put("indoors_door", "indoors_door_1").put("indoors_wall", "indoors_wall_1").build())).put("Igloo", Pair.of("Iglu", ImmutableMap.builder().put("minecraft:igloo/igloo_bottom", "minecraft:igloo/bottom").put("minecraft:igloo/igloo_middle", "minecraft:igloo/middle").put("minecraft:igloo/igloo_top", "minecraft:igloo/top").build())).put("Ocean_Ruin", Pair.of("ORP", ImmutableMap.builder().put("minecraft:ruin/big_ruin1_brick", "minecraft:underwater_ruin/big_brick_1").put("minecraft:ruin/big_ruin2_brick", "minecraft:underwater_ruin/big_brick_2").put("minecraft:ruin/big_ruin3_brick", "minecraft:underwater_ruin/big_brick_3").put("minecraft:ruin/big_ruin8_brick", "minecraft:underwater_ruin/big_brick_8").put("minecraft:ruin/big_ruin1_cracked", "minecraft:underwater_ruin/big_cracked_1").put("minecraft:ruin/big_ruin2_cracked", "minecraft:underwater_ruin/big_cracked_2").put("minecraft:ruin/big_ruin3_cracked", "minecraft:underwater_ruin/big_cracked_3").put("minecraft:ruin/big_ruin8_cracked", "minecraft:underwater_ruin/big_cracked_8").put("minecraft:ruin/big_ruin1_mossy", "minecraft:underwater_ruin/big_mossy_1").put("minecraft:ruin/big_ruin2_mossy", "minecraft:underwater_ruin/big_mossy_2").put("minecraft:ruin/big_ruin3_mossy", "minecraft:underwater_ruin/big_mossy_3").put("minecraft:ruin/big_ruin8_mossy", "minecraft:underwater_ruin/big_mossy_8").put("minecraft:ruin/big_ruin_warm4", "minecraft:underwater_ruin/big_warm_4").put("minecraft:ruin/big_ruin_warm5", "minecraft:underwater_ruin/big_warm_5").put("minecraft:ruin/big_ruin_warm6", "minecraft:underwater_ruin/big_warm_6").put("minecraft:ruin/big_ruin_warm7", "minecraft:underwater_ruin/big_warm_7").put("minecraft:ruin/ruin1_brick", "minecraft:underwater_ruin/brick_1").put("minecraft:ruin/ruin2_brick", "minecraft:underwater_ruin/brick_2").put("minecraft:ruin/ruin3_brick", "minecraft:underwater_ruin/brick_3").put("minecraft:ruin/ruin4_brick", "minecraft:underwater_ruin/brick_4").put("minecraft:ruin/ruin5_brick", "minecraft:underwater_ruin/brick_5").put("minecraft:ruin/ruin6_brick", "minecraft:underwater_ruin/brick_6").put("minecraft:ruin/ruin7_brick", "minecraft:underwater_ruin/brick_7").put("minecraft:ruin/ruin8_brick", "minecraft:underwater_ruin/brick_8").put("minecraft:ruin/ruin1_cracked", "minecraft:underwater_ruin/cracked_1").put("minecraft:ruin/ruin2_cracked", "minecraft:underwater_ruin/cracked_2").put("minecraft:ruin/ruin3_cracked", "minecraft:underwater_ruin/cracked_3").put("minecraft:ruin/ruin4_cracked", "minecraft:underwater_ruin/cracked_4").put("minecraft:ruin/ruin5_cracked", "minecraft:underwater_ruin/cracked_5").put("minecraft:ruin/ruin6_cracked", "minecraft:underwater_ruin/cracked_6").put("minecraft:ruin/ruin7_cracked", "minecraft:underwater_ruin/cracked_7").put("minecraft:ruin/ruin8_cracked", "minecraft:underwater_ruin/cracked_8").put("minecraft:ruin/ruin1_mossy", "minecraft:underwater_ruin/mossy_1").put("minecraft:ruin/ruin2_mossy", "minecraft:underwater_ruin/mossy_2").put("minecraft:ruin/ruin3_mossy", "minecraft:underwater_ruin/mossy_3").put("minecraft:ruin/ruin4_mossy", "minecraft:underwater_ruin/mossy_4").put("minecraft:ruin/ruin5_mossy", "minecraft:underwater_ruin/mossy_5").put("minecraft:ruin/ruin6_mossy", "minecraft:underwater_ruin/mossy_6").put("minecraft:ruin/ruin7_mossy", "minecraft:underwater_ruin/mossy_7").put("minecraft:ruin/ruin8_mossy", "minecraft:underwater_ruin/mossy_8").put("minecraft:ruin/ruin_warm1", "minecraft:underwater_ruin/warm_1").put("minecraft:ruin/ruin_warm2", "minecraft:underwater_ruin/warm_2").put("minecraft:ruin/ruin_warm3", "minecraft:underwater_ruin/warm_3").put("minecraft:ruin/ruin_warm4", "minecraft:underwater_ruin/warm_4").put("minecraft:ruin/ruin_warm5", "minecraft:underwater_ruin/warm_5").put("minecraft:ruin/ruin_warm6", "minecraft:underwater_ruin/warm_6").put("minecraft:ruin/ruin_warm7", "minecraft:underwater_ruin/warm_7").put("minecraft:ruin/ruin_warm8", "minecraft:underwater_ruin/warm_8").put("minecraft:ruin/big_brick_1", "minecraft:underwater_ruin/big_brick_1").put("minecraft:ruin/big_brick_2", "minecraft:underwater_ruin/big_brick_2").put("minecraft:ruin/big_brick_3", "minecraft:underwater_ruin/big_brick_3").put("minecraft:ruin/big_brick_8", "minecraft:underwater_ruin/big_brick_8").put("minecraft:ruin/big_mossy_1", "minecraft:underwater_ruin/big_mossy_1").put("minecraft:ruin/big_mossy_2", "minecraft:underwater_ruin/big_mossy_2").put("minecraft:ruin/big_mossy_3", "minecraft:underwater_ruin/big_mossy_3").put("minecraft:ruin/big_mossy_8", "minecraft:underwater_ruin/big_mossy_8").put("minecraft:ruin/big_cracked_1", "minecraft:underwater_ruin/big_cracked_1").put("minecraft:ruin/big_cracked_2", "minecraft:underwater_ruin/big_cracked_2").put("minecraft:ruin/big_cracked_3", "minecraft:underwater_ruin/big_cracked_3").put("minecraft:ruin/big_cracked_8", "minecraft:underwater_ruin/big_cracked_8").put("minecraft:ruin/big_warm_4", "minecraft:underwater_ruin/big_warm_4").put("minecraft:ruin/big_warm_5", "minecraft:underwater_ruin/big_warm_5").put("minecraft:ruin/big_warm_6", "minecraft:underwater_ruin/big_warm_6").put("minecraft:ruin/big_warm_7", "minecraft:underwater_ruin/big_warm_7").build())).build();
+ 
+     public ChunkStructuresTemplateRenameFix(Schema p_i49675_1_, boolean p_i49675_2_)
+     {
+diff U3 net/minecraft/util/datafix/fixes/EntityArmorAndHeld.java net/minecraft/util/datafix/fixes/EntityArmorAndHeld.java
+--- net/minecraft/util/datafix/fixes/EntityArmorAndHeld.java
++++ net/minecraft/util/datafix/fixes/EntityArmorAndHeld.java
+@@ -47,7 +47,7 @@
+             if (optional.isPresent())
+             {
+                 List<IS> list = optional.get();
+-                IS is = (IS)((Optional)p_206323_1_.read(dynamic.emptyMap()).getSecond()).orElseThrow(() ->
++                IS is = (IS)(p_206323_1_.read(dynamic.emptyMap()).getSecond()).orElseThrow(() ->
+                 {
+                     return new IllegalStateException("Could not parse newly created empty itemstack.");
+                 });
+@@ -70,13 +70,13 @@
+                 }
+             }
+ 
+-            Optional <? extends Stream <? extends Dynamic<? >>> optional1 = dynamic.get("DropChances"). < Stream <? extends Dynamic<? >>> flatMap(Dynamic::getStream);
+-
++            Optional <? extends Stream <? extends Dynamic<? >>> optional1 = dynamic.get("DropChances").flatMap(Dynamic::getStream);
++            Dynamic dynamicF = dynamic;
+             if (optional1.isPresent())
+             {
+-                Iterator <? extends Dynamic<? >> iterator = Stream. < Dynamic<? >> concat(optional1.get(), Stream.generate(() ->
++                Iterator iterator = Stream.concat(optional1.get(), Stream.generate(() ->
+                 {
+-                    return dynamic.createInt(0);
++                    return dynamicF.createInt(0);
+                 })).iterator();
+                 float f = ((Dynamic)iterator.next()).getNumberValue(0).floatValue();
+ 
+diff U3 net/minecraft/util/datafix/fixes/EntityId.java net/minecraft/util/datafix/fixes/EntityId.java
+--- net/minecraft/util/datafix/fixes/EntityId.java
++++ net/minecraft/util/datafix/fixes/EntityId.java
+@@ -100,8 +100,8 @@
+ 
+     public TypeRewriteRule makeRule()
+     {
+-        TaggedChoiceType<String> taggedchoicetype = this.getInputSchema().findChoiceType(TypeReferences.field_211299_o);
+-        TaggedChoiceType<String> taggedchoicetype1 = this.getOutputSchema().findChoiceType(TypeReferences.field_211299_o);
++        TaggedChoiceType<String> taggedchoicetype = (TaggedChoiceType)this.getInputSchema().findChoiceType(TypeReferences.field_211299_o);
++        TaggedChoiceType<String> taggedchoicetype1 = (TaggedChoiceType)this.getOutputSchema().findChoiceType(TypeReferences.field_211299_o);
+         Type<?> type = this.getInputSchema().getType(TypeReferences.field_211295_k);
+         Type<?> type1 = this.getOutputSchema().getType(TypeReferences.field_211295_k);
+         return TypeRewriteRule.seq(this.convertUnchecked("item stack entity name hook converter", type, type1), this.fixTypeEverywhere("EntityIdFix", taggedchoicetype, taggedchoicetype1, (p_209744_0_) ->
+diff U3 net/minecraft/util/datafix/fixes/EntityRename.java net/minecraft/util/datafix/fixes/EntityRename.java
+--- net/minecraft/util/datafix/fixes/EntityRename.java
++++ net/minecraft/util/datafix/fixes/EntityRename.java
+@@ -23,8 +23,8 @@
+ 
+     public TypeRewriteRule makeRule()
+     {
+-        TaggedChoiceType<String> taggedchoicetype = this.getInputSchema().findChoiceType(TypeReferences.field_211299_o);
+-        TaggedChoiceType<String> taggedchoicetype1 = this.getOutputSchema().findChoiceType(TypeReferences.field_211299_o);
++        TaggedChoiceType<String> taggedchoicetype = (TaggedChoiceType)this.getInputSchema().findChoiceType(TypeReferences.field_211299_o);
++        TaggedChoiceType<String> taggedchoicetype1 = (TaggedChoiceType)this.getOutputSchema().findChoiceType(TypeReferences.field_211299_o);
+         return this.fixTypeEverywhere(this.field_211313_a, taggedchoicetype, taggedchoicetype1, (p_209755_3_) ->
+         {
+             return (p_209150_4_) -> {
+@@ -46,7 +46,7 @@
+ 
+     private <A> Typed<A> func_209757_a(Object p_209757_1_, DynamicOps<?> p_209757_2_, Type<A> p_209757_3_)
+     {
+-        return new Typed<A>(p_209757_3_, p_209757_2_, p_209757_1_);
++        return new Typed<A>(p_209757_3_, p_209757_2_, (A)p_209757_1_);
+     }
+ 
+     protected abstract Pair < String, Typed<? >> func_209149_a(String p_209149_1_, Typed<?> p_209149_2_);
+diff U3 net/minecraft/util/datafix/fixes/EntityRenameing1510.java net/minecraft/util/datafix/fixes/EntityRenameing1510.java
+--- net/minecraft/util/datafix/fixes/EntityRenameing1510.java
++++ net/minecraft/util/datafix/fixes/EntityRenameing1510.java
+@@ -8,7 +8,7 @@
+ {
+     public static final Map<String, String> field_210595_a = ImmutableMap.<String, String>builder().put("minecraft:commandblock_minecart", "minecraft:command_block_minecart").put("minecraft:ender_crystal", "minecraft:end_crystal").put("minecraft:snowman", "minecraft:snow_golem").put("minecraft:evocation_illager", "minecraft:evoker").put("minecraft:evocation_fangs", "minecraft:evoker_fangs").put("minecraft:illusion_illager", "minecraft:illusioner").put("minecraft:vindication_illager", "minecraft:vindicator").put("minecraft:villager_golem", "minecraft:iron_golem").put("minecraft:xp_orb", "minecraft:experience_orb").put("minecraft:xp_bottle", "minecraft:experience_bottle").put("minecraft:eye_of_ender_signal", "minecraft:eye_of_ender").put("minecraft:fireworks_rocket", "minecraft:firework_rocket").build();
+     public static final Map<String, String> field_210596_b = ImmutableMap.<String, String>builder().put("minecraft:portal", "minecraft:nether_portal").put("minecraft:oak_bark", "minecraft:oak_wood").put("minecraft:spruce_bark", "minecraft:spruce_wood").put("minecraft:birch_bark", "minecraft:birch_wood").put("minecraft:jungle_bark", "minecraft:jungle_wood").put("minecraft:acacia_bark", "minecraft:acacia_wood").put("minecraft:dark_oak_bark", "minecraft:dark_oak_wood").put("minecraft:stripped_oak_bark", "minecraft:stripped_oak_wood").put("minecraft:stripped_spruce_bark", "minecraft:stripped_spruce_wood").put("minecraft:stripped_birch_bark", "minecraft:stripped_birch_wood").put("minecraft:stripped_jungle_bark", "minecraft:stripped_jungle_wood").put("minecraft:stripped_acacia_bark", "minecraft:stripped_acacia_wood").put("minecraft:stripped_dark_oak_bark", "minecraft:stripped_dark_oak_wood").put("minecraft:mob_spawner", "minecraft:spawner").build();
+-    public static final Map<String, String> field_210597_c = ImmutableMap.builder().putAll(field_210596_b).put("minecraft:clownfish", "minecraft:tropical_fish").put("minecraft:chorus_fruit_popped", "minecraft:popped_chorus_fruit").put("minecraft:evocation_illager_spawn_egg", "minecraft:evoker_spawn_egg").put("minecraft:vindication_illager_spawn_egg", "minecraft:vindicator_spawn_egg").build();
++    public static final Map<String, String> field_210597_c = (Map)ImmutableMap.builder().putAll(field_210596_b).put("minecraft:clownfish", "minecraft:tropical_fish").put("minecraft:chorus_fruit_popped", "minecraft:popped_chorus_fruit").put("minecraft:evocation_illager_spawn_egg", "minecraft:evoker_spawn_egg").put("minecraft:vindication_illager_spawn_egg", "minecraft:vindicator_spawn_egg").build();
+ 
+     public EntityRenameing1510(Schema p_i49651_1_, boolean p_i49651_2_)
+     {
+diff U3 net/minecraft/util/datafix/fixes/HorseSplit.java net/minecraft/util/datafix/fixes/HorseSplit.java
+--- net/minecraft/util/datafix/fixes/HorseSplit.java
++++ net/minecraft/util/datafix/fixes/HorseSplit.java
+@@ -52,7 +52,7 @@
+ 
+             dynamic.remove("Type");
+             Type<?> type = (Type)this.getOutputSchema().findChoiceType(TypeReferences.field_211299_o).types().get(s);
+-            return Pair. < String, Typed<? >> of(s, ((Optional)type.readTyped(p_209149_2_.write()).getSecond()).orElseThrow(() ->
++            return Pair. < String, Typed<? >> of(s, (type.readTyped(p_209149_2_.write()).getSecond()).orElseThrow(() ->
+             {
+                 return new IllegalStateException("Could not parse the new horse");
+             }));
+diff U3 net/minecraft/util/datafix/fixes/IglooMetadataRemoval.java net/minecraft/util/datafix/fixes/IglooMetadataRemoval.java
+--- net/minecraft/util/datafix/fixes/IglooMetadataRemoval.java
++++ net/minecraft/util/datafix/fixes/IglooMetadataRemoval.java
+@@ -8,6 +8,8 @@
+ import java.util.Optional;
+ import java.util.function.Function;
+ import java.util.function.Predicate;
++import java.util.stream.Stream;
++
+ import net.minecraft.util.datafix.TypeReferences;
+ 
+ public class IglooMetadataRemoval extends DataFix
+@@ -42,7 +44,7 @@
+             });
+         });
+         p_211929_0_.getClass();
+-        return (Dynamic)optional.<T>map(p_211929_0_::createList).orElse(p_211929_0_);
++        return (Dynamic)optional.<T>map((x)->p_211929_0_.createList((Stream)x)).orElse(p_211929_0_);
+     }
+ 
+     private static boolean func_211930_c(Dynamic<?> p_211930_0_)
+diff U3 net/minecraft/util/datafix/fixes/ItemStackEnchantmentFix.java net/minecraft/util/datafix/fixes/ItemStackEnchantmentFix.java
+--- net/minecraft/util/datafix/fixes/ItemStackEnchantmentFix.java
++++ net/minecraft/util/datafix/fixes/ItemStackEnchantmentFix.java
+@@ -13,6 +13,8 @@
+ import java.util.Optional;
+ import java.util.function.Consumer;
+ import java.util.function.Function;
++import java.util.stream.Stream;
++
+ import net.minecraft.util.datafix.TypeReferences;
+ 
+ public class ItemStackEnchantmentFix extends DataFix
+@@ -81,7 +83,8 @@
+             });
+         });
+         p_209627_1_.getClass();
+-        Optional < Dynamic<? >> optional = optional1. < Dynamic<? >> map(p_209627_1_::createList);
++        Dynamic df = p_209627_1_;
++        Optional < Dynamic<? >> optional = optional1. < Dynamic<? >> map((x)->df.createList((Stream)x));
+ 
+         if (optional.isPresent())
+         {
+@@ -96,7 +99,7 @@
+                 });
+             });
+             p_209625_0_.getClass();
+-            return (Dynamic)DataFixUtils.orElse(optional2.map(p_209625_0_::createList), p_209625_0_);
++            return (Dynamic)DataFixUtils.orElse(optional2.map((x)->p_209625_0_.createList((Stream)x)), p_209625_0_);
+         });
+     }
+ }
+diff U3 net/minecraft/util/datafix/fixes/JukeboxRecordItem.java net/minecraft/util/datafix/fixes/JukeboxRecordItem.java
+--- net/minecraft/util/datafix/fixes/JukeboxRecordItem.java
++++ net/minecraft/util/datafix/fixes/JukeboxRecordItem.java
+@@ -35,7 +35,7 @@
+                 Dynamic<?> dynamic1 = dynamic.emptyMap();
+                 dynamic1 = dynamic1.set("id", dynamic1.createString(s));
+                 dynamic1 = dynamic1.set("Count", dynamic1.createByte((byte)1));
+-                return p_207419_1_.set(opticfinder, (Typed)((Optional)type1.readTyped(dynamic1).getSecond()).orElseThrow(() ->
++                return p_207419_1_.set(opticfinder, (Typed)(type1.readTyped(dynamic1).getSecond()).orElseThrow(() ->
+                 {
+                     return new IllegalStateException("Could not create record item stack.");
+                 })).set(DSL.remainderFinder(), dynamic);
+diff U3 net/minecraft/util/datafix/fixes/KeyOptionsTranslation.java net/minecraft/util/datafix/fixes/KeyOptionsTranslation.java
+--- net/minecraft/util/datafix/fixes/KeyOptionsTranslation.java
++++ net/minecraft/util/datafix/fixes/KeyOptionsTranslation.java
+@@ -37,7 +37,7 @@
+ 
+                         return Pair.of(p_209666_1_.getKey(), p_209666_1_.getValue());
+                     }).collect(Collectors.toMap(Pair::getFirst, Pair::getSecond)));
+-                }).orElse(p_209668_0_);
++                }).orElse((Dynamic)p_209668_0_);
+             });
+         });
+     }
+diff U3 net/minecraft/util/datafix/fixes/LeavesFix.java net/minecraft/util/datafix/fixes/LeavesFix.java
+--- net/minecraft/util/datafix/fixes/LeavesFix.java
++++ net/minecraft/util/datafix/fixes/LeavesFix.java
+@@ -70,7 +70,7 @@
+         }
+         else
+         {
+-            Type<?> type2 = (type1).getElement();
++            Type<?> type2 = ((com.mojang.datafixers.types.templates.List.ListType) type1).getElement();
+             OpticFinder<?> opticfinder2 = DSL.typeFinder(type2);
+             return this.fixTypeEverywhereTyped("Leaves fix", type, (p_208422_4_) ->
+             {
+@@ -274,7 +274,7 @@
+                 this.field_208472_g = new IntOpenHashSet();
+                 this.field_208473_h = new Int2IntOpenHashMap();
+                 Optional < List < Pair < String, Dynamic<? >>> > optional = p_i49573_2_. < List < Pair < String, Dynamic<? >>> > getOptional(this.field_208468_c);
+-                this.field_208469_d = (List)optional. < Dynamic<? >> map((p_208463_0_) ->
++                this.field_208469_d = (List)optional.map((p_208463_0_) ->
+                 {
+                     return (List)p_208463_0_.stream().map(Pair::getSecond).collect(Collectors.toList());
+                 }).orElse(ImmutableList.of());
+@@ -334,7 +334,7 @@
+             return this.func_208461_a() ? p_208465_1_ : p_208465_1_.update(DSL.remainderFinder(), (p_209773_1_) ->
+             {
+                 return p_209773_1_.set("BlockStates", p_209773_1_.createLongList(Arrays.stream(this.field_208470_e.getBackingLongArray())));
+-            }).set(this.field_208468_c, this.field_208469_d.stream().map((p_208458_0_) ->
++            }).set(this.field_208468_c, (Typed)((List)this.field_208469_d).stream().map((p_208458_0_) ->
+             {
+                 return Pair.of(TypeReferences.field_211296_l.typeName(), p_208458_0_);
+             }).collect(Collectors.toList()));
+diff U3 net/minecraft/util/datafix/fixes/LevelDataGeneratorOptionsFix.java net/minecraft/util/datafix/fixes/LevelDataGeneratorOptionsFix.java
+--- net/minecraft/util/datafix/fixes/LevelDataGeneratorOptionsFix.java
++++ net/minecraft/util/datafix/fixes/LevelDataGeneratorOptionsFix.java
+@@ -136,7 +136,7 @@
+                 dynamic1 = dynamic;
+             }
+ 
+-            return (Typed)((Optional)type.readTyped(dynamic1).getSecond()).orElseThrow(() -> {
++            return (Typed)(type.readTyped(dynamic1).getSecond()).orElseThrow(() -> {
+                 return new IllegalStateException("Could not read new level type.");
+             });
+         });
+@@ -208,11 +208,11 @@
+         {
+             return p_210549_1_.createMap(ImmutableMap.<T, T>of(p_210549_1_.createString("height"), p_210549_1_.createInt(p_210547_1_.getFirst()), p_210549_1_.createString("block"), p_210549_1_.createString((String)p_210547_1_.getSecond())));
+         }));
+-        T t1 = p_210549_1_.createMap((Map)map.entrySet().stream().map((p_210544_1_) ->
++        T t1 = (T)p_210549_1_.createMap((Map)map.entrySet().stream().map((p_210544_1_) ->
+         {
+             return Pair.of(p_210549_1_.createString(((String)p_210544_1_.getKey()).toLowerCase(Locale.ROOT)), p_210549_1_.createMap((Map)((Map)p_210544_1_.getValue()).entrySet().stream().map((p_210551_1_) -> {
+-                return Pair.of(p_210549_1_.createString((String)p_210551_1_.getKey()), p_210549_1_.createString((String)p_210551_1_.getValue()));
+-            }).collect(Collectors.toMap(Pair::getFirst, Pair::getSecond))));
++                return Pair.of(p_210549_1_.createString((String)((Map.Entry)p_210551_1_).getKey()), p_210549_1_.createString((String)((Map.Entry)p_210551_1_).getValue()));
++            }).collect(Collectors.toMap((Pair x)->x.getFirst(), (x)->x.getSecond()))));
+         }).collect(Collectors.toMap(Pair::getFirst, Pair::getSecond)));
+         return new Dynamic<T>(p_210549_1_, p_210549_1_.createMap(ImmutableMap.<T, T>of(p_210549_1_.createString("layers"), t, p_210549_1_.createString("biome"), p_210549_1_.createString(s), p_210549_1_.createString("structures"), t1)));
+     }
+diff U3 net/minecraft/util/datafix/fixes/LWJGL3KeyOptions.java net/minecraft/util/datafix/fixes/LWJGL3KeyOptions.java
+--- net/minecraft/util/datafix/fixes/LWJGL3KeyOptions.java
++++ net/minecraft/util/datafix/fixes/LWJGL3KeyOptions.java
+@@ -183,7 +183,7 @@
+                             return Pair.of(p_209661_0_.getKey(), p_209661_0_.getValue());
+                         }
+                     }).collect(Collectors.toMap(Pair::getFirst, Pair::getSecond)));
+-                }).orElse(p_207424_0_);
++                }).orElse((Dynamic)p_207424_0_);
+             });
+         });
+     }
+diff U3 net/minecraft/util/datafix/fixes/MinecartEntityTypes.java net/minecraft/util/datafix/fixes/MinecartEntityTypes.java
+--- net/minecraft/util/datafix/fixes/MinecartEntityTypes.java
++++ net/minecraft/util/datafix/fixes/MinecartEntityTypes.java
+@@ -27,8 +27,8 @@
+ 
+     public TypeRewriteRule makeRule()
+     {
+-        TaggedChoiceType<String> taggedchoicetype = this.getInputSchema().findChoiceType(TypeReferences.field_211299_o);
+-        TaggedChoiceType<String> taggedchoicetype1 = this.getOutputSchema().findChoiceType(TypeReferences.field_211299_o);
++        TaggedChoiceType<String> taggedchoicetype = (TaggedChoiceType)this.getInputSchema().findChoiceType(TypeReferences.field_211299_o);
++        TaggedChoiceType<String> taggedchoicetype1 = (TaggedChoiceType)this.getOutputSchema().findChoiceType(TypeReferences.field_211299_o);
+         return this.fixTypeEverywhere("EntityMinecartIdentifiersFix", taggedchoicetype, taggedchoicetype1, (p_209746_2_) ->
+         {
+             return (p_206328_3_) -> {
+@@ -50,7 +50,7 @@
+                         s = "MinecartRideable";
+                     }
+ 
+-                    return Pair.of(s, ((Optional)(taggedchoicetype1.types().get(s)).read(typed.write()).getSecond()).orElseThrow(() -> {
++                    return Pair.of(s, ((taggedchoicetype1.types().get(s)).read(typed.write()).getSecond()).orElseThrow(() -> {
+                         return new IllegalStateException("Could not read the new minecart.");
+                     }));
+                 }
+diff U3 net/minecraft/util/datafix/fixes/ObjectiveDisplayName.java net/minecraft/util/datafix/fixes/ObjectiveDisplayName.java
+--- net/minecraft/util/datafix/fixes/ObjectiveDisplayName.java
++++ net/minecraft/util/datafix/fixes/ObjectiveDisplayName.java
+@@ -41,7 +41,7 @@
+                                 return ITextComponent.Serializer.componentToJson(new TextComponentString(p_211865_0_));
+                             });
+                             p_211861_0_.getClass();
+-                            return (Dynamic)DataFixUtils.orElse(optional.map(p_211861_0_::createString), p_211864_1_);
++                            return (Dynamic)DataFixUtils.orElse(optional.map((x)->p_211861_0_.createString((String)x)), p_211864_1_);
+                         });
+                     });
+                 };
+diff U3 net/minecraft/util/datafix/fixes/PistonPushedBlock.java net/minecraft/util/datafix/fixes/PistonPushedBlock.java
+--- net/minecraft/util/datafix/fixes/PistonPushedBlock.java
++++ net/minecraft/util/datafix/fixes/PistonPushedBlock.java
+@@ -32,7 +32,7 @@
+         {
+             return new IllegalStateException("Could not create new piston block entity.");
+         });
+-        return typed.set(DSL.remainderFinder(), dynamic).set(opticfinder, (Typed)((Optional)type1.readTyped(dynamic1).getSecond()).orElseThrow(() ->
++        return typed.set(DSL.remainderFinder(), dynamic).set(opticfinder, (Typed)(type1.readTyped(dynamic1).getSecond()).orElseThrow(() ->
+         {
+             return new IllegalStateException("Could not parse newly created block state tag.");
+         }));
+diff U3 net/minecraft/util/datafix/fixes/RedundantChanceTags.java net/minecraft/util/datafix/fixes/RedundantChanceTags.java
+--- net/minecraft/util/datafix/fixes/RedundantChanceTags.java
++++ net/minecraft/util/datafix/fixes/RedundantChanceTags.java
+@@ -27,7 +27,7 @@
+                 Dynamic<?> dynamic = p_206334_0_;
+ 
+                 if (Objects.equals(p_206334_0_.get("HandDropChances"), Optional.of(p_206334_0_.createList(Stream.generate(() -> {
+-                return p_206334_0_.createFloat(0.0F);
++                return dynamic.createFloat(0.0F);
+                 }).limit(2L)))))
+                 {
+                     p_206334_0_ = p_206334_0_.remove("HandDropChances");
+diff U3 net/minecraft/util/datafix/fixes/RidingToPassengers.java net/minecraft/util/datafix/fixes/RidingToPassengers.java
+--- net/minecraft/util/datafix/fixes/RidingToPassengers.java
++++ net/minecraft/util/datafix/fixes/RidingToPassengers.java
+@@ -87,10 +87,20 @@
+                             });
+                         }
+ 
++                        try
++                        {
+                         pair = (Pair)(new Typed(p_206340_3_, p_209760_5_, optional1.get())).getOptional(opticfinder).orElseThrow(() ->
+                         {
+                             return new IllegalStateException("Should always have an entity here");
+                         });
++                        }
++                        catch(Throwable e)
++                        {
++                          if(e instanceof RuntimeException)
++                            throw (RuntimeException)e;
++                          else
++                            throw new RuntimeException(e.getMessage(), e.getCause());
++                        }
+                     }
+                 };
+             }), this.writeAndRead("player RootVehicle injecter", type4, type5));
+diff U3 net/minecraft/util/datafix/fixes/SpawnEggNames.java net/minecraft/util/datafix/fixes/SpawnEggNames.java
+--- net/minecraft/util/datafix/fixes/SpawnEggNames.java
++++ net/minecraft/util/datafix/fixes/SpawnEggNames.java
+@@ -115,11 +115,11 @@
+                 Optional <? extends Typed<? >> optional1 = p_206359_6_.getOptionalTyped(opticfinder2);
+                 Optional <? extends Typed<? >> optional2 = optional1. < Typed<? >> flatMap((p_207479_1_) ->
+                 {
+-                    return p_207479_1_.getOptionalTyped(opticfinder3);
++                    return (Optional)p_207479_1_.getOptionalTyped(opticfinder3);
+                 });
+                 Optional <? extends Typed<? >> optional3 = optional2. < Typed<? >> flatMap((p_207482_1_) ->
+                 {
+-                    return p_207482_1_.getOptionalTyped(opticfinder4);
++                    return (Optional)p_207482_1_.getOptionalTyped(opticfinder4);
+                 });
+                 Optional<String> optional4 = optional3.<String>flatMap((p_207481_1_) ->
+                 {
+@@ -134,7 +134,7 @@
+                     Typed<?> typed2 = typed1.getOrCreateTyped(opticfinder3);
+                     Typed<?> typed3 = typed2.getOrCreateTyped(opticfinder4);
+                     Dynamic<?> dynamic1 = typed3.write().set("id", dynamic.createString(s));
+-                    Typed<?> typed4 = (Typed)((Optional)this.getOutputSchema().getTypeRaw(TypeReferences.field_211299_o).readTyped(dynamic1).getSecond()).orElseThrow(() ->
++                    Typed<?> typed4 = (Typed)(this.getOutputSchema().getTypeRaw(TypeReferences.field_211299_o).readTyped(dynamic1).getSecond()).orElseThrow(() ->
+                     {
+                         return new IllegalStateException("Could not parse new entity");
+                     });
+diff U3 net/minecraft/util/datafix/fixes/SpawnerEntityTypes.java net/minecraft/util/datafix/fixes/SpawnerEntityTypes.java
+--- net/minecraft/util/datafix/fixes/SpawnerEntityTypes.java
++++ net/minecraft/util/datafix/fixes/SpawnerEntityTypes.java
+@@ -39,7 +39,7 @@
+                 p_209659_1_ = p_209659_1_.remove("EntityId");
+             }
+ 
+-            Optional <? extends Stream <? extends Dynamic<? >>> optional1 = p_209659_1_.get("SpawnPotentials"). < Stream <? extends Dynamic<? >>> flatMap(Dynamic::getStream);
++            Optional <? extends Stream <? extends Dynamic<? >>> optional1 = p_209659_1_.get("SpawnPotentials").flatMap(Dynamic::getStream);
+ 
+             if (optional1.isPresent())
+             {
+diff U3 net/minecraft/util/datafix/fixes/StatsRenaming.java net/minecraft/util/datafix/fixes/StatsRenaming.java
+--- net/minecraft/util/datafix/fixes/StatsRenaming.java
++++ net/minecraft/util/datafix/fixes/StatsRenaming.java
+@@ -23,7 +23,7 @@
+ 
+ public class StatsRenaming extends DataFix
+ {
+-    private static final Set<String> field_209682_a = ImmutableSet.builder().add("stat.craftItem.minecraft.spawn_egg").add("stat.useItem.minecraft.spawn_egg").add("stat.breakItem.minecraft.spawn_egg").add("stat.pickup.minecraft.spawn_egg").add("stat.drop.minecraft.spawn_egg").build();
++    private static final Set<String> field_209682_a = (Set)ImmutableSet.builder().add("stat.craftItem.minecraft.spawn_egg").add("stat.useItem.minecraft.spawn_egg").add("stat.breakItem.minecraft.spawn_egg").add("stat.pickup.minecraft.spawn_egg").add("stat.drop.minecraft.spawn_egg").build();
+     private static final Map<String, String> field_209683_b = ImmutableMap.<String, String>builder().put("stat.leaveGame", "minecraft:leave_game").put("stat.playOneMinute", "minecraft:play_one_minute").put("stat.timeSinceDeath", "minecraft:time_since_death").put("stat.sneakTime", "minecraft:sneak_time").put("stat.walkOneCm", "minecraft:walk_one_cm").put("stat.crouchOneCm", "minecraft:crouch_one_cm").put("stat.sprintOneCm", "minecraft:sprint_one_cm").put("stat.swimOneCm", "minecraft:swim_one_cm").put("stat.fallOneCm", "minecraft:fall_one_cm").put("stat.climbOneCm", "minecraft:climb_one_cm").put("stat.flyOneCm", "minecraft:fly_one_cm").put("stat.diveOneCm", "minecraft:dive_one_cm").put("stat.minecartOneCm", "minecraft:minecart_one_cm").put("stat.boatOneCm", "minecraft:boat_one_cm").put("stat.pigOneCm", "minecraft:pig_one_cm").put("stat.horseOneCm", "minecraft:horse_one_cm").put("stat.aviateOneCm", "minecraft:aviate_one_cm").put("stat.jump", "minecraft:jump").put("stat.drop", "minecraft:drop").put("stat.damageDealt", "minecraft:damage_dealt").put("stat.damageTaken", "minecraft:damage_taken").put("stat.deaths", "minecraft:deaths").put("stat.mobKills", "minecraft:mob_kills").put("stat.animalsBred", "minecraft:animals_bred").put("stat.playerKills", "minecraft:player_kills").put("stat.fishCaught", "minecraft:fish_caught").put("stat.talkedToVillager", "minecraft:talked_to_villager").put("stat.tradedWithVillager", "minecraft:traded_with_villager").put("stat.cakeSlicesEaten", "minecraft:eat_cake_slice").put("stat.cauldronFilled", "minecraft:fill_cauldron").put("stat.cauldronUsed", "minecraft:use_cauldron").put("stat.armorCleaned", "minecraft:clean_armor").put("stat.bannerCleaned", "minecraft:clean_banner").put("stat.brewingstandInteraction", "minecraft:interact_with_brewingstand").put("stat.beaconInteraction", "minecraft:interact_with_beacon").put("stat.dropperInspected", "minecraft:inspect_dropper").put("stat.hopperInspected", "minecraft:inspect_hopper").put("stat.dispenserInspected", "minecraft:inspect_dispenser").put("stat.noteblockPlayed", "minecraft:play_noteblock").put("stat.noteblockTuned", "minecraft:tune_noteblock").put("stat.flowerPotted", "minecraft:pot_flower").put("stat.trappedChestTriggered", "minecraft:trigger_trapped_chest").put("stat.enderchestOpened", "minecraft:open_enderchest").put("stat.itemEnchanted", "minecraft:enchant_item").put("stat.recordPlayed", "minecraft:play_record").put("stat.furnaceInteraction", "minecraft:interact_with_furnace").put("stat.craftingTableInteraction", "minecraft:interact_with_crafting_table").put("stat.chestOpened", "minecraft:open_chest").put("stat.sleepInBed", "minecraft:sleep_in_bed").put("stat.shulkerBoxOpened", "minecraft:open_shulker_box").build();
+     private static final Map<String, String> field_199189_b = ImmutableMap.<String, String>builder().put("stat.craftItem", "minecraft:crafted").put("stat.useItem", "minecraft:used").put("stat.breakItem", "minecraft:broken").put("stat.pickup", "minecraft:picked_up").put("stat.drop", "minecraft:dropped").build();
+     private static final Map<String, String> field_209684_d = ImmutableMap.<String, String>builder().put("stat.entityKilledBy", "minecraft:killed_by").put("stat.killEntity", "minecraft:killed").build();
+@@ -57,7 +57,7 @@
+                     {
+                         if (!iterator.hasNext())
+                         {
+-                            return (Typed)((Optional)type.readTyped(dynamic.emptyMap().set("stats", dynamic.createMap(map))).getSecond()).orElseThrow(() ->
++                            return (Typed)(type.readTyped(dynamic.emptyMap().set("stats", dynamic.createMap(map))).getSecond()).orElseThrow(() ->
+                             {
+                                 return new IllegalStateException("Could not parse new stats object.");
+                             });
+@@ -121,7 +121,7 @@
+                 }
+             }
+             else {
+-                return (Typed)((Optional)type.readTyped(dynamic.emptyMap().set("stats", dynamic.createMap(map))).getSecond()).orElseThrow(() -> {
++                return (Typed)(type.readTyped(dynamic.emptyMap().set("stats", dynamic.createMap(map))).getSecond()).orElseThrow(() -> {
+                     return new IllegalStateException("Could not parse new stats object.");
+                 });
+             }
+diff U3 net/minecraft/util/datafix/fixes/TeamDisplayName.java net/minecraft/util/datafix/fixes/TeamDisplayName.java
+--- net/minecraft/util/datafix/fixes/TeamDisplayName.java
++++ net/minecraft/util/datafix/fixes/TeamDisplayName.java
+@@ -41,7 +41,7 @@
+                                 return ITextComponent.Serializer.componentToJson(new TextComponentString(p_211879_0_));
+                             });
+                             p_211875_0_.getClass();
+-                            return (Dynamic)DataFixUtils.orElse(optional.map(p_211875_0_::createString), p_211878_1_);
++                            return (Dynamic)DataFixUtils.orElse(optional.map((x)->p_211875_0_.createString((String)x)), p_211878_1_);
+                         });
+                     });
+                 };
+diff U3 net/minecraft/util/datafix/fixes/TileEntityId.java net/minecraft/util/datafix/fixes/TileEntityId.java
+--- net/minecraft/util/datafix/fixes/TileEntityId.java
++++ net/minecraft/util/datafix/fixes/TileEntityId.java
+@@ -50,8 +50,8 @@
+     {
+         Type<?> type = this.getInputSchema().getType(TypeReferences.field_211295_k);
+         Type<?> type1 = this.getOutputSchema().getType(TypeReferences.field_211295_k);
+-        TaggedChoiceType<String> taggedchoicetype = this.getInputSchema().findChoiceType(TypeReferences.field_211294_j);
+-        TaggedChoiceType<String> taggedchoicetype1 = this.getOutputSchema().findChoiceType(TypeReferences.field_211294_j);
++        TaggedChoiceType<String> taggedchoicetype = (TaggedChoiceType)this.getInputSchema().findChoiceType(TypeReferences.field_211294_j);
++        TaggedChoiceType<String> taggedchoicetype1 = (TaggedChoiceType)this.getOutputSchema().findChoiceType(TypeReferences.field_211294_j);
+         return TypeRewriteRule.seq(this.convertUnchecked("item stack block entity name hook converter", type, type1), this.fixTypeEverywhere("BlockEntityIdFix", taggedchoicetype, taggedchoicetype1, (p_209700_0_) ->
+         {
+             return (p_206301_0_) -> {
+diff U3 net/minecraft/util/datafix/fixes/TypedEntityRenameHelper.java net/minecraft/util/datafix/fixes/TypedEntityRenameHelper.java
+--- net/minecraft/util/datafix/fixes/TypedEntityRenameHelper.java
++++ net/minecraft/util/datafix/fixes/TypedEntityRenameHelper.java
+@@ -23,8 +23,8 @@
+ 
+     public TypeRewriteRule makeRule()
+     {
+-        TaggedChoiceType<String> taggedchoicetype = this.getInputSchema().findChoiceType(TypeReferences.field_211299_o);
+-        TaggedChoiceType<String> taggedchoicetype1 = this.getOutputSchema().findChoiceType(TypeReferences.field_211299_o);
++        TaggedChoiceType<String> taggedchoicetype = (TaggedChoiceType)this.getInputSchema().findChoiceType(TypeReferences.field_211299_o);
++        TaggedChoiceType<String> taggedchoicetype1 = (TaggedChoiceType)this.getOutputSchema().findChoiceType(TypeReferences.field_211299_o);
+         Type<Pair<String, String>> type = DSL.named(TypeReferences.field_211297_m.typeName(), DSL.namespacedString());
+ 
+         if (!Objects.equals(this.getOutputSchema().getType(TypeReferences.field_211297_m), type))
+diff U3 net/minecraft/util/math/BlockPos.java net/minecraft/util/math/BlockPos.java
+--- net/minecraft/util/math/BlockPos.java
++++ net/minecraft/util/math/BlockPos.java
+@@ -248,6 +248,12 @@
+ 
+     public static Iterable<BlockPos> getAllInBox(int x1, int y1, int z1, int x2, int y2, int z2)
+     {
++        final int p_210321_0_ = x1;
++        final int p_210321_1_ = y1;
++        final int p_210321_2_ = z1;
++        final int p_210321_3_ = x2;
++        final int p_210321_4_ = y2;
++        final int p_210321_5_ = z2;
+         return () ->
+         {
+             return new AbstractIterator<BlockPos>()
+@@ -313,6 +319,12 @@
+ 
+     public static Iterable<BlockPos.MutableBlockPos> getAllInBoxMutable(int x1, int y1, int z1, int x2, int y2, int z2)
+     {
++        final int p_210320_0_ = x1;
++        final int p_210320_1_ = y1;
++        final int p_210320_2_ = z1;
++        final int p_210320_3_ = x2;
++        final int p_210320_4_ = y2;
++        final int p_210320_5_ = z2;
+         return () ->
+         {
+             return new AbstractIterator<BlockPos.MutableBlockPos>()
+diff U3 net/minecraft/util/math/shapes/IndirectMerger.java net/minecraft/util/math/shapes/IndirectMerger.java
+--- net/minecraft/util/math/shapes/IndirectMerger.java
++++ net/minecraft/util/math/shapes/IndirectMerger.java
+@@ -43,7 +43,7 @@
+ 
+             if ((i != 0 && flag || flag2 || p_i47685_4_) && (j != 0 && flag1 || !flag2 || p_i47685_3_))
+             {
+-                if (d0 <= d1 - 1.0E-7D)
++                if (!(d0 > d1 - 1.0E-7D))
+                 {
+                     this.field_197857_b.add(i - 1);
+                     this.field_197858_c.add(j - 1);
+diff U3 net/minecraft/util/registry/RegistryNamespaced.java net/minecraft/util/registry/RegistryNamespaced.java
+--- net/minecraft/util/registry/RegistryNamespaced.java
++++ net/minecraft/util/registry/RegistryNamespaced.java
+@@ -15,7 +15,7 @@
+ 
+     public RegistryNamespaced()
+     {
+-        this.inverseObjectRegistry = (this.registryObjects).inverse();
++        this.inverseObjectRegistry = ((HashBiMap) this.registryObjects).inverse();
+     }
+ 
+     public void register(int id, K key, V value)
+diff U3 net/minecraft/world/IWorldReaderBase.java net/minecraft/world/IWorldReaderBase.java
+--- net/minecraft/world/IWorldReaderBase.java
++++ net/minecraft/world/IWorldReaderBase.java
+@@ -261,8 +261,8 @@
+         else
+         {
+             voxelshape = voxelshape.func_197753_c();
+-            blockpos$pooledmutableblockpos = new VoxelShapeInt(voxelshapepart, i, k, i1);
+-            voxelshape = ShapeUtils.func_197882_b(voxelshape, blockpos$pooledmutableblockpos, IBooleanFunction.OR);
++            VoxelShape vsn = new VoxelShapeInt(voxelshapepart, i, k, i1);
++            voxelshape = ShapeUtils.func_197882_b(voxelshape, vsn, IBooleanFunction.OR);
+             return voxelshape;
+         }
+     }
+@@ -278,7 +278,7 @@
+         VoxelShape voxelshape = ShapeUtils.func_197881_a(p_211153_2_);
+         VoxelShape voxelshape1 = ShapeUtils.func_197881_a(p_211153_2_.offset(p_211153_4_ > 0.0D ? -1.0E-7D : 1.0E-7D, p_211153_6_ > 0.0D ? -1.0E-7D : 1.0E-7D, p_211153_8_ > 0.0D ? -1.0E-7D : 1.0E-7D));
+         VoxelShape voxelshape2 = ShapeUtils.func_197882_b(ShapeUtils.func_197881_a(p_211153_2_.expand(p_211153_4_, p_211153_6_, p_211153_8_).grow(1.0E-7D)), voxelshape1, IBooleanFunction.ONLY_FIRST);
+-        return this.func_211154_a(p_211153_1_, voxelshape2, voxelshape, p_211153_3_, false);
++        return this.func_211154_a(p_211153_1_, voxelshape, voxelshape2, p_211153_3_, false);
+     }
+ 
+ default VoxelShape func_195583_a(@Nullable Entity p_195583_1_, AxisAlignedBB p_195583_2_)
+diff U3 net/minecraft/world/WorldServer.java net/minecraft/world/WorldServer.java
+--- net/minecraft/world/WorldServer.java
++++ net/minecraft/world/WorldServer.java
+@@ -57,6 +57,7 @@
+ import net.minecraft.util.DamageSource;
+ import net.minecraft.util.IProgressUpdate;
+ import net.minecraft.util.IThreadListener;
++import net.minecraft.util.ResourceLocation;
+ import net.minecraft.util.WeightedRandom;
+ import net.minecraft.util.math.AxisAlignedBB;
+ import net.minecraft.util.math.BlockPos;
+@@ -120,26 +121,26 @@
+     public WorldServer(MinecraftServer server, ISaveHandler saveHandlerIn, WorldInfo info, int dimensionId, Profiler profilerIn)
+     {
+         super(saveHandlerIn, info, DimensionType.getById(dimensionId).createDimension(), profilerIn, false);
+-        Predicate predicate = (p_205341_0_) ->
++        Predicate<Block> predicate = (p_205341_0_) ->
+         {
+             return p_205341_0_ == null || p_205341_0_.getDefaultState().func_196958_f();
+         };
+         RegistryNamespacedDefaultedByKey registrynamespaceddefaultedbykey1 = Block.REGISTRY;
+         Block.REGISTRY.getClass();
+         Function function = registrynamespaceddefaultedbykey1::getNameForObject;
+-        RegistryNamespacedDefaultedByKey registrynamespaceddefaultedbykey2 = Block.REGISTRY;
++        RegistryNamespacedDefaultedByKey<ResourceLocation, Block> registrynamespaceddefaultedbykey2 = Block.REGISTRY;
+         Block.REGISTRY.getClass();
+         this.pendingTickListEntriesThisTick = new ServerTickList<Block>(this, predicate, function, registrynamespaceddefaultedbykey2::getObject, this::func_205338_b);
+-        predicate = (p_205774_0_) ->
++        Predicate<Fluid> predicateFluid = (p_205774_0_) ->
+         {
+             return p_205774_0_ == null || p_205774_0_ == Fluids.field_204541_a;
+         };
+         RegistryNamespacedDefaultedByKey registrynamespaceddefaultedbykey = Fluid.field_205588_a;
+         Fluid.field_205588_a.getClass();
+         Function function1 = registrynamespaceddefaultedbykey::getNameForObject;
+-        registrynamespaceddefaultedbykey2 = Fluid.field_205588_a;
++        RegistryNamespacedDefaultedByKey<ResourceLocation, Fluid> registrynamespaceddefaultedbykeyFluid = Fluid.field_205588_a;
+         Fluid.field_205588_a.getClass();
+-        this.field_205342_P = new ServerTickList<Fluid>(this, predicate, function1, registrynamespaceddefaultedbykey2::getObject, this::func_205339_a);
++        this.field_205342_P = new ServerTickList<Fluid>(this, predicateFluid, function1, registrynamespaceddefaultedbykeyFluid::getObject, this::func_205339_a);
+         this.villageSiege = new VillageSiege(this);
+         this.blockEventQueue = new ObjectLinkedOpenHashSet<BlockEventData>();
+         this.server = server;
+@@ -319,7 +320,7 @@
+     {
+         this.allPlayersSleeping = false;
+ 
+-        for (EntityPlayer entityplayer : (List)this.playerEntities.stream().filter(EntityPlayer::isPlayerSleeping).collect(Collectors.toList()))
++        for (EntityPlayer entityplayer : this.playerEntities.stream().filter(EntityPlayer::isPlayerSleeping).collect(Collectors.toList()))
+         {
+             entityplayer.wakeUpPlayer(false, false, true);
+         }
+diff U3 net/minecraft/world/biome/provider/SingleBiomeProvider.java net/minecraft/world/biome/provider/SingleBiomeProvider.java
+--- net/minecraft/world/biome/provider/SingleBiomeProvider.java
++++ net/minecraft/world/biome/provider/SingleBiomeProvider.java
+@@ -48,7 +48,7 @@
+ 
+     public boolean func_205004_a(Structure<?> p_205004_1_)
+     {
+-        Map map = this.field_205005_a;
++        Map < Structure<?>, Boolean > map = this.field_205005_a;
+         Biome biome = this.biome;
+         this.biome.getClass();
+         return map.computeIfAbsent(p_205004_1_, biome::func_201858_a);
+diff U3 net/minecraft/world/chunk/Chunk.java net/minecraft/world/chunk/Chunk.java
+--- net/minecraft/world/chunk/Chunk.java
++++ net/minecraft/world/chunk/Chunk.java
+@@ -1459,7 +1459,7 @@
+             {
+                 ((ChunkPrimerTickList)this.field_201621_s).func_205381_a(this.world.func_205220_G_(), (p_205323_1_) ->
+                 {
+-                    return this.world.getBlockState(p_205323_1_).getBlock();
++                    return this.world.getBlockState((BlockPos) p_205323_1_).getBlock();
+                 });
+             }
+ 
+@@ -1467,7 +1467,7 @@
+             {
+                 ((ChunkPrimerTickList)this.field_205325_u).func_205381_a(this.world.func_205219_F_(), (p_205324_1_) ->
+                 {
+-                    return this.world.func_204610_c(p_205324_1_).func_206886_c();
++                    return this.world.func_204610_c((BlockPos) p_205324_1_).func_206886_c();
+                 });
+             }
+ 
+diff U3 net/minecraft/world/chunk/ChunkPrimer.java net/minecraft/world/chunk/ChunkPrimer.java
+--- net/minecraft/world/chunk/ChunkPrimer.java
++++ net/minecraft/world/chunk/ChunkPrimer.java
+@@ -25,6 +25,7 @@
+ import net.minecraft.init.Fluids;
+ import net.minecraft.nbt.NBTTagCompound;
+ import net.minecraft.tileentity.TileEntity;
++import net.minecraft.util.ResourceLocation;
+ import net.minecraft.util.math.BlockPos;
+ import net.minecraft.util.math.ChunkPos;
+ import net.minecraft.util.registry.RegistryNamespacedDefaultedByKey;
+@@ -81,26 +82,26 @@
+         this.field_205769_s = Maps.<GenerationStage.Carving, BitSet>newHashMap();
+         this.field_201654_b = p_i48700_1_;
+         this.field_201668_p = p_i48700_2_;
+-        Predicate predicate = (p_205332_0_) ->
++        Predicate<Block> predicate = (p_205332_0_) ->
+         {
+             return p_205332_0_ == null || p_205332_0_.getDefaultState().func_196958_f();
+         };
+         RegistryNamespacedDefaultedByKey registrynamespaceddefaultedbykey1 = Block.REGISTRY;
+         Block.REGISTRY.getClass();
+         Function function = registrynamespaceddefaultedbykey1::getNameForObject;
+-        RegistryNamespacedDefaultedByKey registrynamespaceddefaultedbykey2 = Block.REGISTRY;
++        RegistryNamespacedDefaultedByKey<ResourceLocation, Block> registrynamespaceddefaultedbykey2 = Block.REGISTRY;
+         Block.REGISTRY.getClass();
+         this.field_201664_l = new ChunkPrimerTickList<Block>(predicate, function, registrynamespaceddefaultedbykey2::getObject, p_i48700_1_);
+-        predicate = (p_205766_0_) ->
++        Predicate<Fluid> predicateFluid = (p_205766_0_) ->
+         {
+             return p_205766_0_ == null || p_205766_0_ == Fluids.field_204541_a;
+         };
+         RegistryNamespacedDefaultedByKey registrynamespaceddefaultedbykey = Fluid.field_205588_a;
+         Fluid.field_205588_a.getClass();
+         Function function1 = registrynamespaceddefaultedbykey::getNameForObject;
+-        registrynamespaceddefaultedbykey2 = Fluid.field_205588_a;
++        RegistryNamespacedDefaultedByKey<ResourceLocation, Fluid> registrynamespaceddefaultedbykeyFluid = Fluid.field_205588_a;
+         Fluid.field_205588_a.getClass();
+-        this.field_205333_q = new ChunkPrimerTickList<Fluid>(predicate, function1, registrynamespaceddefaultedbykey2::getObject, p_i48700_1_);
++        this.field_205333_q = new ChunkPrimerTickList<Fluid>(predicateFluid, function1, registrynamespaceddefaultedbykeyFluid::getObject, p_i48700_1_);
+     }
+ 
+     public static ShortList func_205330_a(ShortList[] p_205330_0_, int p_205330_1_)
+diff U3 net/minecraft/world/chunk/ChunkPrimerWrapper.java net/minecraft/world/chunk/ChunkPrimerWrapper.java
+--- net/minecraft/world/chunk/ChunkPrimerWrapper.java
++++ net/minecraft/world/chunk/ChunkPrimerWrapper.java
+@@ -15,6 +15,7 @@
+ import net.minecraft.init.Fluids;
+ import net.minecraft.nbt.NBTTagCompound;
+ import net.minecraft.tileentity.TileEntity;
++import net.minecraft.util.ResourceLocation;
+ import net.minecraft.util.math.BlockPos;
+ import net.minecraft.util.math.ChunkPos;
+ import net.minecraft.util.registry.RegistryNamespacedDefaultedByKey;
+@@ -228,14 +229,14 @@
+ 
+     public ChunkPrimerTickList<Block> func_205218_i_()
+     {
+-        Predicate predicate = (p_209219_0_) ->
++        Predicate<Block> predicate = (p_209219_0_) ->
+         {
+             return p_209219_0_.getDefaultState().func_196958_f();
+         };
+         RegistryNamespacedDefaultedByKey registrynamespaceddefaultedbykey = Block.REGISTRY;
+         Block.REGISTRY.getClass();
+         Function function = registrynamespaceddefaultedbykey::getNameForObject;
+-        RegistryNamespacedDefaultedByKey registrynamespaceddefaultedbykey1 = Block.REGISTRY;
++        RegistryNamespacedDefaultedByKey<ResourceLocation, Block> registrynamespaceddefaultedbykey1 = Block.REGISTRY;
+         Block.REGISTRY.getClass();
+         return new ChunkPrimerTickList<Block>(predicate, function, registrynamespaceddefaultedbykey1::getObject, this.getPos());
+     }
+@@ -249,7 +250,7 @@
+         RegistryNamespacedDefaultedByKey registrynamespaceddefaultedbykey = Fluid.field_205588_a;
+         Fluid.field_205588_a.getClass();
+         Function function = registrynamespaceddefaultedbykey::getNameForObject;
+-        RegistryNamespacedDefaultedByKey registrynamespaceddefaultedbykey1 = Fluid.field_205588_a;
++        RegistryNamespacedDefaultedByKey<ResourceLocation, Fluid> registrynamespaceddefaultedbykey1 = Fluid.field_205588_a;
+         Fluid.field_205588_a.getClass();
+         return new ChunkPrimerTickList<Fluid>(predicate, function, registrynamespaceddefaultedbykey1::getObject, this.getPos());
+     }
+diff U3 net/minecraft/world/chunk/storage/AnvilChunkLoader.java net/minecraft/world/chunk/storage/AnvilChunkLoader.java
+--- net/minecraft/world/chunk/storage/AnvilChunkLoader.java
++++ net/minecraft/world/chunk/storage/AnvilChunkLoader.java
+@@ -34,6 +34,7 @@
+ import net.minecraft.nbt.NBTTagShort;
+ import net.minecraft.nbt.NBTUtil;
+ import net.minecraft.tileentity.TileEntity;
++import net.minecraft.util.ResourceLocation;
+ import net.minecraft.util.math.BlockPos;
+ import net.minecraft.util.math.ChunkPos;
+ import net.minecraft.util.registry.RegistryNamespacedDefaultedByKey;
+@@ -633,26 +634,26 @@
+         }
+ 
+         UpgradeData upgradedata = compound.hasKey("UpgradeData", 10) ? new UpgradeData(compound.getCompoundTag("UpgradeData")) : UpgradeData.field_196994_a;
+-        Predicate predicate = (p_205531_0_) ->
++        Predicate<Block> predicate = (p_205531_0_) ->
+         {
+             return p_205531_0_.getDefaultState().func_196958_f();
+         };
+         RegistryNamespacedDefaultedByKey registrynamespaceddefaultedbykey1 = Block.REGISTRY;
+         Block.REGISTRY.getClass();
+         Function function = registrynamespaceddefaultedbykey1::getNameForObject;
+-        RegistryNamespacedDefaultedByKey registrynamespaceddefaultedbykey2 = Block.REGISTRY;
++        RegistryNamespacedDefaultedByKey<ResourceLocation, Block> registrynamespaceddefaultedbykey2 = Block.REGISTRY;
+         Block.REGISTRY.getClass();
+         ChunkPrimerTickList<Block> chunkprimerticklist1 = new ChunkPrimerTickList<Block>(predicate, function, registrynamespaceddefaultedbykey2::getObject, new ChunkPos(i, j));
+-        predicate = (p_206242_0_) ->
++        Predicate<Fluid> predicateFluid = (p_206242_0_) ->
+         {
+             return p_206242_0_ == Fluids.field_204541_a;
+         };
+         RegistryNamespacedDefaultedByKey registrynamespaceddefaultedbykey = Fluid.field_205588_a;
+         Fluid.field_205588_a.getClass();
+         Function function1 = registrynamespaceddefaultedbykey::getNameForObject;
+-        registrynamespaceddefaultedbykey2 = Fluid.field_205588_a;
++        RegistryNamespacedDefaultedByKey<ResourceLocation, Fluid> registrynamespaceddefaultedbykeyFluid = Fluid.field_205588_a;
+         Fluid.field_205588_a.getClass();
+-        ChunkPrimerTickList<Fluid> chunkprimerticklist = new ChunkPrimerTickList<Fluid>(predicate, function1, registrynamespaceddefaultedbykey2::getObject, new ChunkPos(i, j));
++        ChunkPrimerTickList<Fluid> chunkprimerticklist = new ChunkPrimerTickList<Fluid>(predicateFluid, function1, registrynamespaceddefaultedbykeyFluid::getObject, new ChunkPos(i, j));
+         long l = compound.getLong("InhabitedTime");
+         Chunk chunk = new Chunk(worldIn.func_201672_e(), i, j, abiome, upgradedata, chunkprimerticklist1, chunkprimerticklist, l);
+         chunk.func_201613_c(compound.getString("Status"));
+diff U3 net/minecraft/world/gen/ChunkCacheNeighborNotification.java net/minecraft/world/gen/ChunkCacheNeighborNotification.java
+--- net/minecraft/world/gen/ChunkCacheNeighborNotification.java
++++ net/minecraft/world/gen/ChunkCacheNeighborNotification.java
+@@ -44,7 +44,7 @@
+ 
+     public Chunk put(Long p_put_1_, Chunk p_put_2_)
+     {
+-        return this.put(p_put_1_, p_put_2_);
++        return this.put((long)p_put_1_, p_put_2_);
+     }
+ 
+     public Chunk remove(long p_remove_1_)
+@@ -73,7 +73,7 @@
+ 
+     public Chunk remove(Object p_remove_1_)
+     {
+-        return this.remove(p_remove_1_);
++        return this.remove((long)p_remove_1_);
+     }
+ 
+     public void putAll(Map <? extends Long, ? extends Chunk > p_putAll_1_)
+diff U3 net/minecraft/world/gen/ChunkGeneratorDebug.java net/minecraft/world/gen/ChunkGeneratorDebug.java
+--- net/minecraft/world/gen/ChunkGeneratorDebug.java
++++ net/minecraft/world/gen/ChunkGeneratorDebug.java
+@@ -20,7 +20,7 @@
+ 
+ public class ChunkGeneratorDebug extends AbstractChunkGenerator<DebugGenSettings>
+ {
+-    private static final List<IBlockState> ALL_VALID_STATES = (List)StreamSupport.<IBlockState>stream(Block.REGISTRY.spliterator(), false).<IBlockState>flatMap((p_199812_0_) ->
++    private static final List<IBlockState> ALL_VALID_STATES = (List)StreamSupport.stream(Block.REGISTRY.spliterator(), false).<IBlockState>flatMap((p_199812_0_) ->
+     {
+         return p_199812_0_.getBlockState().getValidStates().stream();
+     }).collect(Collectors.toList());
+diff U3 net/minecraft/world/gen/FlatGenSettings.java net/minecraft/world/gen/FlatGenSettings.java
+--- net/minecraft/world/gen/FlatGenSettings.java
++++ net/minecraft/world/gen/FlatGenSettings.java
+@@ -323,11 +323,11 @@
+         {
+             return p_210834_1_.createMap(ImmutableMap.<T, T>of(p_210834_1_.createString("height"), p_210834_1_.createInt(p_210837_1_.getLayerCount()), p_210834_1_.createString("block"), p_210834_1_.createString(((ResourceLocation)Block.REGISTRY.getNameForObject(p_210837_1_.getLayerMaterial().getBlock())).toString())));
+         }));
+-        T t1 = p_210834_1_.createMap((Map)this.worldFeatures.entrySet().stream().map((p_210833_1_) ->
++        T t1 = (T)p_210834_1_.createMap((Map)this.worldFeatures.entrySet().stream().map((p_210833_1_) ->
+         {
+             return Pair.of(p_210834_1_.createString(((String)p_210833_1_.getKey()).toLowerCase(Locale.ROOT)), p_210834_1_.createMap((Map)((Map)p_210833_1_.getValue()).entrySet().stream().map((p_210836_1_) -> {
+-                return Pair.of(p_210834_1_.createString((String)p_210836_1_.getKey()), p_210834_1_.createString((String)p_210836_1_.getValue()));
+-            }).collect(Collectors.toMap(Pair::getFirst, Pair::getSecond))));
++                return Pair.of(p_210834_1_.createString((String)((Map.Entry)p_210836_1_).getKey()), p_210834_1_.createString((String)((Map.Entry)p_210836_1_).getValue()));
++            }).collect(Collectors.toMap(Pair<String,String>::getFirst, Pair<String,String>::getSecond))));
+         }).collect(Collectors.toMap(Pair::getFirst, Pair::getSecond)));
+         return new Dynamic<T>(p_210834_1_, p_210834_1_.createMap(ImmutableMap.<T, T>of(p_210834_1_.createString("layers"), t, p_210834_1_.createString("biome"), p_210834_1_.createString(((ResourceLocation)Biome.REGISTRY.getNameForObject(this.biomeToUse)).toString()), p_210834_1_.createString("structures"), t1)));
+     }
+@@ -335,9 +335,9 @@
+     public static FlatGenSettings func_210835_a(Dynamic<?> p_210835_0_)
+     {
+         FlatGenSettings flatgensettings = ChunkGeneratorType.field_205489_f.func_205483_a();
+-        List<Pair<Integer, Block>> list = (List)((Stream)p_210835_0_.get("layers").<Pair<Integer, Block>>flatMap(Dynamic::getStream).orElse(Stream.empty())).<Pair<Integer, Block>>map((p_210838_0_) ->
++        List<Pair<Integer, Block>> list = (List)((Stream)p_210835_0_.get("layers").flatMap(Dynamic::getStream).orElse(Stream.empty())).<Pair<Integer, Block>>map((p_210838_0_) ->
+         {
+-            return Pair.of(p_210838_0_.getInt("height", 1), Block.getBlockFromName(p_210838_0_.getString("block")));
++            return Pair.of(((Dynamic)p_210838_0_).getInt("height", 1), Block.getBlockFromName(((Dynamic)p_210838_0_).getString("block")));
+         }).collect(Collectors.toList());
+ 
+         if (list.stream().anyMatch((p_211743_0_) ->
+diff U3 net/minecraft/world/gen/feature/structure/MineshaftPieces.java net/minecraft/world/gen/feature/structure/MineshaftPieces.java
+--- net/minecraft/world/gen/feature/structure/MineshaftPieces.java
++++ net/minecraft/world/gen/feature/structure/MineshaftPieces.java
+@@ -719,7 +719,7 @@
+ 
+             int k;
+ 
+-            for (lvt_5_1_ = 0; k < this.boundingBox.getXSize(); k = k + 4)
++            for (k = 0; k < this.boundingBox.getXSize(); k = k + 4)
+             {
+                 k = k + rand.nextInt(this.boundingBox.getXSize());
+ 
+diff U3 net/minecraft/world/gen/feature/structure/OceanMonumentPieces.java net/minecraft/world/gen/feature/structure/OceanMonumentPieces.java
+--- net/minecraft/world/gen/feature/structure/OceanMonumentPieces.java
++++ net/minecraft/world/gen/feature/structure/OceanMonumentPieces.java
+@@ -1502,7 +1502,7 @@
+         protected static final IBlockState DOT_DECO_DATA = BRICKS_PRISMARINE;
+         protected static final IBlockState SEA_LANTERN = Blocks.SEA_LANTERN.getDefaultState();
+         protected static final IBlockState WATER = Blocks.WATER.getDefaultState();
+-        protected static final Set<Block> field_212180_g = ImmutableSet.builder().add(Blocks.ICE).add(Blocks.PACKED_ICE).add(Blocks.field_205164_gk).add(WATER.getBlock()).build();
++        protected static final Set<Block> field_212180_g = (Set)ImmutableSet.builder().add(Blocks.ICE).add(Blocks.PACKED_ICE).add(Blocks.field_205164_gk).add(WATER.getBlock()).build();
+         protected static final int GRIDROOM_SOURCE_INDEX = getRoomIndex(2, 0, 0);
+         protected static final int GRIDROOM_TOP_CONNECT_INDEX = getRoomIndex(2, 2, 0);
+         protected static final int GRIDROOM_LEFTWING_CONNECT_INDEX = getRoomIndex(0, 1, 0);
+diff U3 net/minecraft/world/gen/feature/structure/StructurePiece.java net/minecraft/world/gen/feature/structure/StructurePiece.java
+--- net/minecraft/world/gen/feature/structure/StructurePiece.java
++++ net/minecraft/world/gen/feature/structure/StructurePiece.java
+@@ -43,7 +43,7 @@
+ 
+     /** The type ID of this component. */
+     protected int componentType;
+-    private static final Set<Block> field_211413_d = ImmutableSet.builder().add(Blocks.NETHER_BRICK_FENCE).add(Blocks.TORCH).add(Blocks.field_196591_bQ).add(Blocks.OAK_FENCE).add(Blocks.SPRUCE_FENCE).add(Blocks.DARK_OAK_FENCE).add(Blocks.ACACIA_FENCE).add(Blocks.BIRCH_FENCE).add(Blocks.JUNGLE_FENCE).add(Blocks.LADDER).add(Blocks.IRON_BARS).build();
++    private static final Set<Block> field_211413_d = (Set)ImmutableSet.builder().add(Blocks.NETHER_BRICK_FENCE).add(Blocks.TORCH).add(Blocks.field_196591_bQ).add(Blocks.OAK_FENCE).add(Blocks.SPRUCE_FENCE).add(Blocks.DARK_OAK_FENCE).add(Blocks.ACACIA_FENCE).add(Blocks.BIRCH_FENCE).add(Blocks.JUNGLE_FENCE).add(Blocks.LADDER).add(Blocks.IRON_BARS).build();
+ 
+     public StructurePiece()
+     {
+diff U3 net/minecraft/world/gen/placement/TopSolidRangeConfig.java net/minecraft/world/gen/placement/TopSolidRangeConfig.java
+--- net/minecraft/world/gen/placement/TopSolidRangeConfig.java
++++ net/minecraft/world/gen/placement/TopSolidRangeConfig.java
+@@ -2,6 +2,6 @@
+ 
+ public class TopSolidRangeConfig implements IPlacementConfig
+ {
+-    public final int field_204632_a;
+-    public final int field_204633_b;
++    public int field_204632_a;
++    public int field_204633_b;
+ }
+diff U3 net/minecraft/world/gen/tasks/ProtoChunkScheduler.java net/minecraft/world/gen/tasks/ProtoChunkScheduler.java
+--- net/minecraft/world/gen/tasks/ProtoChunkScheduler.java
++++ net/minecraft/world/gen/tasks/ProtoChunkScheduler.java
+@@ -31,9 +31,9 @@
+     private final IChunkGenerator<?> field_202875_d;
+     private final IChunkLoader field_202876_e;
+     private final IThreadListener field_202877_f;
+-    private final Long2ObjectMap<Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.acr$a> field_202878_g = Long2ObjectMaps.<Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.acr$a>synchronize(new ExpiringMap<Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.acr$a>(8192, 5000)
++    private final Long2ObjectMap<Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.FutureWrapper> field_202878_g = Long2ObjectMaps.<Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.FutureWrapper>synchronize(new ExpiringMap<Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.FutureWrapper>(8192, 5000)
+     {
+-        protected boolean func_205609_a_(Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.acr$a p_205609_1_)
++        protected boolean func_205609_a_(Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.FutureWrapper p_205609_1_)
+         {
+             ChunkPrimer chunkprimer = (ChunkPrimer)p_205609_1_.func_202917_a();
+             return !chunkprimer.func_205748_B() && !chunkprimer.func_201593_f();
+@@ -55,7 +55,7 @@
+         this.field_202877_f = p_i48728_5_;
+     }
+ 
+-    protected Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.acr$a func_201494_a_(ChunkPos p_201494_1_)
++    protected Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.FutureWrapper func_201494_a_(ChunkPos p_201494_1_)
+     {
+         return this.field_202878_g.computeIfAbsent(Long.valueOf(p_201494_1_.func_201841_a()), (p_202867_2_) ->
+         {
+@@ -97,13 +97,13 @@
+         }
+     }
+ 
+-    protected Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.acr$a func_205606_a_(ChunkPos p_205606_1_, Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.acr$a p_205606_2_)
++    protected Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.FutureWrapper func_205606_a_(ChunkPos p_205606_1_, Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.FutureWrapper p_205606_2_)
+     {
+         ((ChunkPrimer)p_205606_2_.func_202917_a()).func_205747_a(1);
+         return p_205606_2_;
+     }
+ 
+-    protected void func_205607_b_(ChunkPos p_205607_1_, Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.acr$a p_205607_2_)
++    protected void func_205607_b_(ChunkPos p_205607_1_, Scheduler<ChunkPos, ChunkStatus, ChunkPrimer>.FutureWrapper p_205607_2_)
+     {
+         ((ChunkPrimer)p_205607_2_.func_202917_a()).func_205747_a(-1);
+     }
+diff U3 net/minecraft/world/storage/loot/conditions/LootConditionManager.java net/minecraft/world/storage/loot/conditions/LootConditionManager.java
+--- net/minecraft/world/storage/loot/conditions/LootConditionManager.java
++++ net/minecraft/world/storage/loot/conditions/LootConditionManager.java
+@@ -78,7 +78,7 @@
+ 
+     public static <T extends LootCondition> LootCondition.Serializer<T> getSerializerFor(T conditionClass)
+     {
+-        LootCondition.Serializer<T> serializer = CLASS_TO_SERIALIZER_MAP.get(conditionClass.getClass());
++        LootCondition.Serializer<T> serializer = (net.minecraft.world.storage.loot.conditions.LootCondition.Serializer<T>) CLASS_TO_SERIALIZER_MAP.get(conditionClass.getClass());
+ 
+         if (serializer == null)
+         {
+diff U3 net/minecraft/world/storage/loot/functions/LootFunctionManager.java net/minecraft/world/storage/loot/functions/LootFunctionManager.java
+--- net/minecraft/world/storage/loot/functions/LootFunctionManager.java
++++ net/minecraft/world/storage/loot/functions/LootFunctionManager.java
+@@ -56,7 +56,7 @@
+ 
+     public static <T extends LootFunction> LootFunction.Serializer<T> getSerializerFor(T functionClass)
+     {
+-        LootFunction.Serializer<T> serializer = CLASS_TO_SERIALIZER_MAP.get(functionClass.getClass());
++        LootFunction.Serializer<T> serializer = (net.minecraft.world.storage.loot.functions.LootFunction.Serializer<T>) CLASS_TO_SERIALIZER_MAP.get(functionClass.getClass());
+ 
+         if (serializer == null)
+         {

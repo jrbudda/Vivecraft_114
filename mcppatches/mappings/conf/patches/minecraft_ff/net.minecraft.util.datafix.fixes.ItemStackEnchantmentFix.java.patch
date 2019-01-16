@@ -1,0 +1,31 @@
+diff -r -U 3 minecraft\net\minecraft\util\datafix\fixes\ItemStackEnchantmentFix.java minecraft_patched\net\minecraft\util\datafix\fixes\ItemStackEnchantmentFix.java
+--- minecraft\net\minecraft\util\datafix\fixes\ItemStackEnchantmentFix.java
++++ minecraft_patched\net\minecraft\util\datafix\fixes\ItemStackEnchantmentFix.java
+@@ -13,6 +13,8 @@
+ import java.util.Optional;
+ import java.util.function.Consumer;
+ import java.util.function.Function;
++import java.util.stream.Stream;
++
+ import net.minecraft.util.datafix.TypeReferences;
+ 
+ public class ItemStackEnchantmentFix extends DataFix {
+@@ -74,7 +76,8 @@
+          });
+       });
+       p_209627_1_.getClass();
+-      Optional<Dynamic<?>> optional = optional1.<Dynamic<?>>map(p_209627_1_::createList);
++      final Dynamic p_209627_1_f = p_209627_1_;
++      Optional<Dynamic<?>> optional = optional1.<Dynamic<?>>map((x)->p_209627_1_f.createList((Stream)x));
+       if (optional.isPresent()) {
+          p_209627_1_ = p_209627_1_.remove("ench").set("Enchantments", optional.get());
+       }
+@@ -86,7 +89,7 @@
+             });
+          });
+          p_209625_0_.getClass();
+-         return (Dynamic)DataFixUtils.orElse(optional2.map(p_209625_0_::createList), p_209625_0_);
++         return (Dynamic)DataFixUtils.orElse(optional2.map((x)->p_209625_0_.createList((Stream)x)), p_209625_0_);
+       });
+    }
+ }

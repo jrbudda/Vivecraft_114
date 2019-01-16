@@ -1,0 +1,12 @@
+diff -r -U 3 minecraft\net\minecraft\entity\monster\EntityShulker.java minecraft_patched\net\minecraft\entity\monster\EntityShulker.java
+--- minecraft\net\minecraft\entity\monster\EntityShulker.java
++++ minecraft_patched\net\minecraft\entity\monster\EntityShulker.java
+@@ -434,7 +434,7 @@
+    }
+ 
+    public int func_184684_db() {
+-      return this.field_70180_af.func_187225_a(field_184702_c);
++      return (int) this.field_70180_af.func_187225_a(field_184702_c);
+    }
+ 
+    public void func_184691_a(int p_184691_1_) {

@@ -1,0 +1,28 @@
+--- a/net/minecraft/client/renderer/RenderGlobal.java
++++ b/net/minecraft/client/renderer/RenderGlobal.java
+@@ -104,6 +104,7 @@
+ import net.minecraft.world.chunk.IChunkProvider;
+ import net.minecraft.world.dimension.Dimension;
+ import net.minecraft.world.dimension.DimensionType;
++import net.optifine.BlockPosM;
+ import net.optifine.CustomColors;
+ import net.optifine.CustomSky;
+ import net.optifine.DynamicLights;
+@@ -788,7 +789,7 @@
+ 
+             try
+             {
+-                for (RenderGlobal.ContainerLocalRenderInformation renderglobal$containerlocalrenderinformation : this.renderInfosEntities)
++                for (RenderGlobal.ContainerLocalRenderInformation renderglobal$containerlocalrenderinformation : (Iterable<RenderGlobal.ContainerLocalRenderInformation>)this.renderInfosEntities)
+                 {
+                     Chunk chunk = renderglobal$containerlocalrenderinformation.renderChunk.getChunk();
+                     ClassInheritanceMultiMap<Entity> classinheritancemultimap = chunk.getEntityLists()[renderglobal$containerlocalrenderinformation.renderChunk.getPosition().getY() / 16];
+@@ -978,7 +979,7 @@
+             TileEntitySignRenderer.updateTextRenderDistance();
+             label667:
+ 
+-            for (RenderGlobal.ContainerLocalRenderInformation renderglobal$containerlocalrenderinformation1 : this.renderInfosTileEntities)
++            for (RenderGlobal.ContainerLocalRenderInformation renderglobal$containerlocalrenderinformation1 : (Iterable<RenderGlobal.ContainerLocalRenderInformation>)this.renderInfosTileEntities)
+             {
+                 List<TileEntity> list2 = renderglobal$containerlocalrenderinformation1.renderChunk.getCompiledChunk().getTileEntities();
+ 

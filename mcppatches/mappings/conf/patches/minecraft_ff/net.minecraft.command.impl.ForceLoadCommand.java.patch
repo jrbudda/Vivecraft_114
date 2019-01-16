@@ -1,0 +1,12 @@
+diff -r -U 3 minecraft\net\minecraft\command\impl\ForceLoadCommand.java minecraft_patched\net\minecraft\command\impl\ForceLoadCommand.java
+--- minecraft\net\minecraft\command\impl\ForceLoadCommand.java
++++ minecraft_patched\net\minecraft\command\impl\ForceLoadCommand.java
+@@ -85,7 +85,7 @@
+       DimensionType dimensiontype = p_502022_0_.func_197023_e().func_201675_m().func_186058_p();
+       WorldServer worldserver = p_502022_0_.func_197028_i().func_200667_a(dimensiontype);
+       LongSet longset = worldserver.func_502116_ag();
+-      longset.forEach((p_502024_1_) -> {
++      longset.forEach((LongConsumer)(p_502024_1_) -> {
+          worldserver.func_502118_b(ChunkPos.func_502104_a(p_502024_1_), ChunkPos.func_502105_b(p_502024_1_), false);
+       });
+       p_502022_0_.func_197030_a(new TextComponentTranslation("commands.forceload.removed.all", new Object[]{dimensiontype}), true);

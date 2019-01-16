@@ -1,0 +1,29 @@
+--- a/net/minecraft/block/state/BlockState.java
++++ b/net/minecraft/block/state/BlockState.java
+@@ -72,7 +72,7 @@
+     {
+         if (this.propagatesSkylightDown < 0)
+         {
+-            boolean flag = super.propagatesSkylightDown(worldIn, pos);
++            boolean flag = IBlockState.super.propagatesSkylightDown(worldIn, pos);
+ 
+             if (((Block)this.object).isVariableOpacity())
+             {
+@@ -89,7 +89,7 @@
+     {
+         if (this.opacity < 0)
+         {
+-            int i = super.getOpacity(worldIn, pos);
++            int i = IBlockState.super.getOpacity(worldIn, pos);
+ 
+             if (((Block)this.object).isVariableOpacity())
+             {
+@@ -106,7 +106,7 @@
+     {
+         if (this.opaqueCube < 0)
+         {
+-            boolean flag = super.isOpaqueCube(worldIn, pos);
++            boolean flag = IBlockState.super.isOpaqueCube(worldIn, pos);
+ 
+             if (((Block)this.object).isVariableOpacity())
+             {

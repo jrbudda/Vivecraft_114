@@ -1,0 +1,12 @@
+diff -r -U 3 minecraft\net\minecraft\entity\monster\EntitySpellcasterIllager.java minecraft_patched\net\minecraft\entity\monster\EntitySpellcasterIllager.java
+--- minecraft\net\minecraft\entity\monster\EntitySpellcasterIllager.java
++++ minecraft_patched\net\minecraft\entity\monster\EntitySpellcasterIllager.java
+@@ -54,7 +54,7 @@
+    }
+ 
+    protected EntitySpellcasterIllager.SpellType func_193083_dm() {
+-      return !this.field_70170_p.field_72995_K ? this.field_193089_bx : EntitySpellcasterIllager.SpellType.func_193337_a(this.field_70180_af.func_187225_a(field_193088_c));
++      return !this.field_70170_p.field_72995_K ? this.field_193089_bx : EntitySpellcasterIllager.SpellType.func_193337_a((int) this.field_70180_af.func_187225_a(field_193088_c));
+    }
+ 
+    protected void func_70619_bc() {

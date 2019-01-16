@@ -1,0 +1,24 @@
+diff -r -U 3 minecraft\net\minecraft\client\renderer\block\model\ModelBakery.java minecraft_patched\net\minecraft\client\renderer\block\model\ModelBakery.java
+--- minecraft\net\minecraft\client\renderer\block\model\ModelBakery.java
++++ minecraft_patched\net\minecraft\client\renderer\block\model\ModelBakery.java
+@@ -236,7 +236,7 @@
+                         break label161;
+                      }
+ 
+-                     for(Pair<String, ModelBlockDefinition> pair : lvt_9_4_) {
++                     for(Pair<String, ModelBlockDefinition> pair : (List<Pair<String, ModelBlockDefinition>>)lvt_9_4_) {
+                         ModelBlockDefinition modelblockdefinition = pair.getSecond();
+                         Map<IBlockState, IUnbakedModel> map2 = Maps.<IBlockState, IUnbakedModel>newIdentityHashMap();
+                         IUnbakedModel iunbakedmodel;
+@@ -346,10 +346,9 @@
+          IBakedModel ibakedmodel = null;
+ 
+          try {
+-            Function function = this::func_209597_a;
+             TextureMap texturemap = this.field_177609_j;
+             this.field_177609_j.getClass();
+-            ibakedmodel = p_209599_2_.func_209558_a(function, texturemap::func_195424_a, ModelRotation.X0_Y0, false);
++            ibakedmodel = p_209599_2_.func_209558_a(this::func_209597_a, texturemap::func_195424_a, ModelRotation.X0_Y0, false);
+          } catch (Exception exception) {
+             field_177603_c.warn("Unable to bake model: '{}': {}", p_209599_1_, exception);
+          }

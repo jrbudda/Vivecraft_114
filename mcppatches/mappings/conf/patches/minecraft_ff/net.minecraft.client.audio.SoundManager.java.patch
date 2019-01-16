@@ -1,0 +1,12 @@
+diff -r -U 3 minecraft\net\minecraft\client\audio\SoundManager.java minecraft_patched\net\minecraft\client\audio\SoundManager.java
+--- minecraft\net\minecraft\client\audio\SoundManager.java
++++ minecraft_patched\net\minecraft\client\audio\SoundManager.java
+@@ -47,7 +47,7 @@
+    private SoundManager.SoundSystemStarterThread field_148620_e;
+    private boolean field_148617_f;
+    private int field_148618_g;
+-   private final Map<String, ISound> field_148629_h = HashBiMap.<String, ISound>create();
++   private final HashBiMap<String, ISound> field_148629_h = HashBiMap.<String, ISound>create();
+    private final Map<ISound, String> field_148630_i;
+    private final Multimap<SoundCategory, String> field_188776_k;
+    private final List<ITickableSound> field_148625_l;

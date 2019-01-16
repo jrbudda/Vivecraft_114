@@ -1,0 +1,63 @@
+--- a/net/optifine/shaders/Shaders.java
++++ b/net/optifine/shaders/Shaders.java
+@@ -105,6 +105,7 @@
+ import net.optifine.util.TimedEvent;
+ import org.apache.commons.io.IOUtils;
+ import org.lwjgl.BufferUtils;
++import org.lwjgl.opengl.ARBFragmentShader;
+ import org.lwjgl.opengl.ARBGeometryShader4;
+ import org.lwjgl.opengl.ARBShaderObjects;
+ import org.lwjgl.opengl.ARBVertexShader;
+@@ -797,6 +798,7 @@
+ 
+     public static void loadShaderPack()
+     {
++    	mc = Minecraft.getInstance();
+         boolean flag = shaderPackLoaded;
+         boolean flag1 = isOldLighting();
+         shaderPackLoaded = false;
+@@ -1065,7 +1067,7 @@
+         Set set = props.keySet();
+         List<ICustomTexture> list = new ArrayList<ICustomTexture>();
+ 
+-        for (String s1 : set)
++        for (String s1 : (Set<String>)(Set<?>)set)
+         {
+             if (s1.startsWith(s))
+             {
+@@ -2280,11 +2282,11 @@
+ 
+     private static int getDrawBuffer(Program p, String str, int i)
+     {
+-        int i = 0;
++        int d = 0;
+ 
+         if (i >= str.length())
+         {
+-            return i;
++            return d;
+         }
+         else
+         {
+@@ -4147,10 +4149,10 @@
+     {
+         if (currentWorld != world)
+         {
+-            World world = currentWorld;
++            World oldworld = currentWorld;
+             currentWorld = world;
+             setCameraOffset(mc.getRenderViewEntity());
+-            int i = getDimensionId(world);
++            int i = getDimensionId(oldworld);
+             int j = getDimensionId(world);
+ 
+             if (j != i)
+@@ -5554,7 +5556,7 @@
+                         Lang.loadLocaleData(inputstream, properties);
+                         inputstream.close();
+ 
+-                        for (String s5 : properties.keySet())
++                        for (String s5 : (Set<String>)(Set<?>)properties.keySet())
+                         {
+                             String s6 = properties.getProperty(s5);
+                             shaderPackResources.put(s5, s6);

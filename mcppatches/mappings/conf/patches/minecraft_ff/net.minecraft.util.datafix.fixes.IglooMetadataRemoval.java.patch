@@ -1,0 +1,21 @@
+diff -r -U 3 minecraft\net\minecraft\util\datafix\fixes\IglooMetadataRemoval.java minecraft_patched\net\minecraft\util\datafix\fixes\IglooMetadataRemoval.java
+--- minecraft\net\minecraft\util\datafix\fixes\IglooMetadataRemoval.java
++++ minecraft_patched\net\minecraft\util\datafix\fixes\IglooMetadataRemoval.java
+@@ -8,6 +8,8 @@
+ import java.util.Optional;
+ import java.util.function.Function;
+ import java.util.function.Predicate;
++import java.util.stream.Stream;
++
+ import net.minecraft.util.datafix.TypeReferences;
+ 
+ public class IglooMetadataRemoval extends DataFix {
+@@ -35,7 +37,7 @@
+          });
+       });
+       p_211929_0_.getClass();
+-      return (Dynamic)optional.<T>map(p_211929_0_::createList).orElse(p_211929_0_);
++      return (Dynamic)optional.<T>map((x)->p_211929_0_.createList((Stream)x)).orElse(p_211929_0_);
+    }
+ 
+    private static boolean func_211930_c(Dynamic<?> p_211930_0_) {

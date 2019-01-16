@@ -1,0 +1,29 @@
+diff -r -U 3 minecraft\net\minecraft\util\math\BlockPos.java minecraft_patched\net\minecraft\util\math\BlockPos.java
+--- minecraft\net\minecraft\util\math\BlockPos.java
++++ minecraft_patched\net\minecraft\util\math\BlockPos.java
+@@ -149,6 +149,12 @@
+    }
+ 
+    public static Iterable<BlockPos> func_191532_a(int p_191532_0_, int p_191532_1_, int p_191532_2_, int p_191532_3_, int p_191532_4_, int p_191532_5_) {
++      final int p_210321_0_ = p_191532_0_;
++      final int p_210321_1_ = p_191532_1_;
++      final int p_210321_2_ = p_191532_2_;
++      final int p_210321_3_ = p_191532_3_;
++      final int p_210321_4_ = p_191532_4_;
++      final int p_210321_5_ = p_191532_5_;
+       return () -> {
+          return new AbstractIterator<BlockPos>() {
+             private boolean field_210330_g = true;
+@@ -193,6 +199,12 @@
+    }
+ 
+    public static Iterable<BlockPos.MutableBlockPos> func_191531_b(int p_191531_0_, int p_191531_1_, int p_191531_2_, int p_191531_3_, int p_191531_4_, int p_191531_5_) {
++      final int p_210320_0_ = p_191531_0_;
++      final int p_210320_1_ = p_191531_1_;
++      final int p_210320_2_ = p_191531_2_;
++      final int p_210320_3_ = p_191531_3_;
++      final int p_210320_4_ = p_191531_4_;
++      final int p_210320_5_ = p_191531_5_;     
+       return () -> {
+          return new AbstractIterator<BlockPos.MutableBlockPos>() {
+             private BlockPos.MutableBlockPos field_210334_g;
