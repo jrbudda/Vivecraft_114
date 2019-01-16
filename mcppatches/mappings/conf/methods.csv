@@ -9220,7 +9220,7 @@ func_71403_a,loadWorld,0,unloads the current world first
 func_71404_a,crashed,0,
 func_71405_e,shutdownMinecraftApplet,0,"Shuts down the minecraft applet by stopping the resource downloads, and clearing up GL stuff; called when the application (or web page) is exited."
 func_71407_l,runTick,0,Runs the current tick.
-func_71410_x,getInstance,0,Return the singleton Minecraft instance for the game
+func_71410_x,getMinecraft,0,Return the singleton Minecraft instance for the game
 func_71497_f,getFile,0,Gets the file this crash report is saved into.
 func_71498_d,getCauseStackTraceOrString,2,"Gets the stack trace of the Throwable that caused this crash report, or if that fails, the cause .toString()."
 func_71499_a,addCrashSectionThrowable,2,Adds a Crashreport section with the given name with the given Throwable
