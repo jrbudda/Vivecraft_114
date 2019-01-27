@@ -7,6 +7,7 @@ import errno
 import platform
 import shutil
 import time
+import distutils.core
 from shutil import move
 from tempfile import mkstemp
 from os import remove, close
@@ -134,36 +135,18 @@ def installAndPatchMcp( mcp_dir ):
     if mcp_exists == False:
         print "No %s directory or zip file found. Please copy the %s.zip file into %s and re-run the command." % (mcp_version, mcp_version, base_dir)
         exit(1)
+           
+    # Patch in mcp (if present)
+    mappingsdir = os.path.join(base_dir,"mcppatches","mappings")
+    mappingstarget = os.path.join(mcp_dir)
+    if os.path.exists(mappingsdir):
+        distutils.dir_util.copy_tree(mappingsdir, mappingstarget);
        
-    # Use fixed fernflower.jar
-    ff_jar_source_path = os.path.join(base_dir, "mcppatches", "fernflower-opt-fix.jar")
-    ff_jar_dest_path = os.path.join(mcp_dir,"runtime","bin","fernflower.jar")
-    if os.path.exists(ff_jar_source_path):
-        print 'Updating fernflower.jar: copying %s to %s' % (ff_jar_source_path, ff_jar_dest_path)
-        shutil.copy(ff_jar_source_path,ff_jar_dest_path)
-    
     # Setup the appropriate mcp file versions
     mcp_version_cfg = os.path.join(mcp_dir,"conf","version.cfg")
     replacelineinfile( mcp_version_cfg, "ClientVersion =", "ClientVersion = %s\n" % mc_version );
     replacelineinfile( mcp_version_cfg, "ServerVersion =", "ServerVersion = %s\n" % mc_version );
-
-    # Patch in mcp mappings (if present)
-    mappingsdir = os.path.join(base_dir,"mcppatches","mappings")
-    mappingstarget = os.path.join(mcp_dir,"conf")
-    if os.path.exists(mappingsdir):
-        src_files = os.listdir(mappingsdir)
-        for file_name in src_files:
-            full_file_name = os.path.join(mappingsdir, file_name)
-            if (os.path.isfile(full_file_name)):
-                shutil.copy(full_file_name, os.path.join(mappingstarget, file_name))
-
-    mcppatches = os.path.join(base_dir,"mcppatches","mappings","patches")
-    mcppatchesmcp = os.path.join(mcp_dir,"conf","patches")
-    if os.path.exists(mcppatches):
-        if os.path.exists(mcppatchesmcp):
-            shutil.rmtree(mcppatchesmcp)
-        shutil.copytree(mcppatches,mcppatchesmcp)
-        
+    
     # Patch mcp.cfg with minecraft jar md5
     mcp_cfg_file = os.path.join(mcp_dir,"conf","mcp.cfg")
     if os.path.exists(mcp_cfg_file):

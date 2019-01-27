@@ -12,7 +12,7 @@
  
      public static void loadShaderPack()
      {
-+    	mc = Minecraft.getInstance();
++    	mc = Minecraft.getMinecraft();
          boolean flag = shaderPackLoaded;
          boolean flag1 = isOldLighting();
          shaderPackLoaded = false;

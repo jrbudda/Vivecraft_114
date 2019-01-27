@@ -5,11 +5,11 @@
                  nativeimage = this.imageBuffer.parseUserSkin(nativeimage);
              }
 -
-+            final NativeImage nativeImageF = nativeimage;
-             Minecraft.getInstance().addScheduledTask(() ->
++            final NativeImage nativeimagef = nativeimage;
+             Minecraft.getMinecraft().addScheduledTask(() ->
              {
 -                this.setImage(nativeimage);
-+                this.setImage(nativeImageF);
++                this.setImage(nativeimagef);
              });
              this.uploadPending = true;
          }

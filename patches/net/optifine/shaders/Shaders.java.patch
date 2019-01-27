@@ -39,15 +39,6 @@
      private static ByteBuffer nextByteBuffer(int size)
      {
          ByteBuffer bytebuffer = bigBuffer;
-@@ -798,7 +805,7 @@
- 
-     public static void loadShaderPack()
-     {
--    	mc = Minecraft.getInstance();
-+    	mc = Minecraft.getMinecraft();
-         boolean flag = shaderPackLoaded;
-         boolean flag1 = isOldLighting();
-         shaderPackLoaded = false;
 @@ -3373,8 +3380,14 @@
                  setProgramUniform1f(uniform_viewWidth, (float)renderWidth);
                  setProgramUniform1f(uniform_viewHeight, (float)renderHeight);
