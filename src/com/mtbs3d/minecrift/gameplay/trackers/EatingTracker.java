@@ -12,6 +12,7 @@ import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.Vec3d;
 
 /**
@@ -39,11 +40,11 @@ public class EatingTracker extends Tracker{
 		if(p.isDead) return false;
 		if(p.isPlayerSleeping()) return false;
 		if(p.getHeldItemMainhand() != null){
-			EnumAction action=p.getHeldItemMainhand().getItemUseAction();
+			EnumAction action=p.getHeldItemMainhand().getUseAction();
 			if(	action == EnumAction.EAT || action == EnumAction.DRINK) return true;
 		}
 		if(p.getHeldItemOffhand() != null){
-			EnumAction action=p.getHeldItemOffhand().getItemUseAction();
+			EnumAction action=p.getHeldItemOffhand().getUseAction();
 			if(	action == EnumAction.EAT || action == EnumAction.DRINK) return true;
 		}
 		return false;
@@ -73,7 +74,7 @@ private Random r = new Random();
 				ItemStack is = c==0?player.getHeldItemMainhand():player.getHeldItemOffhand();
 				if(is == null) continue;
 
-				if(is.getItemUseAction() == EnumAction.DRINK){ //thats how liquid works.
+				if(is.getUseAction() == EnumAction.DRINK){ //thats how liquid works.
 					if(provider.vrdata_room_pre.getController(c).getCustomVector(new Vec3d(0,1,0)).y > 0) continue;
 				}
 
@@ -81,11 +82,11 @@ private Random r = new Random();
 					if(	mc.playerController.processRightClick(player, player.world,c==0?EnumHand.MAIN_HAND:EnumHand.OFF_HAND)==EnumActionResult.SUCCESS){
 						mc.entityRenderer.itemRenderer.resetEquippedProgress(c==0?EnumHand.MAIN_HAND:EnumHand.OFF_HAND);
 						eating[c]=true;
-						eatStart=Minecraft.getSystemTime();
+						eatStart=Util.milliTime();
 					}
 				}
 				int crunchiness;
-				if(is.getItemUseAction() == EnumAction.DRINK){
+				if(is.getUseAction() == EnumAction.DRINK){
 					crunchiness=0;
 				}else
 					crunchiness=2;
@@ -95,7 +96,7 @@ private Random r = new Random();
 					if(t%5 <= crunchiness)
 						MCOpenVR.triggerHapticPulse(c, 700 );
 
-				if(Minecraft.getSystemTime()-eatStart > eattime)
+				if(Util.milliTime()-eatStart > eattime)
 					eating[c]=false;
 
 			}else {

@@ -18,25 +18,24 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.WorldProvider;
 
 public class MCReflection {
-	public static final ReflectionField SoundManager_sndSystem = new ReflectionField(SoundManager.class, "field_148620_e");
-	public static final ReflectionField SoundManager_loaded = new ReflectionField(SoundManager.class, "field_148617_f");
-	public static final ReflectionMethod WorldProvider_generateLightBrightnessTable = new ReflectionMethod(WorldProvider.class, "func_76556_a");
+//	public static final ReflectionField SoundManager_sndSystem = new ReflectionField(SoundManager.class, "field_148620_e");
+//	public static final ReflectionField SoundManager_loaded = new ReflectionField(SoundManager.class, "field_148617_f");
+//	public static final ReflectionMethod WorldProvider_generateLightBrightnessTable = new ReflectionMethod(WorldProvider.class, "func_76556_a");
 	public static final ReflectionField PlayerControllerMP_blockHitDelay = new ReflectionField(PlayerControllerMP.class, "field_78781_i");
 	public static final ReflectionField PlayerControllerMP_isHittingBlock = new ReflectionField(PlayerControllerMP.class, "field_78778_j");
-	public static final ReflectionField GuiChat_inputField = new ReflectionField(GuiChat.class, "field_146415_a");
-	public static final ReflectionField KeyBinding_pressed = new ReflectionField(KeyBinding.class, "field_74513_e");
-	public static final ReflectionField KeyBinding_pressTime = new ReflectionField(KeyBinding.class, "field_151474_i");
-	public static final ReflectionMethod KeyBinding_unpressKey = new ReflectionMethod(KeyBinding.class, "func_74505_d");
-	public static final ReflectionField WorldProvider_terrainType = new ReflectionField(WorldProvider.class, "field_76577_b");
-	public static final ReflectionField TileEntityRendererDispatcher_fontRenderer = new ReflectionField(TileEntityRendererDispatcher.class, "field_147557_n");
-	public static final ReflectionField KeyBinding_CATEGORY_ORDER = new ReflectionField(KeyBinding.class, "field_193627_d");
+//	public static final ReflectionField GuiChat_inputField = new ReflectionField(GuiChat.class, "field_146415_a");
+//	public static final ReflectionField KeyBinding_pressed = new ReflectionField(KeyBinding.class, "field_74513_e");
+//	public static final ReflectionField KeyBinding_pressTime = new ReflectionField(KeyBinding.class, "field_151474_i");
+//	public static final ReflectionMethod KeyBinding_unpressKey = new ReflectionMethod(KeyBinding.class, "func_74505_d");
+//	public static final ReflectionField WorldProvider_terrainType = new ReflectionField(WorldProvider.class, "field_76577_b");
+//	public static final ReflectionField TileEntityRendererDispatcher_fontRenderer = new ReflectionField(TileEntityRendererDispatcher.class, "field_147557_n");
+//	public static final ReflectionField KeyBinding_CATEGORY_ORDER = new ReflectionField(KeyBinding.class, "field_193627_d");
 	public static final ReflectionMethod RenderPlayer_setModelVisibilities = new ReflectionMethod(RenderPlayer.class, "func_177137_d", AbstractClientPlayer.class);
-	public static final ReflectionField TextureMap_listAnimatedSprites = new ReflectionField(TextureMap.class, "field_94258_i");
-	public static final ReflectionField EntityPlayer_spawnChunk = new ReflectionField(EntityPlayer.class, "field_71077_c");
-	public static final ReflectionField EntityPlayer_spawnForced = new ReflectionField(EntityPlayer.class, "field_82248_d");
+//	public static final ReflectionField TextureMap_listAnimatedSprites = new ReflectionField(TextureMap.class, "field_94258_i");
+//	public static final ReflectionField EntityPlayer_spawnChunk = new ReflectionField(EntityPlayer.class, "field_71077_c");
+//	public static final ReflectionField EntityPlayer_spawnForced = new ReflectionField(EntityPlayer.class, "field_82248_d");
 
 	public static class ReflectionField {
 		private final Class<?> clazz;

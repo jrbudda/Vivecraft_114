@@ -3,7 +3,8 @@ package com.mtbs3d.minecrift.api;
 import java.nio.FloatBuffer;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.lwjgl.util.vector.Matrix4f;
+
+import com.mtbs3d.minecrift.utils.LWJGL.Matrix4f;
 
 import com.google.common.base.Charsets;
 import com.mtbs3d.minecrift.gameplay.OpenVRPlayer;
@@ -19,6 +20,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CPacketCustomPayload;
 import net.minecraft.network.play.server.SPacketCustomPayload;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.HashMap;
@@ -42,7 +44,7 @@ public class NetworkHelper {
 		TELEPORT,
 		CLIMBING
 	}
-	private final static String channel = "Vivecraft";
+	private final static ResourceLocation channel = new ResourceLocation("Vivecraft");
 	
 	public static CPacketCustomPayload getVivecraftClientPacket(PacketDiscriminators command, byte[] payload)
 	{

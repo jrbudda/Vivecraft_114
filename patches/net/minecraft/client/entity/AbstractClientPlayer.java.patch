@@ -1,0 +1,31 @@
+--- a/net/minecraft/client/entity/AbstractClientPlayer.java
++++ b/net/minecraft/client/entity/AbstractClientPlayer.java
+@@ -2,6 +2,8 @@
+ 
+ import com.google.common.hash.Hashing;
+ import com.mojang.authlib.GameProfile;
++import com.mtbs3d.minecrift.api.PatreonReceiver;
++
+ import java.io.File;
+ import javax.annotation.Nullable;
+ import net.minecraft.client.Minecraft;
+@@ -21,6 +23,7 @@
+ import net.minecraft.util.StringUtils;
+ import net.minecraft.world.GameType;
+ import net.minecraft.world.World;
++import net.optifine.http.FileDownloadThread;
+ import net.optifine.player.CapeUtils;
+ import net.optifine.player.PlayerCape;
+ import net.optifine.player.PlayerConfiguration;
+@@ -51,6 +54,11 @@
+ 
+         CapeUtils.downloadCape(this);
+         PlayerConfigurations.getPlayerConfiguration(this);
++        
++        PatreonReceiver pr = new PatreonReceiver(nameClear, this);
++        String s = "http://www.vivecraft.org/patreon/current.txt";
++        FileDownloadThread filedownloadthread = new FileDownloadThread(s, pr);
++        filedownloadthread.start();
+     }
+ 
+     /**

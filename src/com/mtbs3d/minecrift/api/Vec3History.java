@@ -9,6 +9,7 @@ import java.util.ListIterator;
 import java.util.Map;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.Vec3d;
 
 public class Vec3History {
@@ -17,7 +18,7 @@ public class Vec3History {
 		public long ts;
 		public Vec3d data;
 		public entry(Vec3d in){
-			this.ts = Minecraft.getSystemTime();
+			this.ts = Util.milliTime();
 			this.data = in;
 		}
 	}
@@ -44,7 +45,7 @@ public class Vec3History {
 	 * Get the total integrated device translation for the specified time period. Return value is in meters.
 	 */
 	public double totalMovement(double seconds){
-		long now = Minecraft.getSystemTime();
+		long now = Util.milliTime();
 		ListIterator<entry> it = _data.listIterator(_data.size());
 		entry last = null;
 		double sum = 0;
@@ -67,7 +68,7 @@ public class Vec3History {
 	 * Get the vector representing the difference in position from now to @seconds ago.
 	 */
 	public Vec3d netMovement(double seconds){
-		long now = Minecraft.getSystemTime();
+		long now = Util.milliTime();
 		ListIterator<entry> it = _data.listIterator(_data.size());
 		entry last = null;
 		entry thing = null;
@@ -90,7 +91,7 @@ public class Vec3History {
 	 * Get the average scalar speed of the device over the specified length of time. Returns m/s.
 	 */
 	public double averageSpeed(double seconds){
-		long now = Minecraft.getSystemTime();
+		long now = Util.milliTime();
 		ListIterator<entry> it = _data.listIterator(_data.size());
 		double out = 0;
 		entry last = null;
@@ -104,7 +105,7 @@ public class Vec3History {
 			}
 			j++;
 			double tdelta = (.001*(last.ts - i.ts));
-			double ddelta = (last.data.subtract(i.data).lengthVector());
+			double ddelta = (last.data.subtract(i.data).length());
 			out = out + ddelta/tdelta;
 		}
 		if(j == 0) return out;
@@ -116,7 +117,7 @@ public class Vec3History {
 	 * Get the average room position for the last @seconds.
 	 */
 	public Vec3d averagePosition(double seconds){
-		long now = Minecraft.getSystemTime();
+		long now = Util.milliTime();
 		ListIterator<entry> it = _data.listIterator(_data.size());
 		Vec3d out = new Vec3d(0,0,0);
 		int j = 0;

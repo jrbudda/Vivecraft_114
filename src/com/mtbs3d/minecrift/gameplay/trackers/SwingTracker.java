@@ -26,6 +26,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceFluidMode;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.math.Vec3d;
@@ -71,7 +72,7 @@ public class SwingTracker extends Tracker{
 	public void doProcess(EntityPlayerSP player){ //on tick
 
         
-        mc.mcProfiler.startSection("updateSwingAttack");
+        mc.profiler.startSection("updateSwingAttack");
         
         Vec3d forward = new Vec3d(0,0,-1);
         
@@ -101,16 +102,16 @@ public class SwingTracker extends Tracker{
             		){
             	tool = true;
             }
-            else if(item !=null && Reflector.forgeExists()){ //tinkers hack
-            	String t = item.getClass().getSuperclass().getName().toLowerCase();
-            	//System.out.println(c);
-            	if (t.contains("weapon") || t.contains("sword")) {
-            		sword = true;
-            		tool = true;
-            	} else 	if 	(t.contains("tool")){
-            		tool = true;
-            	}
-            }    
+//            else if(item !=null && Reflector.forgeExists()){ //tinkers hack
+//            	String t = item.getClass().getSuperclass().getName().toLowerCase();
+//            	//System.out.println(c);
+//            	if (t.contains("weapon") || t.contains("sword")) {
+//            		sword = true;
+//            		tool = true;
+//            	} else 	if 	(t.contains("tool")){
+//            		tool = true;
+//            	}
+//            }    
 
             if (sword){
                  	entityReachAdd = 2.5f;
@@ -212,12 +213,13 @@ public class SwingTracker extends Tracker{
         		// every time end of weapon enters a solid for the first time, trace from our previous air position
         		// and damage the block it collides with... 
 
-        		RayTraceResult col = mc.world.rayTraceBlocks(lastWeaponEndAir[c], weaponEnd[c], true, false, true);
+        		//TODO: Check final 2 parameters, compare to 1.12
+        		RayTraceResult col = mc.world.rayTraceBlocks(lastWeaponEndAir[c], weaponEnd[c], RayTraceFluidMode.NEVER, false, true);
         		
-        		mc.playerController.hitVecOverride = col.hitVec;
+        		//TODO: RE-do? mc.playerController.hitVecOverride = col.hitVec;
         		
         		boolean flag = col!=null && col.getBlockPos().equals(bp); //fix ladder but prolly break everything else.
-        		if (flag && (shouldIlookatMyHand[c] || (col != null && col.typeOfHit == Type.BLOCK)))
+        		if (flag && (shouldIlookatMyHand[c] || (col != null && col.type == Type.BLOCK)))
         		{
         			this.shouldIlookatMyHand[c] = false;
         			if (!(material == material.AIR))
@@ -278,10 +280,10 @@ public class SwingTracker extends Tracker{
         				}
         			}
         		}
-        		mc.playerController.hitVecOverride = null;
+        		//mc.playerController.hitVecOverride = null;
         	}
 
-            if ((!inAnEntity && !insolidBlock ) || lastWeaponEndAir[c].lengthVector() ==0)
+            if ((!inAnEntity && !insolidBlock ) || lastWeaponEndAir[c].length() ==0)
         	{
         		this.lastWeaponEndAir[c] = new Vec3d(
         				weaponEnd[c].x,
@@ -294,7 +296,7 @@ public class SwingTracker extends Tracker{
 
         }
         
-        mc.mcProfiler.endSection();
+        mc.profiler.endSection();
     
     }
 

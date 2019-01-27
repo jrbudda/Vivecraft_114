@@ -1,8 +1,10 @@
 package com.mtbs3d.minecrift.utils;
 
 import net.minecraft.util.math.Vec3d;
-import org.lwjgl.util.vector.Matrix3f;
-import org.lwjgl.util.vector.Matrix4f;
+
+import com.mtbs3d.minecrift.utils.LWJGL.Matrix3f;
+import com.mtbs3d.minecrift.utils.LWJGL.Matrix4f;
+import com.mtbs3d.minecrift.utils.LWJGL.Vector3f;
 
 /**
  *
@@ -34,7 +36,7 @@ public class Vector3 {
 		this.z = other.z;
 	}
 
-	public Vector3(org.lwjgl.util.vector.Vector3f other) {
+	public Vector3(Vector3f other) {
 		this.x = other.x;
 		this.y = other.y;
 		this.z = other.z;

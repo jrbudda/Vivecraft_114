@@ -32,8 +32,8 @@ public class GuiKeyboard extends TwoHandedGuiScreen
 		String arr = mc.vrSettings.keyboardKeys;
 		String alt = mc.vrSettings.keyboardKeysShift;
 
-		this.buttonList.clear();
-		//this.buttonList.add(new GuiSmallButtonEx(301, this.width / 2 - 78, this.height / 6 - 14, "Hide Hud (F1): " + mc.gameSettings.hideGUI));
+		this.buttons.clear();
+		//this.buttons.add(new GuiSmallButtonEx(301, this.width / 2 - 78, this.height / 6 - 14, "Hide Hud (F1): " + mc.gameSettings.hideGUI));
 
 		if(this.isShift)
 			arr = alt;
@@ -58,14 +58,14 @@ public class GuiKeyboard extends TwoHandedGuiScreen
 					x = arr.charAt(c);
 				}
 				GuiButton butt = new GuiButton(c, margin + i*(bwidth+spacing), margin + r*(20+spacing), bwidth, 20, String.valueOf(x));
-				this.buttonList.add(butt);
+				this.buttons.add(butt);
 			}
 		}
-		this.buttonList.add(new GuiButton(201, 0, margin + 3* (20 + spacing), 30, 20, "Shift"));
-		this.buttonList.add(new GuiButton(199, margin + 4 * (bwidth+spacing), margin + rows * (20+spacing), 5 * (bwidth+spacing), 20, " "));
-		this.buttonList.add(new GuiButton(202, cols * (bwidth+spacing) + margin, margin , 35 , 20, "BKSP"));
-		this.buttonList.add(new GuiButton(203, cols * (bwidth+spacing) + margin, margin + 2*(20 + spacing) , 35 , 20, "ENTER"));
-		this.buttonList.add(new GuiButton(204, 0, margin + (20 + spacing), 30, 20, "TAB"));
+		this.buttons.add(new GuiButton(201, 0, margin + 3* (20 + spacing), 30, 20, "Shift"));
+		this.buttons.add(new GuiButton(199, margin + 4 * (bwidth+spacing), margin + rows * (20+spacing), 5 * (bwidth+spacing), 20, " "));
+		this.buttons.add(new GuiButton(202, cols * (bwidth+spacing) + margin, margin , 35 , 20, "BKSP"));
+		this.buttons.add(new GuiButton(203, cols * (bwidth+spacing) + margin, margin + 2*(20 + spacing) , 35 , 20, "ENTER"));
+		this.buttons.add(new GuiButton(204, 0, margin + (20 + spacing), 30, 20, "TAB"));
 
 	}
 

@@ -95,13 +95,13 @@ public class ModelArmorVR extends ModelBase
         if (this.isChild)
         {
             float f = 2.0F;
-            GlStateManager.scale(0.75F, 0.75F, 0.75F);
-            GlStateManager.translate(0.0F, 16.0F * scale, 0.0F);
+            GlStateManager.scalef(0.75F, 0.75F, 0.75F);
+            GlStateManager.translatef(0.0F, 16.0F * scale, 0.0F);
             this.bipedHead.render(scale);
             GlStateManager.popMatrix();
             GlStateManager.pushMatrix();
-            GlStateManager.scale(0.5F, 0.5F, 0.5F);
-            GlStateManager.translate(0.0F, 24.0F * scale, 0.0F);
+            GlStateManager.scalef(0.5F, 0.5F, 0.5F);
+            GlStateManager.translatef(0.0F, 24.0F * scale, 0.0F);
             this.bipedBody.render(scale);
             this.bipedRightArm.render(scale);
             this.bipedLeftArm.render(scale);
@@ -113,7 +113,7 @@ public class ModelArmorVR extends ModelBase
         {
             if (entityIn.isSneaking())
             {
-                GlStateManager.translate(0.0F, 0.2F, 0.0F);
+                GlStateManager.translatef(0.0F, 0.2F, 0.0F);
             }
 
             this.bipedHead.render(scale);

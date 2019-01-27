@@ -7,8 +7,8 @@ import de.fruitfly.ovr.enums.RotateDirection;
 import de.fruitfly.ovr.structs.EulerOrient;
 import de.fruitfly.ovr.structs.Quatf;
 import net.minecraft.util.math.Vec3d;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Quaternion;
+import com.mtbs3d.minecrift.utils.LWJGL.Matrix4f;
+import com.mtbs3d.minecrift.utils.LWJGL.Quaternion;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -59,11 +59,11 @@ public class QuaternionHelper
     {
         float inputA = input.w;
         Vec3d inputV = new Vec3d(input.x, input.y, input.z);
-        float outputA = (float)(Math.exp(inputA) * Math.cos(inputV.lengthVector()));
+        float outputA = (float)(Math.exp(inputA) * Math.cos(inputV.length()));
         Vec3d outputV = new Vec3d(
-        Math.exp(inputA) * (inputV.normalize().x * (float)Math.sin(inputV.lengthVector())),
-        Math.exp(inputA) * (inputV.normalize().y * (float)Math.sin(inputV.lengthVector())),
-        Math.exp(inputA) * (inputV.normalize().z * (float)Math.sin(inputV.lengthVector())));
+        Math.exp(inputA) * (inputV.normalize().x * (float)Math.sin(inputV.length())),
+        Math.exp(inputA) * (inputV.normalize().y * (float)Math.sin(inputV.length())),
+        Math.exp(inputA) * (inputV.normalize().z * (float)Math.sin(inputV.length())));
 
         return new Quaternion((float)outputV.x, (float)outputV.y, (float)outputV.z, outputA);
     }

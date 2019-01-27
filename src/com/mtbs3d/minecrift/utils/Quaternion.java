@@ -4,8 +4,9 @@ import de.fruitfly.ovr.structs.EulerOrient;
 import de.fruitfly.ovr.structs.Quatf;
 import jopenvr.OpenVRUtil;
 import net.minecraft.util.math.Vec3d;
-import org.lwjgl.util.vector.Matrix3f;
-import org.lwjgl.util.vector.Matrix4f;
+
+import com.mtbs3d.minecrift.utils.LWJGL.Matrix3f;
+import com.mtbs3d.minecrift.utils.LWJGL.Matrix4f;
 
 
 /**

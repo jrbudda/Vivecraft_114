@@ -215,7 +215,7 @@ public class RadialHandler {
 			dist = 1.2f;
 		}
 
-		org.lwjgl.util.vector.Matrix4f matrix = new org.lwjgl.util.vector.Matrix4f();
+		com.mtbs3d.minecrift.utils.LWJGL.util.vector.Matrix4f matrix = new com.mtbs3d.minecrift.utils.LWJGL.util.vector.Matrix4f();
 
 		Vec3d v = pose.getPosition();
 		Vec3d adj = new Vec3d(0,0,-dist);

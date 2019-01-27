@@ -26,7 +26,7 @@ public class GuiQuickCommandsInGame extends GuiScreen
     {
     	KeyBinding.unPressAllKeys();
         this.field_146445_a = 0;
-        this.buttonList.clear();
+        this.buttons.clear();
         byte var1 = -16;
         boolean var2 = true;
         
@@ -36,10 +36,10 @@ public class GuiQuickCommandsInGame extends GuiScreen
         	for (int i = 0; i < chatcommands.length; i++) {
         		w = i > 5 ? 1 : 0;
         		String com  = chatcommands[i];
-        		this.buttonList.add(new GuiButton(200 + i, this.width / 2 - 125 + 127 * w, 36 + (i-6*w) * 24, 125, 20, com.toString()));        	
+        		this.buttons.add(new GuiButton(200 + i, this.width / 2 - 125 + 127 * w, 36 + (i-6*w) * 24, 125, 20, com.toString()));        	
         	}
 
-        	this.buttonList.add(new GuiButton(102, this.width / 2 -50, this.height -30  + var1, 100, 20, "Cancel"));
+        	this.buttons.add(new GuiButton(102, this.width / 2 -50, this.height -30  + var1, 100, 20, "Cancel"));
 
     }
 

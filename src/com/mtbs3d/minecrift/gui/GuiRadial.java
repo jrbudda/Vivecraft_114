@@ -35,7 +35,7 @@ public class GuiRadial extends TwoHandedGuiScreen
 		arr = mc.vrSettings.vrRadialItems;
 		String[] alt = mc.vrSettings.vrRadialItemsAlt;
 
-		this.buttonList.clear();
+		this.buttons.clear();
 
 		int numButts = 8;
     	int buttonwidthMin = 120;
@@ -99,7 +99,7 @@ public class GuiRadial extends TwoHandedGuiScreen
     		}
 
     	if(str != "?") //only draw mapped buttons
-    		this.buttonList.add(new GuiButton(i, centerx + x - buttonwidth/2 , centery+y-10, buttonwidth, 20, str ));    
+    		this.buttons.add(new GuiButton(i, centerx + x - buttonwidth/2 , centery+y-10, buttonwidth, 20, str ));    
     	
     	}
 

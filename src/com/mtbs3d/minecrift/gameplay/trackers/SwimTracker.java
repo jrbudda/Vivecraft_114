@@ -96,7 +96,7 @@ public class SwimTracker extends Tracker {
 
 			Vec3d contollerDir= mc.vrPlayer.vrdata_world_pre.getController(0).getCustomVector(new Vec3d(0,0,-1)).add(
 					mc.vrPlayer.vrdata_world_pre.getController(1).getCustomVector(new Vec3d(0,0,-1))).scale(0.5);
-			double dirfactor=contollerDir.add(movedir).lengthVector()/2;
+			double dirfactor=contollerDir.add(movedir).length()/2;
 
 			double distance= hmdPos.distanceTo(middle);
 			double distDelta=lastDist-distance;

@@ -92,7 +92,7 @@ public class GuiVRControls extends BaseGuiSettings {
     public void initGui() {
     	this.guiList = new GuiVRControlsList(this, mc);
     	this.guiSelection = new GuiKeyBindingSelection(this, mc);
-        this.buttonList.clear();
+        this.buttons.clear();
         btnDefaults = (new GuiButtonEx(ID_GENERIC_DEFAULTS, this.width / 2 - 155 ,  this.height -25 ,100,20, "Defaults"));
         btnDone = (new GuiButtonEx(ID_GENERIC_DONE, this.width / 2 + 55, this.height -25,100,20, "Done"));
         btnCancel = (new GuiButtonEx(99, this.width / 2 - 155  + 80, this.height -25,150,20, "Cancel"));
@@ -101,15 +101,15 @@ public class GuiVRControls extends BaseGuiSettings {
         btnKeyboardHold = (new GuiButtonEx(102, this.width / 2 - 50, this.height -25,100,20, "Hold"));
         btnLeftTouchpadMode = (new GuiButtonEx(103, this.width / 2 - 155, 41,150,20, ""));
         btnRightTouchpadMode = (new GuiButtonEx(104, this.width / 2 + 5, 41,150,20, ""));
-        this.buttonList.add(btnDefaults);
-        this.buttonList.add(btnDone);
-        this.buttonList.add(btnCancel);
-        this.buttonList.add(btnAddKey);
-        this.buttonList.add(btnKeyboardPress);
-        this.buttonList.add(btnKeyboardHold);
+        this.buttons.add(btnDefaults);
+        this.buttons.add(btnDone);
+        this.buttons.add(btnCancel);
+        this.buttons.add(btnAddKey);
+        this.buttons.add(btnKeyboardPress);
+        this.buttons.add(btnKeyboardHold);
         if (MCOpenVR.isVive()) {
-            this.buttonList.add(btnLeftTouchpadMode);
-            this.buttonList.add(btnRightTouchpadMode);
+            this.buttons.add(btnLeftTouchpadMode);
+            this.buttons.add(btnRightTouchpadMode);
         }
     }
 

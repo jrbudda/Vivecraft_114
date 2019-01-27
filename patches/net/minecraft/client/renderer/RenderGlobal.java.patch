@@ -1,0 +1,199 @@
+--- a/net/minecraft/client/renderer/RenderGlobal.java
++++ b/net/minecraft/client/renderer/RenderGlobal.java
+@@ -4,6 +4,10 @@
+ import com.google.common.collect.Maps;
+ import com.google.common.collect.Sets;
+ import com.google.gson.JsonSyntaxException;
++import com.mtbs3d.minecrift.provider.MCOpenVR;
++import com.mtbs3d.minecrift.render.renderPass;
++import com.mtbs3d.minecrift.settings.VRSettings;
++
+ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+ import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
+ import java.io.IOException;
+@@ -806,6 +810,10 @@
+                                 {
+                                     boolean flag3 = this.mc.getRenderViewEntity() instanceof EntityLivingBase && ((EntityLivingBase)this.mc.getRenderViewEntity()).isPlayerSleeping();
+ 
++                                    //Vivecraft
++                                    flag3 = mc.currentPass == renderPass.Third && mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_THIRD_PERSON;
++                                    //		
++                                    
+                                     if ((entity2 != this.mc.getRenderViewEntity() || this.mc.gameSettings.thirdPersonView != 0 || flag3) && (entity2.posY < 0.0D || entity2.posY >= 256.0D || this.world.isBlockLoaded(blockpos$pooledmutableblockpos.setPos(entity2))))
+                                     {
+                                         ++this.countEntitiesRendered;
+@@ -816,9 +824,22 @@
+                                             Shaders.nextEntity(entity2);
+                                         }
+ 
++                                        //Vivecraft
++                                        if(entity2 == this.mc.getRenderViewEntity()) { //fix shaders shadow location.
++                                        	mc.entityRenderer.restoreRVEPos((EntityLivingBase) entity2);
++                                        }
++                                        //
++                                        
+                                         this.renderManager.renderEntityStatic(entity2, partialTicks, false);
+                                         this.renderedEntity = null;
+ 
++                                        //Vivecraft
++                                        if(entity2 == this.mc.getRenderViewEntity()) {
++                                        	mc.entityRenderer.cacheRVEPos((EntityLivingBase) entity2);
++                                        	mc.entityRenderer.setupRVE();
++                                        }
++                                        //
++                                        
+                                         if (this.isOutlineActive(entity2, entity, camera))
+                                         {
+                                             list.add(entity2);
+@@ -1200,7 +1221,11 @@
+         new BlockPos(MathHelper.floor(d3 / 16.0D) * 16, MathHelper.floor(d4 / 16.0D) * 16, MathHelper.floor(d5 / 16.0D) * 16);
+         float f = entityIn.getPitch(partialTicks);
+         float f1 = entityIn.getYaw(partialTicks);
+-        this.displayListEntitiesDirty = this.displayListEntitiesDirty || !this.chunksToUpdate.isEmpty() || entityIn.posX != this.lastViewEntityX || entityIn.posY != this.lastViewEntityY || entityIn.posZ != this.lastViewEntityZ || (double)f != this.lastViewEntityPitch || (double)f1 != this.lastViewEntityYaw;
++        
++        //Vivecraft 
++        this.displayListEntitiesDirty = true; //this.displayListEntitiesDirty || !this.chunksToUpdate.isEmpty() || entityIn.posX != this.lastViewEntityX || entityIn.posY != this.lastViewEntityY || entityIn.posZ != this.lastViewEntityZ || (double)f != this.lastViewEntityPitch || (double)f1 != this.lastViewEntityYaw;
++        //
++        
+         this.lastViewEntityX = entityIn.posX;
+         this.lastViewEntityY = entityIn.posY;
+         this.lastViewEntityZ = entityIn.posZ;
+@@ -2333,9 +2358,9 @@
+ 
+     public void updateChunks(long finishTimeNano)
+     {
++        /* Vivecraft
+         finishTimeNano = (long)((double)finishTimeNano + 1.0E8D);
+         this.displayListEntitiesDirty |= this.renderDispatcher.runChunkUploads(finishTimeNano);
+-
+         if (this.chunksToUpdateForced.size() > 0)
+         {
+             Iterator iterator = this.chunksToUpdateForced.iterator();
+@@ -2373,7 +2398,8 @@
+ 
+         double d1 = 0.0D;
+         int i = Config.getUpdatesPerFrame();
+-
++ 		*/
++        
+         if (!this.chunksToUpdate.isEmpty())
+         {
+             Iterator<RenderChunk> iterator1 = this.chunksToUpdate.iterator();
+@@ -2400,7 +2426,7 @@
+ 
+                 renderchunk1.clearNeedsUpdate();
+                 iterator1.remove();
+-
++                /* Vivecraft
+                 if (!flag1)
+                 {
+                     double d0 = 2.0D * RenderChunkUtils.getRelativeBufferSize(renderchunk1);
+@@ -2411,6 +2437,7 @@
+                         break;
+                     }
+                 }
++                */
+             }
+         }
+     }
+@@ -3144,6 +3171,8 @@
+     {
+         Random random = this.world.rand;
+ 
++        boolean playernear =  mc.player !=null && !mc.player.isDead && (mc.player.getPosition().distanceSq(blockPosIn) < 25); ///hmm sure why not.
++        
+         switch (type)
+         {
+             case 1000:
+@@ -3199,18 +3228,26 @@
+                 break;
+ 
+             case 1011:
++                if(playernear)
++                	MCOpenVR.triggerHapticPulse(0,250); //VIVECRAFT go thump.
+                 this.world.playSound(blockPosIn, SoundEvents.BLOCK_IRON_DOOR_CLOSE, SoundCategory.BLOCKS, 1.0F, this.world.rand.nextFloat() * 0.1F + 0.9F, false);
+                 break;
+ 
+             case 1012:
++                if(playernear)
++                	MCOpenVR.triggerHapticPulse(0,250); //VIVECRAFT go thump.
+                 this.world.playSound(blockPosIn, SoundEvents.BLOCK_WOODEN_DOOR_CLOSE, SoundCategory.BLOCKS, 1.0F, this.world.rand.nextFloat() * 0.1F + 0.9F, false);
+                 break;
+ 
+             case 1013:
++                if(playernear)
++                	MCOpenVR.triggerHapticPulse(0,250); //VIVECRAFT go thump.
+                 this.world.playSound(blockPosIn, SoundEvents.BLOCK_WOODEN_TRAPDOOR_CLOSE, SoundCategory.BLOCKS, 1.0F, this.world.rand.nextFloat() * 0.1F + 0.9F, false);
+                 break;
+ 
+             case 1014:
++                if(playernear)
++                	MCOpenVR.triggerHapticPulse(0,250); //VIVECRAFT go thump.
+                 this.world.playSound(blockPosIn, SoundEvents.BLOCK_FENCE_GATE_CLOSE, SoundCategory.BLOCKS, 1.0F, this.world.rand.nextFloat() * 0.1F + 0.9F, false);
+                 break;
+ 
+@@ -3231,14 +3268,26 @@
+                 break;
+ 
+             case 1019:
++                if(playernear){ //this is just mean.
++                	MCOpenVR.triggerHapticPulse(0,750); 
++                	MCOpenVR.triggerHapticPulse(1,750); 
++                }
+                 this.world.playSound(blockPosIn, SoundEvents.ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR, SoundCategory.HOSTILE, 2.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F, false);
+                 break;
+ 
+             case 1020:
++                if(playernear){ //this is just mean.
++                	MCOpenVR.triggerHapticPulse(0,750); 
++                	MCOpenVR.triggerHapticPulse(1,750); 
++                }
+                 this.world.playSound(blockPosIn, SoundEvents.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, SoundCategory.HOSTILE, 2.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F, false);
+                 break;
+ 
+             case 1021:
++                if(playernear){ //this is just mean.
++                	MCOpenVR.triggerHapticPulse(0,750); 
++                	MCOpenVR.triggerHapticPulse(1,750); 
++                }
+                 this.world.playSound(blockPosIn, SoundEvents.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, SoundCategory.HOSTILE, 2.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F, false);
+                 break;
+ 
+@@ -3267,10 +3316,17 @@
+                 break;
+ 
+             case 1030:
++                if(playernear){ 
++                	MCOpenVR.triggerHapticPulse(0,500); 
++                }
+                 this.world.playSound(blockPosIn, SoundEvents.BLOCK_ANVIL_USE, SoundCategory.BLOCKS, 1.0F, this.world.rand.nextFloat() * 0.1F + 0.9F, false);
+                 break;
+ 
+             case 1031:
++                if(playernear){ 
++                	MCOpenVR.triggerHapticPulse(0,1250); 
++                	MCOpenVR.triggerHapticPulse(1,1250); 
++                }
+                 this.world.playSound(blockPosIn, SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.BLOCKS, 0.3F, this.world.rand.nextFloat() * 0.1F + 0.9F, false);
+                 break;
+ 
+@@ -3291,6 +3347,9 @@
+                 break;
+ 
+             case 1036:
++
++                if(playernear)
++                	MCOpenVR.triggerHapticPulse(0,250); //VIVECRAFT go thump.
+                 this.world.playSound(blockPosIn, SoundEvents.BLOCK_IRON_TRAPDOOR_CLOSE, SoundCategory.BLOCKS, 1.0F, this.world.rand.nextFloat() * 0.1F + 0.9F, false);
+                 break;
+ 
+@@ -3344,7 +3403,8 @@
+                     {
+                         soundtype = (SoundType)Reflector.call(iblockstate.getBlock(), Reflector.ForgeBlock_getSoundType, Block.getStateById(data), this.world, blockPosIn, null);
+                     }
+-
++                    if(playernear)
++                    	MCOpenVR.triggerHapticPulse(0,250); //VIVECRAFT go thump.
+                     this.world.playSound(blockPosIn, soundtype.getBreakSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F, false);
+                 }
+ 

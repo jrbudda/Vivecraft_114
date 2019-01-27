@@ -1,5 +1,6 @@
 package com.mtbs3d.minecrift.utils;
 
+import com.mtbs3d.minecrift.utils.LWJGL.Vector2f;
 
 /**
  *
@@ -22,7 +23,7 @@ public class Vector2 {
 		this.y = other.y;
 	}
 
-	public Vector2(org.lwjgl.util.vector.Vector2f other) {
+	public Vector2(Vector2f other) {
 		this.x = other.x;
 		this.y = other.y;
 	}

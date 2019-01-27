@@ -10,9 +10,9 @@ import org.apache.logging.log4j.Logger;
 
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.renderer.texture.TextureUtil;
-import net.minecraft.client.resources.IResource;
-import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.data.TextureMetadataSection;
+import net.minecraft.resources.IResource;
+import net.minecraft.resources.IResourceManager;
 import net.minecraft.src.Config;
 import net.minecraft.util.ResourceLocation;
 import net.optifine.shaders.ShadersTex;
@@ -25,6 +25,8 @@ public class StaticTexture extends SimpleTexture{
 		super(textureResourceLocation);
 	}
 	
+	//TODO: I don't even remember what this is for.
+	
 	  @Override
 	  public void loadTexture(IResourceManager resourceManager) throws IOException
 	    {
@@ -33,17 +35,17 @@ public class StaticTexture extends SimpleTexture{
 
 	        try
 	        {
-	            BufferedImage bufferedimage = TextureUtil.readBufferedImage(StaticTexture.class.getResourceAsStream(this.textureLocation.getResourcePath()));
+	            BufferedImage bufferedimage = null; //; TextureUtil.readBufferedImage(StaticTexture.class.getResourceAsStream(this.textureLocation.getResourcePath()));
 	            boolean flag = false;
 	            boolean flag1 = false;
 
 	            if (Config.isShaders())
 	            {
-	                ShadersTex.loadSimpleTexture(this.getGlTextureId(), bufferedimage, flag, flag1, resourceManager, this.textureLocation, this.getMultiTexID());
+	                //ShadersTex.loadSimpleTexture(this.getGlTextureId(), bufferedimage, flag, flag1, resourceManager, this.textureLocation, this.getMultiTexID());
 	            }
 	            else
 	            {
-	                TextureUtil.uploadTextureImageAllocate(this.getGlTextureId(), bufferedimage, flag, flag1);
+	                //TextureUtil.uploadTextureImageAllocate(this.getGlTextureId(), bufferedimage, flag, flag1);
 	            }
 	        }
 	        finally

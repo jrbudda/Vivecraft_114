@@ -9,14 +9,12 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.settings.GameSettings;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemShears;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.MovementInput;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -53,7 +51,7 @@ public class JumpTracker extends Tracker {
 			return false;
 		if(p.isInWater() || p.isInLava())
 			return false;
-		if(p.isSneaking() || p.isRiding())
+		if(p.isSneaking() || p.isPassenger())
 			return false;
 
 		return true;
@@ -132,7 +130,7 @@ public class JumpTracker extends Tracker {
 	
 				//cap
 				float limit = 1.5f;
-				if(m.lengthVector() > limit) m = m.scale(limit/m.lengthVector());
+				if(m.length() > limit) m = m.scale(limit/m.length());
 						
 				if (player.isPotionActive(MobEffects.JUMP_BOOST))
 					m=m.scale((player.getActivePotionEffect(MobEffects.JUMP_BOOST).getAmplifier() + 1.5));
@@ -150,7 +148,7 @@ public class JumpTracker extends Tracker {
 					player.lastTickPosX = pl.x;
 					player.lastTickPosY = pl.y;
 					player.lastTickPosZ = pl.z;			
-					pl = pl.addVector(player.motionX, player.motionY, player.motionZ);					
+					pl = pl.add(player.motionX, player.motionY, player.motionZ);					
 					player.setPosition(pl.x, pl.y, pl.z);
 					mc.vrPlayer.snapRoomOriginToPlayerEntity(player, false, true);
 					mc.player.addExhaustion(.3f);    
@@ -175,7 +173,7 @@ public class JumpTracker extends Tracker {
 		if(i.isEmpty())return false;
 		if(!i.hasDisplayName()) return false;
 		if((i.getItem() != Items.LEATHER_BOOTS)) return false;
-		if(!(i.getTagCompound().getBoolean("Unbreakable"))) return false;
+		if(!(i.getTag().getBoolean("Unbreakable"))) return false;
 		return i.getDisplayName().equals("Jump Boots");
 	}
 }

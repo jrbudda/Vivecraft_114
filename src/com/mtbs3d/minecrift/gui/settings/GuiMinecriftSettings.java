@@ -19,7 +19,7 @@ import com.mtbs3d.minecrift.settings.VRSettings.VrOptions;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.settings.GameSettings;
+import net.minecraft.client.GameSettings;
 
 
 public class GuiMinecriftSettings extends BaseGuiSettings implements GuiEventEx
@@ -75,7 +75,7 @@ public class GuiMinecriftSettings extends BaseGuiSettings implements GuiEventEx
      */
     public void initGui()
     {
-    	this.buttonList.clear();
+    	this.buttons.clear();
     	int profileButtonWidth = 120;
 
     	if(!isConfirm){
@@ -83,9 +83,9 @@ public class GuiMinecriftSettings extends BaseGuiSettings implements GuiEventEx
             VROption mode = new VROption(VRSettings.VrOptions.PLAY_MODE_SEATED,VROption.Position.POS_RIGHT,  2,  VROption.ENABLED, null);
             GuiSmallButtonEx profilesButton = new GuiSmallButtonEx(mode.getOrdinal(), (this.width / 2 - profileButtonWidth/2 ) , this.height / 4 + 24 , mode._e, mode.getButtonText());
             profilesButton.setWidth(profileButtonWidth);
-    		this.buttonList.add(profilesButton);
-    		this.buttonList.add(new GuiButtonEx(ID_GENERIC_DEFAULTS, this.width / 2 - 155 ,  this.height -25 ,150,20, "Reset To Defaults"));
-    		this.buttonList.add(new GuiButtonEx(ID_GENERIC_DONE, this.width / 2 - 155  + 160, this.height -25,150,20, "Done"));
+    		this.buttons.add(profilesButton);
+    		this.buttons.add(new GuiButtonEx(ID_GENERIC_DEFAULTS, this.width / 2 - 155 ,  this.height -25 ,150,20, "Reset To Defaults"));
+    		this.buttons.add(new GuiButtonEx(ID_GENERIC_DONE, this.width / 2 - 155  + 160, this.height -25,150,20, "Done"));
     		VROption[] buttons = null;
 
     		buttons = vrAlwaysOptions;
@@ -114,7 +114,7 @@ public class GuiMinecriftSettings extends BaseGuiSettings implements GuiEventEx
     		if(o==null || o.getEnumBoolean() ){
       			GuiSmallButtonEx button = new GuiSmallButtonEx(var8.getOrdinal(), width, height, var8._e, var8.getButtonText());
     			button.enabled = var8._enabled;
-    			this.buttonList.add(button);
+    			this.buttons.add(button);
     		}
     		else if (o.getEnumFloat()){
                 float minValue = 0.0f;
@@ -135,7 +135,7 @@ public class GuiMinecriftSettings extends BaseGuiSettings implements GuiEventEx
     	        GuiSliderEx slider = new GuiSliderEx(o.returnEnumOrdinal(), width, height, o, this.guivrSettings.getKeyBinding(o), minValue, maxValue, increment, this.guivrSettings.getOptionFloatValue(o));
     	        slider.setEventHandler(this);
     	        slider.enabled = true;
-    	        this.buttonList.add(slider);
+    	        this.buttons.add(slider);
     		}
 	   	}
 	}

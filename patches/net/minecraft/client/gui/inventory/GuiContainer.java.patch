@@ -1,0 +1,23 @@
+--- a/net/minecraft/client/gui/inventory/GuiContainer.java
++++ b/net/minecraft/client/gui/inventory/GuiContainer.java
+@@ -123,7 +123,11 @@
+ 
+             if (slot.isEnabled())
+             {
++            	//VIVECRAFT - prevent invisible slot backgrounds - test if needed in 1.13
++            	GlStateManager.colorMask(true, true, true, false);
+                 this.drawSlot(slot);
++                GlStateManager.colorMask(true, true, true, true);
++                //
+             }
+ 
+             if (this.isSlotSelected(slot, (double)mouseX, (double)mouseY) && slot.isEnabled())
+@@ -420,7 +424,7 @@
+                             }
+                             else
+                             {
+-                                boolean flag2 = l != -999 && (InputMappings.isKeyDown(340) || InputMappings.isKeyDown(344));
++                                boolean flag2 = l != -999 && (InputMappings.isKeyDown(340) || InputMappings.isKeyDown(344) || isFakeShift());
+                                 ClickType clicktype = ClickType.PICKUP;
+ 
+                                 if (flag2)

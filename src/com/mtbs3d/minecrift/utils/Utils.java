@@ -16,12 +16,12 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.IOUtils;
-import org.lwjgl.util.vector.Matrix3f;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector2f;
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
 
+import com.mtbs3d.minecrift.utils.LWJGL.Matrix3f;
+import com.mtbs3d.minecrift.utils.LWJGL.Matrix4f;
+import com.mtbs3d.minecrift.utils.LWJGL.Vector2f;
+import com.mtbs3d.minecrift.utils.LWJGL.Vector3f;
+import com.mtbs3d.minecrift.utils.LWJGL.Vector4f;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.mtbs3d.minecrift.provider.MCOpenVR;

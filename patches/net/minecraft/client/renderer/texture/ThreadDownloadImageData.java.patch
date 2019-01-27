@@ -1,0 +1,15 @@
+--- a/net/minecraft/client/renderer/texture/ThreadDownloadImageData.java
++++ b/net/minecraft/client/renderer/texture/ThreadDownloadImageData.java
+@@ -270,10 +270,10 @@
+             {
+                 nativeimage = this.imageBuffer.parseUserSkin(nativeimage);
+             }
+-
++            final NativeImage nif = nativeimage;
+             Minecraft.getMinecraft().addScheduledTask(() ->
+             {
+-                this.setImage(nativeimage);
++                this.setImage(nif);
+             });
+             this.uploadPending = true;
+         }

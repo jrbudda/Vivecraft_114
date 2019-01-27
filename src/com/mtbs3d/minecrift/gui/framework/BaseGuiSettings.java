@@ -58,7 +58,7 @@ public class BaseGuiSettings extends GuiScreen
     {
         if (this.reinit)
         {
-            this.buttonList.clear();
+            this.buttons.clear();
             initGui();
             this.reinit = false;
         }
@@ -127,11 +127,11 @@ public class BaseGuiSettings extends GuiScreen
 
     protected GuiButton getSelectedButton(int var1, int var2)
     {
-        for (int var3 = 0; var3 < this.buttonList.size(); ++var3)
+        for (int var3 = 0; var3 < this.buttons.size(); ++var3)
         {
-            if (this.buttonList.get(var3) instanceof GuiButtonEx)
+            if (this.buttons.get(var3) instanceof GuiButtonEx)
             {
-                GuiButtonEx var4 = (GuiButtonEx) this.buttonList.get(var3);
+                GuiButtonEx var4 = (GuiButtonEx) this.buttons.get(var3);
                 boolean var5 = var1 >= var4.x && var2 >= var4.y && var1 < var4.x + var4.getWidth() && var2 < var4.y + var4.getHeight();
 
                 if (var5) {

@@ -48,9 +48,9 @@ public class GuiEnterText extends BaseGuiSettings
     public void initGui()
     {
         Keyboard.enableRepeatEvents(true);
-        this.buttonList.clear();
-        this.buttonList.add(new GuiButton(0, this.width / 2 - 100, this.height / 4 + 96 + 12, this.confirmButtonText));
-        this.buttonList.add(new GuiButton(1, this.width / 2 - 100, this.height / 4 + 120 + 12, this.cancelButtonText));
+        this.buttons.clear();
+        this.buttons.add(new GuiButton(0, this.width / 2 - 100, this.height / 4 + 96 + 12, this.confirmButtonText));
+        this.buttons.add(new GuiButton(1, this.width / 2 - 100, this.height / 4 + 120 + 12, this.cancelButtonText));
         this.guiTextField = new GuiTextField(1,this.fontRenderer, this.width / 2 - 100, 60, 200, 20);
         this.guiTextField.setFocused(true);
         this.guiTextField.setText(this.initialText);
@@ -91,10 +91,10 @@ public class GuiEnterText extends BaseGuiSettings
      */
     protected void keyTyped(char typedChar, int keyCode) {
         this.guiTextField.textboxKeyTyped(typedChar, keyCode);
-        ((GuiButton) this.buttonList.get(0)).enabled = this.guiTextField.getText().trim().length() > 0;
+        ((GuiButton) this.buttons.get(0)).enabled = this.guiTextField.getText().trim().length() > 0;
 
         if (keyCode == 28 || keyCode == 156) {
-            this.actionPerformed((GuiButton) this.buttonList.get(0));
+            this.actionPerformed((GuiButton) this.buttons.get(0));
         }
     }
 

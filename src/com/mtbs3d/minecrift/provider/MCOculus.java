@@ -8,13 +8,14 @@ package com.mtbs3d.minecrift.provider;
 import com.mtbs3d.minecrift.api.*;
 
 import com.mtbs3d.minecrift.settings.VRSettings;
+import com.mtbs3d.minecrift.utils.LWJGL.Quaternion;
+
 import de.fruitfly.ovr.*;
 import de.fruitfly.ovr.enums.*;
 import de.fruitfly.ovr.structs.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import org.lwjgl.opengl.*;
-import org.lwjgl.util.vector.Quaternion;
 
 public class MCOculus extends OculusRift //OculusRift does most of the heavy lifting
 {

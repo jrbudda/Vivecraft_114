@@ -1,0 +1,85 @@
+--- a/net/minecraft/client/renderer/entity/model/ModelBoat.java
++++ b/net/minecraft/client/renderer/entity/model/ModelBoat.java
+@@ -1,9 +1,22 @@
+ package net.minecraft.client.renderer.entity.model;
+ 
++import java.awt.Color;
++import java.util.UUID;
++
++import com.mtbs3d.minecrift.gameplay.OpenVRPlayer;
++import com.mtbs3d.minecrift.provider.MCOpenVR;
++import com.mtbs3d.minecrift.render.PlayerModelController;
++import com.mtbs3d.minecrift.settings.VRSettings;
++import com.mtbs3d.minecrift.utils.Quaternion;
++import com.mtbs3d.minecrift.utils.Vector3;
++
++import net.minecraft.client.Minecraft;
+ import net.minecraft.client.renderer.GlStateManager;
+ import net.minecraft.entity.Entity;
+ import net.minecraft.entity.item.EntityBoat;
++import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.util.math.MathHelper;
++import net.minecraft.util.math.Vec3d;
+ 
+ public class ModelBoat extends ModelBase implements IMultipassModel
+ {
+@@ -99,9 +112,57 @@
+     {
+         float f = boat.getRowingTime(paddle, limbSwing);
+         ModelRenderer modelrenderer = this.paddles[paddle];
+-        modelrenderer.rotateAngleX = (float)MathHelper.clampedLerp(-1.0471975803375244D, -0.2617993950843811D, (double)((MathHelper.sin(-f) + 1.0F) / 2.0F));
+-        modelrenderer.rotateAngleY = (float)MathHelper.clampedLerp(-(Math.PI / 4D), (Math.PI / 4D), (double)((MathHelper.sin(-f + 1.0F) + 1.0F) / 2.0F));
++		Vec3d rArm = null;
++		Vec3d lArm = null;
++		
++		if (boat.getControllingPassenger() instanceof EntityPlayer) {
++			UUID playerId = ((EntityPlayer) boat.getControllingPassenger()).getGameProfile().getId();
++			if (Minecraft.getMinecraft().player.getUniqueID().equals(playerId)) {
++				lArm = MCOpenVR.controllerHistory[1].averagePosition(0.1);
++				rArm = MCOpenVR.controllerHistory[0].averagePosition(0.1);
++			} else {
++				PlayerModelController.RotInfo rotInfo = PlayerModelController.getInstance().getRotationsForPlayer(playerId);
++				if (rotInfo != null) {
++					rArm = rotInfo.rightArmPos;
++					lArm = rotInfo.leftArmPos;
++				}
++			}
++		}
++
++		if (rArm != null && lArm != null && Minecraft.getMinecraft().rowTracker.isActive(Minecraft.getMinecraft().player)) {
++			//Debug debug=new Debug(boat.getPositionVector());
++			//Attachment point converted from Model coordinates to boat-relative World coordinates
++			Vec3d attachmentPoint = new Vec3d(paddles[paddle].rotationPointZ * scale, (paddles[paddle].rotationPointY + 15) * scale, paddles[paddle].rotationPointX * scale);
++
++			Vec3d arm = paddle == 0 ? lArm : rArm;
++
++			Quaternion boatRot = new Quaternion(boat.rotationPitch, -boat.rotationYaw, 0).normalized();
++			Quaternion worldRot = new Quaternion(0, VRSettings.inst.vrWorldRotation, 0);
++
++			Vec3d attachAbs = boat.getPositionVector().add(boatRot.multiply(attachmentPoint));
++			Vec3d armAbs = OpenVRPlayer.get().roomOrigin.add(worldRot.multiply(arm));
++
++			Vec3d armToPaddle = attachAbs.subtract(armAbs);
++
++
++			Vector3 checkDir = paddle == 0 ? new Vector3(1, 0, 0) : new Vector3(-1, 0, 0);
++			Quaternion toForward=Quaternion.createFromToVector(checkDir,new Vector3(0,0,1));
++
++			Quaternion rotation = Quaternion.createFromToVector(new Vector3(0,0,1), new Vector3(toForward.multiply(boatRot.inverse().multiply(armToPaddle.normalize()))));
++
++			float mult = paddle == 0 ? -1 : 1;
++
++			Color c=paddle==0? Color.red: Color.green;
++
++			modelrenderer.rotateAngleX = (float) ( -Math.toRadians( rotation.toEuler().getPitch()));
++			modelrenderer.rotateAngleY = (float) ( mult * Math.toRadians( rotation.toEuler().getYaw()));
++			modelrenderer.rotateAngleZ = 0;
++
+ 
++		} else {
++			modelrenderer.rotateAngleX = (float) MathHelper.clampedLerp(-1.0471975803375244D, -0.2617993950843811D, (double) ((MathHelper.sin(-f) + 1.0F) / 2.0F));
++			modelrenderer.rotateAngleY = (float) MathHelper.clampedLerp(-(Math.PI / 4D), (Math.PI / 4D), (double) ((MathHelper.sin(-f + 1.0F) + 1.0F) / 2.0F));
++		}
+         if (paddle == 1)
+         {
+             modelrenderer.rotateAngleY = (float)Math.PI - modelrenderer.rotateAngleY;

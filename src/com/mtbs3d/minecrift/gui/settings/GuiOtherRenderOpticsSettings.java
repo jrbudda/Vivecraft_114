@@ -30,9 +30,9 @@ public class GuiOtherRenderOpticsSettings extends BaseGuiSettings implements Gui
      */
     public void initGui()
     {
-//        this.buttonList.clear();
-//        this.buttonList.add(new GuiButtonEx(ID_GENERIC_DEFAULTS, this.width / 2 - 155 ,  this.height -25 ,150,20, "Reset To Defaults"));
-//        this.buttonList.add(new GuiButtonEx(ID_GENERIC_DONE, this.width / 2 - 155  + 160, this.height -25,150,20, "Done"));
+//        this.buttons.clear();
+//        this.buttons.add(new GuiButtonEx(ID_GENERIC_DEFAULTS, this.width / 2 - 155 ,  this.height -25 ,150,20, "Reset To Defaults"));
+//        this.buttons.add(new GuiButtonEx(ID_GENERIC_DONE, this.width / 2 - 155  + 160, this.height -25,150,20, "Done"));
 //        String eyeRelief = "";//String.format("Base Eye Relief: %.3fmm ", new Object[] { this.mc.entityRenderer.getBaseEyeRelief() * 1000f });
 //        VRSettings.VrOptions[] buttons = null;
 //        if (Minecraft.getMinecraft().vrSettings.useHalfIpds == false)
@@ -89,7 +89,7 @@ public class GuiOtherRenderOpticsSettings extends BaseGuiSettings implements Gui
 //                GuiSliderEx slider = new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guivrSettings.getOptionFloatValue(var8));
 //                slider.setEventHandler(this);
 //                slider.enabled = getEnabledState(var8);
-//                this.buttonList.add(slider);
+//                this.buttons.add(slider);
 //            }
 //            else
 //            {
@@ -97,14 +97,14 @@ public class GuiOtherRenderOpticsSettings extends BaseGuiSettings implements Gui
 //                {
 //                    GuiSmallButtonEx button = new GuiSmallButtonEx(9999, width, height, var8, eyeRelief);
 //                    button.enabled = false;
-//                    this.buttonList.add(button);
+//                    this.buttons.add(button);
 //                }
 //                else
 //                {
 //                    GuiSmallButtonEx smallButton = new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8));
 //                    smallButton.setEventHandler(this);
 //                    smallButton.enabled = getEnabledState(var8);
-//                    this.buttonList.add(smallButton);
+//                    this.buttons.add(smallButton);
 //                }
 //            }
 //        }

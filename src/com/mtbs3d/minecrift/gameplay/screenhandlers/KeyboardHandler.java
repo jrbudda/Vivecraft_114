@@ -182,15 +182,15 @@ public class KeyboardHandler {
 		if (!Showing) return;
 		keyboardForGui = guiRelative;
 		
-		org.lwjgl.util.vector.Matrix4f matrix = new org.lwjgl.util.vector.Matrix4f();
+		com.mtbs3d.minecrift.utils.LWJGL.util.vector.Matrix4f matrix = new com.mtbs3d.minecrift.utils.LWJGL.util.vector.Matrix4f();
 		if (guiRelative && GuiHandler.guiRotation_room != null) {
-			org.lwjgl.util.vector.Matrix4f guiRot = Utils.convertOVRMatrix(GuiHandler.guiRotation_room);
+			com.mtbs3d.minecrift.utils.LWJGL.util.vector.Matrix4f guiRot = Utils.convertOVRMatrix(GuiHandler.guiRotation_room);
 			Vec3d guiUp = new Vec3d(guiRot.m10, guiRot.m11, guiRot.m12);
 			Vec3d guiFwd = new Vec3d(guiRot.m20, guiRot.m21, guiRot.m22).scale(0.25f);
 			guiUp = guiUp.scale(0.80f);
 			matrix.translate(new org.lwjgl.util.vector.Vector3f((float)(GuiHandler.guiPos_room.x - guiUp.x), (float)(GuiHandler.guiPos_room.y - guiUp.y), (float)(GuiHandler.guiPos_room.z - guiUp.z)));
 			matrix.translate(new org.lwjgl.util.vector.Vector3f((float)(guiFwd.x), (float)(guiFwd.y), (float)(guiFwd.z)));
-			org.lwjgl.util.vector.Matrix4f.mul(matrix, guiRot, matrix);
+			com.mtbs3d.minecrift.utils.LWJGL.Matrix4f.mul(matrix, guiRot, matrix);
 			matrix.rotate((float)Math.toRadians(30), new org.lwjgl.util.vector.Vector3f(-1, 0, 0)); // tilt it a bit	
 			Rotation_room =   Utils.convertToOVRMatrix(matrix);
 			Pos_room = new Vec3d(Rotation_room.M[0][3],Rotation_room.M[1][3],Rotation_room.M[2][3]);

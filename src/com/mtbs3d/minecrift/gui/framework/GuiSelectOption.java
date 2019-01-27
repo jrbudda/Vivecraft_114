@@ -28,17 +28,17 @@ public class GuiSelectOption extends BaseGuiSettings implements GuiYesNoCallback
     @Override
     public void initGui()
     {
-        this.buttonList.clear();
+        this.buttons.clear();
         this.initGuiButtons();
     }
 
     protected void initGuiButtons()
     {
-        this.buttonList.clear();
+        this.buttons.clear();
         for (int i = 0; i < options.length; i++) {
-            this.buttonList.add(new GuiButton(i, this.width / 2 - 100, this.height / 4 + (i * 20) + 12, options[i]));
+            this.buttons.add(new GuiButton(i, this.width / 2 - 100, this.height / 4 + (i * 20) + 12, options[i]));
         }
-        this.buttonList.add(new GuiButton(ID_GENERIC_DONE, this.width / 2 - 100, this.height / 4 + 130 + 12, "Cancel"));
+        this.buttons.add(new GuiButton(ID_GENERIC_DONE, this.width / 2 - 100, this.height / 4 + 130 + 12, "Cancel"));
     }
 
     @Override

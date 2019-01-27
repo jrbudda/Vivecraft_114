@@ -65,19 +65,19 @@ public class GuiRadialConfiguration extends BaseGuiSettings
     public void initGui()
     {
     	list = new GuiRadialItemsList(this, mc);
-    	this.buttonList.clear();
+    	this.buttons.clear();
 
     	if(this.isselectmode) {
-        	this.buttonList.add(new GuiButtonEx(251, this.width / 2 - 155 ,  this.height -25 ,150,20, "Clear"));
-        	this.buttonList.add(new GuiButtonEx(250, this.width / 2 - 180  + 160, this.height -25,150,20, "Cancel"));
+        	this.buttons.add(new GuiButtonEx(251, this.width / 2 - 155 ,  this.height -25 ,150,20, "Clear"));
+        	this.buttons.add(new GuiButtonEx(250, this.width / 2 - 180  + 160, this.height -25,150,20, "Cancel"));
     	}else {
     		
-        	this.buttonList.add(new GuiButtonEx(ID_GENERIC_DEFAULTS, this.width / 2 - 155 ,  this.height -25 ,150,20, "Reset To Defaults"));
-        	this.buttonList.add(new GuiButtonEx(ID_GENERIC_DONE, this.width / 2 - 180  + 160, this.height -25,150,20, "Done"));
+        	this.buttons.add(new GuiButtonEx(ID_GENERIC_DEFAULTS, this.width / 2 - 155 ,  this.height -25 ,150,20, "Reset To Defaults"));
+        	this.buttons.add(new GuiButtonEx(ID_GENERIC_DONE, this.width / 2 - 180  + 160, this.height -25,150,20, "Done"));
         	if(this.isShift)
-        		this.buttonList.add(new GuiButton(201, this.width / 2 - 180+160, 32, 150, 20, "Main Set"));         
+        		this.buttons.add(new GuiButton(201, this.width / 2 - 180+160, 32, 150, 20, "Main Set"));         
         	else
-        		this.buttonList.add(new GuiButton(201, this.width / 2 - 180+160 ,32, 150, 20, "Alternate Set"));         
+        		this.buttons.add(new GuiButton(201, this.width / 2 - 180+160 ,32, 150, 20, "Alternate Set"));         
 
         	VRSettings.VrOptions[] buttons = options;
 
@@ -88,7 +88,7 @@ public class GuiRadialConfiguration extends BaseGuiSettings
         		int height =  32 * (var12 / 2);
         		if (var8 == VRSettings.VrOptions.DUMMY)
         			continue;
-        		this.buttonList.add(new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8)));         
+        		this.buttons.add(new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8)));         
         	}    
 
         	int numButts = 8;
@@ -151,7 +151,7 @@ public class GuiRadialConfiguration extends BaseGuiSettings
         			y = -dist/2;
         		}
 
-        		this.buttonList.add(new GuiButton(i, centerx + x - buttonwidth/2 , centery+y, buttonwidth, 20, str ));    
+        		this.buttons.add(new GuiButton(i, centerx + x - buttonwidth/2 , centery+y, buttonwidth, 20, str ));    
         	}
     	}
     	

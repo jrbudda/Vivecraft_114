@@ -26,7 +26,7 @@ public class VRData{
 		public Vec3d getPosition(){
 			Vec3d out = pos.scale(worldScale);
 			out = out.rotateYaw(data.rotation);
-			return out.addVector(data.origin.x, data.origin.y, data.origin.z);
+			return out.add(data.origin.x, data.origin.y, data.origin.z);
 		}
 	
 		public Vec3d getDirection() {
@@ -47,7 +47,7 @@ public class VRData{
 
 		public float getPitch() {
 			Vec3d dir = getDirection();
-			return (float)Math.toDegrees(Math.asin(dir.y/dir.lengthVector())); 
+			return (float)Math.toDegrees(Math.asin(dir.y/dir.length())); 
 		}
 		
 		public float getRoll() {

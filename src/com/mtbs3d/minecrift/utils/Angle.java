@@ -1,6 +1,6 @@
 package com.mtbs3d.minecrift.utils;
 
-import org.lwjgl.util.vector.Matrix4f;
+import com.mtbs3d.minecrift.utils.LWJGL.Matrix4f;
 
 /**
  *

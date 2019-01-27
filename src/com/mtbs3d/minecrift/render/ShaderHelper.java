@@ -1,7 +1,6 @@
 package com.mtbs3d.minecrift.render;
 
 import org.lwjgl.opengl.*;
-import org.lwjgl.util.glu.GLU;
 
 /**
  * Created with IntelliJ IDEA.
@@ -40,7 +39,7 @@ public class ShaderHelper
 
         if (var2 != 0)
         {
-            String var3 = GLU.gluErrorString(var2);
+            String var3 = "";//TODO: Fix? GLUtil.gluErrorString(var2);
             System.out.println("########## GL ERROR ##########");
             System.out.println("@ " + par1Str);
             System.out.println(var2 + ": " + var3);

@@ -702,11 +702,11 @@ public class MCOpenVR
 
 		paused = vrsystem.ShouldApplicationPause.apply() != 0;
 
-		mc.mcProfiler.startSection("events");
+		mc.profiler.startSection("events");
 		pollVREvents();
 
 		if(!mc.vrSettings.seated){
-			mc.mcProfiler.endStartSection("controllers");
+			mc.profiler.endStartSection("controllers");
 
 			for (TrackedController controller : controllers) {
 				controller.updateState();
@@ -729,22 +729,22 @@ public class MCOpenVR
 
 			// GUI controls
 
-			mc.mcProfiler.startSection("gui");
+			mc.profiler.startSection("gui");
 
 			if(mc.currentScreen == null && mc.vrSettings.vrTouchHotbar && mc.vrSettings.vrHudLockMode != mc.vrSettings.HUD_LOCK_HEAD && hudPopup){
 				processHotbar();
 			}
 
-			mc.mcProfiler.endSection();
+			mc.profiler.endSection();
 		}
 
-		mc.mcProfiler.endStartSection("processEvents");
+		mc.profiler.endStartSection("processEvents");
 		processVREvents();
 
-		mc.mcProfiler.endStartSection("updatePose");
+		mc.profiler.endStartSection("updatePose");
 		updatePose();
 
-		mc.mcProfiler.endSection();
+		mc.profiler.endSection();
 	}
 
 	private static int quickTorchPreviousSlot;
@@ -775,12 +775,12 @@ public class MCOpenVR
 		} else return; //how did u get here
 
 
-		Vec3d barStart = off.addVector(barStartos.x, barStartos.y, barStartos.z);	
-		Vec3d barEnd = off.addVector(barEndos.x, barEndos.y, barEndos.z);
+		Vec3d barStart = off.add(barStartos.x, barStartos.y, barStartos.z);	
+		Vec3d barEnd = off.add(barEndos.x, barEndos.y, barEndos.z);
 
 		Vec3d u = barStart.subtract(barEnd);
 		Vec3d pq = barStart.subtract(main);
-		float dist = (float) (pq.crossProduct(u).lengthVector() / u.lengthVector());
+		float dist = (float) (pq.crossProduct(u).length() / u.length());
 
 		if(dist > 0.06) return;
 
@@ -791,8 +791,8 @@ public class MCOpenVR
 		Vec3d w2 = u.scale(fact).subtract(pq);
 
 		Vec3d point = main.subtract(w2);
-		float linelen = (float) barStart.subtract(barEnd).lengthVector();
-		float ilen = (float) barStart.subtract(point).lengthVector();
+		float linelen = (float) barStart.subtract(barEnd).length();
+		float ilen = (float) barStart.subtract(point).length();
 
 		float pos = ilen / linelen * 9; 
 
@@ -1626,7 +1626,7 @@ public class MCOpenVR
 	public static Vec3d getAimSource( int controller ) {
 		Vec3d out = new Vec3d(aimSource[controller].x, aimSource[controller].y, aimSource[controller].z);
 		if(!mc.vrSettings.seated) 
-			out.addVector((double)offset.x, (double)offset.y,(double) offset.z);
+			out.add((double)offset.x, (double)offset.y,(double) offset.z);
 		return out;
 	}
 
@@ -1730,7 +1730,7 @@ public class MCOpenVR
 			Vec3d hdir = getHmdVector();
 
 			if(mc.vrSettings.seated && mc.currentScreen == null){
-				org.lwjgl.util.vector.Matrix4f temp = new org.lwjgl.util.vector.Matrix4f();
+				com.mtbs3d.minecrift.utils.LWJGL.Matrix4f temp = new com.mtbs3d.minecrift.utils.LWJGL.Matrix4f();
 
 				float hRange = 110;
 				float vRange = 180;
@@ -1770,8 +1770,8 @@ public class MCOpenVR
 					nPitch=MathHelper.clamp(nPitch,-89.9,89.9);
 					Mouse.setCursorPosition(Mouse.getX(),mc.displayHeight/2);
 
-					temp.rotate((float) Math.toRadians(-nPitch), new org.lwjgl.util.vector.Vector3f(1,0,0));
-					temp.rotate((float) Math.toRadians(-180 + h - hmdForwardYaw), new org.lwjgl.util.vector.Vector3f(0,1,0));
+					temp.rotate((float) Math.toRadians(-nPitch), new com.mtbs3d.minecrift.utils.LWJGL.Vector3f(1,0,0));
+					temp.rotate((float) Math.toRadians(-180 + h - hmdForwardYaw), new com.mtbs3d.minecrift.utils.LWJGL.Vector3f(0,1,0));
 
 				}
 
@@ -1790,7 +1790,7 @@ public class MCOpenVR
 			}	
 
 			Vec3d dir = getAimVector(0);
-			aimPitch = (float)Math.toDegrees(Math.asin(dir.y/dir.lengthVector()));
+			aimPitch = (float)Math.toDegrees(Math.asin(dir.y/dir.length()));
 		}
 
 		{//left controller
@@ -1910,7 +1910,7 @@ public class MCOpenVR
 	}
 
 	public static void resetPosition() {
-		Vec3d pos= getCenterEyePosition().scale(-1).addVector(offset.x,offset.y,offset.z);
+		Vec3d pos= getCenterEyePosition().scale(-1).add(offset.x,offset.y,offset.z);
 		offset=new Vector3f((float) pos.x,(float)pos.y+1.62f,(float)pos.z);
 	}
 

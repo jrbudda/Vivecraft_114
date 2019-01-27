@@ -7,7 +7,6 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.debug.DebugRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -152,11 +151,11 @@ public class Debug {
 
 			//GlStateManager.enableBlend();
 			//GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-			GlStateManager.glLineWidth(5.0F);
+			GlStateManager.lineWidth(5.0F);
 			GlStateManager.disableTexture2D();
 			GlStateManager.disableLighting();
 			GlStateManager.depthMask(false);
-			GlStateManager.disableDepth();
+			GlStateManager.disableDepthTest();
 
 			Tessellator tessellator=Tessellator.getInstance();
 			BufferBuilder buffer=tessellator.getBuffer();
@@ -176,7 +175,7 @@ public class Debug {
 			GlStateManager.enableLighting();
 			//GlStateManager.disableBlend();
 
-			GlStateManager.enableDepth();
+			GlStateManager.enableDepthTest();
 
 			if(!manualClearing)
 				toDraw.clear();

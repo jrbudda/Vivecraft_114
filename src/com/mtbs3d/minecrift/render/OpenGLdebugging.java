@@ -406,7 +406,7 @@ public class OpenGLdebugging
         if (instance.propertyList[propertyListIndex].fetchCommand == "glGetBooleanv()") {
             ByteBuffer params = BufferUtils.createByteBuffer(16);
 
-            GL11.glGetBoolean(gLconstant, params);
+            GL11.glGetBooleanv(gLconstant, params);
             String out = "";
             for (int i = 0; i < params.capacity(); ++i) {
                 out += (i == 0 ? "" : ", ") + params.get(i);
@@ -417,7 +417,7 @@ public class OpenGLdebugging
         if (instance.propertyList[propertyListIndex].fetchCommand == "glGetIntegerv()") {
             IntBuffer params = BufferUtils.createIntBuffer(16);
 
-            GL11.glGetInteger(gLconstant, params);
+            GL11.glGetIntegerv(gLconstant, params);
             String out = "";
             for (int i = 0; i < params.capacity(); ++i) {
                 out += (i == 0 ? "" : ", ") + params.get(i);
@@ -428,7 +428,7 @@ public class OpenGLdebugging
         if (instance.propertyList[propertyListIndex].fetchCommand == "glGetFloatv()") {
             FloatBuffer params = BufferUtils.createFloatBuffer(16);
 
-            GL11.glGetFloat(gLconstant, params);
+            GL11.glGetFloatv(gLconstant, params);
             String out = "";
             for (int i = 0; i < params.capacity(); ++i) {
                 out += (i == 0 ? "" : ", ") + params.get(i);

@@ -141,7 +141,7 @@ public class VivePlayer {
 
 		}
 	 
-		return player.getPositionVector().addVector(0, 1.62, 0); //why
+		return player.getPositionVector().add(0, 1.62, 0); //why
 
 	}
 	
@@ -165,7 +165,7 @@ public class VivePlayer {
 					dir = dir.rotateYaw((float) Math.toRadians(c==0?-35:35));
 					dir = new Vec3d(dir.x, 0, dir.z);
 					dir = dir.normalize();
-					Vec3d out = this.getHMDPos().addVector(dir.x * 0.3 * worldScale, -0.4* worldScale ,dir.z*0.3* worldScale);
+					Vec3d out = this.getHMDPos().add(dir.x * 0.3 * worldScale, -0.4* worldScale ,dir.z*0.3* worldScale);
 					x = (float) out.x;
 					y = (float) out.y;
 					z = (float) out.z;
@@ -178,7 +178,7 @@ public class VivePlayer {
 
 		}
 	 
-		return player.getPositionVector().addVector(0, 1.62, 0); //why
+		return player.getPositionVector().add(0, 1.62, 0); //why
 
 	}
 

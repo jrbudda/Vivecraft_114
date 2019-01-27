@@ -1,0 +1,11 @@
+--- a/net/minecraft/client/audio/SoundHandler.java
++++ b/net/minecraft/client/audio/SoundHandler.java
+@@ -53,7 +53,7 @@
+         }
+     };
+     private final Map<ResourceLocation, SoundEventAccessor> soundRegistry = Maps.<ResourceLocation, SoundEventAccessor>newHashMap();
+-    private final SoundManager sndManager;
++    public final SoundManager sndManager;
+     private final IResourceManager resourceManager;
+ 
+     public SoundHandler(IResourceManager manager, GameSettings gameSettingsIn)

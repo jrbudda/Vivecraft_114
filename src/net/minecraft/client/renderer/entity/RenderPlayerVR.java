@@ -1,18 +1,18 @@
 package net.minecraft.client.renderer.entity;
 
 import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.layers.LayerArrow;
 import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
-import net.minecraft.client.renderer.entity.layers.LayerBipedArmorVR;
 import net.minecraft.client.renderer.entity.layers.LayerCape;
 import net.minecraft.client.renderer.entity.layers.LayerCustomHead;
 import net.minecraft.client.renderer.entity.layers.LayerDeadmau5Head;
 import net.minecraft.client.renderer.entity.layers.LayerElytra;
+import net.minecraft.client.renderer.entity.layers.LayerEntityOnShoulder;
 import net.minecraft.client.renderer.entity.layers.LayerHeldItem;
+import net.minecraft.client.renderer.entity.layers.LayerSpinAttackEffect;
+import net.minecraft.client.renderer.entity.model.ModelBiped;
+import net.minecraft.client.renderer.entity.model.ModelPlayer;
 import net.minecraft.client.renderer.entity.model.ModelPlayerVR;
 import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.item.EnumAction;
@@ -20,7 +20,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.scoreboard.Score;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.Scoreboard;
-import net.optifine.reflect.Reflector;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
@@ -28,8 +27,7 @@ import net.minecraft.util.math.Vec3d;
 
 public class RenderPlayerVR extends RenderLivingBase<AbstractClientPlayer>
 {
-    /** this field is used to indicate the 3-pixel wide arms */
-    private final boolean smallArms;
+    private float field_205127_a;
 
     public RenderPlayerVR(RenderManager renderManager)
     {
@@ -39,14 +37,12 @@ public class RenderPlayerVR extends RenderLivingBase<AbstractClientPlayer>
     public RenderPlayerVR(RenderManager renderManager, boolean useSmallArms)
     {
         super(renderManager, new ModelPlayerVR(0.0F, useSmallArms), 0.5F);
-        this.smallArms = useSmallArms;
-        LayerBipedArmorVR layer = new LayerBipedArmorVR(this);
-        this.addLayer(layer);
-        ((ModelPlayerVR)this.mainModel).armor = layer;
+        this.addLayer(new LayerBipedArmor(this));
         this.addLayer(new LayerHeldItem(this));
         this.addLayer(new LayerArrow(this));
         this.addLayer(new LayerCustomHead(this.getMainModel().bipedHead));
         this.addLayer(new LayerElytra(this));
+        this.addLayer(new LayerEntityOnShoulder(renderManager));
     }
 
     public ModelPlayerVR getMainModel()
@@ -59,18 +55,11 @@ public class RenderPlayerVR extends RenderLivingBase<AbstractClientPlayer>
      */
     public void doRender(AbstractClientPlayer entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
-    	//Forge - should this be in this one?
-    	// TODO: figure out a way to make this work
-    	/*if(Reflector.forgeExists()){
-    		if(Reflector.postForgeBusEvent(Reflector.RenderPlayerEvent_Pre_Constructor, new Object[]{entity, this, partialTicks, x, y, z}))
-    			return;
-    	}*/
-    	//
         if (!entity.isUser() || this.renderManager.renderViewEntity == entity)
         {
             double d0 = y;
 
-            if (entity.isSneaking() && !(entity instanceof EntityPlayerSP))
+            if (entity.isSneaking())
             {
                 d0 = y - 0.125D;
             }
@@ -80,12 +69,6 @@ public class RenderPlayerVR extends RenderLivingBase<AbstractClientPlayer>
             super.doRender(entity, x, d0, z, entityYaw, partialTicks);
             GlStateManager.disableBlendProfile(GlStateManager.Profile.PLAYER_SKIN);
         }
-        //Forge
-        // TODO: figure out a way to make this work
-    	/*if(Reflector.forgeExists()){
-    		Reflector.postForgeBusEvent(Reflector.RenderPlayerEvent_Post_Constructor, new Object[]{entity, this, partialTicks, x, y, z});
-    	}*/
-    	//
     }
 
     private void setModelVisibilities(AbstractClientPlayer clientPlayer)
@@ -110,48 +93,8 @@ public class RenderPlayerVR extends RenderLivingBase<AbstractClientPlayer>
             modelplayer.bipedLeftArmwear.showModel = clientPlayer.isWearing(EnumPlayerModelParts.LEFT_SLEEVE);
             modelplayer.bipedRightArmwear.showModel = clientPlayer.isWearing(EnumPlayerModelParts.RIGHT_SLEEVE);
             modelplayer.isSneak = clientPlayer.isSneaking();
-            ModelBiped.ArmPose modelbiped$armpose = ModelBiped.ArmPose.EMPTY;
-            ModelBiped.ArmPose modelbiped$armpose1 = ModelBiped.ArmPose.EMPTY;
-
-            if (!itemstack.isEmpty())
-            {
-                modelbiped$armpose = ModelBiped.ArmPose.ITEM;
-
-                if (clientPlayer.getItemInUseCount() > 0)
-                {
-                    EnumAction enumaction = itemstack.getItemUseAction();
-
-                    if (enumaction == EnumAction.BLOCK)
-                    {
-                        modelbiped$armpose = ModelBiped.ArmPose.BLOCK;
-                    }
-                    else if (enumaction == EnumAction.BOW)
-                    {
-                        modelbiped$armpose = ModelBiped.ArmPose.BOW_AND_ARROW;
-                    }
-                }
-            }
-
-            if (!itemstack1.isEmpty())
-            {
-                modelbiped$armpose1 = ModelBiped.ArmPose.ITEM;
-
-                if (clientPlayer.getItemInUseCount() > 0)
-                {
-                    EnumAction enumaction1 = itemstack1.getItemUseAction();
-
-                    if (enumaction1 == EnumAction.BLOCK)
-                    {
-                        modelbiped$armpose1 = ModelBiped.ArmPose.BLOCK;
-                    }
-                    // FORGE: fix MC-88356 allow offhand to use bow and arrow animation
-                    else if (enumaction1 == EnumAction.BOW)
-                    {
-                        modelbiped$armpose1 = ModelBiped.ArmPose.BOW_AND_ARROW;
-                    }
-                    //
-                }
-            }
+            ModelBiped.ArmPose modelbiped$armpose = this.func_502269_a(clientPlayer, itemstack);
+            ModelBiped.ArmPose modelbiped$armpose1 = this.func_502269_a(clientPlayer, itemstack1);
 
             if (clientPlayer.getPrimaryHand() == EnumHandSide.RIGHT)
             {
@@ -169,14 +112,9 @@ public class RenderPlayerVR extends RenderLivingBase<AbstractClientPlayer>
     /**
      * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
      */
-    protected ResourceLocation getEntityTexture(AbstractClientPlayer entity)
+    public ResourceLocation getEntityTexture(AbstractClientPlayer entity)
     {
         return entity.getLocationSkin();
-    }
-
-    public void transformHeldFull3DItemLayer()
-    {
-        GlStateManager.translate(0.0F, 0.1875F, 0.0F);
     }
 
     /**
@@ -185,7 +123,7 @@ public class RenderPlayerVR extends RenderLivingBase<AbstractClientPlayer>
     protected void preRenderCallback(AbstractClientPlayer entitylivingbaseIn, float partialTickTime)
     {
         float f = 0.9375F;
-        GlStateManager.scale(0.9375F, 0.9375F, 0.9375F);
+        GlStateManager.scalef(0.9375F, 0.9375F, 0.9375F);
     }
 
     protected void renderEntityName(AbstractClientPlayer entityIn, double x, double y, double z, String name, double distanceSq)
@@ -197,8 +135,8 @@ public class RenderPlayerVR extends RenderLivingBase<AbstractClientPlayer>
 
             if (scoreobjective != null)
             {
-                Score score = scoreboard.getOrCreateScore(entityIn.getName(), scoreobjective);
-                this.renderLivingLabel(entityIn, score.getScorePoints() + " " + scoreobjective.getDisplayName(), x, y, z, 64);
+                Score score = scoreboard.getOrCreateScore(entityIn.getScoreboardName(), scoreobjective);
+                this.renderLivingLabel(entityIn, score.getScorePoints() + " " + scoreobjective.getDisplayName().getFormattedText(), x, y, z, 64);
                 y += (double)((float)this.getFontRendererFromRenderManager().FONT_HEIGHT * 1.15F * 0.025F);
             }
         }
@@ -209,13 +147,14 @@ public class RenderPlayerVR extends RenderLivingBase<AbstractClientPlayer>
     public void renderRightArm(AbstractClientPlayer clientPlayer)
     {
         float f = 1.0F;
-        GlStateManager.color(1.0F, 1.0F, 1.0F);
+        GlStateManager.color3f(1.0F, 1.0F, 1.0F);
         float f1 = 0.0625F;
         ModelPlayerVR modelplayer = this.getMainModel();
         this.setModelVisibilities(clientPlayer);
         GlStateManager.enableBlend();
         modelplayer.swingProgress = 0.0F;
         modelplayer.isSneak = false;
+        modelplayer.field_205061_a = 0.0F;
         modelplayer.setRotationAngles(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F, clientPlayer);
         modelplayer.bipedRightArm.rotateAngleX = 0.0F;
         modelplayer.bipedRightArm.render(0.0625F);
@@ -227,13 +166,14 @@ public class RenderPlayerVR extends RenderLivingBase<AbstractClientPlayer>
     public void renderLeftArm(AbstractClientPlayer clientPlayer)
     {
         float f = 1.0F;
-        GlStateManager.color(1.0F, 1.0F, 1.0F);
+        GlStateManager.color3f(1.0F, 1.0F, 1.0F);
         float f1 = 0.0625F;
         ModelPlayerVR modelplayer = this.getMainModel();
         this.setModelVisibilities(clientPlayer);
         GlStateManager.enableBlend();
         modelplayer.isSneak = false;
         modelplayer.swingProgress = 0.0F;
+        modelplayer.field_205061_a = 0.0F;
         modelplayer.setRotationAngles(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F, clientPlayer);
         modelplayer.bipedLeftArm.rotateAngleX = 0.0F;
         modelplayer.bipedLeftArm.render(0.0625F);
@@ -257,20 +197,27 @@ public class RenderPlayerVR extends RenderLivingBase<AbstractClientPlayer>
         }
     }
 
-    protected void applyRotations(AbstractClientPlayer entityLiving, float p_77043_2_, float p_77043_3_, float partialTicks)
+    protected void applyRotations(AbstractClientPlayer entityLiving, float ageInTicks, float rotationYaw, float partialTicks)
     {
+        float f = entityLiving.getSwimAnimation(partialTicks);
+
         if (entityLiving.isEntityAlive() && entityLiving.isPlayerSleeping())
         {
-            GlStateManager.rotate(entityLiving.getBedOrientationInDegrees(), 0.0F, 1.0F, 0.0F);
-            GlStateManager.rotate(this.getDeathMaxRotation(entityLiving), 0.0F, 0.0F, 1.0F);
-            GlStateManager.rotate(270.0F, 0.0F, 1.0F, 0.0F);
+            GlStateManager.rotatef(entityLiving.getBedOrientationInDegrees(), 0.0F, 1.0F, 0.0F);
+            GlStateManager.rotatef(this.getDeathMaxRotation(entityLiving), 0.0F, 0.0F, 1.0F);
+            GlStateManager.rotatef(270.0F, 0.0F, 1.0F, 0.0F);
         }
         else if (entityLiving.isElytraFlying())
         {
-            super.applyRotations(entityLiving, p_77043_2_, p_77043_3_, partialTicks);
-            float f = (float)entityLiving.getTicksElytraFlying() + partialTicks;
-            float f1 = MathHelper.clamp(f * f / 100.0F, 0.0F, 1.0F);
-            GlStateManager.rotate(f1 * (-90.0F - entityLiving.rotationPitch), 1.0F, 0.0F, 0.0F);
+            super.applyRotations(entityLiving, ageInTicks, rotationYaw, partialTicks);
+            float f1 = (float)entityLiving.getTicksElytraFlying() + partialTicks;
+            float f2 = MathHelper.clamp(f1 * f1 / 100.0F, 0.0F, 1.0F);
+
+            if (!entityLiving.isSpinAttacking())
+            {
+                GlStateManager.rotatef(f2 * (-90.0F - entityLiving.rotationPitch), 1.0F, 0.0F, 0.0F);
+            }
+
             Vec3d vec3d = entityLiving.getLook(partialTicks);
             double d0 = entityLiving.motionX * entityLiving.motionX + entityLiving.motionZ * entityLiving.motionZ;
             double d1 = vec3d.x * vec3d.x + vec3d.z * vec3d.z;
@@ -279,12 +226,67 @@ public class RenderPlayerVR extends RenderLivingBase<AbstractClientPlayer>
             {
                 double d2 = (entityLiving.motionX * vec3d.x + entityLiving.motionZ * vec3d.z) / (Math.sqrt(d0) * Math.sqrt(d1));
                 double d3 = entityLiving.motionX * vec3d.z - entityLiving.motionZ * vec3d.x;
-                GlStateManager.rotate((float)(Math.signum(d3) * Math.acos(d2)) * 180.0F / (float)Math.PI, 0.0F, 1.0F, 0.0F);
+                GlStateManager.rotatef((float)(Math.signum(d3) * Math.acos(d2)) * 180.0F / (float)Math.PI, 0.0F, 1.0F, 0.0F);
+            }
+        }
+        else if (f > 0.0F)
+        {
+            super.applyRotations(entityLiving, ageInTicks, rotationYaw, partialTicks);
+            float f3 = this.lerp(entityLiving.rotationPitch, -90.0F - entityLiving.rotationPitch, f);
+
+            if (!entityLiving.isSwimming())
+            {
+                f3 = this.interpolateRotation(this.field_205127_a, 0.0F, 1.0F - f);
+            }
+
+            GlStateManager.rotatef(f3, 1.0F, 0.0F, 0.0F);
+
+            if (entityLiving.isSwimming())
+            {
+                this.field_205127_a = f3;
+                GlStateManager.translatef(0.0F, -1.0F, 0.3F);
             }
         }
         else
         {
-            super.applyRotations(entityLiving, p_77043_2_, p_77043_3_, partialTicks);
+            super.applyRotations(entityLiving, ageInTicks, rotationYaw, partialTicks);
+        }
+    }
+
+    private float lerp(float p_205126_1_, float p_205126_2_, float p_205126_3_)
+    {
+        return p_205126_1_ + (p_205126_2_ - p_205126_1_) * p_205126_3_;
+    }
+
+    private ModelBiped.ArmPose func_502269_a(AbstractClientPlayer p_502269_1_, ItemStack p_502269_2_)
+    {
+        if (p_502269_2_.isEmpty())
+        {
+            return ModelBiped.ArmPose.EMPTY;
+        }
+        else
+        {
+            if (p_502269_1_.getItemInUseCount() > 0)
+            {
+                EnumAction enumaction = p_502269_2_.getUseAction();
+
+                if (enumaction == EnumAction.BLOCK)
+                {
+                    return ModelBiped.ArmPose.BLOCK;
+                }
+
+                if (enumaction == EnumAction.BOW)
+                {
+                    return ModelBiped.ArmPose.BOW_AND_ARROW;
+                }
+
+                if (enumaction == EnumAction.SPEAR)
+                {
+                    return ModelBiped.ArmPose.THROW_SPEAR;
+                }
+            }
+
+            return ModelBiped.ArmPose.ITEM;
         }
     }
 }

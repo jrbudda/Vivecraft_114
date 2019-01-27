@@ -80,15 +80,15 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
     	String productName = "";
 
     	// this.screenTitle = var1.translateKey("options.videoTitle");
-    	this.buttonList.clear();
-    	this.buttonList.add(new GuiButtonEx(ID_GENERIC_DEFAULTS, this.width / 2 - 155 ,  this.height -25 ,150,20, "Reset To Defaults"));
-    	this.buttonList.add(new GuiButtonEx(ID_GENERIC_DONE, this.width / 2 - 155  + 160, this.height -25,150,20, "Done"));
+    	this.buttons.clear();
+    	this.buttons.add(new GuiButtonEx(ID_GENERIC_DEFAULTS, this.width / 2 - 155 ,  this.height -25 ,150,20, "Reset To Defaults"));
+    	this.buttons.add(new GuiButtonEx(ID_GENERIC_DONE, this.width / 2 - 155  + 160, this.height -25,150,20, "Done"));
 
     	addButtons(openVRDisplayOptions,0);
     	if(mc.vrSettings.displayMirrorMode == vrSettings.MIRROR_MIXED_REALITY){
     		GuiSmallButtonEx mr = new GuiSmallButtonEx(0, this.width / 2 - 68, this.height / 6 + 65, "Mixed Reality Options");
     		mr.enabled = false;
-    		this.buttonList.add(mr);
+    		this.buttons.add(mr);
     		VRSettings.VrOptions[] buttons = new VRSettings.VrOptions[MROptions.length];
     		System.arraycopy(MROptions, 0, buttons, 0, MROptions.length);
     		for (int i = 0; i < buttons.length; i++) {
@@ -107,12 +107,12 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
     	}else if(mc.vrSettings.displayMirrorMode == vrSettings.MIRROR_FIRST_PERSON ){
     		GuiSmallButtonEx mr = new GuiSmallButtonEx(0, this.width / 2 - 68, this.height / 6 + 65, "Undistorted Mirror Options");
     		mr.enabled = false;
-    		this.buttonList.add(mr);
+    		this.buttons.add(mr);
     		addButtons(UDOptions,75);
     	}else if( mc.vrSettings.displayMirrorMode == vrSettings.MIRROR_THIRD_PERSON){
     		GuiSmallButtonEx mr = new GuiSmallButtonEx(0, this.width / 2 - 68, this.height / 6 + 65, "Undistorted Mirror Options");
     		mr.enabled = false;
-    		this.buttonList.add(mr);
+    		this.buttons.add(mr);
     		addButtons(TUDOptions,75);
     	}
     }
@@ -154,7 +154,7 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
                 GuiSliderEx slider = new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guivrSettings.getOptionFloatValue(var8));
                 slider.setEventHandler(this);
                 slider.enabled = getEnabledState(var8);
-                this.buttonList.add(slider);
+                this.buttons.add(slider);
             }
             else
             {
@@ -166,7 +166,7 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
                     String keyBinding = this.guivrSettings.getKeyBinding(var8);
                     GuiSmallButtonEx button = new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, keyBinding);
                     button.enabled = getEnabledState(var8);
-                    this.buttonList.add(button);
+                    this.buttons.add(button);
                 }
             }
         }

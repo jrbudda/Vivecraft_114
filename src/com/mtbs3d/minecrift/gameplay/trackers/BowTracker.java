@@ -25,7 +25,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketCustomPayload;
 import net.optifine.reflect.Reflector;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.Vec3d;
 
 public class BowTracker extends Tracker {
@@ -63,7 +63,7 @@ public class BowTracker extends Tracker {
 	public double getDrawPercent(){
 		return currentDraw/maxDraw;
 //		double target= Math.min(currentDraw / maxDraw,1.0);
-//		double cap=(Minecraft.getSystemTime()-startDrawTime)/ maxDrawMillis;
+//		double cap=(Util.milliTime()-startDrawTime)/ maxDrawMillis;
 //		return target<cap ? target : cap;
 	}
 	
@@ -75,7 +75,7 @@ public class BowTracker extends Tracker {
 		if( itemStack == ItemStack.EMPTY) return false;
 		if(Minecraft.getMinecraft().vrSettings.bowMode == 0) return false;
 		else if(Minecraft.getMinecraft().vrSettings.bowMode == 1) return itemStack.getItem() == Items.BOW; 
-		else return itemStack.getItem().getItemUseAction(itemStack) == EnumAction.BOW;			 
+		else return itemStack.getItem().getUseAction(itemStack) == EnumAction.BOW;			 
 	}
 	
 	public static boolean isHoldingBow(EntityLivingBase e, EnumHand hand) {
@@ -100,7 +100,7 @@ public class BowTracker extends Tracker {
 	int lasthapStep=0;
 	
 	public boolean isCharged(){
-		return Minecraft.getSystemTime() - startDrawTime >= maxDrawMillis;
+		return Util.milliTime() - startDrawTime >= maxDrawMillis;
 	}
 
 	@Override
@@ -178,20 +178,20 @@ public class BowTracker extends Tracker {
 		{
 			//can draw
 			if(!canDraw) {
-				startDrawTime = Minecraft.getSystemTime();
+				startDrawTime = Util.milliTime();
 			}
 
 			canDraw = true;
-			tsNotch = Minecraft.getSystemTime();
+			tsNotch = Util.milliTime();
 			
 			if(!isDrawing){
 				player.setItemInUseClient(bow);
-				player.setItemInUseCountClient(bow.getMaxItemUseDuration() - 1 );
+				player.setItemInUseCountClient(bow.getUseDuration() - 1 );
 				mc.playerController.processRightClick(player, player.world, hand);//server
 
 			}
 
-		} else if((Minecraft.getSystemTime() - tsNotch) > 500) {
+		} else if((Util.milliTime() - tsNotch) > 500) {
 			canDraw = false;
 			player.setItemInUseClient(ItemStack.EMPTY);//client draw only
 		}
@@ -231,10 +231,10 @@ public class BowTracker extends Tracker {
 			int hap = 0;
 			if (getDrawPercent() > 0 ) hap = (int) (getDrawPercent() * 500)+ 700;
 		
-			int use = (int) (bow.getMaxItemUseDuration() - getDrawPercent() * maxDrawMillis);
+			int use = (int) (bow.getUseDuration() - getDrawPercent() * maxDrawMillis);
 
-			int stage0=bow.getMaxItemUseDuration();
-			int stage1=bow.getMaxItemUseDuration()-15;
+			int stage0=bow.getUseDuration();
+			int stage1=bow.getUseDuration()-15;
 			int stage2=0;
 
 			player.setItemInUseClient(bow);//client draw only
@@ -320,11 +320,11 @@ public class BowTracker extends Tracker {
 
     protected boolean isArrow(ItemStack stack)
     {
-        if(Reflector.forgeExists()){
-        	return stack.getItem() instanceof ItemArrow || stack.getItem().getClass().getName().toLowerCase().contains("arrow");
-        }else {
+//        if(Reflector.forgeExists()){
+//        	return stack.getItem() instanceof ItemArrow || stack.getItem().getClass().getName().toLowerCase().contains("arrow");
+//        }else {
         	return stack.getItem() instanceof ItemArrow;
-        }
+//        }
     }
 
 }

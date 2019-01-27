@@ -44,7 +44,7 @@ public class GuiSelectSettingsProfile extends BaseGuiSettings implements GuiYesN
      */
     public void initGui()
     {
-        this.buttonList.clear();
+        this.buttons.clear();
         this.initProfileList();
 
         this.profileListCtrl = new GuiSelectSettingsProfile.List();
@@ -77,12 +77,12 @@ public class GuiSelectSettingsProfile extends BaseGuiSettings implements GuiYesN
 
     public void initGuiButtons()
     {
-        this.buttonList.add(this.selectProfileButton = new GuiButton(ID_SELECT_PROFILE_BUTTON, this.width / 2 - 154, this.height - 52, 150, 20, "Select Profile"));
-        this.buttonList.add(this.createProfileButton = new GuiButton(ID_CREATE_NEW_PROFILE_BUTTON, this.width / 2 + 4, this.height - 52, 150, 20, "Create New Profile..."));
-        this.buttonList.add(this.renameProfileButton = new GuiButton(ID_RENAME_PROFILE_BUTTON, this.width / 2 - 154, this.height - 28, 72, 20, "Rename..."));
-        this.buttonList.add(this.deleteProfileButton = new GuiButton(ID_DELETE_PROFILE_BUTTON, this.width / 2 - 76, this.height - 28, 72, 20, "Delete..."));
-        this.buttonList.add(this.duplicateProfileButton = new GuiButton(ID_DUPLICATE_PROFILE_BUTTON, this.width / 2 + 4, this.height - 28, 72, 20, "Duplicate..."));
-        this.buttonList.add(this.cancelButton = new GuiButton(ID_CANCEL_BUTTON, this.width / 2 + 82, this.height - 28, 72, 20, "Done"));
+        this.buttons.add(this.selectProfileButton = new GuiButton(ID_SELECT_PROFILE_BUTTON, this.width / 2 - 154, this.height - 52, 150, 20, "Select Profile"));
+        this.buttons.add(this.createProfileButton = new GuiButton(ID_CREATE_NEW_PROFILE_BUTTON, this.width / 2 + 4, this.height - 52, 150, 20, "Create New Profile..."));
+        this.buttons.add(this.renameProfileButton = new GuiButton(ID_RENAME_PROFILE_BUTTON, this.width / 2 - 154, this.height - 28, 72, 20, "Rename..."));
+        this.buttons.add(this.deleteProfileButton = new GuiButton(ID_DELETE_PROFILE_BUTTON, this.width / 2 - 76, this.height - 28, 72, 20, "Delete..."));
+        this.buttons.add(this.duplicateProfileButton = new GuiButton(ID_DUPLICATE_PROFILE_BUTTON, this.width / 2 + 4, this.height - 28, 72, 20, "Duplicate..."));
+        this.buttons.add(this.cancelButton = new GuiButton(ID_CANCEL_BUTTON, this.width / 2 + 82, this.height - 28, 72, 20, "Done"));
         this.selectProfileButton.enabled = false;
         this.deleteProfileButton.enabled = false;
         this.renameProfileButton.enabled = false;

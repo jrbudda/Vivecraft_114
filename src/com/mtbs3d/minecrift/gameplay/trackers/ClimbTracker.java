@@ -69,7 +69,7 @@ public class ClimbTracker extends Tracker{
 		if(i.isEmpty())return false;
 		if(!i.hasDisplayName()) return false;
 		if(i.getItem() != Items.SHEARS) return false;
-		if(!(i.getTagCompound().getBoolean("Unbreakable"))) return false;
+		if(!(i.getTag().getBoolean("Unbreakable"))) return false;
 		return i.getDisplayName().equals("Climb Claws");
 	}
 	
@@ -82,7 +82,7 @@ public class ClimbTracker extends Tracker{
 			return false;
 		if(p==null || p.isDead)
 			return false;
-		if(p.isRiding())
+		if(p.isPassenger())
 			return false;
 		if(!isClimbeyClimbEquipped() && p.moveForward > 0 && Minecraft.getMinecraft().vrSettings.vrFreeMove ) 
 			return false;
@@ -102,15 +102,15 @@ public class ClimbTracker extends Tracker{
     boolean unsetflag;
     
 	private boolean canstand(BlockPos bp, EntityPlayerSP p){
-		AxisAlignedBB t = p.world.getBlockState(bp).getCollisionBoundingBox(p.world, bp);
+		AxisAlignedBB t = p.world.getBlockState(bp).getCollisionShape(p.world, bp).getBoundingBox();
 		if(t == null || t.maxY == 0)
 			return false;	
 		BlockPos bp1 = bp.up();	
-		AxisAlignedBB a = p.world.getBlockState(bp1).getCollisionBoundingBox(p.world, bp1);
+		AxisAlignedBB a = p.world.getBlockState(bp1).getCollisionShape(p.world, bp1).getBoundingBox();
 		if(a != null && a.maxY>0)
 			return false;
 		BlockPos bp2 = bp1.up();	
-		AxisAlignedBB a1 = p.world.getBlockState(bp2).getCollisionBoundingBox(p.world, bp2);
+		AxisAlignedBB a1 = p.world.getBlockState(bp2).getCollisionShape(p.world, bp2).getBoundingBox();
 		if(a1 != null && a1.maxY>0)
 			return false;		
 		return true;
@@ -146,7 +146,7 @@ public class ClimbTracker extends Tracker{
 			BlockPos bp = new BlockPos(cpos[c]);
 			IBlockState bs = mc.world.getBlockState(bp);
 			Block b = bs.getBlock();
-			box[c] = bs.getCollisionBoundingBox(mc.world, bp);
+			box[c] = bs.getCollisionShape(mc.world, bp).getBoundingBox();
 
 			if(!mc.climbTracker.isClimbeyClimb()){	
 
@@ -170,31 +170,33 @@ public class ClimbTracker extends Tracker{
 						bs = bs2;
 						b = bs2.getBlock();
 						cpos[c]  = controllerPosNear;
-						box[c] = bs.getCollisionBoundingBox(mc.world, bp2);
+						box[c] = bs.getCollisionShape(mc.world, bp2).getBoundingBox();
 					}
 				}
 
 				if(ok){
-
-					meta[c] = b.getMetaFromState(bs);
+					
+					//TODO: This is proly all broke
+					
+					meta[c] = b.meta(bs);
 
 					if (b instanceof BlockVine){ //todo: handle multi-side vines
 						box[c] = new AxisAlignedBB(0, 0, 0, 1, 1, 1);
 						if((meta[c] & 1) == 1){
-							ok = mc.world.getBlockState(bp.south()).isFullBlock();
+							ok = mc.world.getBlockState(bp.south()).isFullCube();
 							meta[c] = 2;
 						}
 						else if((meta[c] & 2) == 2){
-							ok = mc.world.getBlockState(bp.west()).isFullBlock();
+							ok = mc.world.getBlockState(bp.west()).isFullCube();
 							meta[c] = 5;
 
 						}
 						else if((meta[c] & 4) == 4){
-							ok = mc.world.getBlockState(bp.north()).isFullBlock();
+							ok = mc.world.getBlockState(bp.north()).isFullCube();
 							meta[c] = 3;
 						}
 						else if((meta[c] & 8) == 8){
-							ok = mc.world.getBlockState(bp.east()).isFullBlock();
+							ok = mc.world.getBlockState(bp.east()).isFullCube();
 							meta[c] = 4;
 						}
 					}
@@ -233,7 +235,7 @@ public class ClimbTracker extends Tracker{
 				} 
 				else {
 					Vec3d hdel = latchStart[c].subtract(cpos[c] );
-					double dist = hdel.lengthVector();
+					double dist = hdel.length();
 					if(dist > 0.5f) 
 						inblock[c] = false;
 					else
@@ -258,7 +260,7 @@ public class ClimbTracker extends Tracker{
 
 				if(!inblock[c]){
 					Vec3d hdel = latchStart[c].subtract(cpos[c] );
-					double dist = hdel.lengthVector();
+					double dist = hdel.length();
 					if(dist > 0.5f) 
 						button[c] = false;
 				}
@@ -422,8 +424,8 @@ public class ClimbTracker extends Tracker{
 					Vec3d hdir = new Vec3d(dir.x, 0, dir.z).normalize().scale(0.1); //check if free spot
 					
 					
-					boolean ok = mc.world.getCollisionBoxes(player, player.getEntityBoundingBox()
-							.offset(hdir.x,(latchbox[latchStartController].maxY + b.getY()) - player.posY , + hdir.z)).isEmpty();
+					boolean ok = mc.world.isCollisionBoxesEmpty(player, player.getEntityBoundingBox()
+							.offset(hdir.x,(latchbox[latchStartController].maxY + b.getY()) - player.posY , + hdir.z));
 					if(ok){
 						nx = player.posX + hdir.x;
 						ny = latchbox[latchStartController].maxY + b.getY();
@@ -473,7 +475,7 @@ public class ClimbTracker extends Tracker{
 				}
 				player.setPosition(ax, ay, az);
 				AxisAlignedBB bb = player.getEntityBoundingBox();
-				free = mc.world.getCollisionBoxes(player,bb).isEmpty();
+				free = mc.world.isCollisionBoxesEmpty(player,bb);
 				if(free) {
 					if( i > 1){
 						MCOpenVR.triggerHapticPulse(0, 100); //ouch!
@@ -507,7 +509,7 @@ public class ClimbTracker extends Tracker{
 			Vec3d m = MCOpenVR.controllerHistory[latchStartController].netMovement(0.3);
 			
 			float limit = 1f;
-			if(m.lengthVector() > limit) m = m.scale(limit/m.lengthVector());
+			if(m.length() > limit) m = m.scale(limit/m.length());
 			
 			if (player.isPotionActive(MobEffects.JUMP_BOOST))
 				m=m.scale((player.getActivePotionEffect(MobEffects.JUMP_BOOST).getAmplifier() + 1.5));
@@ -521,7 +523,7 @@ public class ClimbTracker extends Tracker{
 			player.lastTickPosX = pl.x;
 			player.lastTickPosY = pl.y;
 			player.lastTickPosZ = pl.z;			
-			pl = pl.addVector(player.motionX, player.motionY, player.motionZ);					
+			pl = pl.add(player.motionX, player.motionY, player.motionZ);					
 			player.setPosition(pl.x, pl.y, pl.z);
 			mc.vrPlayer.snapRoomOriginToPlayerEntity(player, false, false);	
 			mc.player.addExhaustion(.3f);    

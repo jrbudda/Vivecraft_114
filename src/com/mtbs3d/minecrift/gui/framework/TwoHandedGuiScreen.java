@@ -30,9 +30,9 @@ public abstract class TwoHandedGuiScreen extends GuiScreen
 	{
 		if (mouseButton == 0)
 		{
-			for (int i = 0; i < this.buttonList.size(); ++i)
+			for (int i = 0; i < this.buttons.size(); ++i)
 			{
-				GuiButton guibutton = this.buttonList.get(i);
+				GuiButton guibutton = this.buttons.get(i);
 
 				if (guibutton.mousePressed(this.mc, mouseX, mouseY))
 				{
@@ -158,7 +158,7 @@ public abstract class TwoHandedGuiScreen extends GuiScreen
     	this.fontRenderer = mc.fontRenderer;
     	this.width = width;
     	this.height = height;
-    	this.buttonList.clear();
+    	this.buttons.clear();
     	this.initGui();
     }
 
@@ -183,9 +183,9 @@ public abstract class TwoHandedGuiScreen extends GuiScreen
         int mY2 = (int) (cursorY2 * this.height / this.mc.displayHeight);
 
         int hoveredButtonId1 = -1, hoveredButtonId2 = -1;
-        for (int i = 0; i < this.buttonList.size(); ++i)
+        for (int i = 0; i < this.buttons.size(); ++i)
         {
-        	GuiButton butt = (GuiButton)this.buttonList.get(i);
+        	GuiButton butt = (GuiButton)this.buttons.get(i);
         	boolean buttonhovered1 = mX1 >= butt.x && mY1 >= butt.y && mX1 < butt.x + butt.getButtonWidth() && mY1 < butt.y + 20;
         	boolean buttonhovered2 = mX2 >= butt.x && mY2 >= butt.y && mX2 < butt.x + butt.getButtonWidth() && mY2 < butt.y + 20;
         	if(buttonhovered1)

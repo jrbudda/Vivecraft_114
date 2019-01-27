@@ -1,0 +1,11 @@
+--- a/net/minecraft/client/renderer/GlStateManager.java
++++ b/net/minecraft/client/renderer/GlStateManager.java
+@@ -42,7 +42,7 @@
+         return new GlStateManager.BooleanState[p_lambda$static$3_0_];
+     });
+     private static final GlStateManager.ColorMaterialState COLOR_MATERIAL = new GlStateManager.ColorMaterialState();
+-    private static final GlStateManager.BlendState BLEND = new GlStateManager.BlendState();
++    public static final GlStateManager.BlendState BLEND = new GlStateManager.BlendState();
+     private static final GlStateManager.DepthState DEPTH = new GlStateManager.DepthState();
+     private static final GlStateManager.FogState FOG = new GlStateManager.FogState();
+     private static final GlStateManager.CullState CULL = new GlStateManager.CullState();

@@ -39,12 +39,12 @@ public class GuiHUDSettings extends BaseGuiSettings
      */
     public void initGui()
     {
-    	this.buttonList.clear();
-    	this.buttonList.add(new GuiSmallButtonEx(301, this.width / 2 - 78, this.height / 6 - 14, "Hide Hud (F1): " + mc.gameSettings.hideGUI));
-    	this.buttonList.add(new GuiButtonEx(ID_GENERIC_DEFAULTS, this.width / 2 - 155 ,  this.height -25 ,150,20, "Reset To Defaults"));
-    	this.buttonList.add(new GuiButtonEx(ID_GENERIC_DONE, this.width / 2 - 155  + 160, this.height -25,150,20, "Done"));
+    	this.buttons.clear();
+    	this.buttons.add(new GuiSmallButtonEx(301, this.width / 2 - 78, this.height / 6 - 14, "Hide Hud (F1): " + mc.gameSettings.hideGUI));
+    	this.buttons.add(new GuiButtonEx(ID_GENERIC_DEFAULTS, this.width / 2 - 155 ,  this.height -25 ,150,20, "Reset To Defaults"));
+    	this.buttons.add(new GuiButtonEx(ID_GENERIC_DONE, this.width / 2 - 155  + 160, this.height -25,150,20, "Done"));
     	if(!mc.vrSettings.seated)
-    		this.buttonList.add(new GuiButtonEx(300, this.width / 2 + 5 , this.height / 6 + 74,150,20, "GUI Buttons..."));
+    		this.buttons.add(new GuiButtonEx(300, this.width / 2 + 5 , this.height / 6 + 74,150,20, "GUI Buttons..."));
     	VRSettings.VrOptions[] buttons = hudOptions;
 
     	for (int var12 = 2; var12 < buttons.length + 2; ++var12)
@@ -93,11 +93,11 @@ public class GuiHUDSettings extends BaseGuiSettings
     				increment = 0.05f;
     			}
 
-    			this.buttonList.add(new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guivrSettings.getOptionFloatValue(var8)));
+    			this.buttons.add(new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guivrSettings.getOptionFloatValue(var8)));
     		}
     		else
     		{
-    			this.buttonList.add(new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8)));
+    			this.buttons.add(new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8)));
     		}
     	}
     }

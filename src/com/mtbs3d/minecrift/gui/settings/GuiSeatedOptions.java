@@ -49,14 +49,14 @@ public class GuiSeatedOptions extends BaseGuiSettings implements GuiEventEx
 	 */
 	public void initGui()
 	{
-		this.buttonList.clear();
-		this.buttonList.add(new GuiButtonEx(ID_GENERIC_DEFAULTS, this.width / 2 - 155 ,  this.height -25 ,150,20, "Reset To Defaults"));
-		this.buttonList.add(new GuiButtonEx(ID_GENERIC_DONE, this.width / 2 - 155  + 160, this.height -25,150,20, "Done"));
+		this.buttons.clear();
+		this.buttons.add(new GuiButtonEx(ID_GENERIC_DEFAULTS, this.width / 2 - 155 ,  this.height -25 ,150,20, "Reset To Defaults"));
+		this.buttons.add(new GuiButtonEx(ID_GENERIC_DONE, this.width / 2 - 155  + 160, this.height -25,150,20, "Done"));
         mc.vrSettings.vrFreeMove = mc.vrPlayer.getFreeMove();
 
 		GuiSmallButtonEx mode = new GuiSmallButtonEx(VRSettings.VrOptions.MOVE_MODE.returnEnumOrdinal(), this.width / 2 - 68, this.height / 6 + 80,VRSettings.VrOptions.MOVE_MODE, this.guivrSettings.getKeyBinding(VRSettings.VrOptions.MOVE_MODE));
         mode.setEventHandler(this);
-        this.buttonList.add(mode);
+        this.buttons.add(mode);
 
 		VRSettings.VrOptions[] buttons = seatedOptions;
 
@@ -131,12 +131,12 @@ public class GuiSeatedOptions extends BaseGuiSettings implements GuiEventEx
 				if(show) {
 					GuiSliderEx slider = new GuiSliderEx(var8.returnEnumOrdinal(), width, height , var8, this.guivrSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guivrSettings.getOptionFloatValue(var8));
 					slider.setEventHandler(this);
-					this.buttonList.add(slider);
+					this.buttons.add(slider);
 				}
 			}
 			else
 			{
-				this.buttonList.add(new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height , var8, this.guivrSettings.getKeyBinding(var8)));
+				this.buttons.add(new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height , var8, this.guivrSettings.getKeyBinding(var8)));
 			}
 		}
 	}

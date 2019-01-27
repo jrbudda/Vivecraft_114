@@ -34,9 +34,9 @@ public class GuiRoomscaleSettings extends BaseGuiSettings implements GuiEventEx
      */
     public void initGui()
     {
-        this.buttonList.clear();
-        this.buttonList.add(new GuiButtonEx(ID_GENERIC_DEFAULTS, this.width / 2 - 155 ,  this.height -25 ,150,20, "Reset To Defaults"));
-        this.buttonList.add(new GuiButtonEx(ID_GENERIC_DONE, this.width / 2 - 155  + 160, this.height -25,150,20, "Done"));
+        this.buttons.clear();
+        this.buttons.add(new GuiButtonEx(ID_GENERIC_DEFAULTS, this.width / 2 - 155 ,  this.height -25 ,150,20, "Reset To Defaults"));
+        this.buttons.add(new GuiButtonEx(ID_GENERIC_DONE, this.width / 2 - 155  + 160, this.height -25,150,20, "Done"));
         VRSettings.VrOptions[] buttons = roomscaleSettings;
         addButtons(buttons,0);
     }
@@ -84,14 +84,14 @@ public class GuiRoomscaleSettings extends BaseGuiSettings implements GuiEventEx
                 GuiSliderEx slider = new GuiSliderEx(var8.returnEnumOrdinal(), width, height - 20, var8, this.guivrSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guivrSettings.getOptionFloatValue(var8));
                 slider.setEventHandler(this);
                 slider.enabled = getEnabledState(var8);
-                this.buttonList.add(slider);
+                this.buttons.add(slider);
             }
             else
             {
                 GuiSmallButtonEx smallButton = new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height - 20, var8, this.guivrSettings.getKeyBinding(var8));
                 smallButton.setEventHandler(this);
                 smallButton.enabled = getEnabledState(var8);
-                this.buttonList.add(smallButton);
+                this.buttons.add(smallButton);
             }
         }
 	}

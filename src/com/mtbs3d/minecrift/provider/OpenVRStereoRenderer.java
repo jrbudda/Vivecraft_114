@@ -16,11 +16,9 @@ import jopenvr.OpenVRUtil;
 import jopenvr.Texture_t;
 import jopenvr.VRTextureBounds_t;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.GlStateManager.Color;
 
 import java.nio.IntBuffer;
 
-import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 /**
  * Created by jrbudda

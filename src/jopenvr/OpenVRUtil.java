@@ -10,9 +10,7 @@ import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 import jopenvr.HmdMatrix34_t;
 import jopenvr.HmdMatrix44_t;
-import org.lwjgl.LWJGLUtil;
-import org.lwjgl.opengl.Display;
-import org.lwjgl.util.vector.Quaternion;
+
 
 /**
  *
@@ -145,7 +143,7 @@ public class OpenVRUtil {
     }
     // VIVE END
 
-    public static long getNativeWindow() {
+/*    public static long getNativeWindow() {
         long window = -1;
         try {
             Object displayImpl = null;
@@ -180,5 +178,5 @@ public class OpenVRUtil {
             throw new IllegalStateException(e);
         }
         return window;
-    }
+    }*/
 }

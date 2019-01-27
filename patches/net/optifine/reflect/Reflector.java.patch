@@ -1,0 +1,12 @@
+--- a/net/optifine/reflect/Reflector.java
++++ b/net/optifine/reflect/Reflector.java
+@@ -1283,4 +1283,9 @@
+         Config.dbg(str);
+         return true;
+     }
++
++	public static boolean forgeExists() {
++		// TODO Auto-generated method stub
++		return false;
++	}
+ }

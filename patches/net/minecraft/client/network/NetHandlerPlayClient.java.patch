@@ -1,0 +1,445 @@
+--- a/net/minecraft/client/network/NetHandlerPlayClient.java
++++ b/net/minecraft/client/network/NetHandlerPlayClient.java
+@@ -1,19 +1,29 @@
+ package net.minecraft.client.network;
+ 
++import com.google.common.base.Charsets;
+ import com.google.common.collect.Lists;
+ import com.google.common.collect.Maps;
+ import com.google.common.util.concurrent.FutureCallback;
+ import com.google.common.util.concurrent.Futures;
+ import com.mojang.authlib.GameProfile;
+ import com.mojang.brigadier.CommandDispatcher;
++import com.mtbs3d.minecrift.api.NetworkHelper;
++import com.mtbs3d.minecrift.api.NetworkHelper.PacketDiscriminators;
++import com.mtbs3d.minecrift.gameplay.OpenVRPlayer;
++import com.mtbs3d.minecrift.render.PlayerModelController;
++
+ import io.netty.buffer.Unpooled;
++
++import java.io.ByteArrayInputStream;
+ import java.io.File;
+ import java.io.IOException;
++import java.io.ObjectInputStream;
+ import java.io.UnsupportedEncodingException;
+ import java.net.URI;
+ import java.net.URISyntaxException;
+ import java.net.URLDecoder;
+ import java.nio.charset.StandardCharsets;
++import java.util.ArrayList;
+ import java.util.Collection;
+ import java.util.Iterator;
+ import java.util.List;
+@@ -326,12 +336,17 @@
+ 
+     public NetHandlerPlayClient(Minecraft mcIn, GuiScreen p_i46300_2_, NetworkManager networkManagerIn, GameProfile profileIn)
+     {
+-        this.client = mcIn;
+-        this.guiScreenServer = p_i46300_2_;
+-        this.netManager = networkManagerIn;
+-        this.profile = profileIn;
+-        this.advancementManager = new ClientAdvancementManager(mcIn);
+-        this.clientSuggestionProvider = new ClientSuggestionProvider(this, mcIn);
++    	this.client = mcIn;
++    	this.guiScreenServer = p_i46300_2_;
++    	this.netManager = networkManagerIn;
++    	this.profile = profileIn;
++    	this.advancementManager = new ClientAdvancementManager(mcIn);
++    	this.clientSuggestionProvider = new ClientSuggestionProvider(this, mcIn);
++    	//VIVECRAFT
++    	NetworkHelper.serverAllowsClimbey =false;
++    	NetworkHelper.serverWantsData = false;
++    	NetworkHelper.serverSupportsDirectTeleport = false;
++    	//
+     }
+ 
+     public ClientSuggestionProvider func_195513_b()
+@@ -358,18 +373,28 @@
+      */
+     public void handleJoinGame(SPacketJoinGame packetIn)
+     {
+-        PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+-        this.client.playerController = new PlayerControllerMP(this.client, this);
+-        this.world = new WorldClient(this, new WorldSettings(0L, packetIn.getGameType(), false, packetIn.isHardcoreMode(), packetIn.getWorldType()), packetIn.getDimension(), packetIn.getDifficulty(), this.client.profiler);
+-        this.client.gameSettings.difficulty = packetIn.getDifficulty();
+-        this.client.loadWorld(this.world);
+-        this.client.player.dimension = packetIn.getDimension();
+-        this.client.displayGuiScreen(new GuiDownloadTerrain());
+-        this.client.player.setEntityId(packetIn.getPlayerId());
+-        this.client.player.setReducedDebug(packetIn.isReducedDebugInfo());
+-        this.client.playerController.setGameType(packetIn.getGameType());
+-        this.client.gameSettings.sendSettingsToServer();
+-        this.netManager.sendPacket(new CPacketCustomPayload(CPacketCustomPayload.BRAND, (new PacketBuffer(Unpooled.buffer())).writeString(ClientBrandRetriever.getClientModName())));
++    	PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
++    	this.client.playerController = new PlayerControllerMP(this.client, this);
++    	this.world = new WorldClient(this, new WorldSettings(0L, packetIn.getGameType(), false, packetIn.isHardcoreMode(), packetIn.getWorldType()), packetIn.getDimension(), packetIn.getDifficulty(), this.client.profiler);
++    	this.client.gameSettings.difficulty = packetIn.getDifficulty();
++    	this.client.loadWorld(this.world);
++    	this.client.player.dimension = packetIn.getDimension();
++    	this.client.displayGuiScreen(new GuiDownloadTerrain());
++    	this.client.player.setEntityId(packetIn.getPlayerId());
++    	this.client.player.setReducedDebug(packetIn.isReducedDebugInfo());
++    	this.client.playerController.setGameType(packetIn.getGameType());
++    	this.client.gameSettings.sendSettingsToServer();
++    	this.netManager.sendPacket(new CPacketCustomPayload(CPacketCustomPayload.BRAND, (new PacketBuffer(Unpooled.buffer())).writeString(ClientBrandRetriever.getClientModName())));
++    	// VIVE START - ask server if it's running this mod
++    	this.client.vrPlayer.setFreeMove(true);
++    	byte[] version = Minecraft.getMinecraft().minecriftVerString.getBytes(Charsets.UTF_8);
++    	String s = "Vivecraft";
++    	PacketBuffer pb = new PacketBuffer(Unpooled.buffer());
++    	pb.writeBytes(s.getBytes());
++    	this.netManager.sendPacket(new CPacketCustomPayload(new ResourceLocation("REGISTER"), pb ));
++    	this.netManager.sendPacket(new CPacketCustomPayload(new ResourceLocation("MC|Vive|Version"), (new PacketBuffer(Unpooled.buffer())).writeString(Minecraft.getMinecraft().minecriftVerString)));
++    	this.netManager.sendPacket(NetworkHelper.getVivecraftClientPacket(PacketDiscriminators.VERSION, version));
++    	// VIVE END - ask server if it's running this mod
+     }
+ 
+     /**
+@@ -908,7 +933,11 @@
+      */
+     public void handleDisconnect(SPacketDisconnect packetIn)
+     {
+-        this.netManager.closeChannel(packetIn.getReason());
++    	this.netManager.closeChannel(packetIn.getReason());
++    	// VIVE START - no longer on a vanilla server, reset restricted state
++    	this.client.vrPlayer.noTeleportClient = true;
++    	OpenVRPlayer.get().setFreeMove(true);
++    	// VIVE END - no longer on a vanilla server, reset restricted state  
+     }
+ 
+     /**
+@@ -2144,110 +2173,216 @@
+      */
+     public void handleCustomPayload(SPacketCustomPayload packetIn)
+     {
+-        PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+-        ResourceLocation resourcelocation = packetIn.getChannelName();
+-        PacketBuffer packetbuffer = null;
+-
+-        try
+-        {
+-            packetbuffer = packetIn.getBufferData();
+-
+-            if (SPacketCustomPayload.TRADER_LIST.equals(resourcelocation))
+-            {
+-                try
+-                {
+-                    int i = packetbuffer.readInt();
+-                    GuiScreen guiscreen = this.client.currentScreen;
+-
+-                    if (guiscreen instanceof GuiMerchant && i == this.client.player.openContainer.windowId)
+-                    {
+-                        IMerchant imerchant = ((GuiMerchant)guiscreen).getMerchant();
+-                        MerchantRecipeList merchantrecipelist = MerchantRecipeList.readFromBuf(packetbuffer);
+-                        imerchant.setRecipes(merchantrecipelist);
+-                    }
+-                }
+-                catch (IOException ioexception)
+-                {
+-                    LOGGER.error("Couldn't load trade info", (Throwable)ioexception);
+-                }
+-            }
+-            else if (SPacketCustomPayload.BRAND.equals(resourcelocation))
+-            {
+-                this.client.player.setServerBrand(packetbuffer.readString(32767));
+-            }
+-            else if (SPacketCustomPayload.BOOK_OPEN.equals(resourcelocation))
+-            {
+-                EnumHand enumhand = (EnumHand)packetbuffer.readEnumValue(EnumHand.class);
+-                ItemStack itemstack = enumhand == EnumHand.OFF_HAND ? this.client.player.getHeldItemOffhand() : this.client.player.getHeldItemMainhand();
+-
+-                if (itemstack.getItem() == Items.WRITTEN_BOOK)
+-                {
+-                    this.client.displayGuiScreen(new GuiScreenBook(this.client.player, itemstack, false, enumhand));
+-                }
+-            }
+-            else if (SPacketCustomPayload.DEBUG_PATH.equals(resourcelocation))
+-            {
+-                int l = packetbuffer.readInt();
+-                float f = packetbuffer.readFloat();
+-                Path path = Path.read(packetbuffer);
+-                this.client.debugRenderer.pathfinding.addPath(l, path, f);
+-            }
+-            else if (SPacketCustomPayload.DEBUG_NEIGHBORS_UPDATE.equals(resourcelocation))
+-            {
+-                long i1 = packetbuffer.readVarLong();
+-                BlockPos blockpos1 = packetbuffer.readBlockPos();
+-                ((DebugRendererNeighborsUpdate)this.client.debugRenderer.neighborsUpdate).addUpdate(i1, blockpos1);
+-            }
+-            else if (SPacketCustomPayload.DEBUG_CAVES.equals(resourcelocation))
+-            {
+-                BlockPos blockpos = packetbuffer.readBlockPos();
+-                int k1 = packetbuffer.readInt();
+-                List<BlockPos> list = Lists.<BlockPos>newArrayList();
+-                List<Float> list1 = Lists.<Float>newArrayList();
+-
+-                for (int j = 0; j < k1; ++j)
+-                {
+-                    list.add(packetbuffer.readBlockPos());
+-                    list1.add(packetbuffer.readFloat());
+-                }
+-
+-                this.client.debugRenderer.cave.addCave(blockpos, list, list1);
+-            }
+-            else if (SPacketCustomPayload.DEBUG_STRUCTURES.equals(resourcelocation))
+-            {
+-                int j1 = packetbuffer.readInt();
+-                MutableBoundingBox mutableboundingbox = new MutableBoundingBox(packetbuffer.readInt(), packetbuffer.readInt(), packetbuffer.readInt(), packetbuffer.readInt(), packetbuffer.readInt(), packetbuffer.readInt());
+-                int l1 = packetbuffer.readInt();
+-                List<MutableBoundingBox> list2 = Lists.<MutableBoundingBox>newArrayList();
+-                List<Boolean> list3 = Lists.<Boolean>newArrayList();
+-
+-                for (int k = 0; k < l1; ++k)
+-                {
+-                    list2.add(new MutableBoundingBox(packetbuffer.readInt(), packetbuffer.readInt(), packetbuffer.readInt(), packetbuffer.readInt(), packetbuffer.readInt(), packetbuffer.readInt()));
+-                    list3.add(packetbuffer.readBoolean());
+-                }
+-
+-                this.client.debugRenderer.structure.addStructure(mutableboundingbox, list2, list3, j1);
+-            }
+-            else if (SPacketCustomPayload.DEBUG_WORLDGEN_ATTEMPT.equals(resourcelocation))
+-            {
+-                ((DebugRendererWorldGenAttempts)this.client.debugRenderer.worldGenAttempts).addAttempt(packetbuffer.readBlockPos(), packetbuffer.readFloat(), packetbuffer.readFloat(), packetbuffer.readFloat(), packetbuffer.readFloat(), packetbuffer.readFloat());
+-                LOGGER.warn("Unknown custom packed identifier: {}", (Object)resourcelocation);
+-            }
+-            else
+-            {
+-                LOGGER.warn("Unknown custom packed identifier: {}", (Object)resourcelocation);
+-            }
+-        }
+-        finally
+-        {
+-            if (packetbuffer != null)
+-            {
+-                packetbuffer.release();
+-            }
+-        }
++    	PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
++    	ResourceLocation resourcelocation = packetIn.getChannelName();
++    	PacketBuffer packetbuffer = null;
++
++    	try
++    	{
++    		packetbuffer = packetIn.getBufferData();
++
++    		if (SPacketCustomPayload.TRADER_LIST.equals(resourcelocation))
++    		{
++    			try
++    			{
++    				int i = packetbuffer.readInt();
++    				GuiScreen guiscreen = this.client.currentScreen;
++
++    				if (guiscreen instanceof GuiMerchant && i == this.client.player.openContainer.windowId)
++    				{
++    					IMerchant imerchant = ((GuiMerchant)guiscreen).getMerchant();
++    					MerchantRecipeList merchantrecipelist = MerchantRecipeList.readFromBuf(packetbuffer);
++    					imerchant.setRecipes(merchantrecipelist);
++    				}
++    			}
++    			catch (IOException ioexception)
++    			{
++    				LOGGER.error("Couldn't load trade info", (Throwable)ioexception);
++    			}
++    		}
++    		else if (SPacketCustomPayload.BRAND.equals(resourcelocation))
++    		{
++    			this.client.player.setServerBrand(packetbuffer.readString(32767));
++    		}
++    		else if (SPacketCustomPayload.BOOK_OPEN.equals(resourcelocation))
++    		{
++    			EnumHand enumhand = (EnumHand)packetbuffer.readEnumValue(EnumHand.class);
++    			ItemStack itemstack = enumhand == EnumHand.OFF_HAND ? this.client.player.getHeldItemOffhand() : this.client.player.getHeldItemMainhand();
++
++    			if (itemstack.getItem() == Items.WRITTEN_BOOK)
++    			{
++    				this.client.displayGuiScreen(new GuiScreenBook(this.client.player, itemstack, false, enumhand));
++    			}
++    		}
++    		else if (SPacketCustomPayload.DEBUG_PATH.equals(resourcelocation))
++    		{
++    			int l = packetbuffer.readInt();
++    			float f = packetbuffer.readFloat();
++    			Path path = Path.read(packetbuffer);
++    			this.client.debugRenderer.pathfinding.addPath(l, path, f);
++    		}
++    		else if (SPacketCustomPayload.DEBUG_NEIGHBORS_UPDATE.equals(resourcelocation))
++    		{
++    			long i1 = packetbuffer.readVarLong();
++    			BlockPos blockpos1 = packetbuffer.readBlockPos();
++    			((DebugRendererNeighborsUpdate)this.client.debugRenderer.neighborsUpdate).addUpdate(i1, blockpos1);
++    		}
++    		else if (SPacketCustomPayload.DEBUG_CAVES.equals(resourcelocation))
++    		{
++    			BlockPos blockpos = packetbuffer.readBlockPos();
++    			int k1 = packetbuffer.readInt();
++    			List<BlockPos> list = Lists.<BlockPos>newArrayList();
++    			List<Float> list1 = Lists.<Float>newArrayList();
++
++    			for (int j = 0; j < k1; ++j)
++    			{
++    				list.add(packetbuffer.readBlockPos());
++    				list1.add(packetbuffer.readFloat());
++    			}
++
++    			this.client.debugRenderer.cave.addCave(blockpos, list, list1);
++    		}
++    		else if (SPacketCustomPayload.DEBUG_STRUCTURES.equals(resourcelocation))
++    		{
++    			int j1 = packetbuffer.readInt();
++    			MutableBoundingBox mutableboundingbox = new MutableBoundingBox(packetbuffer.readInt(), packetbuffer.readInt(), packetbuffer.readInt(), packetbuffer.readInt(), packetbuffer.readInt(), packetbuffer.readInt());
++    			int l1 = packetbuffer.readInt();
++    			List<MutableBoundingBox> list2 = Lists.<MutableBoundingBox>newArrayList();
++    			List<Boolean> list3 = Lists.<Boolean>newArrayList();
++
++    			for (int k = 0; k < l1; ++k)
++    			{
++    				list2.add(new MutableBoundingBox(packetbuffer.readInt(), packetbuffer.readInt(), packetbuffer.readInt(), packetbuffer.readInt(), packetbuffer.readInt(), packetbuffer.readInt()));
++    				list3.add(packetbuffer.readBoolean());
++    			}
++
++    			this.client.debugRenderer.structure.addStructure(mutableboundingbox, list2, list3, j1);
++    		}
++    		else if (SPacketCustomPayload.DEBUG_WORLDGEN_ATTEMPT.equals(resourcelocation))
++    		{
++    			((DebugRendererWorldGenAttempts)this.client.debugRenderer.worldGenAttempts).addAttempt(packetbuffer.readBlockPos(), packetbuffer.readFloat(), packetbuffer.readFloat(), packetbuffer.readFloat(), packetbuffer.readFloat(), packetbuffer.readFloat());
++    			LOGGER.warn("Unknown custom packed identifier: {}", (Object)resourcelocation);
++    		}
++    		// VIVE START - server told us that it has this mod too, allow extended reach, etc.
++    		else if (new ResourceLocation("MC|ViveOK").equals(resourcelocation))
++    		{ //allowed, set to user preference.
++    			this.client.vrPlayer.noTeleportClient = false;
++    			this.client.vrPlayer.setFreeMove(Minecraft.getMinecraft().vrPlayer.getFreeMove());
++    		} 
++    		else if (new ResourceLocation("Vivecraft").equals(resourcelocation))
++    		{ 
++    			byte db = packetbuffer.readByte();
++    			PacketDiscriminators dis = PacketDiscriminators.values()[db];
++
++    			switch (dis){
++    			case VERSION:
++    				String v = packetbuffer.readString(1024);
++    				this.client.vrPlayer.noTeleportClient = false;
++    				this.client.vrPlayer.setFreeMove(Minecraft.getMinecraft().vrSettings.vrFreeMove);
++    				this.client.printChatMessage("Vivecraft server mod detected: " +  v);
++    				break;
++    			case REQUESTDATA:
++    				NetworkHelper.serverWantsData = true;
++    				break;
++    			case CLIMBING:
++    				NetworkHelper.serverAllowsClimbey = true;
++    				//TODO: Redo climbey white/blacklisting
++    				//    				if(packetbuffer.readableBytes() > 0){
++    				//    					byte[] b = new byte[packetbuffer.readableBytes()];
++    				//    					packetbuffer.readBytes(b);
++    				//    					final ByteArrayInputStream byteArrayInputStream =
++    				//    							new ByteArrayInputStream(b);
++    				//    					ObjectInputStream objectInputStream = null;
++    				//    					try {
++    				//    						objectInputStream = new ObjectInputStream(byteArrayInputStream);
++    				//    						Minecraft.getMinecraft().climbTracker.serverblockmode = objectInputStream.readByte();
++    				//    						ArrayList<String> temp = (ArrayList<String>) objectInputStream.readObject();
++    				//    						objectInputStream.close();	
++    				//    						Minecraft.getMinecraft().climbTracker.blocklist.clear();
++    				//    						for (String string : temp) {
++    				//    							String[] parts = string.split(":");
++    				//    							String id, data = null;
++    				//    							if(parts.length == 1){
++    				//    								id = string;
++    				//    							} else if(parts.length ==2){
++    				//    								id = parts[0];
++    				//    								data = parts[1];
++    				//    							} else {
++    				//    								//wut
++    				//    								continue;
++    				//    							}
++    				//
++    				//    							if(data != null && !tryParseInt(data)){
++    				//    								continue;
++    				//    							}
++    				//
++    				//    							Block test;
++    				//    							if(tryParseInt(id)){
++    				//    								test = Block.getBlockById(Integer.parseInt(id));
++    				//    							} else {
++    				//    								test = Block.getBlockFromName(id);
++    				//    							}
++    				//
++    				//    							if(test == null){
++    				//    								continue;
++    				//    							}
++    				//    							BlockWithData bd = null;
++    				//
++    				//    							if(data == null)
++    				//    								bd = new BlockWithData(test);
++    				//    							else
++    				//    								bd = new BlockWithData(test, Integer.parseInt(data));
++    				//
++    				//    							Minecraft.getMinecraft().climbTracker.blocklist.add(bd);
++    				//    						}
++    				//    					} catch (Exception e) {
++    				//    						System.out.println("Something went amiss processing climbey blocks: "  e.getMessage());
++    				//    					}
++    				//    				}
++    				break;
++    			case TELEPORT:
++    				NetworkHelper.serverSupportsDirectTeleport = true;
++    				break;
++    			case UBERPACKET:
++    				Long hi = packetbuffer.readLong();
++    				Long low = packetbuffer.readLong();
++    				byte[] hmd = new byte[29];
++    				byte[] c0 = new byte[29];
++    				byte[] c1 = new byte[29];
++    				packetbuffer.readBytes(29).getBytes(0, hmd);
++    				packetbuffer.readBytes(29).getBytes(0, c0);
++    				packetbuffer.readBytes(29).getBytes(0, c1);
++    				UUID u = new UUID(hi, low);
++
++    				PlayerModelController.getInstance().Update(u, hmd, c0, c1);    		
++    				break;
++    			default:
++    				break;
++    			}
++
++    			//packetbuffer.release(); // Causes error spam with Forge
++    		}
++    		else if (new ResourceLocation("REGISTER").equals(resourcelocation)) {
++    			//PacketBuffer packetbuffer = packetIn.getBufferData(); 
++    			//String v = new String(packetbuffer.array(),Charsets.UTF_8);
++    			//System.out.println("REGISTER "  v );
++    		}
++    		// VIVE END
++    		else
++    		{
++    			LOGGER.warn("Unknown custom packed identifier: {}", (Object)resourcelocation);
++    		}
++    	}
++    	finally
++    	{
++    		if (packetbuffer != null)
++    		{
++    			packetbuffer.release();
++    		}
++    	}
+     }
+ 
++
+     /**
+      * May create a scoreboard objective, remove an objective from the scoreboard or update an objectives' displayname
+      */
+@@ -2553,4 +2688,15 @@
+     {
+         return this.nbtQueryManager;
+     }
++    
++    //VIVECRAFT Additions
++    boolean tryParseInt(String value) {  
++    	try {  
++    		Integer.parseInt(value);  
++    		return true;  
++    	} catch (NumberFormatException e) {  
++    		return false;  
++    	}  
++    }
++    //
+ }

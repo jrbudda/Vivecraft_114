@@ -1,0 +1,69 @@
+--- a/net/minecraft/client/gui/GuiTextField.java
++++ b/net/minecraft/client/gui/GuiTextField.java
+@@ -1,6 +1,8 @@
+ package net.minecraft.client.gui;
+ 
+ import com.google.common.base.Predicates;
++import com.mtbs3d.minecrift.gameplay.screenhandlers.KeyboardHandler;
++
+ import java.util.function.BiConsumer;
+ import java.util.function.BiFunction;
+ import java.util.function.Predicate;
+@@ -567,7 +569,12 @@
+             {
+                 this.setFocused(flag);
+             }
+-
++            
++            // VIVE START - show keyboard
++            if(flag && this.canLoseFocus == true) 
++            	KeyboardHandler.setOverlayShowing(true);       
++            // VIVE END - show keyboard
++            
+             if (this.isFocused && flag && button == 0)
+             {
+                 int i = MathHelper.floor(mouseX) - this.x;
+@@ -615,10 +622,15 @@
+ 
+             if (!s.isEmpty())
+             {
+-                String s1 = flag ? s.substring(0, j) : s;
+-                j1 = this.fontRenderer.drawStringWithShadow(this.textFormatter.apply(s1, this.lineScrollOffset), (float)l, (float)i1, i);
++            	String s1 = flag ? s.substring(0, j) : s;
++            	j1 = this.fontRenderer.drawStringWithShadow(this.textFormatter.apply(s1, this.lineScrollOffset), (float)l, (float)i1, i);
++          //VIVECRAFT
++            } else {
++            	if(!Minecraft.getMinecraft().vrSettings.seated && !KeyboardHandler.Showing && this.canLoseFocus )
++            		this.fontRenderer.drawStringWithShadow("Click to open keyboard", (float)l, (float)i1, this.disabledColor);
+             }
+-
++            //
++            
+             boolean flag2 = this.cursorPosition < this.text.length() || this.text.length() >= this.getMaxStringLength();
+             int k1 = j1;
+ 
+@@ -785,12 +797,18 @@
+      */
+     public void setFocused(boolean isFocusedIn)
+     {
+-        if (isFocusedIn && !this.isFocused)
+-        {
+-            this.cursorCounter = 0;
+-        }
+-
+-        this.isFocused = isFocusedIn;
++    	if (isFocusedIn && !this.isFocused)
++    	{
++    		this.cursorCounter = 0;
++    	}
++
++    	this.isFocused = isFocusedIn;
++    	
++    	// VIVE START - show keyboard
++    	if(Minecraft.getMinecraft().currentScreen instanceof GuiSleepMP) return;
++    	if(isFocusedIn && this.visible && (this.canLoseFocus == false || Minecraft.getMinecraft().vrSettings.autoOpenKeyboard))
++    		KeyboardHandler.setOverlayShowing(isFocusedIn);
++    	// VIVE END - show keyboard
+     }
+ 
+     /**

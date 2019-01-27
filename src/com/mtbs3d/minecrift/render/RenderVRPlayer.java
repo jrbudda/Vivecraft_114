@@ -9,14 +9,13 @@ import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.GlStateManager.DestFactor;
 import net.minecraft.client.renderer.GlStateManager.SourceFactor;
 import net.minecraft.client.renderer.entity.RenderBiped;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.entity.RenderPlayer;
+import net.minecraft.client.renderer.entity.model.ModelPlayer;
 import net.minecraft.client.renderer.tileentity.TileEntitySkullRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -53,7 +52,7 @@ public class RenderVRPlayer extends RenderPlayer
     {
         float f = 1.0F;
         if(Minecraft.getMinecraft().player.isSneaking()) f= 0.75f;
-        GlStateManager.color(1.0F, 1.0F, 1.0F, f);
+        GlStateManager.color4f(1.0F, 1.0F, 1.0F, f);
         float f1 = 0.0625F;
         ModelPlayer modelplayer = this.getMainModel();
 		MCReflection.RenderPlayer_setModelVisibilities.invoke(this, clientPlayer);
@@ -82,7 +81,7 @@ public class RenderVRPlayer extends RenderPlayer
         modelplayer.bipedRightArmwear.render(0.0625F);
         
         GlStateManager.disableBlend();
-        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0f);
+        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0f);
     }
 	
 	@Override
@@ -90,7 +89,7 @@ public class RenderVRPlayer extends RenderPlayer
     {
         float f = 1.0F;
         if(Minecraft.getMinecraft().player.isSneaking()) f= 0.75f;
-        GlStateManager.color(1.0F, 1.0F, 1.0f, f);
+        GlStateManager.color4f(1.0F, 1.0F, 1.0f, f);
         float f1 = 0.0625F;
         ModelPlayer modelplayer = this.getMainModel();
 		MCReflection.RenderPlayer_setModelVisibilities.invoke(this, clientPlayer);

@@ -11,7 +11,7 @@ import com.mtbs3d.minecrift.utils.Vector3;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.init.Particles;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
@@ -179,12 +179,12 @@ public class PlayerModelController {
 		
 		if(out.hmd > 3 && rand.nextInt(10) < 4){
 			Vector3 derp = dir.multiply(0.1f);
-			Minecraft.getMinecraft().world.spawnParticle(EnumParticleTypes.FIREWORKS_SPARK,
+			//TODO: prolly fix.
+			Minecraft.getMinecraft().world.spawnParticle(Particles.FIREWORK,
 					hmdpos.x+ ((double)this.rand.nextFloat() - 0.5D)*.02f,
 					hmdpos.y - 0.8f + ((double)this.rand.nextFloat() - 0.5D)*.02f,
 					hmdpos.z + ((double)this.rand.nextFloat()- 0.5D)*.02f,
-					-derp.getX() + ((double)this.rand.nextFloat()- 0.5D)*.01f,((double)this.rand.nextFloat()- .05f)*.05f, -derp.getZ() + ((double)this.rand.nextFloat()- 0.5D)*.01f,
-					new int[]{rand.nextInt(128)+128,rand.nextInt(128)+128,rand.nextInt(128)+128}
+					-derp.getX() + ((double)this.rand.nextFloat()- 0.5D)*.01f,((double)this.rand.nextFloat()- .05f)*.05f, -derp.getZ() + ((double)this.rand.nextFloat()- 0.5D)*.01f
 					);     
 		}
 		
@@ -230,7 +230,7 @@ public class PlayerModelController {
 		if (rot != null && vivePlayersLast.containsKey(uuid)) {
 			RotInfo rotLast = vivePlayersLast.get(uuid);
 			RotInfo rotLerp = new RotInfo();
-			float pt = Minecraft.getMinecraft().timer.renderPartialTicks;
+			float pt = Minecraft.getMinecraft().getRenderPartialTicks();
 			rotLerp.reverse = rot.reverse;
 			rotLerp.seated = rot.seated;
 			rotLerp.hmd = rot.hmd;

@@ -132,8 +132,8 @@ public class ModelPlayerVR extends ModelBiped
         if (this.isChild)
         {
             float f = 2.0F;
-            GlStateManager.scale(0.5F, 0.5F, 0.5F);
-            GlStateManager.translate(0.0F, 24.0F * scale, 0.0F);
+            GlStateManager.scalef(0.5F, 0.5F, 0.5F);
+            GlStateManager.translatef(0.0F, 24.0F * scale, 0.0F);
             this.bipedLeftLegwear.render(scale);
             this.bipedRightLegwear.render(scale);
             this.bipedLeftArmwear.render(scale);
@@ -144,7 +144,7 @@ public class ModelPlayerVR extends ModelBiped
         {
             if (entityIn.isSneaking())
             {
-                GlStateManager.translate(0.0F, 0.2F, 0.0F);
+                GlStateManager.translatef(0.0F, 0.2F, 0.0F);
             }
 
             this.bipedLeftLegwear.render(scale);
@@ -196,10 +196,10 @@ public class ModelPlayerVR extends ModelBiped
     		Vec3d pos = this.renderPos;
     		float eyaw = (float) Math.toRadians(entityIn.rotationYaw);
     		float yaw1 = (float) Math.atan2(-rotInfo.headRot.x, -rotInfo.headRot.z); 
-    		float pitch1 = (float) Math.asin(rotInfo.headRot.y/rotInfo.headRot.lengthVector()); 
+    		float pitch1 = (float) Math.asin(rotInfo.headRot.y/rotInfo.headRot.length()); 
 
     		float yaw3 = (float) Math.atan2(-rotInfo.leftArmRot.x, -rotInfo.leftArmRot.z); 
-    		float pitch3 = (float) Math.asin(rotInfo.leftArmRot.y/rotInfo.leftArmRot.lengthVector());           	
+    		float pitch3 = (float) Math.asin(rotInfo.leftArmRot.y/rotInfo.leftArmRot.length());           	
 
     		this.bipedHead.rotateAngleX = (float) -pitch1;
 
@@ -267,9 +267,9 @@ public class ModelPlayerVR extends ModelBiped
     			//this.bipedLeftLeg.scaleY = (float) (rotInfo.Headpos.subtract(pos).y / 1.62f);         		
 
     			float yaw2 = (float) Math.atan2(-rotInfo.rightArmRot.x, -rotInfo.rightArmRot.z); 
-    			float pitch2 = (float) Math.asin(rotInfo.rightArmRot.y/rotInfo.rightArmRot.lengthVector()); 
+    			float pitch2 = (float) Math.asin(rotInfo.rightArmRot.y/rotInfo.rightArmRot.length()); 
     			if(pos !=null){
-    				Vec3d larm = rotInfo.leftArmPos.subtract(pos).addVector(0,minecraftBullshit,0);
+    				Vec3d larm = rotInfo.leftArmPos.subtract(pos).add(0,minecraftBullshit,0);
     				larm = larm.rotateYaw((float)(-Math.PI + ltor)).add(rotInfo.leftArmRot.scale(-0.2)).scale(-1/scaleFactor);      		      		        		
     				this.bipedLeftArm.setRotationPoint((float)larm.x, (float)larm.y, -(float)larm.z);          
     				this.bipedLeftArm.rotateAngleX=(float) (-pitch3+ 3*Math.PI/2);
@@ -280,11 +280,11 @@ public class ModelPlayerVR extends ModelBiped
     						leftShoulder.rotationPointZ - larm.z);
 
     				float yawls = (float) Math.atan2(-lsh.x, -lsh.z); 
-    				float pitchls = (float) Math.asin(lsh.y/lsh.lengthVector()); 		
+    				float pitchls = (float) Math.asin(lsh.y/lsh.length()); 		
     				leftShoulder.rotateAngleY = (float) (-yawls);
     				leftShoulder.rotateAngleX = (float) (-pitchls+ 3*Math.PI/2);
 
-    				Vec3d rarm = rotInfo.rightArmPos.subtract(pos).addVector(0,minecraftBullshit,0);
+    				Vec3d rarm = rotInfo.rightArmPos.subtract(pos).add(0,minecraftBullshit,0);
     				rarm = rarm.rotateYaw((float)(-Math.PI + ltor)).add(rotInfo.rightArmRot.scale(-0.2)).scale(-1/scaleFactor);           
     				this.bipedRightArm.setRotationPoint((float)rarm.x, (float)rarm.y, -(float)rarm.z);   
     				this.bipedRightArm.rotateAngleX=(float) (-pitch2+ 3*Math.PI/2);
@@ -296,7 +296,7 @@ public class ModelPlayerVR extends ModelBiped
     						rightShoulder.rotationPointZ - rarm.z);
 
     				float yawrs = (float) Math.atan2(-rsh.x, -rsh.z); 
-    				float pitchrs = (float) Math.asin(rsh.y/rsh.lengthVector()); 		
+    				float pitchrs = (float) Math.asin(rsh.y/rsh.length()); 		
     				rightShoulder.rotateAngleY = (float) (-yawrs);
     				rightShoulder.rotateAngleX = (float) (-pitchrs+ 3*Math.PI/2);
 

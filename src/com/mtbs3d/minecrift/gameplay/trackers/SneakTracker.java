@@ -8,7 +8,6 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
@@ -28,7 +27,7 @@ public class SneakTracker extends Tracker {
 			return false;
 		if(p==null || p.isDead || !p.onGround)
 			return false;
-		if(p.isRiding())
+		if(p.isPassenger())
 			return false;
 		return true;
 	}
