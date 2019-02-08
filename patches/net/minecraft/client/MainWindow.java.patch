@@ -1,0 +1,14 @@
+--- a/net/minecraft/client/MainWindow.java
++++ b/net/minecraft/client/MainWindow.java
+@@ -375,7 +375,10 @@
+ 
+     public void updateVsyncFromGameSettings()
+     {
+-        GLFW.glfwSwapInterval(this.mc.gameSettings.enableVsync ? 1 : 0);
++    	//Vivecraft
++    	GLFW.glfwSwapInterval(0);
++        //GLFW.glfwSwapInterval(this.mc.gameSettings.enableVsync ? 1 : 0);
++    	//
+     }
+ 
+     public void close()

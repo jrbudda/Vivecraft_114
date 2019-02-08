@@ -512,6 +512,28 @@
       },
       "name": "org.lwjgl:lwjgl-stb:3.1.6"
     },
+	{
+		"name": "org.ow2.asm:asm-all:5.0.3"
+	}, 
+	{
+		"url": "http://central.maven.org/maven2/", 
+		"name": "org.json:json:20140107"
+	}, 
+	{
+		"name": "net.minecraft:launchwrapper:1.12"
+	}, 
+	{
+		"url": "http://vivecraft.org/jar/", 
+		"name": "com.sun:jna:4.2.1"
+	}, 
+	{
+		"url": "http://vivecraft.org/jar/", 
+		"name": "de.fruitfly.ovr:JRift:0.8.0.0.1"
+	}, 
+	{
+		"url": "http://vivecraft.org/jar/", 
+		"name": "net.aib42.mumblelink:JMumble:1.11"
+	}, 
     {
       "downloads": {
         "artifact": {

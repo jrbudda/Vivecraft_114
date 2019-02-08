@@ -3,9 +3,9 @@
 @@ -1,13 +1,20 @@
  package net.minecraft.client.renderer.entity.layers;
  
-+import com.mtbs3d.minecrift.gameplay.trackers.BowTracker;
-+import com.mtbs3d.minecrift.render.PlayerModelController;
-+import com.mtbs3d.minecrift.render.PlayerModelController.RotInfo;
++import org.vivecraft.gameplay.trackers.BowTracker;
++import org.vivecraft.render.PlayerModelController;
++import org.vivecraft.render.PlayerModelController.RotInfo;
 +
  import net.minecraft.client.Minecraft;
  import net.minecraft.client.renderer.GlStateManager;
@@ -107,7 +107,7 @@
 +    				}
 +
 +    				GlStateManager.translatef(0, 0.155F, -0.215F);
-+    				Minecraft.getMinecraft().getItemRenderer().renderItemSide(0, p_188358_1_, p_188358_2_, p_188358_3_, flag);
++    				Minecraft.getMinecraft().getFirstPersonRenderer().renderItemSide(p_188358_1_, p_188358_2_, p_188358_3_, flag);
 +    				//
 +    				GlStateManager.popMatrix();
 + 
@@ -125,7 +125,7 @@
 +    		}
 +
 +    		//
-+    		Minecraft.getMinecraft().getItemRenderer().renderItemSide(0, p_188358_1_, p_188358_2_, p_188358_3_, flag);
++    		Minecraft.getMinecraft().getFirstPersonRenderer().renderItemSide(p_188358_1_, p_188358_2_, p_188358_3_, flag);
 +    		GlStateManager.popMatrix();
 +    	}
      }

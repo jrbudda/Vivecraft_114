@@ -1,15 +1,20 @@
 --- a/net/minecraft/client/renderer/entity/RenderManager.java
 +++ b/net/minecraft/client/renderer/entity/RenderManager.java
-@@ -1,6 +1,8 @@
+@@ -1,9 +1,13 @@
  package net.minecraft.client.renderer.entity;
  
  import com.google.common.collect.Maps;
-+import com.mtbs3d.minecrift.render.PlayerModelController;
 +
  import java.util.Collections;
  import java.util.Map;
  import javax.annotation.Nullable;
-@@ -127,472 +129,491 @@
++
++import org.vivecraft.render.PlayerModelController;
++
+ import net.minecraft.block.Block;
+ import net.minecraft.block.BlockBed;
+ import net.minecraft.block.state.IBlockState;
+@@ -127,472 +131,491 @@
  
  public class RenderManager
  {

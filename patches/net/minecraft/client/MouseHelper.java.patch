@@ -1,0 +1,51 @@
+--- a/net/minecraft/client/MouseHelper.java
++++ b/net/minecraft/client/MouseHelper.java
+@@ -286,6 +286,10 @@
+ 
+     public void updatePlayerLook()
+     {
++    	//Vivecraft - this looks like a big ol' nope.
++    	if(true) return;
++    	//
++    	
+         double d0 = GLFW.glfwGetTime();
+         double d1 = d0 - this.field_198050_o;
+         this.field_198050_o = d0;
+@@ -374,7 +378,11 @@
+      */
+     public void grabMouse()
+     {
+-        if (this.minecraft.isGameFocused())
++    	if (!this.minecraft.vrSettings.seated) {
++    		this.mouseGrabbed = true;
++    		return;
++    	}
++    	else if (this.minecraft.isGameFocused())
+         {
+             if (!this.mouseGrabbed)
+             {
+@@ -399,6 +407,10 @@
+      */
+     public void ungrabMouse()
+     {
++    	if (!this.minecraft.vrSettings.seated) {
++    		this.mouseGrabbed = false;
++    		return;
++    	}
+         if (this.mouseGrabbed)
+         {
+             this.mouseGrabbed = false;
+@@ -408,4 +420,13 @@
+             GLFW.glfwSetCursorPos(this.minecraft.mainWindow.getHandle(), this.mouseX, this.mouseY);
+         }
+     }
++    
++    //Vivecraft
++    public void setMousePos(double xPos, double yPos){
++    	//this does not generate a callback.
++    	if(minecraft.isGameFocused())
++    		GLFW.glfwSetCursorPos(this.minecraft.mainWindow.getHandle(), xPos, yPos);				
++		this.mouseX = xPos;
++		this.mouseY = yPos;
++    }
+ }

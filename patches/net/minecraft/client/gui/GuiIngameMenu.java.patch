@@ -3,9 +3,9 @@
 @@ -1,114 +1,191 @@
  package net.minecraft.client.gui;
  
-+import com.mtbs3d.minecrift.gui.settings.GuiQuickCommandsInGame;
-+import com.mtbs3d.minecrift.settings.AutoCalibration;
-+import com.mtbs3d.minecrift.utils.jkatvr;
++import org.vivecraft.gui.settings.GuiQuickCommandsInGame;
++import org.vivecraft.settings.AutoCalibration;
++import org.vivecraft.utils.jkatvr;
 +
  import net.minecraft.client.gui.achievement.GuiStats;
  import net.minecraft.client.gui.advancements.GuiScreenAdvancements;
@@ -242,7 +242,7 @@
 +			public void onClick(double mouseX, double mouseY)
 +			{
 +				GuiIngameMenu.this.mc.displayGuiScreen(null);
-+				GuiIngameMenu.this.mc.grabScreenShot = 10;
++				GuiIngameMenu.this.mc.grabScreenShot = true;
 +			}
 +		});
 +		//        if(Reflector.forgeExists())

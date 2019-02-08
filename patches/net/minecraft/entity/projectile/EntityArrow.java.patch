@@ -5,8 +5,8 @@
  import java.util.function.Predicate;
  import javax.annotation.Nullable;
 +
-+import com.mtbs3d.minecrift.api.NetworkHelper;
-+import com.mtbs3d.minecrift.api.VivePlayer;
++import org.vivecraft.api.NetworkHelper;
++import org.vivecraft.api.VivePlayer;
 +
  import net.minecraft.block.state.IBlockState;
  import net.minecraft.enchantment.EnchantmentHelper;

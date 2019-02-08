@@ -1,15 +1,24 @@
 --- a/net/minecraft/client/gui/GuiChat.java
 +++ b/net/minecraft/client/gui/GuiChat.java
-@@ -16,6 +16,8 @@
+@@ -16,6 +16,7 @@
  import com.mojang.brigadier.suggestion.SuggestionsBuilder;
  import com.mojang.brigadier.tree.CommandNode;
  import com.mojang.brigadier.tree.LiteralCommandNode;
-+import com.mtbs3d.minecrift.gameplay.screenhandlers.KeyboardHandler;
 +
  import java.util.Collection;
  import java.util.List;
  import java.util.Map;
-@@ -88,6 +90,7 @@
+@@ -26,6 +27,9 @@
+ import java.util.regex.Matcher;
+ import java.util.regex.Pattern;
+ import javax.annotation.Nullable;
++
++import org.vivecraft.gameplay.screenhandlers.KeyboardHandler;
++
+ import net.minecraft.client.Minecraft;
+ import net.minecraft.client.renderer.Rectangle2d;
+ import net.minecraft.command.ISuggestionProvider;
+@@ -88,6 +92,7 @@
          this.inputField = new GuiTextField(0, this.fontRenderer, 4, this.height - 12, this.width - 4, 12);
          this.inputField.setMaxStringLength(256);
          this.inputField.setEnableBackgroundDrawing(false);
@@ -17,7 +26,7 @@
          this.inputField.setFocused(true);
          this.inputField.setText(this.defaultInputFieldText);
          this.inputField.setCanLoseFocus(false);
-@@ -185,7 +188,12 @@
+@@ -185,7 +190,12 @@
                  this.sendChatMessage(s);
              }
  

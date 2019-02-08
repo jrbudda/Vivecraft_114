@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/network/NetHandlerPlayClient.java
 +++ b/net/minecraft/client/network/NetHandlerPlayClient.java
-@@ -1,19 +1,29 @@
+@@ -1,19 +1,25 @@
  package net.minecraft.client.network;
  
 +import com.google.common.base.Charsets;
@@ -10,10 +10,6 @@
  import com.google.common.util.concurrent.Futures;
  import com.mojang.authlib.GameProfile;
  import com.mojang.brigadier.CommandDispatcher;
-+import com.mtbs3d.minecrift.api.NetworkHelper;
-+import com.mtbs3d.minecrift.api.NetworkHelper.PacketDiscriminators;
-+import com.mtbs3d.minecrift.gameplay.OpenVRPlayer;
-+import com.mtbs3d.minecrift.render.PlayerModelController;
 +
  import io.netty.buffer.Unpooled;
 +
@@ -30,6 +26,17 @@
  import java.util.Collection;
  import java.util.Iterator;
  import java.util.List;
+@@ -277,6 +283,10 @@
+ import net.minecraft.world.storage.MapData;
+ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.Logger;
++import org.vivecraft.api.NetworkHelper;
++import org.vivecraft.api.NetworkHelper.PacketDiscriminators;
++import org.vivecraft.gameplay.OpenVRPlayer;
++import org.vivecraft.render.PlayerModelController;
+ 
+ public class NetHandlerPlayClient implements INetHandlerPlayClient
+ {
 @@ -326,12 +336,17 @@
  
      public NetHandlerPlayClient(Minecraft mcIn, GuiScreen p_i46300_2_, NetworkManager networkManagerIn, GameProfile profileIn)

@@ -1,15 +1,19 @@
 --- a/net/minecraft/client/entity/AbstractClientPlayer.java
 +++ b/net/minecraft/client/entity/AbstractClientPlayer.java
-@@ -2,6 +2,8 @@
+@@ -2,8 +2,12 @@
  
  import com.google.common.hash.Hashing;
  import com.mojang.authlib.GameProfile;
-+import com.mtbs3d.minecrift.api.PatreonReceiver;
 +
  import java.io.File;
  import javax.annotation.Nullable;
++
++import org.vivecraft.api.PatreonReceiver;
++
  import net.minecraft.client.Minecraft;
-@@ -21,6 +23,7 @@
+ import net.minecraft.client.network.NetworkPlayerInfo;
+ import net.minecraft.client.renderer.ImageBufferDownload;
+@@ -21,6 +25,7 @@
  import net.minecraft.util.StringUtils;
  import net.minecraft.world.GameType;
  import net.minecraft.world.World;
@@ -17,7 +21,7 @@
  import net.optifine.player.CapeUtils;
  import net.optifine.player.PlayerCape;
  import net.optifine.player.PlayerConfiguration;
-@@ -51,6 +54,11 @@
+@@ -51,6 +56,11 @@
  
          CapeUtils.downloadCape(this);
          PlayerConfigurations.getPlayerConfiguration(this);

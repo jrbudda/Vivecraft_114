@@ -3,12 +3,12 @@
 @@ -1,5 +1,7 @@
  package net.minecraft.client.gui;
  
-+import com.mtbs3d.minecrift.gui.settings.GuiMinecriftSettings;
++import org.vivecraft.gui.settings.GuiMainVRSettings;
 +
  import net.minecraft.client.GameSettings;
  import net.minecraft.client.resources.I18n;
  import net.minecraft.util.text.TextComponentTranslation;
-@@ -7,202 +9,220 @@
+@@ -7,202 +9,219 @@
  
  public class GuiOptions extends GuiScreen
  {
@@ -245,7 +245,7 @@
 +						public void onClick(double mouseX, double mouseY)
 +						{
 +							GuiOptions.this.mc.gameSettings.saveOptions();
-+							GuiOptions.this.mc.displayGuiScreen(new GuiMinecriftSettings(GuiOptions.this, GuiOptions.this.mc.vrSettings, GuiOptions.this.settings));
++							GuiOptions.this.mc.displayGuiScreen(new GuiMainVRSettings(GuiOptions.this));
 +						}
 +					};
 +					this.addButton(var7);
@@ -255,7 +255,6 @@
 +					this.addButton(new GuiOptionSlider(gamesettings$options.getOrdinal(), this.width / 2 - 155 + i % 2 * 160, this.height / 6 - 12 + 24 * (i >> 1), gamesettings$options));
 +				}
 +				/** END MINECRIFT */
-+				this.addButton(new GuiOptionSlider(gamesettings$options.getOrdinal(), this.width / 2 - 155 + i % 2 * 160, this.height / 6 - 12 + 24 * (i >> 1), gamesettings$options));
 +			}
 +			else
 +			{

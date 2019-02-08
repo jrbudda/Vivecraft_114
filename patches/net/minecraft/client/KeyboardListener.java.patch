@@ -1,0 +1,70 @@
+--- a/net/minecraft/client/KeyboardListener.java
++++ b/net/minecraft/client/KeyboardListener.java
+@@ -38,6 +38,8 @@
+ import org.lwjgl.glfw.GLFWErrorCallbackI;
+ import org.lwjgl.glfw.GLFWKeyCallbackI;
+ import org.lwjgl.system.MemoryUtil;
++import org.vivecraft.gameplay.screenhandlers.KeyboardHandler;
++import org.vivecraft.gameplay.screenhandlers.RadialHandler;
+ 
+ public class KeyboardListener
+ {
+@@ -312,6 +314,20 @@
+     {
+         if (windowPointer == this.mc.mainWindow.getHandle())
+         {
++            //Vivecraft esc
++            if (key == GLFW.GLFW_KEY_ESCAPE)
++            {                       
++            	if(KeyboardHandler.Showing) {
++            		KeyboardHandler.setOverlayShowing(false);
++            		return;
++            	}
++            	if(RadialHandler.Showing) {
++            		RadialHandler.setOverlayShowing(false, null);
++            		return; 		
++            	}
++            }
++            ///
++            
+             if (this.debugCrashKeyPressTime > 0L)
+             {
+                 if (!InputMappings.isKeyDown(67) || !InputMappings.isKeyDown(292))
+@@ -344,12 +360,13 @@
+                         ;
+                     }
+ 
+-                    ScreenShotHelper.saveScreenshot(this.mc.gameDir, this.mc.mainWindow.getFramebufferWidth(), this.mc.mainWindow.getFramebufferHeight(), this.mc.getFramebuffer(), (p_lambda$onKeyEvent$3_1_) ->
++                    this.mc.grabScreenShot = true;
++                    /*ScreenShotHelper.saveScreenshot(this.mc.gameDir, this.mc.mainWindow.getFramebufferWidth(), this.mc.mainWindow.getFramebufferHeight(), this.mc.getFramebuffer(), (p_lambda$onKeyEvent$3_1_) ->
+                     {
+                         this.mc.addScheduledTask(() -> {
+                             this.mc.ingameGUI.getChatGUI().printChatMessage(p_lambda$onKeyEvent$3_1_);
+                         });
+-                    });
++                    });*/
+                     return;
+                 }
+             }
+@@ -376,7 +393,7 @@
+                     return;
+                 }
+             }
+-
++                        
+             if (this.mc.currentScreen == null || this.mc.currentScreen.allowUserInput)
+             {
+                 InputMappings.Input inputmappings$input = InputMappings.getInputByCode(key, scanCode);
+@@ -418,10 +435,11 @@
+ 
+                     boolean flag = false;
+ 
++                    
+                     if (this.mc.currentScreen == null)
+                     {
+                         if (key == 256)
+-                        {
++                        {                       	
+                             this.mc.displayInGameMenu();
+                         }
+ 

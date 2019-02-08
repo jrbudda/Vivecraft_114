@@ -1,15 +1,21 @@
 --- a/net/minecraft/client/gui/GuiTextField.java
 +++ b/net/minecraft/client/gui/GuiTextField.java
-@@ -1,6 +1,8 @@
+@@ -1,10 +1,14 @@
  package net.minecraft.client.gui;
  
  import com.google.common.base.Predicates;
-+import com.mtbs3d.minecrift.gameplay.screenhandlers.KeyboardHandler;
 +
  import java.util.function.BiConsumer;
  import java.util.function.BiFunction;
  import java.util.function.Predicate;
-@@ -567,7 +569,12 @@
+ import javax.annotation.Nullable;
++
++import org.vivecraft.gameplay.screenhandlers.KeyboardHandler;
++
+ import net.minecraft.client.Minecraft;
+ import net.minecraft.client.renderer.BufferBuilder;
+ import net.minecraft.client.renderer.GlStateManager;
+@@ -567,7 +571,12 @@
              {
                  this.setFocused(flag);
              }
@@ -23,7 +29,7 @@
              if (this.isFocused && flag && button == 0)
              {
                  int i = MathHelper.floor(mouseX) - this.x;
-@@ -615,10 +622,15 @@
+@@ -615,10 +624,15 @@
  
              if (!s.isEmpty())
              {
@@ -42,7 +48,7 @@
              boolean flag2 = this.cursorPosition < this.text.length() || this.text.length() >= this.getMaxStringLength();
              int k1 = j1;
  
-@@ -785,12 +797,18 @@
+@@ -785,12 +799,18 @@
       */
      public void setFocused(boolean isFocusedIn)
      {

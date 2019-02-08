@@ -1,6 +1,16 @@
 --- a/net/minecraft/client/GameSettings.java
 +++ b/net/minecraft/client/GameSettings.java
-@@ -109,7 +109,7 @@
+@@ -23,6 +23,9 @@
+ import java.util.Map;
+ import java.util.Set;
+ import javax.annotation.Nullable;
++
++import org.vivecraft.provider.MCOpenVR;
++
+ import net.minecraft.client.gui.GuiNewChat;
+ import net.minecraft.client.gui.chat.NarratorChatListener;
+ import net.minecraft.client.renderer.OpenGlHelper;
+@@ -109,7 +112,7 @@
      public boolean fullScreen;
      @Nullable
      public String fullscreenResolution;
@@ -9,16 +19,18 @@
      public boolean useVbo = true;
      public boolean reducedDebugInfo;
      public boolean hideServerAddress;
-@@ -139,7 +139,7 @@
+@@ -139,8 +142,8 @@
      public boolean enableWeakAttacks;
      public boolean showSubtitles;
      public boolean realmsNotifications = true;
 -    public boolean autoJump = true;
+-    public TutorialSteps tutorialStep = TutorialSteps.MOVEMENT;
 +    public boolean autoJump = false;
-     public TutorialSteps tutorialStep = TutorialSteps.MOVEMENT;
++    public TutorialSteps tutorialStep = TutorialSteps.NONE; // VIVECRAFT: Real men don't need tutorials.
      public boolean autoSuggestions = true;
      public int biomeBlendRadius = 2;
-@@ -248,7 +248,7 @@
+     public double mouseWheelSensitivity = 1.0D;
+@@ -248,7 +251,7 @@
      public int ofTranslucentBlocks = 0;
      public boolean ofDynamicFov = true;
      public boolean ofAlternateBlocks = true;
@@ -27,7 +39,23 @@
      public boolean ofCustomEntityModels = true;
      public boolean ofCustomGuis = true;
      public boolean ofShowGlErrors = true;
-@@ -498,7 +498,7 @@
+@@ -294,6 +297,7 @@
+     {
+         this.setForgeKeybindProperties();
+         this.keyBindings = (KeyBinding[])ArrayUtils.addAll(new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindSprint, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.keyBindCommand, this.keyBindScreenshot, this.keyBindTogglePerspective, this.keyBindSmoothCamera, this.keyBindFullscreen, this.keyBindSpectatorOutlines, this.keyBindSwapHands, this.keyBindSaveToolbar, this.keyBindLoadToolbar, this.keyBindAdvancements}, this.keyBindsHotbar);
++        this.keyBindings = MCOpenVR.initializeBindings(this.keyBindings);
+         this.difficulty = EnumDifficulty.NORMAL;
+         this.lastServer = "";
+         this.fovSetting = 70.0D;
+@@ -336,6 +340,7 @@
+     {
+         this.setForgeKeybindProperties();
+         this.keyBindings = (KeyBinding[])ArrayUtils.addAll(new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindSprint, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.keyBindCommand, this.keyBindScreenshot, this.keyBindTogglePerspective, this.keyBindSmoothCamera, this.keyBindFullscreen, this.keyBindSpectatorOutlines, this.keyBindSwapHands, this.keyBindSaveToolbar, this.keyBindLoadToolbar, this.keyBindAdvancements}, this.keyBindsHotbar);
++        this.keyBindings = MCOpenVR.initializeBindings(this.keyBindings);
+         this.difficulty = EnumDifficulty.NORMAL;
+         this.lastServer = "";
+         this.fovSetting = 70.0D;
+@@ -498,7 +503,7 @@
  
          if (settingsOption == GameSettings.Options.FBO_ENABLE)
          {
@@ -36,7 +64,7 @@
          }
  
          if (settingsOption == GameSettings.Options.GRAPHICS)
-@@ -562,7 +562,7 @@
+@@ -562,7 +567,7 @@
  
          if (settingsOption == GameSettings.Options.USE_VBO)
          {
@@ -45,7 +73,7 @@
              this.mc.renderGlobal.loadRenderers();
          }
  
-@@ -1667,7 +1667,7 @@
+@@ -1667,7 +1672,7 @@
              {
                  if (i >= aint[j])
                  {
@@ -54,7 +82,7 @@
                  }
              }
  
-@@ -2116,7 +2116,7 @@
+@@ -2116,7 +2121,7 @@
                  return;
              }
  
@@ -63,7 +91,7 @@
  
              if (this.ofFastRender)
              {
-@@ -3210,6 +3210,13 @@
+@@ -3210,6 +3215,13 @@
              KeyUtils.fixKeyConflicts(this.keyBindings, new KeyBinding[] {this.ofKeyBindZoom});
              KeyBinding.resetKeyBindingArrayAndHash();
              bufferedreader.close();

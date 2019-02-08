@@ -174,7 +174,7 @@
 +
 +	/** The ItemStack that is currently being highlighted */
 +	private ItemStack highlightingItemStack = ItemStack.EMPTY;
-+	private final GuiOverlayDebug overlayDebug;
++	public final GuiOverlayDebug overlayDebug;
 +	private final GuiSubtitleOverlay overlaySubtitle;
 +
 +	/** The spectator GUI for this in-game GUI instance */
@@ -1597,7 +1597,7 @@
 +			GlStateManager.enableBlend();
 +			GlStateManager.enableAlphaTest();
 +			//VIVECRAFT NOPE!
-+			this.renderAttackIndicator(partialTicks);
++			//this.renderAttackIndicator(partialTicks);
 +			//
 +			GlStateManager.enableAlphaTest();
 +			GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
@@ -2899,7 +2899,7 @@
 +		GlStateManager.blendFunc(SourceFactor.ONE_MINUS_DST_COLOR, DestFactor.ONE_MINUS_SRC_COLOR);
 +		GlStateManager.disableDepthTest();
 +		GlStateManager.disableLighting();
-+		GlStateManager.colorMask(true, true, true, false);
++		GlStateManager.colorMask(true, true, true, true); //Fuck it. Stop using bad texture packs.
 +		GlStateManager.color4f(1, 1, 1, 1);
 +
 +		this.mc.getTextureManager().bindTexture(Gui.ICONS);

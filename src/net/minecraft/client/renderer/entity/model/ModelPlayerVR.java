@@ -4,11 +4,11 @@ import java.util.UUID;
 
 import javax.swing.plaf.RootPaneUI;
 
-import com.mtbs3d.minecrift.render.PlayerModelController;
-import com.mtbs3d.minecrift.render.PlayerModelController.RotInfo;
-import com.mtbs3d.minecrift.render.StaticTexture;
-import com.mtbs3d.minecrift.render.VRShaders;
-import com.mtbs3d.minecrift.utils.Vector3;
+import org.vivecraft.render.PlayerModelController;
+import org.vivecraft.render.StaticTexture;
+import org.vivecraft.render.VRShaders;
+import org.vivecraft.render.PlayerModelController.RotInfo;
+import org.vivecraft.utils.Vector3;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;

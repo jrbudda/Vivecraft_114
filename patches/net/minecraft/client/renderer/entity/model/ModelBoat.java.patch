@@ -6,12 +6,12 @@
 +import java.awt.Color;
 +import java.util.UUID;
 +
-+import com.mtbs3d.minecrift.gameplay.OpenVRPlayer;
-+import com.mtbs3d.minecrift.provider.MCOpenVR;
-+import com.mtbs3d.minecrift.render.PlayerModelController;
-+import com.mtbs3d.minecrift.settings.VRSettings;
-+import com.mtbs3d.minecrift.utils.Quaternion;
-+import com.mtbs3d.minecrift.utils.Vector3;
++import org.vivecraft.gameplay.OpenVRPlayer;
++import org.vivecraft.provider.MCOpenVR;
++import org.vivecraft.render.PlayerModelController;
++import org.vivecraft.settings.VRSettings;
++import org.vivecraft.utils.Quaternion;
++import org.vivecraft.utils.Vector3;
 +
 +import net.minecraft.client.Minecraft;
  import net.minecraft.client.renderer.GlStateManager;

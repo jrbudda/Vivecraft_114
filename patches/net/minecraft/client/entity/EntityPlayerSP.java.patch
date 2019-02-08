@@ -1,15 +1,9 @@
 --- a/net/minecraft/client/entity/EntityPlayerSP.java
 +++ b/net/minecraft/client/entity/EntityPlayerSP.java
-@@ -1,10 +1,23 @@
+@@ -1,10 +1,24 @@
  package net.minecraft.client.entity;
  
  import com.google.common.collect.Lists;
-+import com.mtbs3d.minecrift.api.NetworkHelper;
-+import com.mtbs3d.minecrift.api.NetworkHelper.PacketDiscriminators;
-+import com.mtbs3d.minecrift.gameplay.OpenVRPlayer;
-+import com.mtbs3d.minecrift.provider.MCOpenVR;
-+import com.mtbs3d.minecrift.settings.VRSettings;
-+import com.mtbs3d.minecrift.utils.jkatvr;
 +
 +import io.netty.buffer.ByteBuf;
 +import io.netty.buffer.Unpooled;
@@ -19,12 +13,19 @@
  import java.util.function.Function;
  import javax.annotation.Nullable;
 +
++import org.vivecraft.api.NetworkHelper;
++import org.vivecraft.api.NetworkHelper.PacketDiscriminators;
++import org.vivecraft.gameplay.OpenVRPlayer;
++import org.vivecraft.provider.MCOpenVR;
++import org.vivecraft.settings.VRSettings;
++import org.vivecraft.utils.jkatvr;
++
 +import net.minecraft.block.Block;
 +import net.minecraft.block.SoundType;
  import net.minecraft.block.state.IBlockState;
  import net.minecraft.client.Minecraft;
  import net.minecraft.client.audio.ElytraSound;
-@@ -32,7 +45,9 @@
+@@ -32,7 +46,9 @@
  import net.minecraft.client.gui.inventory.GuiFurnace;
  import net.minecraft.client.gui.inventory.GuiScreenHorseInventory;
  import net.minecraft.client.gui.inventory.GuiShulkerBox;
@@ -34,7 +35,7 @@
  import net.minecraft.client.util.RecipeBookClient;
  import net.minecraft.entity.Entity;
  import net.minecraft.entity.IJumpingMount;
-@@ -42,12 +57,15 @@
+@@ -42,12 +58,15 @@
  import net.minecraft.entity.item.EntityItem;
  import net.minecraft.entity.item.EntityMinecart;
  import net.minecraft.entity.passive.AbstractHorse;
@@ -50,7 +51,7 @@
  import net.minecraft.item.Item;
  import net.minecraft.item.ItemElytra;
  import net.minecraft.item.ItemStack;
-@@ -57,6 +75,7 @@
+@@ -57,6 +76,7 @@
  import net.minecraft.network.play.client.CPacketChatMessage;
  import net.minecraft.network.play.client.CPacketClientStatus;
  import net.minecraft.network.play.client.CPacketCloseWindow;
@@ -58,7 +59,7 @@
  import net.minecraft.network.play.client.CPacketEntityAction;
  import net.minecraft.network.play.client.CPacketInput;
  import net.minecraft.network.play.client.CPacketPlayer;
-@@ -64,6 +83,7 @@
+@@ -64,6 +84,7 @@
  import net.minecraft.network.play.client.CPacketPlayerDigging;
  import net.minecraft.network.play.client.CPacketRecipeInfo;
  import net.minecraft.network.play.client.CPacketVehicleMove;
@@ -66,7 +67,7 @@
  import net.minecraft.potion.Potion;
  import net.minecraft.potion.PotionEffect;
  import net.minecraft.stats.StatisticsManager;
-@@ -151,6 +171,20 @@
+@@ -151,6 +172,20 @@
       */
      protected int sprintToggleTimer;
  
@@ -87,7 +88,7 @@
      /** Ticks left before sprinting is disabled. */
      public int sprintingTicksLeft;
      public float renderArmYaw;
-@@ -183,12 +217,39 @@
+@@ -183,12 +218,39 @@
          this.dimension = DimensionType.OVERWORLD;
          this.ambientSoundHandlers.add(new UnderwaterAmbientSoundHandler(this, p_i48190_1_.getSoundHandler()));
      }
@@ -127,7 +128,7 @@
          return false;
      }
  
-@@ -199,6 +260,8 @@
+@@ -199,6 +261,8 @@
      {
      }
  
@@ -136,7 +137,7 @@
      public boolean startRiding(Entity entityIn, boolean force)
      {
          if (!super.startRiding(entityIn, force))
-@@ -219,10 +282,32 @@
+@@ -219,10 +283,32 @@
                  this.setRotationYawHead(entityIn.rotationYaw);
              }
  
@@ -169,7 +170,7 @@
      /**
       * Dismounts this entity from the entity it is riding.
       */
-@@ -230,6 +315,14 @@
+@@ -230,6 +316,14 @@
      {
          super.stopRiding();
          this.rowingBoat = false;
@@ -184,7 +185,7 @@
      }
  
      /**
-@@ -329,6 +422,18 @@
+@@ -329,6 +423,18 @@
              boolean flag2 = d0 * d0 + d1 * d1 + d2 * d2 > 9.0E-4D || this.positionUpdateTicks >= 20;
              boolean flag3 = d3 != 0.0D || d4 != 0.0D;
  
@@ -203,7 +204,7 @@
              if (this.isPassenger())
              {
                  this.connection.sendPacket(new CPacketPlayer.PositionRotation(this.motionX, -999.0D, this.motionZ, this.rotationYaw, this.rotationPitch, this.onGround));
-@@ -350,6 +455,7 @@
+@@ -350,6 +456,7 @@
              {
                  this.connection.sendPacket(new CPacketPlayer(this.onGround));
              }
@@ -211,7 +212,7 @@
  
              if (flag2)
              {
-@@ -366,6 +472,13 @@
+@@ -366,6 +473,13 @@
              }
  
              this.prevOnGround = this.onGround;
@@ -225,7 +226,7 @@
              this.autoJumpEnabled = this.mc.gameSettings.autoJump;
          }
      }
-@@ -974,6 +1087,9 @@
+@@ -974,6 +1088,9 @@
          float f = 0.8F;
          boolean flag2 = this.movementInput.moveForward >= 0.8F;
          this.movementInput.updatePlayerMoveState();
@@ -235,7 +236,7 @@
          this.mc.getTutorial().handleMovement(this.movementInput);
  
          if (this.isHandActive() && !this.isPassenger())
-@@ -1147,6 +1263,9 @@
+@@ -1147,6 +1264,9 @@
          }
  
          super.livingTick();
@@ -245,7 +246,7 @@
  
          if (this.onGround && this.capabilities.isFlying && !this.mc.playerController.isSpectatorMode())
          {
-@@ -1198,12 +1317,49 @@
+@@ -1198,12 +1318,49 @@
       */
      public void move(MoverType type, double x, double y, double z)
      {
@@ -295,7 +296,7 @@
      public boolean isAutoJumpEnabled()
      {
          return this.autoJumpEnabled;
-@@ -1227,12 +1383,17 @@
+@@ -1227,12 +1384,17 @@
                      float f = this.getAIMoveSpeed();
                      float f1 = (float)vec3d2.lengthSquared();
  
@@ -315,7 +316,7 @@
                          vec3d2 = new Vec3d((double)(f2 * f5 - f3 * f4), vec3d2.y, (double)(f3 * f5 + f2 * f4));
                          f1 = (float)vec3d2.lengthSquared();
  
-@@ -1406,4 +1567,386 @@
+@@ -1406,4 +1568,386 @@
              return this.eyesInWaterPlayer;
          }
      }

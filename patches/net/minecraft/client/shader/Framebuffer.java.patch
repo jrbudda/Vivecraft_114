@@ -53,7 +53,7 @@
      {
          this.framebufferWidth = width;
          this.framebufferHeight = height;
-@@ -98,7 +110,19 @@
+@@ -98,11 +110,23 @@
          else
          {
              this.framebufferObject = OpenGlHelper.glGenFramebuffers();
@@ -74,6 +74,11 @@
  
              if (this.useDepth)
              {
+-                this.depthBuffer = OpenGlHelper.glGenRenderbuffers();
++                this.depthBuffer = TextureUtil.glGenTextures();// OpenGlHelper.glGenRenderbuffers();
+             }
+ 
+             this.setFramebufferFilter(9728);
 @@ -113,9 +137,23 @@
  
              if (this.useDepth)

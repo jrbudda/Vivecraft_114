@@ -3,7 +3,7 @@
 @@ -1,5 +1,7 @@
  package net.minecraft.client.gui.inventory;
  
-+import com.mtbs3d.minecrift.gameplay.screenhandlers.KeyboardHandler;
++import org.vivecraft.gameplay.screenhandlers.KeyboardHandler;
 +
  import net.minecraft.block.BlockStandingSign;
  import net.minecraft.block.BlockWallSign;
