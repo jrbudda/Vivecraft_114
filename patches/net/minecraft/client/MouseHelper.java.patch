@@ -1,5 +1,32 @@
 --- a/net/minecraft/client/MouseHelper.java
 +++ b/net/minecraft/client/MouseHelper.java
+@@ -62,7 +62,7 @@
+      * GLFW#GLFW_RELEASE RELEASE}</td><td>{@link GLFW#GLFW_REPEAT REPEAT}</td></tr></table>
+      * @param mods bitfield describing which modifiers keys were held down
+      */
+-    private void mouseButtonCallback(long handle, int button, int action, int mods)
++    public void mouseButtonCallback(long handle, int button, int action, int mods)
+     {
+         if (handle == this.minecraft.mainWindow.getHandle())
+         {
+@@ -177,7 +177,7 @@
+      * @param xoffset the scroll offset along the x-axis
+      * @param yoffset the scroll offset along the y-axis
+      */
+-    private void scrollCallback(long handle, double xoffset, double yoffset)
++    public void scrollCallback(long handle, double xoffset, double yoffset)
+     {
+         if (handle == Minecraft.getMinecraft().mainWindow.getHandle())
+         {
+@@ -244,7 +244,7 @@
+      * @param xpos the new cursor x-coordinate, relative to the left edge of the client area
+      * @param ypos the new cursor y-coordinate, relative to the top edge of the client area
+      */
+-    private void cursorPosCallback(long handle, double xpos, double ypos)
++    public void cursorPosCallback(long handle, double xpos, double ypos)
+     {
+         if (handle == Minecraft.getMinecraft().mainWindow.getHandle())
+         {
 @@ -286,6 +286,10 @@
  
      public void updatePlayerLook()
@@ -35,17 +62,3 @@
          if (this.mouseGrabbed)
          {
              this.mouseGrabbed = false;
-@@ -408,4 +420,13 @@
-             GLFW.glfwSetCursorPos(this.minecraft.mainWindow.getHandle(), this.mouseX, this.mouseY);
-         }
-     }
-+    
-+    //Vivecraft
-+    public void setMousePos(double xPos, double yPos){
-+    	//this does not generate a callback.
-+    	if(minecraft.isGameFocused())
-+    		GLFW.glfwSetCursorPos(this.minecraft.mainWindow.getHandle(), xPos, yPos);				
-+		this.mouseX = xPos;
-+		this.mouseY = yPos;
-+    }
- }

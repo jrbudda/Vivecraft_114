@@ -27,7 +27,7 @@ public class MenuWorldExporter {
 	public static final int VERSION = 1;
 
 	public static byte[] saveArea(World world, int xMin, int zMin, int xSize, int zSize, int ground) throws IOException {
-		int ySize = 256;
+		int ySize = world.getHeight();
 		int[] blocks = new int[xSize * ySize * zSize];
 		byte[] skylightmap = new byte[xSize * ySize * zSize];
 		byte[] blocklightmap = new byte[xSize * ySize * zSize];
@@ -99,7 +99,9 @@ public class MenuWorldExporter {
 		}
 		
 		DataInputStream dis = new DataInputStream(new ByteArrayInputStream(output.toByteArray()));
-		int version = dis.readInt(); // for future use
+		int version = dis.readInt();
+		if (version > VERSION)
+			throw new DataFormatException("Unsupported menu world version: " + version);
 		int xSize = dis.readInt();
 		int ySize = dis.readInt();
 		int zSize = dis.readInt();

@@ -1,0 +1,68 @@
+--- a/net/minecraft/client/renderer/ActiveRenderInfo.java
++++ b/net/minecraft/client/renderer/ActiveRenderInfo.java
+@@ -1,7 +1,11 @@
+ package net.minecraft.client.renderer;
+ 
+ import java.nio.FloatBuffer;
++
++import org.vivecraft.render.RenderPass;
++
+ import net.minecraft.block.state.IBlockState;
++import net.minecraft.client.Minecraft;
+ import net.minecraft.entity.Entity;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.fluid.IFluidState;
+@@ -72,12 +76,23 @@
+     {
+         Vec3d vec3d = projectViewFromEntity(entityIn, (double)p_186703_2_);
+         BlockPos blockpos = new BlockPos(vec3d);
++    	float xtra =  + 0.11111111F;
++
++    	if(Minecraft.getMinecraft().currentPass == RenderPass.LEFT ||
++    			Minecraft.getMinecraft().currentPass == RenderPass.RIGHT) {
++        	//vivecraft rely on RVE override
++            vec3d = entityIn.getPositionVector();
++        	blockpos = entityIn.getPosition();
++        	xtra = 0;
++        	//
++    	}
++        
+         IBlockState iblockstate = worldIn.getBlockState(blockpos);
+         IFluidState ifluidstate = worldIn.getFluidState(blockpos);
+ 
+         if (!ifluidstate.isEmpty())
+         {
+-            float f = (float)blockpos.getY() + ifluidstate.getHeight() + 0.11111111F;
++            float f = (float)blockpos.getY() + ifluidstate.getHeight() + xtra;
+ 
+             if (vec3d.y >= (double)f)
+             {
+@@ -90,13 +105,25 @@
+ 
+     public static IFluidState getFluidStateAtEntityViewpoint(IBlockReader p_206243_0_, Entity p_206243_1_, float p_206243_2_)
+     {
+-        Vec3d vec3d = projectViewFromEntity(p_206243_1_, (double)p_206243_2_);
+-        BlockPos blockpos = new BlockPos(vec3d);
++    	
++    	Vec3d vec3d = projectViewFromEntity(p_206243_1_, (double)p_206243_2_); 	
++    	BlockPos blockpos = new BlockPos(vec3d);
++    	float xtra =  + 0.11111111F;
++    	
++    	if(Minecraft.getMinecraft().currentPass == RenderPass.LEFT ||
++    			Minecraft.getMinecraft().currentPass == RenderPass.RIGHT) {
++        	//vivecraft rely on RVE override
++            vec3d = p_206243_1_.getPositionVector();
++        	blockpos = p_206243_1_.getPosition();
++        	xtra = 0;
++        	//
++    	}
++    	
+         IFluidState ifluidstate = p_206243_0_.getFluidState(blockpos);
+ 
+         if (!ifluidstate.isEmpty())
+         {
+-            float f = (float)blockpos.getY() + ifluidstate.getHeight() + 0.11111111F;
++            float f = (float)blockpos.getY() + ifluidstate.getHeight() + xtra;
+ 
+             if (vec3d.y >= (double)f)
+             {

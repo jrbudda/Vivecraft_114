@@ -14,13 +14,13 @@
          if (windowPointer == this.mc.mainWindow.getHandle())
          {
 +            //Vivecraft esc
-+            if (key == GLFW.GLFW_KEY_ESCAPE)
++            if (key == GLFW.GLFW_KEY_ESCAPE && action == GLFW.GLFW_PRESS)
 +            {                       
 +            	if(KeyboardHandler.Showing) {
 +            		KeyboardHandler.setOverlayShowing(false);
 +            		return;
 +            	}
-+            	if(RadialHandler.Showing) {
++            	if(RadialHandler.isShowing()) {
 +            		RadialHandler.setOverlayShowing(false, null);
 +            		return; 		
 +            	}
@@ -68,3 +68,12 @@
                              this.mc.displayInGameMenu();
                          }
  
+@@ -464,7 +482,7 @@
+         }
+     }
+ 
+-    private void onCharEvent(long windowPointer, int codePoint, int modifiers)
++    public void onCharEvent(long windowPointer, int codePoint, int modifiers)
+     {
+         if (windowPointer == this.mc.mainWindow.getHandle())
+         {

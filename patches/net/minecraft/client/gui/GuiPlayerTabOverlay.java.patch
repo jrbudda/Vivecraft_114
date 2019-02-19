@@ -1,0 +1,12 @@
+--- a/net/minecraft/client/gui/GuiPlayerTabOverlay.java
++++ b/net/minecraft/client/gui/GuiPlayerTabOverlay.java
+@@ -169,7 +169,8 @@
+             GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+             GlStateManager.enableAlphaTest();
+             GlStateManager.enableBlend();
+-            GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
++            // VIVECRAFT: DestFactor of ONE is really what we want here, because math
++            GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
+ 
+             if (k4 < list.size())
+             {

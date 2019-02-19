@@ -22,7 +22,7 @@
 -
 +            
 +            // VIVE START - show keyboard
-+            if(flag && this.canLoseFocus == true) 
++            if(flag) 
 +            	KeyboardHandler.setOverlayShowing(true);       
 +            // VIVE END - show keyboard
 +            
@@ -39,7 +39,7 @@
 +            	j1 = this.fontRenderer.drawStringWithShadow(this.textFormatter.apply(s1, this.lineScrollOffset), (float)l, (float)i1, i);
 +          //VIVECRAFT
 +            } else {
-+            	if(!Minecraft.getMinecraft().vrSettings.seated && !KeyboardHandler.Showing && this.canLoseFocus )
++            	if(!Minecraft.getMinecraft().vrSettings.seated && !KeyboardHandler.Showing)
 +            		this.fontRenderer.drawStringWithShadow("Click to open keyboard", (float)l, (float)i1, this.disabledColor);
              }
 -
@@ -48,7 +48,7 @@
              boolean flag2 = this.cursorPosition < this.text.length() || this.text.length() >= this.getMaxStringLength();
              int k1 = j1;
  
-@@ -785,12 +799,18 @@
+@@ -785,12 +799,19 @@
       */
      public void setFocused(boolean isFocusedIn)
      {
@@ -58,6 +58,7 @@
 -        }
 -
 -        this.isFocused = isFocusedIn;
++    	
 +    	if (isFocusedIn && !this.isFocused)
 +    	{
 +    		this.cursorCounter = 0;
@@ -67,9 +68,19 @@
 +    	
 +    	// VIVE START - show keyboard
 +    	if(Minecraft.getMinecraft().currentScreen instanceof GuiSleepMP) return;
-+    	if(isFocusedIn && this.visible && (this.canLoseFocus == false || Minecraft.getMinecraft().vrSettings.autoOpenKeyboard))
-+    		KeyboardHandler.setOverlayShowing(isFocusedIn);
++    	if(isFocusedIn && Minecraft.getMinecraft().vrSettings.autoOpenKeyboard)
++    		KeyboardHandler.setOverlayShowing(true);
 +    	// VIVE END - show keyboard
+     }
+ 
+     /**
+@@ -879,7 +900,8 @@
+      */
+     public void setCanLoseFocus(boolean canLoseFocusIn)
+     {
+-        this.canLoseFocus = canLoseFocusIn;
++    	//Vivecraft - I don't care what you think.
++        this.canLoseFocus = false;
      }
  
      /**

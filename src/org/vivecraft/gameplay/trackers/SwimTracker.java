@@ -17,7 +17,7 @@ public class SwimTracker extends Tracker {
 	double lastDist;
 
 	final double riseSpeed=0.005f;
-	double swimspeed=0.8f;
+	double swimspeed=1.3f;
 
 	public SwimTracker(Minecraft mc) {
 		super(mc);
@@ -32,54 +32,56 @@ public class SwimTracker extends Tracker {
 			return false;
 		if(!p.isInWater() && !p.isInLava())
 			return false;
-
+		if(p.moveForward > 0)
+			return false;
 		return true;
 	}
 
 	public void doProcess(EntityPlayerSP player){
 
-		{//float
-			Vec3d face = mc.vrPlayer.vrdata_world_pre.hmd.getPosition();
-			float height = (float) (mc.vrPlayer.vrdata_room_pre.hmd.getPosition().y * 0.9);
-			if(height > 1.6)height = 1.6f;
-			Vec3d feets = face.subtract(0,height, 0);
-			double waterLine=256;
+//		{//float
+//			//remove bouyancy for now.
+//			Vec3d face = mc.vrPlayer.vrdata_world_pre.hmd.getPosition();
+//			float height = (float) (mc.vrPlayer.vrdata_room_pre.hmd.getPosition().y * 0.9);
+//			if(height > 1.6)height = 1.6f;
+//			Vec3d feets = face.subtract(0,height, 0);
+//			double waterLine=256;
+//
+//			BlockPos bp = new BlockPos(feets);
+//			for (int i = 0; i < 4; i++) {
+//				Material mat=player.world.getBlockState(bp).getMaterial();
+//				if(!mat.isLiquid())
+//				{
+//					waterLine=bp.getY();
+//					break;
+//				}
+//				bp = bp.up();
+//			}
+//
+//			double percent = (waterLine - feets.y) / (face.y - feets.y);
+//
+//			if(percent < 0){
+//				//how did u get here, drybones?
+//				return;
+//			}
+//
+//			if(percent < 0.5 && player.onGround){
+//				return;
+//				//no diving in the kiddie pool.
+//			}
+//
+//			player.addVelocity(0, 0.018D , 0); //counteract most gravity.
+//
+//			double neutal = player.collidedHorizontally? 0.5 : 1;
+//
+//			if(percent > neutal && percent < 2){ //between halfway submerged and 1 body length under.
+//				//rise!
+//				double buoyancy = 2 - percent;
+//				if(player.collidedHorizontally)  player.addVelocity(0, 00.03f, 0);	
+//				player.addVelocity(0, 0.0015 + buoyancy/100 , 0);		
+//			}
 
-			BlockPos bp = new BlockPos(feets);
-			for (int i = 0; i < 4; i++) {
-				Material mat=player.world.getBlockState(bp).getMaterial();
-				if(!mat.isLiquid())
-				{
-					waterLine=bp.getY();
-					break;
-				}
-				bp = bp.up();
-			}
-
-			double percent = (waterLine - feets.y) / (face.y - feets.y);
-
-			if(percent < 0){
-				//how did u get here, drybones?
-				return;
-			}
-
-			if(percent < 0.5 && player.onGround){
-				return;
-				//no diving in the kiddie pool.
-			}
-
-			player.addVelocity(0, 0.018D , 0); //counteract most gravity.
-
-			double neutal = player.collidedHorizontally? 0.5 : 1;
-
-			if(percent > neutal && percent < 2){ //between halfway submerged and 1 body length under.
-				//rise!
-				double buoyancy = 2 - percent;
-				if(player.collidedHorizontally)  player.addVelocity(0, 00.03f, 0);	
-				player.addVelocity(0, 0.0015 + buoyancy/100 , 0);		
-			}
-
-		}
+//		}
 		{//swim
 
 			Vec3d controllerR= mc.vrPlayer.vrdata_world_pre.getController(0).getPosition();
@@ -105,10 +107,10 @@ public class SwimTracker extends Tracker {
 			}
 
 			lastDist=distance;
+			player.setSwimming(motion.length() > 0.3f);
+			player.setSprinting(motion.length() > 1.0f);
 			player.addVelocity(motion.x,motion.y,motion.z);
 			motion=motion.scale(friction);
 		}
-
 	}
-
 }

@@ -103,6 +103,9 @@ public class TrackedControllerVive extends TrackedController {
 				MCOpenVR.queueInputEvent(this, ButtonType.VIVE_TOUCHPAD_SWIPE_DOWN, null, true, true, null);
 				MCOpenVR.queueInputEvent(this, ButtonType.VIVE_TOUCHPAD_SWIPE_DOWN, null, false, true, null);
 			}
+		} else {
+			swipeAccumX = 0;
+			swipeAccumY = 0;
 		}
 
 		// axis change

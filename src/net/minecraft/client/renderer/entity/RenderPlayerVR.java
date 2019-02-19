@@ -4,6 +4,7 @@ import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.layers.LayerArrow;
 import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
+import net.minecraft.client.renderer.entity.layers.LayerBipedArmorVR;
 import net.minecraft.client.renderer.entity.layers.LayerCape;
 import net.minecraft.client.renderer.entity.layers.LayerCustomHead;
 import net.minecraft.client.renderer.entity.layers.LayerDeadmau5Head;
@@ -37,7 +38,9 @@ public class RenderPlayerVR extends RenderLivingBase<AbstractClientPlayer>
     public RenderPlayerVR(RenderManager renderManager, boolean useSmallArms)
     {
         super(renderManager, new ModelPlayerVR(0.0F, useSmallArms), 0.5F);
-        this.addLayer(new LayerBipedArmor(this));
+        LayerBipedArmorVR layer = new LayerBipedArmorVR(this);
+        this.addLayer(layer);
+        ((ModelPlayerVR)this.mainModel).armor = layer;
         this.addLayer(new LayerHeldItem(this));
         this.addLayer(new LayerArrow(this));
         this.addLayer(new LayerCustomHead(this.getMainModel().bipedHead));

@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.vivecraft.provider.MCOpenVR;
-import org.vivecraft.utils.KeyboardSimulator;
+import org.vivecraft.utils.InputSimulator;
 import org.vivecraft.utils.MCReflection;
 
 import com.google.common.base.Joiner;
@@ -16,11 +16,12 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
 import net.optifine.reflect.Reflector;
+import org.lwjgl.glfw.GLFW;
 
 public class VRButtonMapping implements Comparable<VRButtonMapping> {
 	public final String functionId;
 	public final String functionDesc;
-	public final char functionExt;
+	public final int functionExt;
 	public KeyBinding keyBinding;
 	public Set<ButtonTuple> buttons;
 	protected int unpress;
@@ -31,15 +32,15 @@ public class VRButtonMapping implements Comparable<VRButtonMapping> {
 		String[] split = functionId.split("_");
 		if (split.length == 1 || !functionId.startsWith("keyboard")) {
 			this.functionDesc = functionId;
-            this.functionExt = 0;
+            this.functionExt = -1;
         } else {
         	this.functionDesc = split[0];
-            this.functionExt = (char)split[1].getBytes()[0];
+            this.functionExt = Integer.parseInt(split[1]);
         }
 		this.buttons = new HashSet<>(Arrays.asList(buttons));
 	}
 	
-	public VRButtonMapping(String functionDesc, char functionExt, ButtonTuple... buttons) {
+	public VRButtonMapping(String functionDesc, int functionExt, ButtonTuple... buttons) {
 		this.functionId = functionDesc + (functionExt != 0 ? "_" + functionExt : "");
 		this.functionDesc = functionDesc;
 		this.functionExt = functionExt;
@@ -51,13 +52,25 @@ public class VRButtonMapping implements Comparable<VRButtonMapping> {
 		return "vrmapping_" + functionId + ":" + (!buttons.isEmpty() ? Joiner.on(',').join(buttons) : "none");
 	}
 
+	public String toReadableString() {
+		if (this.keyBinding != null)
+			return I18n.format(this.keyBinding.getKeyDescription());
+		if (this.functionExt != -1) {
+			if (functionDesc.contains("-hold"))
+				return "Keyboard (Hold) " + InputMappings.getInputByCode(functionExt, 0).getName();
+			if (functionDesc.contains("-press"))
+				return "Keyboard (Press) " + InputMappings.getInputByCode(functionExt, 0).getName();
+		}
+		return this.functionId;
+	}
+
 	@Override
 	public int compareTo(VRButtonMapping other) {
 		if (keyBinding != null && other.keyBinding != null)
 			return keyBinding.compareTo(other.keyBinding);
-		if (functionId.startsWith("keyboard") && !other.functionId.startsWith("keyboard"))
+		if (isKeyboardBinding() && !other.isKeyboardBinding())
 			return 1;
-		if (!functionId.startsWith("keyboard") && other.functionId.startsWith("keyboard"))
+		if (!isKeyboardBinding() && other.isKeyboardBinding())
 			return -1;
 		if (keyBinding != null)
 			return I18n.format(keyBinding.getKeyDescription()).compareTo(other.functionId);
@@ -73,7 +86,7 @@ public class VRButtonMapping implements Comparable<VRButtonMapping> {
 	}
 	
 	public boolean isKeyboardBinding() {
-		return functionDesc.startsWith("keyboard") && keyBinding == null;
+		return functionExt != -1 && keyBinding == null;
 	}
 	
 	public void tick() {
@@ -91,32 +104,18 @@ public class VRButtonMapping implements Comparable<VRButtonMapping> {
 	public void press(){	
 		this.unpress = 0;
 		if (this.pressed) return;
-		if(keyBinding != null){
+		if (keyBinding != null) {
 			pressKey(keyBinding);
 			this.pressed = true;
 			return;
 		}
-		if(functionExt != 0){
-			if(functionDesc.contains("(hold)")){
-				KeyboardSimulator.press(functionExt);
-			} else {
-				KeyboardSimulator.type(functionExt);	
-			}		
-			this.pressed = true;
-			return;
-		}	
-		if(functionDesc.equals("keyboard-shift")){
-			KeyboardSimulator.robot.keyPress(KeyEvent.VK_SHIFT);
-			this.pressed = true;
-			return;
-		}
-		if(functionDesc.equals("keyboard-ctrl")){
-			KeyboardSimulator.robot.keyPress(KeyEvent.VK_CONTROL);
-			this.pressed = true;
-			return;
-		}
-		if(functionDesc.equals("keyboard-alt")){
-			KeyboardSimulator.robot.keyPress(KeyEvent.VK_ALT);
+		if (functionExt != -1){
+			if (functionDesc.contains("-hold")) {
+				InputSimulator.pressKey(functionExt);
+			} else if (functionDesc.contains("-press")) {
+				InputSimulator.pressKey(functionExt);
+				InputSimulator.releaseKey(functionExt);
+			}
 			this.pressed = true;
 			return;
 		}
@@ -129,28 +128,16 @@ public class VRButtonMapping implements Comparable<VRButtonMapping> {
 	public void actuallyUnpress() {
 		if (!this.pressed) return;
 		this.pressed = false;
-		if(keyBinding != null) {
+		if (keyBinding != null) {
 			unpressKey(keyBinding);
 			return;
 		}
-		if(functionExt != 0){
-			if(functionDesc.contains("(hold)")){
-				KeyboardSimulator.unpress(functionExt);
-			} else {
+		if (functionExt != -1){
+			if (functionDesc.contains("-hold")){
+				InputSimulator.releaseKey(functionExt);
+			} else if (functionDesc.contains("-press")) {
 				//nothing
-			}		
-			return;
-		}	
-		if(functionDesc.equals("keyboard-shift")){
-			KeyboardSimulator.robot.keyRelease(KeyEvent.VK_SHIFT);
-			return;
-		}
-		if(functionDesc.equals("keyboard-ctrl")){
-			KeyboardSimulator.robot.keyRelease(KeyEvent.VK_CONTROL);
-			return;
-		}
-		if(functionDesc.equals("keyboard-alt")){
-			KeyboardSimulator.robot.keyRelease(KeyEvent.VK_ALT);
+			}
 			return;
 		}
 	}
@@ -165,44 +152,40 @@ public class VRButtonMapping implements Comparable<VRButtonMapping> {
     public static void pressKey(KeyBinding kb) {
 		InputMappings.Input input = (InputMappings.Input)MCReflection.KeyBinding_keyCode.get(kb);
 
-		if (input.getType() == InputMappings.Type.KEYSYM){
-			int awtCode = KeyboardSimulator.translateToAWT(input.getKeyCode());
-			boolean flag = Minecraft.getMinecraft().isGameFocused() && awtCode != KeyEvent.VK_UNDEFINED && !MCOpenVR.isVivecraftBinding(kb) && (!Reflector.forgeExists() || Reflector.call(kb, Reflector.ForgeKeyBinding_getKeyModifier) == Reflector.getFieldValue(Reflector.KeyModifier_NONE));
-			if (flag) {
-				try { // because apparently java is just stupid
-					//System.out.println("Keyboard Simulator keyPress: " + ", LWJGL code: " + input.getKeyCode() + ", AWT code: " + awtCode);
-					KeyboardSimulator.robot.keyPress(awtCode);
-					return;
-				} catch (Exception e) {
-					System.out.println("Key error: " + e.toString() + ", LWJGL code: " + input.getKeyCode() + ", AWT code: " + awtCode);
-				}
+		if (input.getKeyCode() != GLFW.GLFW_KEY_UNKNOWN && !MCOpenVR.isVivecraftBinding(kb) && (!Reflector.forgeExists() || Reflector.call(kb, Reflector.ForgeKeyBinding_getKeyModifier) == Reflector.getFieldValue(Reflector.KeyModifier_NONE))) {
+			if (input.getType() == InputMappings.Type.KEYSYM) {
+				//System.out.println("InputSimulator pressKey: " + kb.getKeyDescription() + ", input type: " + input.getType().name() + ", key code: " + input.getKeyCode());
+				InputSimulator.pressKey(input.getKeyCode());
+				return;
+			} else if (input.getType() == InputMappings.Type.MOUSE) {
+				//System.out.println("InputSimulator pressMouse: " + kb.getKeyDescription() + ", input type: " + input.getType().name() + ", key code: " + input.getKeyCode());
+				InputSimulator.pressMouse(input.getKeyCode());
+				return;
 			}
 		}
 
 		// If all else fails, just press the binding directly
-		//System.out.println("setKeyBindState true: " + ", LWJGL code: " + input.getKeyCode() + ", AWT code: " + awtCode);
+		//System.out.println("setKeyBindState true: " + kb.getKeyDescription() + ", input type: " + input.getType().name() + ", key code: " + input.getKeyCode());
 		setKeyBindState(kb, true);
     }
     
     public static void unpressKey(KeyBinding kb) {
 		InputMappings.Input input = (InputMappings.Input)MCReflection.KeyBinding_keyCode.get(kb);
 
-		if (input.getType() == InputMappings.Type.KEYSYM) {
-			int awtCode = KeyboardSimulator.translateToAWT(input.getKeyCode());
-			boolean flag = Minecraft.getMinecraft().isGameFocused() && awtCode != KeyEvent.VK_UNDEFINED && !MCOpenVR.isVivecraftBinding(kb) && (!Reflector.forgeExists() || Reflector.call(kb, Reflector.ForgeKeyBinding_getKeyModifier) == Reflector.getFieldValue(Reflector.KeyModifier_NONE));
-			if (flag) {
-				try { // because apparently java is just stupid
-					//System.out.println("Keyboard Simulator keyRelease: " + ", LWJGL code: " + input.getKeyCode() + ", AWT code: " + awtCode);
-					KeyboardSimulator.robot.keyRelease(awtCode);
-					return;
-				} catch (Exception e) {
-					//System.out.println("Key error: " + e.toString() + ", LWJGL code: " + input.getKeyCode() + ", AWT code: " + awtCode);
-				}
-    		}
-    	}
+		if (input.getKeyCode() != GLFW.GLFW_KEY_UNKNOWN && !MCOpenVR.isVivecraftBinding(kb) && (!Reflector.forgeExists() || Reflector.call(kb, Reflector.ForgeKeyBinding_getKeyModifier) == Reflector.getFieldValue(Reflector.KeyModifier_NONE))) {
+			if (input.getType() == InputMappings.Type.KEYSYM) {
+				//System.out.println("InputSimulator releaseKey: " + kb.getKeyDescription() + ", input type: " + input.getType().name() + ", key code: " + input.getKeyCode());
+				InputSimulator.releaseKey(input.getKeyCode());
+				return;
+			} else if (input.getType() == InputMappings.Type.MOUSE) {
+				//System.out.println("InputSimulator releaseMouse: " + kb.getKeyDescription() + ", input type: " + input.getType().name() + ", key code: " + input.getKeyCode());
+				InputSimulator.releaseMouse(input.getKeyCode());
+				return;
+			}
+		}
 
     	// If all else fails, just press the binding directly
-		//System.out.println("unpressKey: " + ", LWJGL code: " + input.getKeyCode() + ", AWT code: " + awtCode);
+		//System.out.println("unpressKey: " + kb.getKeyDescription() + ", input type: " + input.getType().name() + ", key code: " + input.getKeyCode());
 		MCReflection.KeyBinding_unpressKey.invoke(kb);
     }
 }

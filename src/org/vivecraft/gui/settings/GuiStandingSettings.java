@@ -104,7 +104,7 @@ public class GuiStandingSettings extends GuiVROptionsBase
 		vr.vrShowBlueCircleBuddy = true;
 		vr.walkMultiplier=1;
 		vr.vrFreeMoveMode = vr.FREEMOVE_CONTROLLER;
-		vr.vehicleRotation = true;
+		vr.vehicleRotation = false;
 		vr.useFOVReduction = false;
 		vr.walkUpBlocks = true;
 		vr.analogMovement = true;

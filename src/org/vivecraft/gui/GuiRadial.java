@@ -22,7 +22,8 @@ public class GuiRadial extends TwoHandedGuiScreen
 		String[] alt = mc.vrSettings.vrRadialItemsAlt;
 
 		this.buttons.clear();
-
+		this.eventListeners.clear();
+		
 		int numButts = 8;
 		int buttonwidthMin = 120;
 		int degreesPerButt = 360 / numButts;
@@ -112,29 +113,7 @@ public class GuiRadial extends TwoHandedGuiScreen
 			this.initGui();
 		}
 	}
-	
-	/**
-	 * Fired when a control is clicked. This is the equivalent of ActionListener.actionPerformed(ActionEvent e).
-	 */
-	protected void actionPerformed(GuiButton par1GuiButton)
-	{
-		if (par1GuiButton.enabled)
-		{
-			if (par1GuiButton.id < 200 )
-			{
-				VRButtonMapping vb = mc.vrSettings.buttonMappings.get(arr[par1GuiButton.id]);
-				if(vb!=null) {
-					vb.press();
-					vb.scheduleUnpress(2);
-				}
-			} else {
-				if(par1GuiButton.id == 201) {
-					setShift(!this.isShift);
-				}
-			}
-		}
-	}
-	
+		
     /**
      * Draws the screen and all the components in it.
      */

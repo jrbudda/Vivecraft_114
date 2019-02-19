@@ -291,7 +291,7 @@ public abstract class GuiVROptionsBase extends GuiScreen
     {
         if (key == GLFW.GLFW_KEY_ESCAPE) //esc
 		{
-			if(this.onDoneClicked()) {
+			if(!this.onDoneClicked()) {
 				this.mc.vrSettings.saveOptions();
 				this.mc.displayGuiScreen(GuiVROptionsBase.this.lastScreen);
 			}
@@ -299,7 +299,16 @@ public abstract class GuiVROptionsBase extends GuiScreen
         }
         else
         {
+        	if(visibleList != null && visibleList.keyPressed(key, action, mods))
+        		return true;
             return super.keyPressed(key, action, mods);
         }
+    }
+    
+    @Override
+    public boolean charTyped(char p_charTyped_1_, int p_charTyped_2_) {
+    	if (visibleList != null && visibleList.charTyped(p_charTyped_1_, p_charTyped_2_))
+    		return true;
+    	return super.charTyped(p_charTyped_1_, p_charTyped_2_);
     }
 }

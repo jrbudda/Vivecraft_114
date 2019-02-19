@@ -752,7 +752,9 @@ public class Installer extends JPanel  implements PropertyChangeListener
 			if (!downloadedOptifine) {
 				finalMessage = "Installed (but failed to download OptiFine). Restart Minecraft" +
 						(profileCreated == false ? " and Edit Profile->Use Version " + minecriftVersionName : " and select the '" + getMinecraftProfileName(useForge.isSelected(), useShadersMod.isSelected()) + "' profile.") +
-						"\nPlease download and install Optifine " + OF_FILE_NAME + " from https://optifine.net/downloads before attempting to play.";
+						"\nPlease download OptiFine " + OF_FILE_NAME + " from https://optifine.net/downloads before attempting to play." +
+						"\nDo not run and install it, instead rename the file to OptiFine-" + OF_FILE_NAME + " (note the hyphen) and manually place it into the following directory:" +
+						"\n" + (isMultiMC ? new File(mmcinst, "libraries").getAbsolutePath() : new File(targetDir, OF_LIB_PATH + OF_JSON_NAME).getAbsolutePath());
 			}
 			else {
 				if(isMultiMC && mmcinst != null)
@@ -787,6 +789,8 @@ public class Installer extends JPanel  implements PropertyChangeListener
 
 			try {
 				File fod = new File(targetDir,OF_LIB_PATH+OF_JSON_NAME);
+				if(isMultiMC)
+					fod = new File(mmcinst,"libraries");
 				fod.mkdirs();
 				File fo = new File(fod,"OptiFine-"+OF_JSON_NAME+".jar");
 
@@ -1238,6 +1242,8 @@ public class Installer extends JPanel  implements PropertyChangeListener
 
 						// Extract new lib
 						File lib_dir = new File(targetDir,"libraries/com/mtbs3d/minecrift/"+version);
+						if(isMultiMC)
+							lib_dir = new File(mmcinst,"libraries");
 						lib_dir.mkdirs();
 						File ver_file = new File (lib_dir, "minecrift-"+version+".jar");
 						FileOutputStream ver_jar = new FileOutputStream(ver_file);

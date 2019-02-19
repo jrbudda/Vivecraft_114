@@ -16,9 +16,9 @@ public class MinecriftVanillaTweaker implements ITweaker
     public void injectIntoClassLoader(LaunchClassLoader classLoader)
     {
         dbg("MinecriftVanillaTweaker: injectIntoClassLoader");
-        classLoader.addTransformerExclusion("com.mtbs3d.minecrift.asm.");
-        classLoader.registerTransformer("com.mtbs3d.minecrift.tweaker.MinecriftClassTransformer");
-        classLoader.registerTransformer("com.mtbs3d.minecrift.asm.VivecraftASMTransformer");
+        classLoader.addTransformerExclusion("org.vivecraft.asm.");
+        classLoader.registerTransformer("org.vivecraft.tweaker.MinecriftClassTransformer");
+        classLoader.registerTransformer("org.vivecraft.asm.VivecraftASMTransformer");
     }
 
     public String getLaunchTarget()

@@ -72,7 +72,7 @@ public class GuiHUDSettings extends GuiVROptionsBase
         this.settings.vrHudLockMode = settings.HUD_LOCK_HAND;
         this.settings.hudOcclusion = true;
         this.settings.menuAlwaysFollowFace = false;
-        this.settings.autoOpenKeyboard = true;
+        this.settings.autoOpenKeyboard = false;
         this.mc.gameSettings.hideGUI = false;
     }
 }

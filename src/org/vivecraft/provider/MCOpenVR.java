@@ -30,6 +30,7 @@ import org.vivecraft.render.RenderPass;
 import org.vivecraft.settings.VRHotkeys;
 import org.vivecraft.settings.VRSettings;
 import org.vivecraft.utils.HardwareType;
+import org.vivecraft.utils.InputSimulator;
 import org.vivecraft.utils.MCReflection;
 import org.vivecraft.utils.MenuWorldExporter;
 import org.vivecraft.utils.Utils;
@@ -721,16 +722,16 @@ public class MCOpenVR
 
 			updateControllerButtonState(); // Still used by tip transforms
 
-			boolean flag = !mc.vrPlayer.getFreeMove() || mc.vrSettings.vrFreeMoveMode != mc.vrSettings.FREEMOVE_JOYPAD;
+			boolean freemoveJoyPad = mc.vrPlayer.getFreeMove() && mc.vrSettings.vrFreeMoveMode == VRSettings.FREEMOVE_JOYPAD;
 			HardwareType hw = getHardwareType();
 			if (hw == HardwareType.OCULUS) {
-				((TrackedControllerOculus)controllers[LEFT_CONTROLLER]).setStickButtonsEnabled(flag);
+				((TrackedControllerOculus)controllers[LEFT_CONTROLLER]).setStickButtonsEnabled(!freemoveJoyPad);
 			} else if (hw == HardwareType.WINDOWSMR) {
 				TrackedControllerWindowsMR controller = ((TrackedControllerWindowsMR)controllers[LEFT_CONTROLLER]);
-				controller.setSwipeEnabled(!flag || mc.vrSettings.freemoveWMRStick);
-				controller.setStickButtonsEnabled(!flag || !mc.vrSettings.freemoveWMRStick);
+				controller.setSwipeEnabled(!freemoveJoyPad || mc.vrSettings.freemoveWMRStick);
+				controller.setStickButtonsEnabled(!freemoveJoyPad || !mc.vrSettings.freemoveWMRStick);
 			} else {
-				((TrackedControllerVive)controllers[LEFT_CONTROLLER]).setSwipeEnabled(flag);
+				((TrackedControllerVive)controllers[LEFT_CONTROLLER]).setSwipeEnabled(!freemoveJoyPad);
 			}
 
 			// GUI controls
@@ -772,10 +773,10 @@ public class MCOpenVR
 		int i = 1;
 		if(mc.vrSettings.vrReverseHands) i = -1;
 
-		if (mc.vrSettings.vrHudLockMode == mc.vrSettings.HUD_LOCK_WRIST){
-			barStartos = vecFromVector( getAimRotation(1).transform(new Vector3f(i*0.06f,-0.05f,0.24f)));
-			barEndos = vecFromVector( getAimRotation(1).transform(new Vector3f(i*0.22f,-0.05f,-0.05f)));
-		} else if (mc.vrSettings.vrHudLockMode == mc.vrSettings.HUD_LOCK_HAND){
+		if (mc.vrSettings.vrHudLockMode == VRSettings.HUD_LOCK_WRIST){
+			barStartos = vecFromVector( getAimRotation(1).transform(new Vector3f(i*0.02f,0.05f,0.23f)));
+			barEndos = vecFromVector( getAimRotation(1).transform(new Vector3f(i*0.02f,0.05f,-0.02f)));
+		} else if (mc.vrSettings.vrHudLockMode == VRSettings.HUD_LOCK_HAND){
 			barStartos = vecFromVector( getAimRotation(1).transform(new Vector3f(i*-.18f,0.08f,-0.01f)));
 			barEndos = vecFromVector( getAimRotation(1).transform(new Vector3f(i*0.19f,0.04f,-0.08f)));
 		} else return; //how did u get here
@@ -973,7 +974,7 @@ public class MCOpenVR
 			for (VRButtonMapping binding : mc.vrSettings.buttonMappings.values()) {
 				if (binding.buttons.contains(new ButtonTuple(event.getButton(), event.getController().getType(), event.isButtonTouchEvent()))) {
 					if (event.getButtonState()) {
-						if ((mc.currentScreen != null || KeyboardHandler.Showing || RadialHandler.Showing) && (binding.isGUIBinding() || binding.isKeyboardBinding())) {
+						if ((mc.currentScreen != null || KeyboardHandler.Showing || RadialHandler.isShowing()) && (binding.isGUIBinding() || binding.isKeyboardBinding())) {
 							binding.press();
 							if (binding.keyBinding != null)
 								activeBindings.put(binding.keyBinding.getKeyDescription(), new ButtonTuple(event.getButton(), event.getController().getType()));
@@ -996,7 +997,7 @@ public class MCOpenVR
 				if (binding.buttons.contains(new ButtonTuple(event.getButton(), event.getController().getType(), event.isButtonTouchEvent()))) {
 					if (event.getButtonState()) {
 						// Right controller blocked in GUI since it's the pointer
-						if ((!binding.isGUIBinding() || binding.isKeyboardBinding()) && (mc.currentScreen == null || event.getController().getType() == ControllerType.LEFT)) {
+						if ((!binding.isGUIBinding() || binding.isKeyboardBinding()) && (mc.currentScreen == null /*|| event.getController().getType() == ControllerType.LEFT*/)) {
 							binding.press();
 							if (binding.keyBinding != null)
 								activeBindings.put(binding.keyBinding.getKeyDescription(), new ButtonTuple(event.getButton(), event.getController().getType()));
@@ -1189,7 +1190,7 @@ public class MCOpenVR
 
 		if(keyRadialMenu.isPressed()) {
 			if(!gui) {
-				RadialHandler.setOverlayShowing(!RadialHandler.Showing, findActiveBindingButton(keyRadialMenu));
+				RadialHandler.setOverlayShowing(!RadialHandler.isShowing(), findActiveBindingButton(keyRadialMenu));
 			}
 		}
 		
@@ -1245,7 +1246,7 @@ public class MCOpenVR
 			KeyboardHandler.setOverlayShowing(false);
 		}
 		
-		if(RadialHandler.Showing && GuiHandler.keyMenuButton.isPressed()) { //super special case.
+		if(RadialHandler.isShowing() && GuiHandler.keyMenuButton.isPressed()) { //super special case.
 			RadialHandler.setOverlayShowing(false, null);
 		}
 
@@ -1638,6 +1639,7 @@ public class MCOpenVR
 	}
 
 	public static void triggerHapticPulse(int controller, int strength) {
+		if(Minecraft.getMinecraft().vrSettings.seated) return;
 		if (controllerDeviceIndex[controller]==-1)
 			return;
 		vrsystem.TriggerHapticPulse.apply(controllerDeviceIndex[controller], 0, (short)strength);
@@ -1780,7 +1782,8 @@ public class MCOpenVR
 					nPitch=aimPitch+(v)*ySpeed;
 					nPitch=MathHelper.clamp(nPitch,-89.9,89.9);
 							
-					mc.mouseHelper.setMousePos(xpos, hei/2);
+					InputSimulator.setMousePos(xpos, hei/2);
+					GLFW.glfwSetCursorPos(mc.mainWindow.getHandle(), xpos, hei/2);
 					
 					temp.rotate((float) Math.toRadians(-nPitch), new org.vivecraft.utils.lwjgl.Vector3f(1,0,0));
 					temp.rotate((float) Math.toRadians(-180 + h - hmdForwardYaw), new org.vivecraft.utils.lwjgl.Vector3f(0,1,0));

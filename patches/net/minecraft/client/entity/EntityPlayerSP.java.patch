@@ -517,10 +517,10 @@
 +    					break;
 +    				case VRSettings.FREEMOVE_RUNINPLACE:
 +    					//hmd pitch
-+    						directionVec = directionVec.rotatePitch(con.vrdata_world_pre.hmd.getPitch()* PIOVER180);	
-+    						break;
-+    					}
++    					directionVec = directionVec.rotatePitch(con.vrdata_world_pre.hmd.getPitch()* PIOVER180);	
++    					break;
 +    				}
++    			}
 +
 +    			if(mc.jumpTracker.isjumping()){
 +    				directionVec=directionVec.rotateYaw(-con.vrdata_world_pre.hmd.getYaw() * PIOVER180);		

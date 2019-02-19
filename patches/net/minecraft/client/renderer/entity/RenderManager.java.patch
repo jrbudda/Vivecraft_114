@@ -14,7 +14,7 @@
  import net.minecraft.block.Block;
  import net.minecraft.block.BlockBed;
  import net.minecraft.block.state.IBlockState;
-@@ -127,472 +131,491 @@
+@@ -127,472 +131,492 @@
  
  public class RenderManager
  {
@@ -688,7 +688,8 @@
 +		this.pointedEntity = pointedEntityIn;
 +		this.textRenderer = textRendererIn;
 +
-+		if (livingPlayerIn instanceof EntityLivingBase && ((EntityLivingBase)livingPlayerIn).isPlayerSleeping())
++		//For rendering purposes, never sleep.
++		if (false)// livingPlayerIn instanceof EntityLivingBase && ((EntityLivingBase)livingPlayerIn).isPlayerSleeping())
 +		{
 +			IBlockState iblockstate = worldIn.getBlockState(new BlockPos(livingPlayerIn));
 +			Block block = iblockstate.getBlock();

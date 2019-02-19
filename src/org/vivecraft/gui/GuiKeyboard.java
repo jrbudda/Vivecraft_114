@@ -1,8 +1,8 @@
 package org.vivecraft.gui;
 
+import org.lwjgl.glfw.GLFW;
 import org.vivecraft.gui.framework.TwoHandedGuiScreen;
-import org.vivecraft.utils.InputInjector;
-import org.vivecraft.utils.KeyboardSimulator;
+import org.vivecraft.utils.InputSimulator;
 
 import net.minecraft.client.gui.GuiButton;
 
@@ -20,6 +20,7 @@ public class GuiKeyboard extends TwoHandedGuiScreen
 		String alt = mc.vrSettings.keyboardKeysShift;
 
 		this.buttons.clear();
+		this.eventListeners.clear();
 		//this.buttons.add(new GuiSmallButtonEx(301, this.width / 2 - 78, this.height / 6 - 14, "Hide Hud (F1): " + mc.gameSettings.hideGUI));
 
 		if(this.isShift)
@@ -47,17 +48,16 @@ public class GuiKeyboard extends TwoHandedGuiScreen
 
 				final String c1 = String.valueOf(x);
 
-				GuiButton butt = new GuiButton(c, margin + i*(bwidth+spacing), margin + r*(20+spacing), bwidth, 20, String.valueOf(x)) {
+				GuiButton butt = new GuiButton(c, margin + i*(bwidth+spacing), margin + r*(20+spacing), bwidth, 20, c1) {
 					@Override
 					public void onClick(double mouseX, double mouseY) {
-						pressKey(c1);
+						InputSimulator.typeChars(c1);
 					}
 				};
 				this.addButton(butt);
 			}
 		}
-		
-		
+			
 	
 		this.addButton(new GuiButton(201, 0, margin + 3* (20 + spacing), 30, 20, "Shift") {
 			public void onClick(double mouseX, double mouseY) {
@@ -67,30 +67,34 @@ public class GuiKeyboard extends TwoHandedGuiScreen
 		
 		this.addButton(new GuiButton(199, margin + 4 * (bwidth+spacing), margin + rows * (20+spacing), 5 * (bwidth+spacing), 20, " ") {
 			public void onClick(double mouseX, double mouseY) {
-				pressKey(" ");
+				InputSimulator.typeChars(" ");
 			}; 
 		});
 		
 		this.addButton(new GuiButton(202, cols * (bwidth+spacing) + margin, margin , 35 , 20, "BKSP") {
 			@Override
 			public void onClick(double mouseX, double mouseY) {
-				pressKey(Character.toString((char) 8));
+				mc.keyboardListener.onKeyEvent(mc.mainWindow.getHandle(), GLFW.GLFW_KEY_BACKSPACE, 0, GLFW.GLFW_PRESS, 0);
+				mc.keyboardListener.onKeyEvent(mc.mainWindow.getHandle(), GLFW.GLFW_KEY_BACKSPACE, 0, GLFW.GLFW_RELEASE, 0);
 			}
 		});
 		this.addButton(new GuiButton(203, cols * (bwidth+spacing) + margin, margin + 2*(20 + spacing) , 35 , 20, "ENTER") {
 			@Override
 			public void onClick(double mouseX, double mouseY) {
-				pressKey(Character.toString((char) 13));
+				mc.keyboardListener.onKeyEvent(mc.mainWindow.getHandle(), GLFW.GLFW_KEY_ENTER, 0, GLFW.GLFW_PRESS, 0);
+				mc.keyboardListener.onKeyEvent(mc.mainWindow.getHandle(), GLFW.GLFW_KEY_ENTER, 0, GLFW.GLFW_RELEASE, 0);
 			}
 		});
 		this.addButton(new GuiButton(204, 0, margin + (20 + spacing), 30, 20, "TAB") {
 			public void onClick(double mouseX, double mouseY) {
-				pressKey(Character.toString((char) 9));
+				mc.keyboardListener.onKeyEvent(mc.mainWindow.getHandle(), GLFW.GLFW_KEY_TAB, 0, GLFW.GLFW_PRESS, 0);
+				mc.keyboardListener.onKeyEvent(mc.mainWindow.getHandle(), GLFW.GLFW_KEY_TAB, 0, GLFW.GLFW_RELEASE, 0);
 			}	
 		});
 		this.addButton(new GuiButton(205, 0, margin, 30, 20, "ESC") {
 			public void onClick(double mouseX, double mouseY) {
-				mc.keyboardListener.onKeyEvent(mc.mainWindow.getHandle(), 256, 0, 0, 0);
+				mc.keyboardListener.onKeyEvent(mc.mainWindow.getHandle(), GLFW.GLFW_KEY_ESCAPE, 0, GLFW.GLFW_PRESS, 0);
+				mc.keyboardListener.onKeyEvent(mc.mainWindow.getHandle(), GLFW.GLFW_KEY_ESCAPE, 0, GLFW.GLFW_RELEASE, 0);
 			}	
 		});
 	}
@@ -102,29 +106,6 @@ public class GuiKeyboard extends TwoHandedGuiScreen
 		}
 	}
 	
-	private void pressKey(String c) {
-		if (mc.currentScreen != null) {//&& !mc.vrSettings.alwaysSimulateKeyboard) { // experimental, needs testing
-			try {
-				for (char ch : c.toCharArray()) {
-					int[] codes = KeyboardSimulator.getLWJGLCodes(ch);
-					int code = codes.length > 0 ? codes[codes.length - 1] : 0;
-					if (InputInjector.isSupported()) 
-						InputInjector.typeKey(code, ch);
-					else 
-						mc.currentScreen.keyPressed(ch, code, 0);
-					break;
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		} else {
-			//if(Display.isActive())
-				KeyboardSimulator.type(c); //holy shit it works.
-		}
-	}
-	
-
-	
     /**
      * Draws the screen and all the components in it.
      */
@@ -132,10 +113,6 @@ public class GuiKeyboard extends TwoHandedGuiScreen
     {
     	this.drawDefaultBackground();
     	this.drawCenteredString(this.fontRenderer, "Keyboard", this.width / 2, 2, 16777215);
-    	
-   // 	if(!Display.isActive() && (mc.currentScreen == null || mc.vrSettings.alwaysSimulateKeyboard))
-   // 		this.drawCenteredString(this.fontRenderer, "Warning: Desktop window needs focus!", this.width / 2, this.height - 25, 13777215);
-
     	super.render(0, 0, partialTicks);
 
     }    

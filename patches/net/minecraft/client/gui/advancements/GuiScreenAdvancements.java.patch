@@ -1,0 +1,12 @@
+--- a/net/minecraft/client/gui/advancements/GuiScreenAdvancements.java
++++ b/net/minecraft/client/gui/advancements/GuiScreenAdvancements.java
+@@ -173,7 +173,8 @@
+             }
+ 
+             GlStateManager.enableRescaleNormal();
+-            GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
++            // VIVECRAFT: DestFactor of ONE is really what we want here, because math
++            GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
+             RenderHelper.enableGUIStandardItemLighting();
+ 
+             for (GuiAdvancementTab guiadvancementtab1 : this.tabs.values())

@@ -54,9 +54,6 @@ public class OpenVRStereoRenderer
 	public FloatBuffer[] eyeproj = new FloatBuffer[2]; //i dislike you.
 	public FloatBuffer[] cloudeyeproj = new FloatBuffer[2]; //i dislike you too.
 
-
-	public int displayFBWidth;     /* Actual width of the display buffer */
-	public int displayFBHeight;    /* Actual height of the display buffer */
 	public int mirrorFBWidth;     /* Actual width of the display buffer */
 	public int mirrorFBHeight;  
 	
@@ -74,6 +71,7 @@ public class OpenVRStereoRenderer
 	public static final String RENDER_SETUP_FAILURE_MESSAGE = "Failed to initialise stereo rendering plugin: ";
 
 	private boolean reinitFramebuffers = true;
+	public boolean reinitShadersFlag = false;
 	
 	// TextureIDs of framebuffers for each eye
 	private int LeftEyeTextureId, RightEyeTextureId;
@@ -457,13 +455,11 @@ public class OpenVRStereoRenderer
 //			reinitFramebuffers = true;
 //		}
 
-		if (wasDisplayResized())
-		{
-			//Display.update();     // This will set new display widths accordingly
-			reinitFrameBuffers("Display Resized");
-		}
-
-		mc.gameSettings.guiScale =3;
+//		if (wasDisplayResized())
+//		{
+//			//Display.update();     // This will set new display widths accordingly
+//			reinitFrameBuffers("Display Resized");
+//		}
 		
 		if (lastGuiScale != mc.gameSettings.guiScale)
 		{
@@ -491,10 +487,11 @@ public class OpenVRStereoRenderer
 		if (reinitFramebuffers)
 		{
 			//visible = true;
+			this.reinitShadersFlag = true;
 			checkGLError("Start Init");
 
-			displayFBWidth = (mc.mainWindow.getWidth() < 1) ? 1 : mc.mainWindow.getWidth();
-			displayFBHeight = (mc.mainWindow.getHeight()  < 1) ? 1 : mc.mainWindow.getHeight();
+			int displayFBWidth = (mc.mainWindow.getWidth() < 1) ? 1 : mc.mainWindow.getWidth();
+			int displayFBHeight = (mc.mainWindow.getHeight()  < 1) ? 1 : mc.mainWindow.getHeight();
 				
 			Sizei EyeTextureSize = new Sizei(); 
 			
@@ -621,16 +618,26 @@ public class OpenVRStereoRenderer
 			mc.print(framebufferVrRender.toString());
 			checkGLError("3D framebuffer setup");
 			
-			mirrorFBWidth = mc.mainWindow.getWidth();
-			mirrorFBHeight = mc.mainWindow.getHeight();
+			mirrorFBWidth = mc.mainWindow.getFramebufferWidth();
+			mirrorFBHeight = mc.mainWindow.getFramebufferHeight();
 			if (mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_MIXED_REALITY) {
-				mirrorFBWidth = mc.mainWindow.getWidth() / 2;
+				mirrorFBWidth = mc.mainWindow.getFramebufferWidth() / 2;
 				if(mc.vrSettings.mixedRealityUnityLike)
-					mirrorFBHeight = mc.mainWindow.getHeight() / 2;
+					mirrorFBHeight = mc.mainWindow.getFramebufferHeight() / 2;
+			}
+
+			if (Config.isShaders()) {
+				mirrorFBWidth = displayFBWidth;
+				mirrorFBHeight = displayFBHeight;
 			}
 
 			List<RenderPass> renderPasses = getRenderPasses();
 
+			//debug
+			for (RenderPass renderPass : renderPasses) {
+				System.out.println("Passes: " + renderPass.toString());
+			}
+			
 			if (renderPasses.contains(RenderPass.THIRD)) {
 				framebufferMR = new Framebuffer("Mixed Reality Render", mirrorFBWidth, mirrorFBHeight, true, false);
 				mc.print(framebufferMR.toString());
@@ -643,15 +650,15 @@ public class OpenVRStereoRenderer
 				checkGLError("Undistorted view framebuffer setup");
 			}
 			
-			GuiHandler.guiFramebuffer  = new Framebuffer("GUI", mc.mainWindow.getWidth(), mc.mainWindow.getHeight(), true, true);
+			GuiHandler.guiFramebuffer  = new Framebuffer("GUI", mc.mainWindow.getFramebufferWidth(), mc.mainWindow.getFramebufferHeight(), true, true);
 			mc.print(GuiHandler.guiFramebuffer.toString());
 			checkGLError("GUI framebuffer setup");
 
-			KeyboardHandler.Framebuffer  = new Framebuffer("Keyboard",  mc.mainWindow.getWidth(), mc.mainWindow.getHeight(), true, true);
+			KeyboardHandler.Framebuffer  = new Framebuffer("Keyboard",  mc.mainWindow.getFramebufferWidth(), mc.mainWindow.getFramebufferHeight(), true, true);
 			mc.print(KeyboardHandler.Framebuffer.toString());
 			checkGLError("Keyboard framebuffer setup");
 
-			RadialHandler.Framebuffer  = new Framebuffer("Radial Menu",  mc.mainWindow.getWidth(), mc.mainWindow.getHeight(), true, true);
+			RadialHandler.Framebuffer  = new Framebuffer("Radial Menu",  mc.mainWindow.getFramebufferWidth(), mc.mainWindow.getFramebufferHeight(), true, true);
 			mc.print(RadialHandler.Framebuffer.toString());
 			checkGLError("Radial framebuffer setup");
 
@@ -763,55 +770,59 @@ public class OpenVRStereoRenderer
 		return passes;
 	}
 	
-	public void doStencilForEye(int i) {	
+	public void doStencilForEye(int i) {
 		Minecraft mc = Minecraft.getMinecraft();
 		float[] verts = getStencilMask(mc.currentPass);
-		if (verts == null) return;
-			//START STENCIL TESTING - Yes I know there's about 15 better ways to do this.
-				GL11.glEnable(GL11.GL_STENCIL_TEST);
-				GlStateManager.disableAlphaTest();
-				GlStateManager.disableDepthTest();
-		        GlStateManager.disableTexture2D();
-				GlStateManager.disableCull();
-				
-				GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
-				GL11.glStencilMask(0xFF); // Write to stencil buffer
-				GlStateManager.clear(GL11.GL_STENCIL_BUFFER_BIT); // Clear stencil buffer (0 by default)
-				GL11.glStencilFunc(GL11.GL_ALWAYS, 0xFF, 0xFF); // Set any stencil to 1
-				GlStateManager.color3f(0, 0, 0);
-				GlStateManager.depthMask(false); // Don't write to depth buffer
-				GL11.glMatrixMode(GL11.GL_PROJECTION);
-				GlStateManager.pushMatrix();
-				GL11.glLoadIdentity();
-				GL11.glMatrixMode(GL11.GL_MODELVIEW);
-				GlStateManager.pushMatrix();
-				GlStateManager.loadIdentity();
-				GlStateManager.ortho(0.0D, displayFBWidth,displayFBHeight, 0.0D, -10, 20.0D);
-				GlStateManager.viewport(0, 0, displayFBWidth, displayFBHeight);
-				//this viewport might be wrong for some shaders.
-				GL11.glBegin(GL11.GL_TRIANGLES);
 
-				for (int ix = 0;ix< verts.length;ix+=2) {
-					GL11.glVertex2f(verts[ix] * mc.vrSettings.renderScaleFactor, verts[ix+1] * mc.vrSettings.renderScaleFactor);
-				}
-				GL11.glEnd();	
+		//START STENCIL TESTING - Yes I know there's about 15 better ways to do this.
+		GL11.glEnable(GL11.GL_STENCIL_TEST);
 
-				GL11.glStencilFunc(GL11.GL_NOTEQUAL, 0xFF, 1);
-				GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
-				GlStateManager.depthMask(true); // Do write to depth buffer
-				GL11.glStencilMask(0x0); // Dont Write to stencil buffer
-				
-				GL11.glMatrixMode(GL11.GL_PROJECTION);
-				GlStateManager.popMatrix();
-				GL11.glMatrixMode(GL11.GL_MODELVIEW);
-				GlStateManager.popMatrix();
-				
-				GlStateManager.enableDepthTest();
-				GlStateManager.enableAlphaTest();
-				GlStateManager.enableTexture2D();
-				GlStateManager.enableCull();
-		
-				/// END STENCIL TESTING
+		GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
+		GL11.glStencilMask(0xFF); // Write to stencil buffer
+		GlStateManager.clear(GL11.GL_STENCIL_BUFFER_BIT); // Clear stencil buffer (0 by default)
+		GL11.glStencilFunc(GL11.GL_ALWAYS, 0xFF, 0xFF); // Set any stencil to 1
+
+		if (verts != null) {
+			GlStateManager.disableAlphaTest();
+			GlStateManager.disableDepthTest();
+			GlStateManager.disableTexture2D();
+			GlStateManager.disableCull();
+
+			GlStateManager.color3f(0, 0, 0);
+			GlStateManager.depthMask(false); // Don't write to depth buffer
+			GlStateManager.matrixMode(GL11.GL_PROJECTION);
+			GlStateManager.pushMatrix();
+			GlStateManager.loadIdentity();
+			GlStateManager.matrixMode(GL11.GL_MODELVIEW);
+			GlStateManager.pushMatrix();
+			GlStateManager.loadIdentity();
+			GlStateManager.ortho(0.0D, framebufferVrRender.framebufferWidth, framebufferVrRender.framebufferHeight, 0.0D, -10, 20.0D);
+			GlStateManager.viewport(0, 0, framebufferVrRender.framebufferWidth, framebufferVrRender.framebufferHeight);
+			//this viewport might be wrong for some shaders.
+			GL11.glBegin(GL11.GL_TRIANGLES);
+
+			for (int ix = 0; ix < verts.length; ix += 2) {
+				GL11.glVertex2f(verts[ix] * mc.vrSettings.renderScaleFactor, verts[ix + 1] * mc.vrSettings.renderScaleFactor);
+			}
+			GL11.glEnd();
+
+			GL11.glMatrixMode(GL11.GL_PROJECTION);
+			GlStateManager.popMatrix();
+			GL11.glMatrixMode(GL11.GL_MODELVIEW);
+			GlStateManager.popMatrix();
+
+			GlStateManager.depthMask(true); // Do write to depth buffer
+
+			GlStateManager.enableDepthTest();
+			GlStateManager.enableAlphaTest();
+			GlStateManager.enableTexture2D();
+			GlStateManager.enableCull();
+		}
+
+		GL11.glStencilFunc(GL11.GL_NOTEQUAL, 0xFF, 1);
+		GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
+		GL11.glStencilMask(0x0); // Dont Write to stencil buffer
+		/// END STENCIL TESTING
 	}
 
 	public void drawQuad()

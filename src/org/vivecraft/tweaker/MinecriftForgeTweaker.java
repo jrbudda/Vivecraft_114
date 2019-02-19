@@ -16,13 +16,13 @@ public class MinecriftForgeTweaker implements ITweaker
     public void injectIntoClassLoader(LaunchClassLoader classLoader)
     {
         dbg("MinecriftForgeTweaker: injectIntoClassLoader");
-        classLoader.addTransformerExclusion("com.mtbs3d.minecrift.asm.");
+        classLoader.addTransformerExclusion("org.vivecraft.asm.");
     }
 
     public String getLaunchTarget()
     {
         dbg("MinecriftForgeTweaker: getLaunchTarget");
-        return "com.mtbs3d.minecrift.main.VivecraftMain";
+        return "org.vivecraft.main.VivecraftMain";
     }
 
     public String[] getLaunchArguments()

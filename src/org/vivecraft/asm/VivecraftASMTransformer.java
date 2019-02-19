@@ -18,12 +18,12 @@ public class VivecraftASMTransformer implements IClassTransformer {
 	}
 	
 	public VivecraftASMTransformer(boolean forge) {
-		asmHandlers.add(new ASMHandlerGuiContainer());
-		asmHandlers.add(new ASMHandlerGuiContainerCreative());
-		asmHandlers.add(new ASMHandlerGuiIngameForge());
-		if (forge) {
-			asmHandlers.add(new ASMHandlerFixITeleporter());
-		}
+		//asmHandlers.add(new ASMHandlerGuiContainer());
+		//asmHandlers.add(new ASMHandlerGuiContainerCreative());
+		//asmHandlers.add(new ASMHandlerGuiIngameForge());
+		//if (forge) {
+		//	asmHandlers.add(new ASMHandlerFixITeleporter());
+		//}
 	}
 
 	@Override

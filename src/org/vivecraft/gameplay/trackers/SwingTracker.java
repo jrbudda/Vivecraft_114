@@ -20,6 +20,7 @@ import net.minecraft.item.ItemHoe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.item.ItemTool;
+import net.minecraft.item.ItemTrident;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -92,7 +93,7 @@ public class SwingTracker extends Tracker{
             boolean tool = false;
             boolean sword = false;
 
-            if(item instanceof ItemSword){
+            if(item instanceof ItemSword || item instanceof ItemTrident){
             	sword = true;
             	tool = true;    	
             }

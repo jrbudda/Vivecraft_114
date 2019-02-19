@@ -1,0 +1,12 @@
+--- a/net/minecraft/client/gui/GuiLabel.java
++++ b/net/minecraft/client/gui/GuiLabel.java
+@@ -25,7 +25,8 @@
+         if (this.visible)
+         {
+             GlStateManager.enableBlend();
+-            GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
++            // VIVECRAFT: DestFactor of ONE is really what we want here, because math
++            GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
+             this.func_194996_b(p_194997_1_, p_194997_2_, p_194997_3_);
+             int i = this.y + this.height / 2 + this.border / 2;
+             int j = i - this.labels.size() * 10 / 2;

@@ -19,7 +19,7 @@
  import net.minecraft.client.renderer.ItemRenderer;
  import net.minecraft.client.renderer.OpenGlHelper;
  import net.minecraft.client.renderer.RenderHelper;
-@@ -68,128 +73,137 @@
+@@ -68,128 +73,139 @@
  
  public class GuiIngame extends Gui
  {
@@ -253,15 +253,17 @@
 +		FontRenderer fontrenderer = this.getFontRenderer();
 +		GlStateManager.enableBlend();
 +
-+		if (Config.isVignetteEnabled())
++		// VIVECRAFT: lol no
++		/*if (Config.isVignetteEnabled())
 +		{
 +			this.renderVignette(this.mc.getRenderViewEntity());
 +		}
 +		else
-+		{
++		{*/
 +			GlStateManager.enableDepthTest();
-+			GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-+		}
++			// VIVECRAFT: DestFactor of ONE is really what we want here, because math
++			GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
++		//}
 +
 +		ItemStack itemstack = this.mc.player.inventory.armorItemInSlot(3);
 +
@@ -278,7 +280,7 @@
          if (!this.mc.player.isPotionActive(MobEffects.NAUSEA))
          {
              float f = this.mc.player.prevTimeInPortal + (this.mc.player.timeInPortal - this.mc.player.prevTimeInPortal) * partialTicks;
-@@ -199,1302 +213,1353 @@
+@@ -199,1302 +215,1395 @@
                  this.renderPortal(f);
              }
          }
@@ -1600,7 +1602,8 @@
 +			//this.renderAttackIndicator(partialTicks);
 +			//
 +			GlStateManager.enableAlphaTest();
-+			GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
++			// VIVECRAFT: DestFactor of ONE is really what we want here, because math
++			GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
 +			this.mc.profiler.startSection("bossHealth");
 +			this.overlayBoss.renderBossHealth();
 +			this.mc.profiler.endSection();
@@ -1686,7 +1689,8 @@
 +					GlStateManager.pushMatrix();
 +					GlStateManager.translatef((float)(this.scaledWidth / 2), (float)(this.scaledHeight - 68), 0.0F);
 +					GlStateManager.enableBlend();
-+					GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
++					// VIVECRAFT: DestFactor of ONE is really what we want here, because math
++					GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
 +					int j1 = 16777215;
 +
 +					if (this.animateOverlayMessageColor)
@@ -1726,7 +1730,8 @@
 +					GlStateManager.pushMatrix();
 +					GlStateManager.translatef((float)(this.scaledWidth / 2), (float)(this.scaledHeight / 2), 0.0F);
 +					GlStateManager.enableBlend();
-+					GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
++					// VIVECRAFT: DestFactor of ONE is really what we want here, because math
++					GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
 +					GlStateManager.pushMatrix();
 +					GlStateManager.scalef(4.0F, 4.0F, 4.0F);
 +					int k1 = i1 << 24 & -16777216;
@@ -1765,8 +1770,28 @@
 +				this.renderScoreboard(scoreobjective1);
 +			}
 +
++			if (mc.currentScreen != null) {
++				// VIVECRAFT: Dimming effect when in background
++				float brightness = 0.5F;
++				GlStateManager.enableBlend();
++				GlStateManager.blendFuncSeparate(SourceFactor.ZERO, DestFactor.ONE, SourceFactor.ZERO, DestFactor.SRC_ALPHA);
++				GlStateManager.disableTexture2D();
++				GlStateManager.depthMask(false);
++				Tessellator tessellator = Tessellator.getInstance();
++				BufferBuilder bufferbuilder = tessellator.getBuffer();
++				bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
++				bufferbuilder.pos(0.0D, mc.currentScreen.height, 990.0D).color(0.0F, 0.0F, 0.0F, brightness).endVertex();
++				bufferbuilder.pos(mc.currentScreen.width, mc.currentScreen.height, 990.0D).color(0.0F, 0.0F, 0.0F, brightness).endVertex();
++				bufferbuilder.pos(mc.currentScreen.width, 0.0D, 990.0D).color(0.0F, 0.0F, 0.0F, brightness).endVertex();
++				bufferbuilder.pos(0.0D, 0.0D, 990.0D).color(0.0F, 0.0F, 0.0F, brightness).endVertex();
++				tessellator.draw();
++				GlStateManager.depthMask(true);
++				GlStateManager.enableTexture2D();
++			}
++
 +			GlStateManager.enableBlend();
-+			GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
++			// VIVECRAFT: DestFactor of ONE is really what we want here, because math
++			GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
 +			GlStateManager.disableAlphaTest();
 +			GlStateManager.pushMatrix();
 +			GlStateManager.translatef(0.0F, (float)(this.scaledHeight - 48), 0.0F);
@@ -1829,7 +1854,8 @@
 +			}
 +			else
 +			{
-+				GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
++				// VIVECRAFT: DestFactor of ONE is really what we want here, because math
++				GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
 +				int l = 15;
 +				this.drawTexturedModalRect((float)this.scaledWidth / 2.0F - 7.5F, (float)this.scaledHeight / 2.0F - 7.5F, 0, 0, 15, 15);
 +
@@ -2004,7 +2030,8 @@
 +			this.zLevel = f;
 +			GlStateManager.enableRescaleNormal();
 +			GlStateManager.enableBlend();
-+			GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
++			// VIVECRAFT: DestFactor of ONE is really what we want here, because math
++			GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
 +			RenderHelper.enableGUIStandardItemLighting();
 +			CustomItems.setRenderOffHand(false);
 +
@@ -2154,7 +2181,8 @@
 +			{
 +				GlStateManager.pushMatrix();
 +				GlStateManager.enableBlend();
-+				GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
++				// VIVECRAFT: DestFactor of ONE is really what we want here, because math
++				GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
 +				this.getFontRenderer().drawStringWithShadow(s, (float)i, (float)j, 16777215 + (k << 24));
 +				GlStateManager.disableBlend();
 +				GlStateManager.popMatrix();
@@ -2572,7 +2600,8 @@
 +	{
 +		GlStateManager.disableDepthTest();
 +		GlStateManager.depthMask(false);
-+		GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
++		// VIVECRAFT: DestFactor of ONE is really what we want here, because math
++		GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
 +		GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 +		GlStateManager.disableAlphaTest();
 +		this.mc.getTextureManager().bindTexture(PUMPKIN_BLUR_TEX_PATH);
@@ -2607,7 +2636,8 @@
 +		if (!Config.isVignetteEnabled())
 +		{
 +			GlStateManager.enableDepthTest();
-+			GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
++			// VIVECRAFT: DestFactor of ONE is really what we want here, because math
++			GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
 +		}
 +		else
 +		{
@@ -2627,7 +2657,8 @@
 +
 +			GlStateManager.disableDepthTest();
 +			GlStateManager.depthMask(false);
-+			GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
++			// VIVECRAFT: DestFactor of ONE is really what we want here, because math
++			GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
 +
 +			if (f > 0.0F)
 +			{
@@ -2650,7 +2681,8 @@
 +			GlStateManager.depthMask(true);
 +			GlStateManager.enableDepthTest();
 +			GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-+			GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
++			// VIVECRAFT: DestFactor of ONE is really what we want here, because math
++			GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
 +		}
 +	}
 +
@@ -2896,21 +2928,33 @@
 +	public void drawMouseMenuQuad(int mouseX, int mouseY)
 +	{	
 +		GlStateManager.enableBlend();
-+		GlStateManager.blendFunc(SourceFactor.ONE_MINUS_DST_COLOR, DestFactor.ONE_MINUS_SRC_COLOR);
++		GlStateManager.enableAlphaTest();
 +		GlStateManager.disableDepthTest();
 +		GlStateManager.disableLighting();
-+		GlStateManager.colorMask(true, true, true, true); //Fuck it. Stop using bad texture packs.
 +		GlStateManager.color4f(1, 1, 1, 1);
 +
 +		this.mc.getTextureManager().bindTexture(Gui.ICONS);
 +		float menuMousePointerSize = 16f * this.mc.vrSettings.menuCrosshairScale;
++		
++		//Why didnt we think of this sooner?
++		/*GlStateManager.colorMask(false, false, false, true);
++		GlStateManager.blendFunc(SourceFactor.CONSTANT_ALPHA, DestFactor.ZERO);
++		drawCentredTexturedModalRect(mouseX, mouseY, menuMousePointerSize, menuMousePointerSize, 0, 0, 15, 15);
++		
++		GlStateManager.blendFunc(SourceFactor.ONE_MINUS_DST_COLOR, DestFactor.ONE_MINUS_SRC_COLOR);
++		GlStateManager.colorMask(true, true, true, false);
++		drawCentredTexturedModalRect(mouseX, mouseY, menuMousePointerSize, menuMousePointerSize, 0, 0, 15, 15);*/
++
++		// Turns out all we needed was some blendFuncSeparate magic :)
++		// Also color DestFactor of ZERO produces better results with non-white crosshairs
++		GlStateManager.blendFuncSeparate(SourceFactor.ONE_MINUS_DST_COLOR, DestFactor.ZERO, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
 +		drawCentredTexturedModalRect(mouseX, mouseY, menuMousePointerSize, menuMousePointerSize, 0, 0, 15, 15);
 +
 +		GlStateManager.disableBlend();
-+		GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
++		GlStateManager.blendFuncSeparate(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
 +		GlStateManager.enableDepthTest();
 +		GlStateManager.enableLighting();
-+		GlStateManager.colorMask(true, true, true, false);
++		//GlStateManager.colorMask(true, true, true, false);
 +	}
 +	/**
 +	 * Draws a centred textured rectangle at the stored z-value. Args: x, y, width, height, u, v, texwidth, texheight

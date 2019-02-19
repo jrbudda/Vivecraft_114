@@ -121,32 +121,22 @@ public class MenuWorldRenderer {
 
 		ITextureObject blocksTexture = this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 		mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		RenderHelper.disableStandardItemLighting();
-		for (int i = 0; i < vertexBuffers.length; i++) {
-			BlockRenderLayer layer = BlockRenderLayer.values()[i];
-			VertexBuffer vertexBuffer = vertexBuffers[i];
 
-			switch (layer) {
-				case CUTOUT_MIPPED:
-					blocksTexture.setBlurMipmap(false, this.mc.gameSettings.mipmapLevels > 0);
-					break;
-				case CUTOUT:
-					blocksTexture.setBlurMipmap(false, false);
-					break;
-			}
+		GlStateManager.disableAlphaTest();
+		drawBlockLayer(BlockRenderLayer.SOLID);
+		GlStateManager.enableAlphaTest();
 
-			vertexBuffer.bindBuffer();
-			GlStateManager.vertexPointer(3, GL11.GL_FLOAT, 28, 0);
-			GlStateManager.colorPointer(4, GL11.GL_UNSIGNED_BYTE, 28, 12);
-			GlStateManager.texCoordPointer(2, GL11.GL_FLOAT, 28, 16);
-			OpenGlHelper.glClientActiveTexture(OpenGlHelper.GL_TEXTURE1);
-			GlStateManager.texCoordPointer(2, GL11.GL_SHORT, 28, 24);
-			OpenGlHelper.glClientActiveTexture(OpenGlHelper.GL_TEXTURE0);
-			vertexBuffer.drawArrays(GL11.GL_QUADS);
+		blocksTexture.setBlurMipmap(false, this.mc.gameSettings.mipmapLevels > 0);
+		drawBlockLayer(BlockRenderLayer.CUTOUT_MIPPED);
+		blocksTexture.restoreLastBlurMipmap();
 
-			if (layer == BlockRenderLayer.CUTOUT_MIPPED || layer == BlockRenderLayer.CUTOUT)
-				blocksTexture.restoreLastBlurMipmap();
-		}
+		blocksTexture.setBlurMipmap(false, false);
+		drawBlockLayer(BlockRenderLayer.CUTOUT);
+		blocksTexture.restoreLastBlurMipmap();
+
+		GlStateManager.depthMask(false);
+		drawBlockLayer(BlockRenderLayer.TRANSLUCENT);
+		GlStateManager.depthMask(true);
 
 		GlStateManager.disableClientState(GL11.GL_VERTEX_ARRAY);
 		GlStateManager.disableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
@@ -156,6 +146,18 @@ public class MenuWorldRenderer {
 		GlStateManager.disableClientState(GL11.GL_COLOR_ARRAY);
 		disableLightmap();
 		GL11.glPopClientAttrib();
+	}
+
+	private void drawBlockLayer(BlockRenderLayer layer) {
+		VertexBuffer vertexBuffer = vertexBuffers[layer.ordinal()];
+		vertexBuffer.bindBuffer();
+		GlStateManager.vertexPointer(3, GL11.GL_FLOAT, 28, 0);
+		GlStateManager.colorPointer(4, GL11.GL_UNSIGNED_BYTE, 28, 12);
+		GlStateManager.texCoordPointer(2, GL11.GL_FLOAT, 28, 16);
+		OpenGlHelper.glClientActiveTexture(OpenGlHelper.GL_TEXTURE1);
+		GlStateManager.texCoordPointer(2, GL11.GL_SHORT, 28, 24);
+		OpenGlHelper.glClientActiveTexture(OpenGlHelper.GL_TEXTURE0);
+		vertexBuffer.drawArrays(GL11.GL_QUADS);
 	}
 
 	public void prepare() {

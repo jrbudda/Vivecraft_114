@@ -167,6 +167,6 @@ public class JumpTracker extends Tracker {
 		if(!i.hasDisplayName()) return false;
 		if((i.getItem() != Items.LEATHER_BOOTS)) return false;
 		if(!(i.getTag().getBoolean("Unbreakable"))) return false;
-		return i.getDisplayName().equals("Jump Boots");
+		return i.getDisplayName().getString().equals("Jump Boots");
 	}
 }

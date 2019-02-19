@@ -22,6 +22,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -706,7 +707,14 @@ public class TeleportTracker extends Tracker{
     	for(int k = 0; k<2; k++){
 
     		testClimb = player.world.getBlockState(hitBlock);
-    		Vec3d hitVec = new Vec3d(collision.hitVec.x, hitBlock.getY() + testClimb.getCollisionShape(mc.world, hitBlock).getBoundingBox().maxY, collision.hitVec.z );
+    		if (testClimb.getCollisionShape(mc.world, hitBlock).isEmpty()){
+    			hitBlock = hitBlock.up();
+    			continue;
+    		}
+    		
+    		double height = testClimb.getCollisionShape(mc.world, hitBlock).getEnd(Axis.Y);
+    		
+    		Vec3d hitVec = new Vec3d(collision.hitVec.x, hitBlock.getY() + height, collision.hitVec.z );
     		Vec3d offset = hitVec.subtract(player.posX, player.getEntityBoundingBox().minY, player.posZ);
     		AxisAlignedBB bb = player.getEntityBoundingBox().offset(offset.x, offset.y, offset.z);
     		double ex = 0;
@@ -716,7 +724,7 @@ public class TeleportTracker extends Tracker{
     				!mc.world.isCollisionBoxesEmpty(player,bb.grow(0, .125 + ex, 0));     
 
     		if(!emptySpotReq){
-    			Vec3d center = new Vec3d(hitBlock).add(0.5, testClimb.getCollisionShape(mc.world, hitBlock).getBoundingBox().maxY, 0.5);
+    			Vec3d center = new Vec3d(hitBlock).add(0.5, height, 0.5);
     			offset = center.subtract(player.posX, player.getEntityBoundingBox().minY, player.posZ);
     			bb = player.getEntityBoundingBox().offset(offset.x, offset.y, offset.z);
     			emptySpotReq = mc.world.isCollisionBoxesEmpty(player,bb) &&
@@ -724,8 +732,7 @@ public class TeleportTracker extends Tracker{
     		}
 
     		if(emptySpotReq){
-    			Vec3d dest = new Vec3d(bb.getCenter().x, hitBlock.getY() + testClimb.getCollisionShape(mc.world, hitBlock).getBoundingBox().maxY, bb.getCenter().z);
-
+    			Vec3d dest = new Vec3d(bb.getCenter().x, hitBlock.getY() + height, bb.getCenter().z);
 
     			movementTeleportDestination = dest.scale(1);
     			

@@ -7,6 +7,7 @@ package org.vivecraft.settings;
 import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import org.vivecraft.control.ControllerType;
 import org.vivecraft.control.LegacyButton;
 import org.vivecraft.control.TrackedControllerVive.TouchpadMode;
 import org.vivecraft.control.VRButtonMapping;
+import org.vivecraft.gameplay.screenhandlers.GuiHandler;
 import org.vivecraft.provider.MCOpenVR;
 import org.vivecraft.settings.profile.ProfileManager;
 import org.vivecraft.settings.profile.ProfileReader;
@@ -151,7 +153,7 @@ public class VRSettings
     public float walkMultiplier=1;
     public boolean vrAllowCrawling = false; //unused
     public boolean vrShowBlueCircleBuddy = true;
-    public boolean vehicleRotation = true; 
+    public boolean vehicleRotation = false; 
     public boolean animaltouching = true;
     public boolean analogMovement = true;
     //
@@ -832,14 +834,8 @@ public class VRSettings
 			
 			vb.keyBinding = keyBinding;
 		}
-		if (!buttonMappings.containsKey("keyboard-shift"))
-			buttonMappings.put("keyboard-shift", new VRButtonMapping("keyboard-shift"));
-		if (!buttonMappings.containsKey("keyboard-ctrl"))
-			buttonMappings.put("keyboard-ctrl", new VRButtonMapping("keyboard-ctrl"));
-		if (!buttonMappings.containsKey("keyboard-alt"))
-			buttonMappings.put("keyboard-alt", new VRButtonMapping("keyboard-alt"));
 		for (VRButtonMapping mapping : buttonMappings.values()) {
-			if (mapping.keyBinding == null && !mapping.functionDesc.startsWith("keyboard"))
+			if (mapping.keyBinding == null && !mapping.isKeyboardBinding())
 				System.out.println("Unknown key binding: " + mapping.functionDesc);
 		}
 	}
@@ -2380,15 +2376,15 @@ public class VRSettings
     public String[] getQuickCommandsDefaults(){
     	
     	String[] out = new String[12];
-    	out[0] = "/gamemode 0";
-    	out[1] = "/gamemode 1";
+    	out[0] = "/gamemode survival";
+    	out[1] = "/gamemode creative";
     	out[2] = "/help";
     	out[3] = "/home";
     	out[4] = "/sethome";
     	out[5] = "/spawn";
     	out[6] = "hi!";
     	out[7] = "bye!";
-    	out[8] = "folow me!";
+    	out[8] = "follow me!";
     	out[9] = "take this!";
     	out[10] = "thank you!";
     	out[11] = "praise the sun!";
@@ -2420,79 +2416,93 @@ public class VRSettings
     	}
 
 		// touchpad buttons for less duplication
-		List<ButtonTuple> rightTouchpadButtons = new ArrayList<>();
-		rightTouchpadButtons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD, ControllerType.RIGHT));
-		rightTouchpadButtons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_C, ControllerType.RIGHT));
-		rightTouchpadButtons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_U, ControllerType.RIGHT));
-		rightTouchpadButtons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_D, ControllerType.RIGHT));
-		rightTouchpadButtons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_L, ControllerType.RIGHT));
-		rightTouchpadButtons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_R, ControllerType.RIGHT));
-		rightTouchpadButtons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_UL, ControllerType.RIGHT));
-		rightTouchpadButtons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_UR, ControllerType.RIGHT));
-		rightTouchpadButtons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_LL, ControllerType.RIGHT));
-		rightTouchpadButtons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_LR, ControllerType.RIGHT));
-		rightTouchpadButtons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_S1, ControllerType.RIGHT));
-		rightTouchpadButtons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_S2, ControllerType.RIGHT));
-		rightTouchpadButtons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_S3, ControllerType.RIGHT));
-		rightTouchpadButtons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_S4, ControllerType.RIGHT));
-		rightTouchpadButtons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_S5, ControllerType.RIGHT));
-		rightTouchpadButtons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_S6, ControllerType.RIGHT));
-		rightTouchpadButtons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_S7, ControllerType.RIGHT));
-		rightTouchpadButtons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_S8, ControllerType.RIGHT));
+		ButtonTuple[] rightTouchpadButtons;
+		{
+			List<ButtonTuple> buttons = new ArrayList<>();
+			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD, ControllerType.RIGHT));
+			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_C, ControllerType.RIGHT));
+			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_U, ControllerType.RIGHT));
+			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_D, ControllerType.RIGHT));
+			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_L, ControllerType.RIGHT));
+			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_R, ControllerType.RIGHT));
+			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_UL, ControllerType.RIGHT));
+			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_UR, ControllerType.RIGHT));
+			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_LL, ControllerType.RIGHT));
+			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_LR, ControllerType.RIGHT));
+			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_S1, ControllerType.RIGHT));
+			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_S2, ControllerType.RIGHT));
+			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_S3, ControllerType.RIGHT));
+			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_S4, ControllerType.RIGHT));
+			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_S5, ControllerType.RIGHT));
+			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_S6, ControllerType.RIGHT));
+			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_S7, ControllerType.RIGHT));
+			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_S8, ControllerType.RIGHT));
+			rightTouchpadButtons = buttons.toArray(new ButtonTuple[0]);
+		}
 
 		// vive
-		out.get("key.attack").buttons.add(new ButtonTuple(ButtonType.VIVE_TRIGGER, ControllerType.RIGHT));
-		out.get("key.pickItem").buttons.add(new ButtonTuple(ButtonType.VIVE_GRIP, ControllerType.RIGHT));
-		out.get("key.drop").buttons.add(new ButtonTuple(ButtonType.VIVE_APPMENU, ControllerType.RIGHT));
-		out.get("key.use").buttons.addAll(rightTouchpadButtons);
-		out.get("Hotbar Prev").buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_SWIPE_LEFT, ControllerType.RIGHT));
-		out.get("Hotbar Next").buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_SWIPE_RIGHT, ControllerType.RIGHT));
-		out.get("key.forward").buttons.add(new ButtonTuple(ButtonType.VIVE_TRIGGER, ControllerType.LEFT));
-		out.get("key.sprint").buttons.add(new ButtonTuple(ButtonType.VIVE_TRIGGER_CLICK, ControllerType.LEFT));
-		out.get("key.sneak").buttons.add(new ButtonTuple(ButtonType.VIVE_GRIP, ControllerType.LEFT));
-		out.get("key.inventory").buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_UL, ControllerType.LEFT));
-		out.get("key.inventory").buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_UR, ControllerType.LEFT));
-		out.get("key.inventory").buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_U, ControllerType.LEFT));
-		out.get("key.jump").buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_LL, ControllerType.LEFT));
-		out.get("key.jump").buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_LR, ControllerType.LEFT));
-		out.get("key.jump").buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_D, ControllerType.LEFT));
-		out.get("Hotbar Prev").buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_SWIPE_LEFT, ControllerType.LEFT));
-		out.get("Hotbar Next").buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_SWIPE_RIGHT, ControllerType.LEFT));
-		out.get("In-Game Menu Button").buttons.add(new ButtonTuple(ButtonType.VIVE_APPMENU, ControllerType.LEFT));
-		out.get("GUI Menu Button").buttons.add(new ButtonTuple(ButtonType.VIVE_APPMENU, ControllerType.LEFT));
-		out.get("GUI Left Click").buttons.add(new ButtonTuple(ButtonType.VIVE_TRIGGER, ControllerType.RIGHT));
-		out.get("GUI Right Click").buttons.addAll(rightTouchpadButtons);
-		out.get("GUI Middle Click").buttons.add(new ButtonTuple(ButtonType.VIVE_GRIP, ControllerType.RIGHT));
-		out.get("GUI Shift").buttons.add(new ButtonTuple(ButtonType.VIVE_GRIP, ControllerType.LEFT));
-		out.get("GUI Scroll Up").buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_SWIPE_UP, ControllerType.RIGHT));
-		out.get("GUI Scroll Down").buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_SWIPE_DOWN, ControllerType.RIGHT));
+		addButtons(out, mc.gameSettings.keyBindAttack, new ButtonTuple(ButtonType.VIVE_TRIGGER, ControllerType.RIGHT));
+        addButtons(out, mc.gameSettings.keyBindPickBlock, new ButtonTuple(ButtonType.VIVE_GRIP, ControllerType.RIGHT));
+        addButtons(out, mc.gameSettings.keyBindDrop, new ButtonTuple(ButtonType.VIVE_APPMENU, ControllerType.RIGHT));
+        addButtons(out, mc.gameSettings.keyBindUseItem, rightTouchpadButtons);
+        addButtons(out, MCOpenVR.keyHotbarPrev, new ButtonTuple(ButtonType.VIVE_TOUCHPAD_SWIPE_LEFT, ControllerType.RIGHT));
+        addButtons(out, MCOpenVR.keyHotbarNext, new ButtonTuple(ButtonType.VIVE_TOUCHPAD_SWIPE_RIGHT, ControllerType.RIGHT));
+        addButtons(out, mc.gameSettings.keyBindForward, new ButtonTuple(ButtonType.VIVE_TRIGGER, ControllerType.LEFT));
+        addButtons(out, mc.gameSettings.keyBindSprint, new ButtonTuple(ButtonType.VIVE_TRIGGER_CLICK, ControllerType.LEFT));
+        addButtons(out, mc.gameSettings.keyBindSneak, new ButtonTuple(ButtonType.VIVE_GRIP, ControllerType.LEFT));
+        addButtons(out, mc.gameSettings.keyBindInventory, new ButtonTuple(ButtonType.VIVE_TOUCHPAD_UL, ControllerType.LEFT));
+        addButtons(out, mc.gameSettings.keyBindInventory, new ButtonTuple(ButtonType.VIVE_TOUCHPAD_UR, ControllerType.LEFT));
+        addButtons(out, mc.gameSettings.keyBindInventory, new ButtonTuple(ButtonType.VIVE_TOUCHPAD_U, ControllerType.LEFT));
+        addButtons(out, mc.gameSettings.keyBindJump, new ButtonTuple(ButtonType.VIVE_TOUCHPAD_LL, ControllerType.LEFT));
+        addButtons(out, mc.gameSettings.keyBindJump, new ButtonTuple(ButtonType.VIVE_TOUCHPAD_LR, ControllerType.LEFT));
+        addButtons(out, mc.gameSettings.keyBindJump, new ButtonTuple(ButtonType.VIVE_TOUCHPAD_D, ControllerType.LEFT));
+        addButtons(out, MCOpenVR.keyHotbarPrev, new ButtonTuple(ButtonType.VIVE_TOUCHPAD_SWIPE_LEFT, ControllerType.LEFT));
+        addButtons(out, MCOpenVR.keyHotbarNext, new ButtonTuple(ButtonType.VIVE_TOUCHPAD_SWIPE_RIGHT, ControllerType.LEFT));
+        addButtons(out, MCOpenVR.keyMenuButton, new ButtonTuple(ButtonType.VIVE_APPMENU, ControllerType.LEFT));
+        addButtons(out, GuiHandler.keyMenuButton, new ButtonTuple(ButtonType.VIVE_APPMENU, ControllerType.LEFT));
+        addButtons(out, GuiHandler.keyLeftClick, new ButtonTuple(ButtonType.VIVE_TRIGGER, ControllerType.RIGHT));
+        addButtons(out, GuiHandler.keyRightClick, rightTouchpadButtons);
+        addButtons(out, GuiHandler.keyMiddleClick, new ButtonTuple(ButtonType.VIVE_GRIP, ControllerType.RIGHT));
+        addButtons(out, GuiHandler.keyShift, new ButtonTuple(ButtonType.VIVE_GRIP, ControllerType.LEFT));
+        addButtons(out, GuiHandler.keyScrollUp, new ButtonTuple(ButtonType.VIVE_TOUCHPAD_SWIPE_UP, ControllerType.RIGHT));
+        addButtons(out, GuiHandler.keyScrollDown, new ButtonTuple(ButtonType.VIVE_TOUCHPAD_SWIPE_DOWN, ControllerType.RIGHT));
 
 		// touch
-		out.get("key.attack").buttons.add(new ButtonTuple(ButtonType.OCULUS_INDEX_TRIGGER, ControllerType.RIGHT));
-		out.get("key.use").buttons.add(new ButtonTuple(ButtonType.OCULUS_AX, ControllerType.RIGHT));
-		out.get("key.drop").buttons.add(new ButtonTuple(ButtonType.OCULUS_BY, ControllerType.RIGHT));
-		out.get("key.pickItem").buttons.add(new ButtonTuple(ButtonType.OCULUS_HAND_TRIGGER, ControllerType.RIGHT));
-		out.get("key.inventory").buttons.add(new ButtonTuple(ButtonType.OCULUS_STICK, ControllerType.RIGHT));
-		out.get("Hotbar Prev").buttons.add(new ButtonTuple(ButtonType.OCULUS_STICK_LEFT, ControllerType.RIGHT));
-		out.get("Hotbar Next").buttons.add(new ButtonTuple(ButtonType.OCULUS_STICK_RIGHT, ControllerType.RIGHT));
-		out.get("key.forward").buttons.add(new ButtonTuple(ButtonType.OCULUS_INDEX_TRIGGER, ControllerType.LEFT));
-		out.get("key.chat").buttons.add(new ButtonTuple(ButtonType.OCULUS_AX, ControllerType.LEFT));
-		out.get("key.playerlist").buttons.add(new ButtonTuple(ButtonType.OCULUS_HAND_TRIGGER, ControllerType.LEFT));
-		out.get("key.sprint").buttons.add(new ButtonTuple(ButtonType.OCULUS_STICK, ControllerType.LEFT));
-		out.get("Rotate Left").buttons.add(new ButtonTuple(ButtonType.OCULUS_STICK_LEFT, ControllerType.LEFT));
-		out.get("Rotate Right").buttons.add(new ButtonTuple(ButtonType.OCULUS_STICK_RIGHT, ControllerType.LEFT));
-		out.get("key.jump").buttons.add(new ButtonTuple(ButtonType.OCULUS_STICK_UP, ControllerType.LEFT));
-		out.get("key.sneak").buttons.add(new ButtonTuple(ButtonType.OCULUS_STICK_DOWN, ControllerType.LEFT));
-		out.get("In-Game Menu Button").buttons.add(new ButtonTuple(ButtonType.OCULUS_BY, ControllerType.LEFT));
-		out.get("GUI Menu Button").buttons.add(new ButtonTuple(ButtonType.OCULUS_BY, ControllerType.LEFT));
-		out.get("GUI Left Click").buttons.add(new ButtonTuple(ButtonType.OCULUS_INDEX_TRIGGER, ControllerType.RIGHT));
-		out.get("GUI Right Click").buttons.add(new ButtonTuple(ButtonType.OCULUS_AX, ControllerType.RIGHT));
-		out.get("GUI Middle Click").buttons.add(new ButtonTuple(ButtonType.OCULUS_HAND_TRIGGER, ControllerType.RIGHT));
-		out.get("GUI Shift").buttons.add(new ButtonTuple(ButtonType.OCULUS_HAND_TRIGGER, ControllerType.LEFT));
-		out.get("GUI Scroll Up").buttons.add(new ButtonTuple(ButtonType.OCULUS_STICK_UP, ControllerType.RIGHT));
-		out.get("GUI Scroll Down").buttons.add(new ButtonTuple(ButtonType.OCULUS_STICK_DOWN, ControllerType.RIGHT));
+        addButtons(out, mc.gameSettings.keyBindAttack, new ButtonTuple(ButtonType.OCULUS_INDEX_TRIGGER, ControllerType.RIGHT));
+        addButtons(out, mc.gameSettings.keyBindUseItem, new ButtonTuple(ButtonType.OCULUS_AX, ControllerType.RIGHT));
+        addButtons(out, mc.gameSettings.keyBindDrop, new ButtonTuple(ButtonType.OCULUS_BY, ControllerType.RIGHT));
+		addButtons(out, mc.gameSettings.keyBindPickBlock, new ButtonTuple(ButtonType.OCULUS_HAND_TRIGGER, ControllerType.RIGHT));
+		addButtons(out, mc.gameSettings.keyBindInventory, new ButtonTuple(ButtonType.OCULUS_STICK, ControllerType.RIGHT));
+		addButtons(out, MCOpenVR.keyHotbarPrev, new ButtonTuple(ButtonType.OCULUS_STICK_LEFT, ControllerType.RIGHT));
+		addButtons(out, MCOpenVR.keyHotbarNext, new ButtonTuple(ButtonType.OCULUS_STICK_RIGHT, ControllerType.RIGHT));
+		addButtons(out, mc.gameSettings.keyBindForward, new ButtonTuple(ButtonType.OCULUS_INDEX_TRIGGER, ControllerType.LEFT));
+		addButtons(out, mc.gameSettings.keyBindChat, new ButtonTuple(ButtonType.OCULUS_AX, ControllerType.LEFT));
+		addButtons(out, mc.gameSettings.keyBindPlayerList, new ButtonTuple(ButtonType.OCULUS_HAND_TRIGGER, ControllerType.LEFT));
+		addButtons(out, mc.gameSettings.keyBindForward, new ButtonTuple(ButtonType.OCULUS_STICK, ControllerType.LEFT));
+		addButtons(out, MCOpenVR.keyRotateLeft, new ButtonTuple(ButtonType.OCULUS_STICK_LEFT, ControllerType.LEFT));
+		addButtons(out, MCOpenVR.keyRotateRight, new ButtonTuple(ButtonType.OCULUS_STICK_RIGHT, ControllerType.LEFT));
+		addButtons(out, mc.gameSettings.keyBindJump, new ButtonTuple(ButtonType.OCULUS_STICK_UP, ControllerType.LEFT));
+		addButtons(out, mc.gameSettings.keyBindSneak, new ButtonTuple(ButtonType.OCULUS_STICK_DOWN, ControllerType.LEFT));
+		addButtons(out, MCOpenVR.keyMenuButton, new ButtonTuple(ButtonType.OCULUS_BY, ControllerType.LEFT));
+		addButtons(out, GuiHandler.keyMenuButton, new ButtonTuple(ButtonType.OCULUS_BY, ControllerType.LEFT));
+		addButtons(out, GuiHandler.keyLeftClick, new ButtonTuple(ButtonType.OCULUS_INDEX_TRIGGER, ControllerType.RIGHT));
+		addButtons(out, GuiHandler.keyRightClick, new ButtonTuple(ButtonType.OCULUS_AX, ControllerType.RIGHT));
+		addButtons(out, GuiHandler.keyMiddleClick, new ButtonTuple(ButtonType.OCULUS_HAND_TRIGGER, ControllerType.RIGHT));
+		addButtons(out, GuiHandler.keyShift, new ButtonTuple(ButtonType.OCULUS_HAND_TRIGGER, ControllerType.LEFT));
+		addButtons(out, GuiHandler.keyScrollUp, new ButtonTuple(ButtonType.OCULUS_STICK_UP, ControllerType.RIGHT));
+		addButtons(out, GuiHandler.keyScrollDown, new ButtonTuple(ButtonType.OCULUS_STICK_DOWN, ControllerType.RIGHT));
 
     	return out;
+    }
+
+    // Helper for getBindingsDefaults
+    private void addButtons(Map<String, VRButtonMapping> map, KeyBinding keyBinding, ButtonTuple... buttons) {
+        VRButtonMapping mapping = map.get(keyBinding.getKeyDescription());
+        if (mapping != null) {
+            mapping.buttons.addAll(Arrays.asList(buttons));
+        } else {
+            System.out.println("Missing default binding: " + keyBinding.getKeyDescription());
+        }
     }
 
 	public double normalizeValue(float optionFloatValue) {

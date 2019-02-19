@@ -487,4 +487,18 @@ public class Utils
 		return new Vec3d(x, y, z);
 	}
 
+	public static void printStackIfContainsClass(String className) {
+		StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+		boolean print = false;
+		for (StackTraceElement stackEl : stack) {
+			if (stackEl.getClassName().equals(className)) {
+				print = true;
+				break;
+			}
+		}
+
+		if (print)
+			Thread.dumpStack();
+	}
+
 }

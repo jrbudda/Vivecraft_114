@@ -40,6 +40,7 @@ public class GuiVRControlsList extends GuiListExtended
     public void buildList() {
         ArrayList<VRButtonMapping> bindings = new ArrayList<>(mc.vrSettings.buttonMappings.values());
         Collections.sort(bindings);
+        this.clearEntries();
 
         String cat = null;
         int var7 = bindings.size();
@@ -48,7 +49,7 @@ public class GuiVRControlsList extends GuiListExtended
         	VRButtonMapping kb = bindings.get(i);
         	
         	if (parent.guiFilter != kb.isGUIBinding()) continue;
-        	String s = kb.keyBinding != null ? kb.keyBinding.getKeyCategory() : (kb.functionDesc.startsWith("keyboard") ? "Keyboard Emulation" : null);
+        	String s = kb.keyBinding != null ? kb.keyBinding.getKeyCategory() : (kb.isKeyboardBinding() ? "Keyboard Emulation" : null);
         	if (s == null) continue;
         	if (s != null && !s.equals(cat)) {
                 cat = s;
@@ -137,7 +138,7 @@ public class GuiVRControlsList extends GuiListExtended
 		@Override
         public void drawEntry(int entryWidth, int entryHeight, int mouseX, int mouseY, boolean p_194999_5_, float partialTicks)
         {
-        	GuiVRControlsList.this.mc.fontRenderer.drawString(I18n.format(this.myKey.functionId), getX() + 40, getY() + entryHeight / 2 - GuiVRControlsList.this.mc.fontRenderer.FONT_HEIGHT / 2, 16777215);
+        	GuiVRControlsList.this.mc.fontRenderer.drawString(this.myKey.toReadableString(), getX() + 40, getY() + entryHeight / 2 - GuiVRControlsList.this.mc.fontRenderer.FONT_HEIGHT / 2, 16777215);
         	this.btnChangeKeyBinding.x = GuiVRControlsList.this.mc.currentScreen.width / 2;
         	this.btnChangeKeyBinding.y = getY();
         	updateButtonText();
@@ -149,7 +150,7 @@ public class GuiVRControlsList extends GuiListExtended
         	this.btnChangeKeyBindingList.y = getY();
         	this.btnChangeKeyBindingList.render(mouseX, mouseY, partialTicks);
 
-        	if (myKey.functionDesc.startsWith("keyboard ")) {
+        	if (myKey.isKeyboardBinding()) {
 	        	this.btnDeleteKeyBinding.x = GuiVRControlsList.this.mc.currentScreen.width / 2 + 122 + 18 + 2;
 	        	this.btnDeleteKeyBinding.y = getY();
 	        	this.btnDeleteKeyBinding.render(mouseX, mouseY, partialTicks);

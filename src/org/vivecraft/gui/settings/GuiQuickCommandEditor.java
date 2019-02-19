@@ -25,4 +25,19 @@ public class GuiQuickCommandEditor extends GuiVROptionsBase {
     	super.addDefaultButtons();
     	this.visibleList = guiList;
     }
+	
+	@Override
+	protected void loadDefaults() {
+    	mc.vrSettings.vrQuickCommands = mc.vrSettings.getQuickCommandsDefaults();
+	}
+	
+	@Override
+	protected boolean onDoneClicked() {
+		for (int i = 0; i < 12; i++) {
+			String c = ((GuiQuickCommandsList.CommandEntry)this.guiList.getChildren().get(i)).txt.getText();
+			mc.vrSettings.vrQuickCommands[i] = c;
+		}	
+		return super.onDoneClicked();
+	}
+	
 }

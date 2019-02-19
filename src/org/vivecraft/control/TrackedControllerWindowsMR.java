@@ -32,6 +32,12 @@ public class TrackedControllerWindowsMR extends TrackedControllerVive {
 			}
 		}
 
+		// axis change
+		if (state.rAxis[k_axisStick] != null && (state.rAxis[k_axisStick].x != lastState.rAxis[k_axisStick].x || state.rAxis[k_axisStick].y != lastState.rAxis[k_axisStick].y)) {
+			Vector2 deltaVec = new Vector2(state.rAxis[k_axisStick].x - lastState.rAxis[k_axisStick].x, state.rAxis[k_axisStick].y - lastState.rAxis[k_axisStick].y);
+			MCOpenVR.queueInputEvent(this, null, AxisType.WMR_STICK, false, false, deltaVec);
+		}
+
 		super.processInput();
 	}
 

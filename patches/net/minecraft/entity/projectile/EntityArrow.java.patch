@@ -11,7 +11,7 @@
  import net.minecraft.block.state.IBlockState;
  import net.minecraft.enchantment.EnchantmentHelper;
  import net.minecraft.entity.Entity;
-@@ -83,13 +87,23 @@
+@@ -83,13 +87,29 @@
          this.setPosition(p_i48547_2_, p_i48547_4_, p_i48547_6_);
      }
  
@@ -31,19 +31,26 @@
 +        	if (vp !=null && vp.isVR())
 +        	{
 +        		//VIVE SET SPAWNPOS
-+    	        Vec3d aimSource = (vp.isSeated() || vp.getDraw()==0) ? vp.getControllerPos(0): vp.getControllerPos(1);
-+    	        Vec3d aimDir = getVRAim(vp).scale(0.6f);
-+        		this.setPosition(aimSource.x + aimDir.x ,aimSource.y + aimDir.y ,aimSource.z+aimDir.z );
++        		if(this instanceof EntityTrident) {
++        	        Vec3d aimSource = vp.getControllerPos(0);
++        	        Vec3d aimDir = vp.getControllerDir(0);     
++            		this.setPosition(aimSource.x + aimDir.x ,aimSource.y + aimDir.y ,aimSource.z+aimDir.z );
++        		} else {
++        	        Vec3d aimSource = (vp.isSeated() || vp.getDraw()==0) ? vp.getControllerPos(0): vp.getControllerPos(1);
++        	        Vec3d aimDir = getVRAim(vp).scale(0.6f);        
++            		this.setPosition(aimSource.x + aimDir.x ,aimSource.y + aimDir.y ,aimSource.z+aimDir.z );
++        		}     			
 +        		//
 +        	}
              this.pickupStatus = EntityArrow.PickupStatus.ALLOWED;
          }
      }
-@@ -115,9 +129,29 @@
+@@ -115,9 +135,36 @@
          this.dataManager.register(CRITICAL, (byte)0);
          this.dataManager.register(field_501047_a, Optional.empty());
      }
 -
++    
 +    public Vec3d getVRAim(VivePlayer vp){
 +		Vec3d aim = vp.getControllerDir(0);
 +    	if(!vp.isSeated() && vp.getDraw() > 0){
@@ -58,13 +65,19 @@
 +        VivePlayer vp = NetworkHelper.vivePlayers.get(shooter.getUniqueID());
 +        if (vp !=null && vp.isVR())
 +        { 
-+    		Vec3d aim = getVRAim(vp);
-+        	if(!vp.isSeated() && vp.getDraw() > 0){
-+        		velocity = velocity * vp.getDraw();  
-+        		this.damage *= 2;
++        	if(this instanceof EntityTrident) {
++        		Vec3d aim = vp.getControllerDir(0);
++    			pitch = -(float)Math.toDegrees(Math.asin(aim.y/aim.length()));
++    			yaw = (float)Math.toDegrees(Math.atan2(-aim.x, aim.z));   		       		
++        	} else {
++        		Vec3d aim = getVRAim(vp);
++            	if(!vp.isSeated() && vp.getDraw() > 0){
++            		velocity = velocity * vp.getDraw();  
++            		this.damage *= 2;
++            	}
++    			pitch = -(float)Math.toDegrees(Math.asin(aim.y/aim.length()));
++    			yaw = (float)Math.toDegrees(Math.atan2(-aim.x, aim.z));   
 +        	}
-+			pitch = -(float)Math.toDegrees(Math.asin(aim.y/aim.length()));
-+			yaw = (float)Math.toDegrees(Math.atan2(-aim.x, aim.z));   		
 +        }
 +        ///
          float f = -MathHelper.sin(yaw * 0.017453292F) * MathHelper.cos(pitch * 0.017453292F);

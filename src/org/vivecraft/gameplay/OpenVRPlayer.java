@@ -112,7 +112,7 @@ public class OpenVRPlayer
 		
 		this.vrdata_world_pre = new VRData(this.roomOrigin, mc.vrSettings.walkMultiplier, worldScale, (float) Math.toRadians(mc.vrSettings.vrWorldRotation));
 
-		if(mc.vrSettings.seated)
+		if(mc.vrSettings.seated && !mc.entityRenderer.isInMenuRoom())
 			mc.vrSettings.vrWorldRotation = MCOpenVR.seatedRot;
 
 		//Vivecraft - setup the player entity with the correct view for the logic tick.
@@ -742,8 +742,8 @@ public class OpenVRPlayer
 		
 		ItemStack i = ((EntityPlayerSP) entity).inventory.getCurrentItem();
 
-		if((entity.isSprinting() && entity.movementInput.jump) || entity.isElytraFlying() || (entity.isPassenger() && entity.moveForward > 0)){
-			//us needed for server side movement.
+		if((entity.isSprinting() && entity.movementInput.jump) || entity.isElytraFlying() || (entity.isSwimming() && entity.moveForward > 0) || (entity.isPassenger() && entity.moveForward > 0)){
+			//needed for server side movement.
 			if(mc.vrSettings.vrFreeMoveMode == mc.vrSettings.FREEMOVE_HMD ){
 				entity.rotationYawHead = entity.rotationYaw = data.hmd.getYaw();
 				entity.rotationPitch = -data.hmd.getPitch();
@@ -770,7 +770,6 @@ public class OpenVRPlayer
 				entity.rotationYawHead = yaw;	
 			}
 		}	
-
 
 		if(mc.swingTracker.shouldIlookatMyHand[0]){
 			Vec3d playerToMain = entity.getEyePosition(1).subtract(data.getController(0).getPosition()); //backwards
@@ -800,7 +799,5 @@ public class OpenVRPlayer
         Vec3d vec3d2 = AimedPointAtDistance(source, controller, blockReachDistance);
         return mc.world.rayTraceBlocks(vec3d, vec3d2, p_174822_4_, false, true);
     }
-   
-
 }
 

@@ -253,7 +253,7 @@
 +		//				Reflector.call(Reflector.call(Reflector.FMLClientHandler_instance), Reflector.FMLClientHandler_showInGameModOptions,new Object[]{this});
 +		//            }
 +		//        }); 
-+		if (this.mc.vrSettings.seated)
++		if (!this.mc.vrSettings.seated)
 +			this.addButton(new GuiButton(105, this.width / 2 - 100, this.height / 4 + 144 + -16, 98, 20, "Calibrate Height")
 +			{
 +				public void onClick(double mouseX, double mouseY)

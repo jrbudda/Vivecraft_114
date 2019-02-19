@@ -16,6 +16,7 @@ import de.fruitfly.ovr.structs.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.main.Main;
 import net.minecraft.client.shader.Framebuffer;
+import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 
 public class KeyboardHandler {
@@ -56,118 +57,60 @@ public class KeyboardHandler {
 		}
 		if(mc.vrSettings.seated) return;
 		if(Rotation_room == null) return;
-
-		Vector3f forward = new Vector3f(0,0,1);
-
-		Vector3f guiNormal = Rotation_room.transform(forward);
-		Vector3f guiRight = Rotation_room.transform(new Vector3f(1,0,0));
-		Vector3f guiUp = Rotation_room.transform(new Vector3f(0,1,0));
-
-		float guiWidth = 1.0f;		
-		float guiHalfWidth = guiWidth * 0.5f;		
-		float guiHeight = 1.0f;	
-		float guiHalfHeight = guiHeight * 0.5f;
-
-		Vector3f gp = new Vector3f();
-
-		gp.x = (float) (Pos_room.x);// + mc.vrPlayer.interPolatedRoomOrigin.x ) ;
-		gp.y = (float) (Pos_room.y);// + mc.vrPlayer.interPolatedRoomOrigin.y ) ;
-		gp.z = (float) (Pos_room.z);// + mc.vrPlayer.interPolatedRoomOrigin.z ) ;
-
-		Vector3f guiTopLeft = gp.subtract(guiUp.divide(1.0f / guiHalfHeight)).subtract(guiRight.divide(1.0f/guiHalfWidth));
-		Vector3f guiTopRight = gp.subtract(guiUp.divide(1.0f / guiHalfHeight)).add(guiRight.divide(1.0f / guiHalfWidth));
-
-
-		Vector3f controllerPos = new Vector3f();
-		Vec3d con = mc.vrPlayer.vrdata_room_pre.getController(0).getPosition();
-		controllerPos.x	= (float) con.x;
-		controllerPos.y	= (float) con.y;
-		controllerPos.z	= (float) con.z;
-		Vec3d controllerdir = mc.vrPlayer.vrdata_room_pre.getController(0).getDirection();
-		Vector3f cdir = new Vector3f((float)controllerdir.x,(float) controllerdir.y,(float) controllerdir.z);
-		float guiNormalDotControllerDirection = guiNormal.dot(cdir);
-		if (Math.abs(guiNormalDotControllerDirection) > 0.00001f)
-		{//pointed normal to the GUI
-			float intersectDist = -guiNormal.dot(controllerPos.subtract(guiTopLeft)) / guiNormalDotControllerDirection;
-			Vector3f pointOnPlane = controllerPos.add(cdir.divide(1.0f/intersectDist));
-
-			Vector3f relativePoint = pointOnPlane.subtract(guiTopLeft);
-			float u = relativePoint.dot(guiRight.divide(1.0f/guiWidth));
-			float v = relativePoint.dot(guiUp.divide(1.0f/guiWidth));
-
-			v = ( (v - 0.5f) * ((float)1280 / (float)720) ) + 0.5f;
-			u = ( u - 0.5f ) * 0.68f / GuiHandler.guiScale + 0.5f;
-			v = ( v - 0.5f ) * 0.68f / GuiHandler.guiScale + 0.5f;
-
-			if (u<0 || v<0 || u>1 || v>1)
-			{
-				// offscreen
-				UI.cursorX2 = -1.0f;
-				UI.cursorY2 = -1.0f;
-			}
-			else if (UI.cursorX2 == -1.0f)
-			{
-				UI.cursorX2 = (int) (u * mc.mainWindow.getScaledWidth());
-				UI.cursorY2 = (int) ((1-v) * mc.mainWindow.getScaledWidth());
-				PointedR = true;
-			}
-			else
-			{
-				// apply some smoothing between mouse positions
-				float newX = (int) (u * mc.mainWindow.getScaledWidth());
-				float newY = (int) ((1-v) * mc.mainWindow.getScaledHeight());
-				UI.cursorX2 = UI.cursorX2 * 0.7f + newX * 0.3f;
-				UI.cursorY2 = UI.cursorY2 * 0.7f + newY * 0.3f;
-				PointedR = true;
-			}
+		
+		Vec2f tex1 = GuiHandler.getTexCoordsForCursor(Pos_room, Rotation_room, mc.currentScreen, GuiHandler.guiScale, mc.vrPlayer.vrdata_room_pre.getController(1));
+		Vec2f tex2 = GuiHandler.getTexCoordsForCursor(Pos_room, Rotation_room, mc.currentScreen, GuiHandler.guiScale, mc.vrPlayer.vrdata_room_pre.getController(0));
+	
+		float u = tex2.x;
+		float v = tex2.y;
+		
+		if (u<0 || v<0 || u>1 || v>1)
+		{
+			// offscreen
+			UI.cursorX2 = -1.0f;
+			UI.cursorY2 = -1.0f;
+			PointedR = false;
 		}
-
-		con = mc.vrPlayer.vrdata_room_pre.getController(1).getPosition();
-		controllerPos.x	= (float) con.x;
-		controllerPos.y	= (float) con.y;
-		controllerPos.z	= (float) con.z;
-		controllerdir = mc.vrPlayer.vrdata_room_pre.getController(1).getDirection();
-		cdir = new Vector3f((float)controllerdir.x,(float) controllerdir.y,(float) controllerdir.z);
-		guiNormalDotControllerDirection = guiNormal.dot(cdir);
-		if (Math.abs(guiNormalDotControllerDirection) > 0.00001f)
-		{//pointed normal to the GUI
-			float intersectDist = -guiNormal.dot(controllerPos.subtract(guiTopLeft)) / guiNormalDotControllerDirection;
-			Vector3f pointOnPlane = controllerPos.add(cdir.divide(1.0f/intersectDist));
-
-			Vector3f relativePoint = pointOnPlane.subtract(guiTopLeft);
-			float u = relativePoint.dot(guiRight.divide(1.0f/guiWidth));
-			float v = relativePoint.dot(guiUp.divide(1.0f/guiWidth));
-
-			// adjust vertical for aspect ratio
-			v = ( (v - 0.5f) * ((float)1280 / (float)720) ) + 0.5f;
-
-			// TODO: Figure out where this magic 0.68f comes from. Probably related to Minecraft window size.
-			//JRBUDDA: It's probbably 1/defaulthudscale (1.5)
-
-			u = ( u - 0.5f ) * 0.68f / GuiHandler.guiScale + 0.5f;
-			v = ( v - 0.5f ) * 0.68f / GuiHandler.guiScale + 0.5f;
-
-			if (u<0 || v<0 || u>1 || v>1)
-			{
-				// offscreen
-				UI.cursorX1 = -1.0f;
-				UI.cursorY1 = -1.0f;
-			}
-			else if (UI.cursorX1 == -1.0f)
-			{
-				UI.cursorX1 = (int) (u * mc.mainWindow.getScaledWidth());
-				UI.cursorY1 = (int) ((1-v) * mc.mainWindow.getScaledHeight());
-				PointedL = true;
-			}
-			else
-			{
-				// apply some smoothing between mouse positions
-				float newX = (int) (u * mc.mainWindow.getScaledWidth());
-				float newY = (int) ((1-v) * mc.mainWindow.getScaledHeight());
-				UI.cursorX1 = UI.cursorX1 * 0.7f + newX * 0.3f;
-				UI.cursorY1 = UI.cursorY1 * 0.7f + newY * 0.3f;
-				PointedL = true;
-			}
+		else if (UI.cursorX2 == -1.0f)
+		{
+			UI.cursorX2 = (int) (u * mc.mainWindow.getWidth());
+			UI.cursorY2 = (int) (v * mc.mainWindow.getHeight());
+			PointedR = true;
+		}
+		else
+		{
+			// apply some smoothing between mouse positions
+			float newX = (int) (u * mc.mainWindow.getWidth());
+			float newY = (int) (v * mc.mainWindow.getHeight());
+			UI.cursorX2 = UI.cursorX2 * 0.7f + newX * 0.3f;
+			UI.cursorY2 = UI.cursorY2 * 0.7f + newY * 0.3f;
+			PointedR = true;
+		}
+		
+		 u = tex1.x;
+		 v = tex1.y;
+		
+		if (u<0 || v<0 || u>1 || v>1)
+		{
+			// offscreen
+			UI.cursorX1 = -1.0f;
+			UI.cursorY1 = -1.0f;
+			PointedL = false;
+		}
+		else if (UI.cursorX1 == -1.0f)
+		{
+			UI.cursorX1 = (int) (u * mc.mainWindow.getWidth());
+			UI.cursorY1 = (int) (v * mc.mainWindow.getHeight());
+			PointedL = true;
+		}
+		else
+		{
+			// apply some smoothing between mouse positions
+			float newX = (int) (u * mc.mainWindow.getWidth());
+			float newY = (int) (v * mc.mainWindow.getHeight());
+			UI.cursorX1 = UI.cursorX1 * 0.7f + newX * 0.3f;
+			UI.cursorY1 = UI.cursorY1 * 0.7f + newY * 0.3f;
+			PointedL = true;
 		}
 	}
 
@@ -231,20 +174,31 @@ public class KeyboardHandler {
 			Predicate<ButtonTuple> predicate = b -> b.button.equals(event.getButton()) && b.isTouch == event.isButtonTouchEvent();
 			boolean isClick = leftClick.buttons.stream().anyMatch(predicate) || rightClick.buttons.stream().anyMatch(predicate);
 
+			double d0 = Math.min(Math.max((int) UI.cursorX1, 0), mc.mainWindow.getWidth())
+					 * (double)mc.mainWindow.getScaledWidth() / (double)mc.mainWindow.getWidth();
+			double d1 = Math.min(Math.max((int) UI.cursorY1, 0), mc.mainWindow.getWidth())
+					 * (double)mc.mainWindow.getScaledHeight() / (double)mc.mainWindow.getHeight();
+			
+			
 			if(PointedL && event.getController().getType() == ControllerType.LEFT && isClick) {
 				if(event.getButtonState()) {
-					UI.mouseClicked((int)UI.cursorX1, (int)UI.cursorY1, 0);
+					UI.mouseClicked((int)d0, (int)d1, 0);
 				} else {
-					UI.mouseReleased((int)UI.cursorX1, (int)UI.cursorY1, 0);
+					UI.mouseReleased((int)d0, (int)d1, 0);
 				}
 				return true;
 			}
 
+			d0 = Math.min(Math.max((int) UI.cursorX2, 0), mc.mainWindow.getWidth())
+					 * (double)mc.mainWindow.getScaledWidth() / (double)mc.mainWindow.getWidth();
+			d1 = Math.min(Math.max((int) UI.cursorY2, 0), mc.mainWindow.getWidth())
+					 * (double)mc.mainWindow.getScaledHeight() / (double)mc.mainWindow.getHeight();
+			
 			if(PointedR && event.getController().getType() == ControllerType.RIGHT && isClick) {
 				if(event.getButtonState()) {
-					UI.mouseClicked((int)UI.cursorX2, (int)UI.cursorY2, 0);
+					UI.mouseClicked((int)d0, (int)d1, 0);
 				} else  {
-					UI.mouseReleased((int)UI.cursorX2, (int)UI.cursorY2, 0);
+					UI.mouseReleased((int)d0, (int)d1, 0);
 				}
 				return true;
 			}

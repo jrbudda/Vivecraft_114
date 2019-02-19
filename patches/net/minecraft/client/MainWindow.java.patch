@@ -12,3 +12,20 @@
      }
  
      public void close()
+@@ -597,11 +600,15 @@
+             this.mc.currentScreen.onResize(this.mc, this.scaledWidth, this.scaledHeight);
+         }
+ 
++        if (mc.stereoProvider != null)
++        	mc.stereoProvider.reinitFrameBuffers("Main Window Changed");
++        
+         Framebuffer framebuffer = this.mc.getFramebuffer();
+ 
+         if (framebuffer != null)
+         {
+-            framebuffer.createBindFramebuffer(this.framebufferWidth, this.framebufferHeight);
++        	//no plz.
++            //framebuffer.createBindFramebuffer(this.framebufferWidth, this.framebufferHeight);
+         }
+ 
+         if (this.mc.entityRenderer != null)

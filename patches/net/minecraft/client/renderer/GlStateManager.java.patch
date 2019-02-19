@@ -9,3 +9,12 @@
      private static final GlStateManager.DepthState DEPTH = new GlStateManager.DepthState();
      private static final GlStateManager.FogState FOG = new GlStateManager.FogState();
      private static final GlStateManager.CullState CULL = new GlStateManager.CullState();
+@@ -1483,7 +1483,7 @@
+             public void apply()
+             {
+                 GlStateManager.enableBlend();
+-                GlStateManager.blendFuncSeparate(770, 771, 1, 0);
++                GlStateManager.blendFuncSeparate(770, 771, 1, 1);
+             }
+ 
+             public void clean()

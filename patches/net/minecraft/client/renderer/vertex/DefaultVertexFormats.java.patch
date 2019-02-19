@@ -1,0 +1,10 @@
+--- a/net/minecraft/client/renderer/vertex/DefaultVertexFormats.java
++++ b/net/minecraft/client/renderer/vertex/DefaultVertexFormats.java
+@@ -27,6 +27,7 @@
+     public static final VertexFormat POSITION_TEX_NORMAL = (new VertexFormat()).addElement(POSITION_3F).addElement(TEX_2F).addElement(NORMAL_3B).addElement(PADDING_1B);
+     public static final VertexFormat POSITION_TEX_LMAP_COLOR = (new VertexFormat()).addElement(POSITION_3F).addElement(TEX_2F).addElement(TEX_2S).addElement(COLOR_4UB);
+     public static final VertexFormat POSITION_TEX_COLOR_NORMAL = (new VertexFormat()).addElement(POSITION_3F).addElement(TEX_2F).addElement(COLOR_4UB).addElement(NORMAL_3B).addElement(PADDING_1B);
++    public static final VertexFormat POSITION_TEX_LMAP_COLOR_NORMAL = (new VertexFormat()).addElement(POSITION_3F).addElement(TEX_2F).addElement(TEX_2S).addElement(COLOR_4UB).addElement(NORMAL_3B).addElement(PADDING_1B);
+ 
+     public static void updateVertexFormats()
+     {

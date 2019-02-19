@@ -89,8 +89,7 @@ public abstract class TrackedController {
 			else return y > 0 ? y : 0;
 		}
 	}
-	
-	public abstract Vector3 getButtonLocation(ButtonType button);
+
 	public abstract void processInput();
 	public abstract void processButtonEvent(int button, boolean state, boolean press);
 	public abstract List<ButtonType> getActiveButtons();
@@ -99,4 +98,5 @@ public abstract class TrackedController {
 	public abstract boolean canButtonBeTouched(ButtonType button);
 	public abstract Vector2 getAxis(AxisType axis);
 	public abstract AxisInfo getButtonAxis(ButtonType button);
+	public abstract Vector3 getButtonLocation(ButtonType button);
 }

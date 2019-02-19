@@ -69,7 +69,7 @@ public class MinecriftClassTransformer implements IClassTransformer
             File file = new File(uri);
             ZipFile zipFile = new ZipFile(file);
 
-            if (zipFile.getEntry("com/mtbs3d/minecrift/provider/MCOculus.class") == null)
+            if (zipFile.getEntry("org/vivecraft/provider/MCOculus.class") == null)
             {
                 zipFile.close();
                 return null;

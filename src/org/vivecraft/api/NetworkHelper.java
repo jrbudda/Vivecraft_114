@@ -37,7 +37,7 @@ public class NetworkHelper {
 		TELEPORT,
 		CLIMBING
 	}
-	private final static ResourceLocation channel = new ResourceLocation("Vivecraft");
+	public final static ResourceLocation channel = new ResourceLocation("vivecraft:data");
 	
 	public static CPacketCustomPayload getVivecraftClientPacket(PacketDiscriminators command, byte[] payload)
 	{

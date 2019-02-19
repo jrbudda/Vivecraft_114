@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/shader/Framebuffer.java
 +++ b/net/minecraft/client/shader/Framebuffer.java
-@@ -1,6 +1,11 @@
+@@ -1,12 +1,18 @@
  package net.minecraft.client.shader;
  
 +import java.nio.ByteBuffer;
@@ -12,7 +12,14 @@
  import net.minecraft.client.renderer.BufferBuilder;
  import net.minecraft.client.renderer.GlStateManager;
  import net.minecraft.client.renderer.OpenGlHelper;
-@@ -21,6 +26,13 @@
+ import net.minecraft.client.renderer.Tessellator;
+ import net.minecraft.client.renderer.texture.TextureUtil;
+ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
++import net.minecraft.src.Config;
+ 
+ public class Framebuffer
+ {
+@@ -21,6 +27,13 @@
      public float[] framebufferColor;
      public int framebufferFilter;
  
@@ -26,7 +33,7 @@
      public Framebuffer(int width, int height, boolean useDepthIn)
      {
          this.useDepth = useDepthIn;
-@@ -35,7 +47,7 @@
+@@ -35,7 +48,7 @@
          this.createBindFramebuffer(width, height);
      }
  
@@ -35,7 +42,7 @@
      {
          if (!OpenGlHelper.isFramebufferEnabled())
          {
-@@ -51,7 +63,7 @@
+@@ -51,7 +64,7 @@
                  this.deleteFramebuffer();
              }
  
@@ -44,7 +51,7 @@
              OpenGlHelper.glBindFramebuffer(OpenGlHelper.GL_FRAMEBUFFER, 0);
          }
      }
-@@ -84,7 +96,7 @@
+@@ -84,7 +97,7 @@
          }
      }
  
@@ -53,7 +60,7 @@
      {
          this.framebufferWidth = width;
          this.framebufferHeight = height;
-@@ -98,11 +110,23 @@
+@@ -98,11 +111,23 @@
          else
          {
              this.framebufferObject = OpenGlHelper.glGenFramebuffers();
@@ -79,7 +86,7 @@
              }
  
              this.setFramebufferFilter(9728);
-@@ -113,9 +137,23 @@
+@@ -113,9 +138,23 @@
  
              if (this.useDepth)
              {
@@ -99,11 +106,11 @@
                  OpenGlHelper.glRenderbufferStorage(OpenGlHelper.GL_RENDERBUFFER, 33190, this.framebufferTextureWidth, this.framebufferTextureHeight);
                  OpenGlHelper.glFramebufferRenderbuffer(OpenGlHelper.GL_FRAMEBUFFER, OpenGlHelper.GL_DEPTH_ATTACHMENT, OpenGlHelper.GL_RENDERBUFFER, this.depthBuffer);
 +            	 */
-+            	
++            Config.checkGlError("Create FBO");	
              }
  
              this.checkFramebufferComplete();
-@@ -217,7 +255,7 @@
+@@ -217,7 +256,7 @@
          this.framebufferRenderExt(width, height, true);
      }
  
@@ -112,7 +119,7 @@
      {
          if (OpenGlHelper.isFramebufferEnabled())
          {
-@@ -230,12 +268,12 @@
+@@ -230,12 +269,12 @@
              GlStateManager.matrixMode(5888);
              GlStateManager.loadIdentity();
              GlStateManager.translatef(0.0F, 0.0F, -2000.0F);
@@ -127,7 +134,7 @@
              {
                  GlStateManager.disableBlend();
                  GlStateManager.enableColorMaterial();
-@@ -276,4 +314,55 @@
+@@ -276,4 +315,55 @@
          GlStateManager.clear(i);
          this.unbindFramebuffer();
      }

@@ -44,27 +44,29 @@ public class GuiVRControls extends GuiVROptionsBase {
 	}
 
 	@Override
-	public boolean keyPressed(int typedChar, int keyCode, int mods)
+	public boolean keyPressed(int key, int scanCode, int mods)
     {
     	
         if (waitingForKey)
         {
-        	if (!Character.isISOControl(typedChar)) {
-	        	String function = "keyboard ";
-	        	if (keyboardHold) function += "(hold)_";
-	        	else function += "(press)_";
-	        	function += typedChar;
-	        	if (!mc.vrSettings.buttonMappings.containsKey(function)) {
-	        		mc.vrSettings.buttonMappings.put(function, new VRButtonMapping(function));
-	        		guiList.buildList();
-	        	}
-	            waitingForKey = false;        
-        	}
+			String function = "keyboard";
+			if (keyboardHold)
+				function += "-hold_";
+			else
+				function += "-press_";
+			function += key;
+
+			if (!mc.vrSettings.buttonMappings.containsKey(function)) {
+				mc.vrSettings.buttonMappings.put(function, new VRButtonMapping(function));
+				guiList.buildList();
+			}
+
+			waitingForKey = false;
         	return true;
         }
         else
         {
-        	return super.keyPressed(typedChar, keyCode, mods);
+        	return super.keyPressed(key, scanCode, mods);
         }
     }
    
@@ -93,7 +95,7 @@ public class GuiVRControls extends GuiVROptionsBase {
         		GuiVRControls.this.keyboardHoldSelect = true;
         	}
         });
-        btnKeyboardPress = (new GuiButton(101, this.width / 2 - 155, this.height / 2,100,20, "Press") {
+        btnKeyboardPress = (new GuiButton(101, this.width / 2 - 105, this.height / 2,100,20, "Press") {
         	@Override
         	public void onClick(double mouseX, double mouseY) {
         		GuiVRControls.this.keyboardHold = false;
@@ -101,7 +103,7 @@ public class GuiVRControls extends GuiVROptionsBase {
         		GuiVRControls.this.keyboardHoldSelect = false;
         	}
         });
-        btnKeyboardHold = (new GuiButton(102, this.width / 2 - 50, this.height / 2,100,20, "Hold") {
+        btnKeyboardHold = (new GuiButton(102, this.width / 2 + 5, this.height / 2,100,20, "Hold") {
         	@Override
         	public void onClick(double mouseX, double mouseY) {
         		GuiVRControls.this.keyboardHold = true;
@@ -109,7 +111,7 @@ public class GuiVRControls extends GuiVROptionsBase {
         		GuiVRControls.this.keyboardHoldSelect = false;
         	}
         });
-        btnLeftTouchpadMode = (new GuiButton(103, this.width / 2+2, 24, this.width / 2 - 2, 16, "") {
+        btnLeftTouchpadMode = (new GuiButton(103, this.width / 2+2, 24, this.width / 2 - 30, 16, "") {
         	@Override
         	public void onClick(double mouseX, double mouseY) {
             	if (MCOpenVR.isVive()) {
@@ -125,7 +127,7 @@ public class GuiVRControls extends GuiVROptionsBase {
             	}
         	}
         });
-        btnRightTouchpadMode = (new GuiButton(104, this.width / 2 +2, 41 ,this.width / 2 - 2, 16, "") {
+        btnRightTouchpadMode = (new GuiButton(104, this.width / 2 +2, 41 ,this.width / 2 - 30, 16, "") {
         	@Override
         	public void onClick(double mouseX, double mouseY) {
             	if (MCOpenVR.isVive()) {
@@ -169,7 +171,7 @@ public class GuiVRControls extends GuiVROptionsBase {
         		btnKeyboardHold.visible = false;
         		btnLeftTouchpadMode.visible = false;
         		btnRightTouchpadMode.visible = false;
-    			title = "Choose buttons for " + I18n.format(this.mapping.functionId);
+    			title = "Choose buttons for " + this.mapping.toReadableString();
     			this.visibleList = guiSelection;
     		}
     		else if (this.keyboardHoldSelect) {
