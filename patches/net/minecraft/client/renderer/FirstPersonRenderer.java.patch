@@ -165,7 +165,7 @@
          float f1 = MathHelper.sqrt(swingProgress);
          float f2 = -0.3F * MathHelper.sin(f1 * (float)Math.PI);
          float f3 = 0.4F * MathHelper.sin(f1 * ((float)Math.PI * 2F));
-@@ -258,25 +292,38 @@
+@@ -258,25 +292,39 @@
          float f6 = MathHelper.sin(f1 * (float)Math.PI);
          GlStateManager.rotatef(f * f6 * 70.0F, 0.0F, 1.0F, 0.0F);
          GlStateManager.rotatef(f * f5 * -20.0F, 0.0F, 0.0F, 1.0F);
@@ -196,7 +196,8 @@
 +			this.transformFirstPerson(side, swingProgress);
 +        
 +        	GlStateManager.scalef(0.4f, 0.4F, 0.4F);
-+        	GlStateManager.translatef(0.375F*-f, 0, .75F);
++        	boolean slim = abstractclientplayer.getSkinType().equals("slim");
++        	GlStateManager.translatef(slim ? 0.345F * -f : 0.375F * -f, 0, slim ? 0.785F : 0.75F);
 +	        GlStateManager.rotatef(-90, 1, 0,0);
 +	        
 +	        GlStateManager.rotatef(180, 0, 1, 0);	
@@ -216,7 +217,7 @@
          GlStateManager.enableCull();
      }
  
-@@ -288,32 +335,46 @@
+@@ -288,32 +336,46 @@
          if (f1 < 0.8F)
          {
              float f2 = MathHelper.abs(MathHelper.cos(f / 4.0F * (float)Math.PI) * 0.1F);
@@ -277,7 +278,7 @@
      }
  
      /**
-@@ -371,185 +432,399 @@
+@@ -371,185 +433,399 @@
          RenderHelper.disableStandardItemLighting();
      }
  
@@ -825,7 +826,7 @@
                  this.renderFireInFirstPerson();
              }
          }
-@@ -631,13 +906,13 @@
+@@ -631,13 +907,13 @@
          Tessellator tessellator = Tessellator.getInstance();
          BufferBuilder bufferbuilder = tessellator.getBuffer();
          GlStateManager.color4f(1.0F, 1.0F, 1.0F, 0.9F);
@@ -842,7 +843,7 @@
          {
              GlStateManager.pushMatrix();
              TextureAtlasSprite textureatlassprite = this.mc.getTextureMap().getSprite(ModelBakery.LOCATION_FIRE_1);
-@@ -646,19 +921,20 @@
+@@ -646,19 +922,20 @@
              float f2 = textureatlassprite.getMaxU();
              float f3 = textureatlassprite.getMinV();
              float f4 = textureatlassprite.getMaxV();
@@ -874,7 +875,7 @@
              tessellator.draw();
              GlStateManager.popMatrix();
          }
-@@ -743,4 +1019,130 @@
+@@ -743,4 +1020,130 @@
              this.equippedProgressOffHand = 0.0F;
          }
      }

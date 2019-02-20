@@ -76,6 +76,7 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.MovementInputFromOptions;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -774,8 +775,8 @@ public class MCOpenVR
 		if(mc.vrSettings.vrReverseHands) i = -1;
 
 		if (mc.vrSettings.vrHudLockMode == VRSettings.HUD_LOCK_WRIST){
-			barStartos = vecFromVector( getAimRotation(1).transform(new Vector3f(i*0.02f,0.05f,0.23f)));
-			barEndos = vecFromVector( getAimRotation(1).transform(new Vector3f(i*0.02f,0.05f,-0.02f)));
+			barStartos = vecFromVector( getAimRotation(1).transform(new Vector3f(i*0.02f,0.05f,0.26f)));
+			barEndos = vecFromVector( getAimRotation(1).transform(new Vector3f(i*0.02f,0.05f,0.01f)));
 		} else if (mc.vrSettings.vrHudLockMode == VRSettings.HUD_LOCK_HAND){
 			barStartos = vecFromVector( getAimRotation(1).transform(new Vector3f(i*-.18f,0.08f,-0.01f)));
 			barEndos = vecFromVector( getAimRotation(1).transform(new Vector3f(i*0.19f,0.04f,-0.08f)));
@@ -1162,7 +1163,11 @@ public class MCOpenVR
 
 		if(mc.vrSettings.vrWorldRotationIncrement == 0){
 			if(keyRotateLeft.isKeyDown()){
-				float analogRotSpeed = 5; //todo: something more fancy involving the button axis
+				float analogRotSpeed = 5;
+				ButtonTuple button = MCOpenVR.findAnyBindingButton(keyRotateLeft);
+				if (button != null) {
+					analogRotSpeed= 10 * MovementInputFromOptions.getMovementAxisValue(button);
+				}
 				mc.vrSettings.vrWorldRotation+=analogRotSpeed;
 				mc.vrSettings.vrWorldRotation = mc.vrSettings.vrWorldRotation % 360;
 			}
@@ -1175,7 +1180,11 @@ public class MCOpenVR
 
 		if(mc.vrSettings.vrWorldRotationIncrement == 0){
 			if(keyRotateRight.isKeyDown()){
-				float analogRotSpeed = 5;//todo: something more fancy involving the button axis
+				float analogRotSpeed = 5;
+				ButtonTuple button = MCOpenVR.findAnyBindingButton(keyRotateRight);
+				if (button != null) {
+					analogRotSpeed= 10 * MovementInputFromOptions.getMovementAxisValue(button);
+				}
 				mc.vrSettings.vrWorldRotation-=analogRotSpeed;
 				mc.vrSettings.vrWorldRotation = mc.vrSettings.vrWorldRotation % 360;
 			}
@@ -1197,11 +1206,6 @@ public class MCOpenVR
 		if(keyMenuButton.isPressed()) { //handle menu directly
 			if(!gui) {
 				if(!Main.kiosk){
-//					if(Display.isActive()){
-//						KeyboardSimulator.robot.keyPress(KeyEvent.VK_ESCAPE); //window focus... yadda yadda
-//						KeyboardSimulator.robot.keyRelease(KeyEvent.VK_ESCAPE); //window focus... yadda yadda
-//					}
-//					else 
 						mc.displayInGameMenu();
 				}
 			}

@@ -38,9 +38,9 @@ public class ModelPlayerVR extends ModelBiped
 
     //VIVE START
     public Vec3d renderPos;
-    ResourceLocation DIAMOND_HMD = new ResourceLocation("/assets/vivecraft/textures/diamond_hmd.png");
-    ResourceLocation GOLD_HMD = new ResourceLocation("/assets/vivecraft/textures/gold_hmd.png");
-    ResourceLocation BLACK_HMD = new ResourceLocation("/assets/vivecraft/textures/black_hmd.png");
+    ResourceLocation DIAMOND_HMD = new ResourceLocation("vivecraft/textures/diamond_hmd.png");
+    ResourceLocation GOLD_HMD = new ResourceLocation("vivecraft/textures/gold_hmd.png");
+    ResourceLocation BLACK_HMD = new ResourceLocation("vivecraft/textures/black_hmd.png");
     //VIVE END
     
    public  LayerBipedArmorVR armor = null;
@@ -58,12 +58,13 @@ public class ModelPlayerVR extends ModelBiped
         this.vrHMD.setTextureSize(16, 16);
         this.vrHMD.addBox(-3.5F, -6.0F, -7.5F, 7, 4, 5, modelSize);
 
-        try { // TODO: Should this be here?
+        /*try { // TODO: Should this be here?
             Minecraft.getMinecraft().getTextureManager().loadTexture(this.BLACK_HMD, new StaticTexture(this.BLACK_HMD));
             Minecraft.getMinecraft().getTextureManager().loadTexture(this.GOLD_HMD, new StaticTexture(this.GOLD_HMD));
             Minecraft.getMinecraft().getTextureManager().loadTexture(this.DIAMOND_HMD, new StaticTexture(this.DIAMOND_HMD));
 		} catch (Exception e) {
-		}
+        	e.printStackTrace();
+		}*/
 		
 		if (smallArmsIn)
 		{

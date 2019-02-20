@@ -8,11 +8,13 @@ import org.vivecraft.control.ControllerType;
 import org.vivecraft.control.VRButtonMapping;
 import org.vivecraft.control.VRInputEvent;
 import org.vivecraft.gui.GuiKeyboard;
+import org.vivecraft.gui.PhysicalKeyboard;
 import org.vivecraft.provider.MCOpenVR;
 import org.vivecraft.utils.Utils;
 
 import de.fruitfly.ovr.structs.Matrix4f;
 import de.fruitfly.ovr.structs.Vector3f;
+import jopenvr.OpenVRUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.main.Main;
 import net.minecraft.client.shader.Framebuffer;
@@ -24,10 +26,11 @@ public class KeyboardHandler {
 	public static Minecraft mc = Minecraft.getMinecraft();
 	public static boolean Showing = false;
 	public static GuiKeyboard UI = new GuiKeyboard();
+	public static PhysicalKeyboard physicalKeyboard = new PhysicalKeyboard();
 	public static Vec3d Pos_room = new Vec3d(0,0,0);
 	public static Matrix4f Rotation_room = new Matrix4f();
 	private static boolean lpl, lps, PointedL, PointedR;
-	public static boolean keyboardForGui; 
+	public static boolean keyboardForGui;
 	public static Framebuffer Framebuffer = null;
 
 	public static boolean setOverlayShowing(boolean showingState) {
@@ -37,7 +40,10 @@ public class KeyboardHandler {
 		if (showingState) {		
             int i = mc.mainWindow.getScaledWidth();
             int j = mc.mainWindow.getScaledHeight();
-            UI.setWorldAndResolution(Minecraft.getMinecraft(), i, j);
+            if (mc.vrSettings.physicalKeyboard)
+				physicalKeyboard.show();
+            else
+            	UI.setWorldAndResolution(Minecraft.getMinecraft(), i, j);
 			Showing = true;
       		orientOverlay(mc.currentScreen!=null);
       		RadialHandler.setOverlayShowing(false, null);
@@ -57,6 +63,11 @@ public class KeyboardHandler {
 		}
 		if(mc.vrSettings.seated) return;
 		if(Rotation_room == null) return;
+
+		if (mc.vrSettings.physicalKeyboard) {
+			physicalKeyboard.process();
+			return; // Skip the rest of this
+		}
 		
 		Vec2f tex1 = GuiHandler.getTexCoordsForCursor(Pos_room, Rotation_room, mc.currentScreen, GuiHandler.guiScale, mc.vrPlayer.vrdata_room_pre.getController(1));
 		Vec2f tex2 = GuiHandler.getTexCoordsForCursor(Pos_room, Rotation_room, mc.currentScreen, GuiHandler.guiScale, mc.vrPlayer.vrdata_room_pre.getController(0));
@@ -122,7 +133,17 @@ public class KeyboardHandler {
 		keyboardForGui = guiRelative;
 		
 		org.vivecraft.utils.lwjgl.Matrix4f matrix = new org.vivecraft.utils.lwjgl.Matrix4f();
-		if (guiRelative && GuiHandler.guiRotation_room != null) {
+		if (mc.vrSettings.physicalKeyboard) {
+			Vec3d pos = mc.vrPlayer.vrdata_room_pre.hmd.getPosition();
+			Vec3d offset = new Vec3d(0, -0.5, 0.3);
+			offset = offset.rotateYaw((float)Math.toRadians(-mc.vrPlayer.vrdata_room_pre.hmd.getYaw()));
+			System.out.println(offset);
+			Pos_room = new Vec3d(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
+
+			float yaw = (float)Math.PI + (float)Math.toRadians(-mc.vrPlayer.vrdata_room_pre.hmd.getYaw());
+			Rotation_room = Matrix4f.rotationY(yaw);
+			Rotation_room = Matrix4f.multiply(Rotation_room, OpenVRUtil.rotationXMatrix((float)Math.PI * 0.8f));
+		} else if (guiRelative && GuiHandler.guiRotation_room != null) {
 			org.vivecraft.utils.lwjgl.Matrix4f guiRot = Utils.convertOVRMatrix(GuiHandler.guiRotation_room);
 			Vec3d guiUp = new Vec3d(guiRot.m10, guiRot.m11, guiRot.m12);
 			Vec3d guiFwd = new Vec3d(guiRot.m20, guiRot.m21, guiRot.m22).scale(0.25f);
@@ -168,6 +189,9 @@ public class KeyboardHandler {
 		}
 
 		if(Showing) { // Left click, right click and shift bindings will work on keyboard, ignoring left/right controller designation.
+			if (mc.vrSettings.physicalKeyboard)
+				return physicalKeyboard.handleInputEvent(event); // Pass the input on to physical keyboard, skipping all this stuff
+
 			VRButtonMapping leftClick = mc.vrSettings.buttonMappings.get(GuiHandler.keyLeftClick.getKeyDescription());
 			VRButtonMapping rightClick = mc.vrSettings.buttonMappings.get(GuiHandler.keyRightClick.getKeyDescription());
 			VRButtonMapping shift = mc.vrSettings.buttonMappings.get(GuiHandler.keyShift.getKeyDescription());

@@ -9,6 +9,15 @@
      private static final GlStateManager.DepthState DEPTH = new GlStateManager.DepthState();
      private static final GlStateManager.FogState FOG = new GlStateManager.FogState();
      private static final GlStateManager.CullState CULL = new GlStateManager.CullState();
+@@ -1165,7 +1165,7 @@
+         }
+     }
+ 
+-    static class Color
++    public static class Color
+     {
+         public float red;
+         public float green;
 @@ -1483,7 +1483,7 @@
              public void apply()
              {

@@ -242,11 +242,10 @@ public class TeleportTracker extends Tracker{
 
      	   //execute teleport               
             if(mc.vrPlayer.noTeleportClient){
-            	String tp = "/tp " + mc.player.getName() + " " + dest.x + " " +dest.y + " " + dest.z;      
+            	String tp = "/tp " + dest.x + " " +dest.y + " " + dest.z;      
             	mc.player.sendChatMessage(tp);
             } else {          
             	if(NetworkHelper.serverSupportsDirectTeleport)	player.teleported = true;
-                //System.out.println("tp to " + dest);
             	player.setPositionAndUpdate(dest.x, dest.y, dest.z);
             }
 

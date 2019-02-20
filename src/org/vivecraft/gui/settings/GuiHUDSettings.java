@@ -3,6 +3,7 @@ package org.vivecraft.gui.settings;
 import java.util.function.BiFunction;
 
 import org.vivecraft.gameplay.screenhandlers.GuiHandler;
+import org.vivecraft.gameplay.screenhandlers.KeyboardHandler;
 import org.vivecraft.gui.framework.GuiVROptionButton;
 import org.vivecraft.gui.framework.GuiVROptionsBase;
 import org.vivecraft.gui.framework.VROptionEntry;
@@ -32,6 +33,10 @@ public class GuiHUDSettings extends GuiVROptionsBase
                 return false;
             }),
             new VROptionEntry(VRSettings.VrOptions.AUTO_OPEN_KEYBOARD),
+			new VROptionEntry(VRSettings.VrOptions.PHYSICAL_KEYBOARD, (button, mousePos) -> {
+				KeyboardHandler.setOverlayShowing(false);
+				return false;
+			}),
     };
 
     public GuiHUDSettings(GuiScreen guiScreen) {
@@ -73,6 +78,7 @@ public class GuiHUDSettings extends GuiVROptionsBase
         this.settings.hudOcclusion = true;
         this.settings.menuAlwaysFollowFace = false;
         this.settings.autoOpenKeyboard = false;
+        this.settings.physicalKeyboard = true;
         this.mc.gameSettings.hideGUI = false;
     }
 }

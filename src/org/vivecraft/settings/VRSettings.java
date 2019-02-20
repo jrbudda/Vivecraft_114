@@ -211,6 +211,7 @@ public class VRSettings
 	public boolean autoOpenKeyboard = false;
 	public int forceHardwareDetection = 0; // 0 = off, 1 = vive, 2 = oculus
 	public boolean radialModeHold = true;
+	public boolean physicalKeyboard = true;
     //
      	
     private Minecraft mc;
@@ -632,6 +633,7 @@ public class VRSettings
                     
                     if(optionTokens[0].equals("vehicleRotation")){
                         this.vehicleRotation=optionTokens[1].equals("true");
+                        this.vehicleRotation=false; //TODO: Fix.
                     }
                     
                     if(optionTokens[0].equals("fovReduction")){
@@ -697,6 +699,10 @@ public class VRSettings
 					if(optionTokens[0].equals("radialModeHold")){
 						this.radialModeHold = optionTokens[1].equals("true");
 					}
+
+					if(optionTokens[0].equals("physicalKeyboard")){
+					    this.physicalKeyboard = optionTokens[1].equals("true");
+                    }
 
                     if(optionTokens[0].equals("firstRun")){
                         this.firstRun = optionTokens[1].equals("true");
@@ -1077,6 +1083,8 @@ public class VRSettings
                 return this.analogMovement ? var4 + "ON" : var4 + "OFF";
             case RADIAL_MODE_HOLD:
                 return this.radialModeHold ? var4 + "HOLD" : var4 + "PRESS";
+            case PHYSICAL_KEYBOARD:
+                return this.physicalKeyboard ? var4 + "Physical" : var4 + "Pointer";
             case BOW_MODE:
             	if(this.bowMode == BOW_MODE_OFF)
             		return var4 + " OFF";
@@ -1393,6 +1401,9 @@ public class VRSettings
             case RADIAL_MODE_HOLD:
             	this.radialModeHold = !this.radialModeHold;
             	break;
+            case PHYSICAL_KEYBOARD:
+                this.physicalKeyboard = !this.physicalKeyboard;
+                break;
             default:
             	break;
     	}
@@ -1621,6 +1632,7 @@ public class VRSettings
             var5.println("keyboardKeys:" + this.keyboardKeys);
             var5.println("keyboardKeysShift:" + this.keyboardKeysShift);
             var5.println("radialModeHold:" + this.radialModeHold);
+            var5.println("physicalKeyboard:" + this.physicalKeyboard);
             var5.println("firstRun:" + this.firstRun);
             
             if (vrQuickCommands == null) vrQuickCommands = getQuickCommandsDefaults(); //defaults
@@ -1821,6 +1833,13 @@ public class VRSettings
                 "selection and release.",
                 "PRESS: Press radial menu button, click buttons,",
                 "press menu button again to dismiss."
+        }),
+        PHYSICAL_KEYBOARD("Keyboard Type", false, true, new String[] {
+                "Which type of VR keyboard to use for typing.",
+                "Physical: A keyboard which you can type on like",
+                "a real keyboard.",
+                "Pointer: A keyboard which you can use by pointing",
+                "either controller's crosshair at and pressing buttons."
         }),
 
 

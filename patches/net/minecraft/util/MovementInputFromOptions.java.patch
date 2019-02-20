@@ -24,7 +24,7 @@
  
 -    public void updatePlayerMoveState()
 -    {
-+	private float getMovementAxisValue(ButtonTuple button) {
++	public static float getMovementAxisValue(ButtonTuple button) {
 +		TrackedController controller = button.controller.getController();
 +		if (button.isTouch) return controller.isButtonTouched(button.button) ? 1 : 0;
 +		float out = controller.getButtonAxisValue(button.button);

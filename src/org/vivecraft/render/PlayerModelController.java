@@ -16,6 +16,7 @@ import org.vivecraft.utils.Utils;
 import org.vivecraft.utils.Vector3;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.particle.Particle;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Particles;
 import net.minecraft.util.math.Vec3d;
@@ -173,13 +174,14 @@ public class PlayerModelController {
 		
 		if(out.hmd > 3 && rand.nextInt(10) < 4){
 			Vector3 derp = dir.multiply(0.1f);
-			//TODO: prolly fix.
-			Minecraft.getMinecraft().world.spawnParticle(Particles.FIREWORK,
+			Particle particle = mc.effectRenderer.addParticle(Particles.FIREWORK,
 					hmdpos.x+ ((double)this.rand.nextFloat() - 0.5D)*.02f,
 					hmdpos.y - 0.8f + ((double)this.rand.nextFloat() - 0.5D)*.02f,
 					hmdpos.z + ((double)this.rand.nextFloat()- 0.5D)*.02f,
 					-derp.getX() + ((double)this.rand.nextFloat()- 0.5D)*.01f,((double)this.rand.nextFloat()- .05f)*.05f, -derp.getZ() + ((double)this.rand.nextFloat()- 0.5D)*.01f
-					);     
+					);
+			if (particle != null)
+				particle.setColor(0.5F + rand.nextFloat() / 2, 0.5F + rand.nextFloat() / 2, 0.5F + rand.nextFloat() / 2);
 		}
 		
 		vivePlayersReceived.put(uuid, out);
