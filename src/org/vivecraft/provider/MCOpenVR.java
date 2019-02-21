@@ -207,6 +207,7 @@ public class MCOpenVR
 	public static final KeyBinding keyMenuButton = new KeyBinding("In-Game Menu Button", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft");
 	public static final KeyBinding keyExportWorld = new KeyBinding("Export Menu World", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft");
 	public static final KeyBinding keyRadialMenu = new KeyBinding("Open Radial Menu", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft");
+	public static final KeyBinding keySwapMirrorView = new KeyBinding("Swap Mirror View", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft");
 	
 	public MCOpenVR()
 	{
@@ -368,6 +369,7 @@ public class MCOpenVR
 		keyBindings = ArrayUtils.add(keyBindings, keyHotbarPrev);
 		keyBindings = ArrayUtils.add(keyBindings, keyMenuButton);
 		keyBindings = ArrayUtils.add(keyBindings, keyRadialMenu);
+		keyBindings = ArrayUtils.add(keyBindings, keySwapMirrorView);
 		keyBindings = ArrayUtils.add(keyBindings, keyExportWorld);
 		keyBindings = ArrayUtils.add(keyBindings, GuiHandler.keyMenuButton);
 		keyBindings = ArrayUtils.add(keyBindings, GuiHandler.keyLeftClick);
@@ -764,7 +766,9 @@ public class MCOpenVR
 
 		if(mc.player == null) return;
 		if(mc.player.inventory == null) return;
-		if(mc.climbTracker.isGrabbingLadder()) return;
+		
+		if(mc.climbTracker.isGrabbingLadder() && 
+				mc.climbTracker.isClaws(mc.player.getHeldItemMainhand())) return;
 
 		Vec3d main = getAimSource(0);
 		Vec3d off = getAimSource(1);
@@ -956,11 +960,11 @@ public class MCOpenVR
 				}
 
 				if(event.getButtonState() && event.getController().getType() == ControllerType.RIGHT && (event.getButton() == ButtonType.VIVE_APPMENU || event.getButton() == ButtonType.OCULUS_BY)) {
-					if((controllers[RIGHT_CONTROLLER].isButtonPressed(ButtonType.VIVE_GRIP) || controllers[RIGHT_CONTROLLER].isButtonPressed(ButtonType.OCULUS_HAND_TRIGGER)) 
-							&& (mc.vrSettings.displayMirrorMode == mc.vrSettings.MIRROR_MIXED_REALITY||mc.vrSettings.displayMirrorMode == mc.vrSettings.MIRROR_THIRD_PERSON)){				
+					if((controllers[RIGHT_CONTROLLER].isButtonPressed(ButtonType.VIVE_GRIP) || controllers[RIGHT_CONTROLLER].isButtonPressed(ButtonType.OCULUS_HAND_TRIGGER))
+							&& (mc.vrSettings.displayMirrorMode == mc.vrSettings.MIRROR_MIXED_REALITY||mc.vrSettings.displayMirrorMode == mc.vrSettings.MIRROR_THIRD_PERSON)){
 						if (!Main.kiosk) {
-							VRHotkeys.snapMRCam(mc, 0);
-							mc.vrSettings.saveOptions();
+							//VRHotkeys.snapMRCam(0);
+							VRHotkeys.startMovingThirdPersonCam(0);
 						}
 						continue;
 					}
@@ -968,9 +972,15 @@ public class MCOpenVR
 							
 				if(KeyboardHandler.handleInputEvent(event)) continue;
 				if(RadialHandler.handleInputEvent(event)) continue;
-
 			}
-						
+
+			if(VRHotkeys.isMovingThirdPersonCam())
+				if ((MCOpenVR.isVive() && (!controllers[RIGHT_CONTROLLER].isButtonPressed(ButtonType.VIVE_GRIP) || !controllers[RIGHT_CONTROLLER].isButtonPressed(ButtonType.VIVE_APPMENU)))
+						|| (!MCOpenVR.isVive() && (!controllers[RIGHT_CONTROLLER].isButtonPressed(ButtonType.OCULUS_HAND_TRIGGER) || !controllers[RIGHT_CONTROLLER].isButtonPressed(ButtonType.OCULUS_BY)))) {			
+					VRHotkeys.stopMovingThirdPersonCam();
+					mc.vrSettings.saveOptions();
+				}
+							
 			// GUI bindings
 			for (VRButtonMapping binding : mc.vrSettings.buttonMappings.values()) {
 				if (binding.buttons.contains(new ButtonTuple(event.getButton(), event.getController().getType(), event.isButtonTouchEvent()))) {
@@ -1054,13 +1064,13 @@ public class MCOpenVR
 		if(InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL)) return;
 
 		//handle movementtoggle
-		if (mc.gameSettings.keyBindPickBlock.isKeyDown()) {
+		if (mc.gameSettings.keyBindPickBlock.isKeyDown() && !VRHotkeys.isMovingThirdPersonCam()) {
 			if(mc.vrSettings.vrAllowLocoModeSwotch){
 				moveModeSwitchcount++;
 				if (moveModeSwitchcount >= 20 * 4) {
-					moveModeSwitchcount = 0;					
+					moveModeSwitchcount = 0;
 					mc.vrPlayer.setFreeMove(!mc.vrPlayer.getFreeMove());
-				}				
+				}
 			}
 		} else {
 			moveModeSwitchcount = 0;
@@ -1162,12 +1172,13 @@ public class MCOpenVR
 		}
 
 		if(mc.vrSettings.vrWorldRotationIncrement == 0){
-			if(keyRotateLeft.isKeyDown()){
+			ButtonTuple button = MCOpenVR.findAnyBindingButton(keyRotateLeft);
+			float ax= 0;
+			if (button != null) 
+				ax=MovementInputFromOptions.getMovementAxisValue(button);
+			if(keyRotateLeft.isKeyDown() || (!isVive() && ax > 0)){ //require button press for trackpad.
 				float analogRotSpeed = 5;
-				ButtonTuple button = MCOpenVR.findAnyBindingButton(keyRotateLeft);
-				if (button != null) {
-					analogRotSpeed= 10 * MovementInputFromOptions.getMovementAxisValue(button);
-				}
+				if(ax > 0)	analogRotSpeed= 10 * ax;
 				mc.vrSettings.vrWorldRotation+=analogRotSpeed;
 				mc.vrSettings.vrWorldRotation = mc.vrSettings.vrWorldRotation % 360;
 			}
@@ -1179,12 +1190,13 @@ public class MCOpenVR
 		}
 
 		if(mc.vrSettings.vrWorldRotationIncrement == 0){
-			if(keyRotateRight.isKeyDown()){
+			ButtonTuple button = MCOpenVR.findAnyBindingButton(keyRotateRight);
+			float ax= 0;
+			if (button != null) 
+				ax=MovementInputFromOptions.getMovementAxisValue(button);
+			if(keyRotateRight.isKeyDown() || (!isVive() && ax > 0)){//require button press for trackpad.
 				float analogRotSpeed = 5;
-				ButtonTuple button = MCOpenVR.findAnyBindingButton(keyRotateRight);
-				if (button != null) {
-					analogRotSpeed= 10 * MovementInputFromOptions.getMovementAxisValue(button);
-				}
+				if(ax > 0)	analogRotSpeed = 10 * ax;
 				mc.vrSettings.vrWorldRotation-=analogRotSpeed;
 				mc.vrSettings.vrWorldRotation = mc.vrSettings.vrWorldRotation % 360;
 			}
@@ -1201,6 +1213,14 @@ public class MCOpenVR
 			if(!gui) {
 				RadialHandler.setOverlayShowing(!RadialHandler.isShowing(), findActiveBindingButton(keyRadialMenu));
 			}
+		}
+
+		if (keySwapMirrorView.isPressed()) {
+			if (mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_THIRD_PERSON)
+				mc.vrSettings.displayMirrorMode = VRSettings.MIRROR_FIRST_PERSON;
+			else if (mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_FIRST_PERSON)
+				mc.vrSettings.displayMirrorMode = VRSettings.MIRROR_THIRD_PERSON;
+			mc.stereoProvider.reinitFrameBuffers("Mirror Setting Changed");
 		}
 		
 		if(keyMenuButton.isPressed()) { //handle menu directly

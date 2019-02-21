@@ -10,10 +10,10 @@ import net.minecraft.util.math.Vec3d;
 
 public class VRData{
 	public class VRDevicePose{
-		VRData data;
-		Vec3d pos;
-		Vec3d dir;
-		Matrix4f matrix;
+		final VRData data;
+		final Vec3d pos;
+		final Vec3d dir;
+		final Matrix4f matrix;
 		
 		public VRDevicePose(VRData data, Matrix4f matrix, Vec3d pos, Vec3d dir) {
 			this.data = data;

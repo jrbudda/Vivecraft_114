@@ -18,7 +18,7 @@
  
  public class MovementInputFromOptions extends MovementInput
  {
-@@ -11,58 +22,129 @@
+@@ -11,58 +22,128 @@
          this.gameSettings = gameSettingsIn;
      }
  
@@ -28,7 +28,6 @@
 +		TrackedController controller = button.controller.getController();
 +		if (button.isTouch) return controller.isButtonTouched(button.button) ? 1 : 0;
 +		float out = controller.getButtonAxisValue(button.button);
-+
 +		if(out <= Minecraft.getMinecraft().vrSettings.analogDeadzone)
 +			return 0;
 +		return out;

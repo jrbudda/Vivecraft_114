@@ -13,7 +13,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.passive.AbstractFish;
+import net.minecraft.entity.passive.AbstractHorse;
 import net.minecraft.entity.passive.EntityAnimal;
+import net.minecraft.entity.passive.EntityDolphin;
+import net.minecraft.entity.passive.EntityWaterMob;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemHoe;
@@ -70,14 +74,15 @@ public class SwingTracker extends Tracker{
 	
 
 	public void doProcess(EntityPlayerSP player){ //on tick
-
-        
+       
         mc.profiler.startSection("updateSwingAttack");
         
         Vec3d forward = new Vec3d(0,0,-1);
         
         for(int c =0 ;c<2;c++){
-
+        	
+        	if (mc.climbTracker.isGrabbingLadder(c)) continue;
+        	
         	Vec3d handPos = mc.vrPlayer.vrdata_world_pre.getController(c).getPosition();
         	Vec3d handDirection = mc.vrPlayer.vrdata_world_pre.getHand(c).getCustomVector(forward);
 
@@ -179,16 +184,27 @@ public class SwingTracker extends Tracker{
         	for (int e = 0; e < entities.size(); ++e)
         	{
         		Entity hitEntity = (Entity) entities.get(e);
-        		if (hitEntity.canBeCollidedWith() && !(hitEntity == mc.getRenderViewEntity().getRidingEntity()) )			{
-        			if(mc.vrSettings.animaltouching && hitEntity instanceof EntityAnimal && !tool && !lastWeaponSolid[c] && !player.isInWater()){
-        				mc.playerController.interactWithEntity(player, hitEntity, c==0?EnumHand.MAIN_HAND:EnumHand.OFF_HAND);
-        				disableSwing = 3;
-        				MCOpenVR.triggerHapticPulse(c, 250);
-        				lastWeaponSolid[c] = true;
-        				inAnEntity = true;
+        		if (hitEntity.canBeCollidedWith() && !(hitEntity == mc.getRenderViewEntity().getRidingEntity()) )
+        		{
+        			
+        			if(mc.vrSettings.animaltouching) {
+        				boolean touchable = hitEntity instanceof EntityAnimal || hitEntity instanceof EntityWaterMob;
+        				
+        				if (hitEntity instanceof AbstractHorse && player.isInWater()) {
+        					touchable = false;
+        					inAnEntity = true;
+        				}
+        				
+        				if(touchable && !tool && !lastWeaponSolid[c]){  
+        					mc.playerController.interactWithEntity(player, hitEntity, c==0?EnumHand.MAIN_HAND:EnumHand.OFF_HAND);
+        					disableSwing = 3;
+        					MCOpenVR.triggerHapticPulse(c, 250);
+        					lastWeaponSolid[c] = true;
+        					inAnEntity = true;
+        				}
         			} 
-        			else 
-        			{
+        			
+        			if(!inAnEntity) {
         				if(canact){
         					mc.playerController.attackEntity(player, hitEntity);
         					MCOpenVR.triggerHapticPulse(c, 1000);
@@ -197,6 +213,7 @@ public class SwingTracker extends Tracker{
         				inAnEntity = true;
         			}
         		}
+        		
         	}
 
         	if(!inAnEntity && !sword){

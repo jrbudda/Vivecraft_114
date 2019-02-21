@@ -62,7 +62,7 @@ public class GuiRadialItemsList extends GuiListExtended
 		@Override
         public void drawEntry(int entryWidth, int entryHeight, int mouseX, int mouseY, boolean p_194999_5_, float partialTicks)
         {
-            mc.fontRenderer.drawString(this.labelText, GuiRadialItemsList.this.mc.currentScreen.width / 2 - this.labelWidth / 2, this.getY() + entryWidth - GuiRadialItemsList.this.mc.fontRenderer.FONT_HEIGHT - 1, 6777215);
+            mc.fontRenderer.drawString(this.labelText, GuiRadialItemsList.this.mc.currentScreen.width / 2 - this.labelWidth / 2, this.getY() + entryHeight  - GuiRadialItemsList.this.mc.fontRenderer.FONT_HEIGHT - 1, 6777215);
         }
     }
 

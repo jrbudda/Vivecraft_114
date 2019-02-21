@@ -1,15 +1,16 @@
 --- a/net/minecraft/client/KeyboardListener.java
 +++ b/net/minecraft/client/KeyboardListener.java
-@@ -38,6 +38,8 @@
+@@ -38,6 +38,9 @@
  import org.lwjgl.glfw.GLFWErrorCallbackI;
  import org.lwjgl.glfw.GLFWKeyCallbackI;
  import org.lwjgl.system.MemoryUtil;
 +import org.vivecraft.gameplay.screenhandlers.KeyboardHandler;
 +import org.vivecraft.gameplay.screenhandlers.RadialHandler;
++import org.vivecraft.settings.VRHotkeys;
  
  public class KeyboardListener
  {
-@@ -312,6 +314,20 @@
+@@ -312,6 +315,23 @@
      {
          if (windowPointer == this.mc.mainWindow.getHandle())
          {
@@ -25,12 +26,15 @@
 +            		return; 		
 +            	}
 +            }
++
++            if (VRHotkeys.handleKeyboardInputs(key, scanCode, action, modifiers))
++                return;
 +            ///
 +            
              if (this.debugCrashKeyPressTime > 0L)
              {
                  if (!InputMappings.isKeyDown(67) || !InputMappings.isKeyDown(292))
-@@ -344,12 +360,13 @@
+@@ -344,12 +364,13 @@
                          ;
                      }
  
@@ -46,7 +50,7 @@
                      return;
                  }
              }
-@@ -376,7 +393,7 @@
+@@ -376,7 +397,7 @@
                      return;
                  }
              }
@@ -55,7 +59,7 @@
              if (this.mc.currentScreen == null || this.mc.currentScreen.allowUserInput)
              {
                  InputMappings.Input inputmappings$input = InputMappings.getInputByCode(key, scanCode);
-@@ -418,10 +435,11 @@
+@@ -418,10 +439,11 @@
  
                      boolean flag = false;
  
@@ -68,7 +72,7 @@
                              this.mc.displayInGameMenu();
                          }
  
-@@ -464,7 +482,7 @@
+@@ -464,7 +486,7 @@
          }
      }
  

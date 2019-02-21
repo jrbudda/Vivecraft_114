@@ -48,7 +48,7 @@ public class ClimbTracker extends Tracker{
 	boolean wantjump = false;
 	AxisAlignedBB box[] = new AxisAlignedBB[2];
 	AxisAlignedBB latchbox[] = new AxisAlignedBB[2];
-
+	int[] meta = new int[2];
 
 	//						2: Ladder facing north
 	//						3: Ladder facing south
@@ -73,6 +73,10 @@ public class ClimbTracker extends Tracker{
 
 	public boolean isGrabbingLadder(){
 		return latched[0] || latched[1];
+	}
+	
+	public boolean isGrabbingLadder(int controller){
+		return latched[controller];
 	}
 
 	public boolean isClaws(ItemStack i){
@@ -136,11 +140,9 @@ public class ClimbTracker extends Tracker{
 
 	public void doProcess(EntityPlayerSP player){
 
-
 		boolean[] button = new boolean[2];
 		boolean[] inblock = new boolean[2];
 		boolean[] allowed = new boolean [2];
-		int[] meta = new int[2];
 
 		Vec3d[] cpos = new Vec3d[2];
 
@@ -150,7 +152,7 @@ public class ClimbTracker extends Tracker{
 		
 		boolean jump = false;
 		boolean ladder = false;
-		for(int c=0;c<2;c++){
+		for(int c=0;c<2;c++){	
 			cpos[c] = mc.vrPlayer.vrdata_world_pre.getController(c).getPosition();
 			Vec3d controllerDir = mc.vrPlayer.vrdata_world_pre.getController(c).getDirection();
 
@@ -249,40 +251,38 @@ public class ClimbTracker extends Tracker{
 						if (bs.get(BlockVine.WEST) && mc.world.getBlockState(bp.west()).isFullCube())
 							bbs.add(eastBB);
 					}
+					
+					inblock[c] = false;
 
 					if(ok){
-						inblock[c] = false;
 						for (AxisAlignedBB bb : bbs) {
 							if (conBB.intersects(bb.offset(bp))) {
 								inblock[c] = true;
-								if(conBB == northbb)
+								if(bb == northbb)
 									meta[c] = 2;
-								else if (conBB == southBB)
+								else if (bb == southBB)
 									meta[c] = 3;
-								else if (conBB == eastBB)
+								else if (bb == eastBB)
 									meta[c] = 5;
-								else if (conBB == westBB)
+								else if (bb == westBB)
 									meta[c] = 4;
+								break;
 							}
 						}
-					} else { //no ladder or vine
-						inblock[c] = false;
-						if(latched[c]) { //check if the block is gone.
-							BlockPos lbp = new BlockPos(latchStart[c]);
-							IBlockState lbs = mc.world.getBlockState(lbp);
-							latched[c] = (lbs.getBlock() instanceof BlockLadder|| lbs.getBlock() instanceof BlockVine);
-						}
-					}
+					} 
 				} 
 				else {
 					Vec3d hdel = latchStart[c].subtract(cpos[c] );
 					double dist = hdel.length();
 					if(dist > 0.5f) 
 						inblock[c] = false;
-					else
-						inblock[c] = wasinblock[c];
+					else {
+						BlockPos lbp = new BlockPos(latchStart[c]);
+						IBlockState lbs = mc.world.getBlockState(lbp);
+						inblock[c] = wasinblock[c] && lbs.getBlock() instanceof BlockLadder|| lbs.getBlock() instanceof BlockVine;
+					}
 				}
-
+				
 				button[c] = inblock[c];
 				allowed[c] = inblock[c];
 
@@ -446,8 +446,8 @@ public class ClimbTracker extends Tracker{
 				nx = x - delta.x;	
 				nz = z - delta.z;		
 			} else {
-				BlockPos bp = new BlockPos(grab);
-				IBlockState bs = mc.world.getBlockState(bp);
+				//BlockPos bp = new BlockPos(grab);
+				//IBlockState bs = mc.world.getBlockState(bp);
 				int m = meta[latchStartController];
 
 				if(m ==2 || m== 3){ //allow sideways

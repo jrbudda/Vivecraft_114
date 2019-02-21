@@ -24,6 +24,7 @@ import org.vivecraft.provider.MCOpenVR;
 import org.vivecraft.settings.profile.ProfileManager;
 import org.vivecraft.settings.profile.ProfileReader;
 import org.vivecraft.settings.profile.ProfileWriter;
+import org.vivecraft.utils.Quaternion;
 
 import net.minecraft.client.GameSettings;
 import net.minecraft.client.Minecraft;
@@ -178,9 +179,7 @@ public class VRSettings
     public float vrFixedCamposX = 0;
     public float vrFixedCamposY = 0;
     public float vrFixedCamposZ = 0;
-    public float vrFixedCamrotPitch = 0;
-    public float vrFixedCamrotYaw = 0;
-    public float vrFixedCamrotRoll = 0;
+    public Quaternion vrFixedCamrotQuat = new Quaternion();
     public float mrMovingCamOffsetX = 0;
     public float mrMovingCamOffsetY = 0;
     public float mrMovingCamOffsetZ = 0;
@@ -523,17 +522,21 @@ public class VRSettings
                     {
                         this.vrFixedCamposZ =  this.parseFloat(optionTokens[1]);
                     }
-                    if (optionTokens[0].equals("vrFixedCamrotPitch"))
+                    if (optionTokens[0].equals("vrFixedCamrotW"))
                     {
-                        this.vrFixedCamrotPitch =this.parseFloat(optionTokens[1]);
+                        this.vrFixedCamrotQuat.w = this.parseFloat(optionTokens[1]);
                     }
-                    if (optionTokens[0].equals("vrFixedCamrotYaw"))
+                    if (optionTokens[0].equals("vrFixedCamrotX"))
                     {
-                        this.vrFixedCamrotYaw =this.parseFloat(optionTokens[1]);
+                        this.vrFixedCamrotQuat.x = this.parseFloat(optionTokens[1]);
                     }
-                    if (optionTokens[0].equals("vrFixedCamrotRoll"))
+                    if (optionTokens[0].equals("vrFixedCamrotY"))
                     {
-                        this.vrFixedCamrotRoll =this.parseFloat(optionTokens[1]);
+                        this.vrFixedCamrotQuat.y = this.parseFloat(optionTokens[1]);
+                    }
+                    if (optionTokens[0].equals("vrFixedCamrotZ"))
+                    {
+                        this.vrFixedCamrotQuat.z = this.parseFloat(optionTokens[1]);
                     }
                     if (optionTokens[0].equals("mrMovingCamOffsetX"))
                     {
@@ -1588,9 +1591,10 @@ public class VRSettings
             var5.println("vrFixedCamposX:" + this.vrFixedCamposX);
             var5.println("vrFixedCamposY:" + this.vrFixedCamposY);
             var5.println("vrFixedCamposZ:" + this.vrFixedCamposZ);
-            var5.println("vrFixedCamrotPitch:" + this.vrFixedCamrotPitch);
-            var5.println("vrFixedCamrotYaw:" + this.vrFixedCamrotYaw);
-            var5.println("vrFixedCamrotRoll:" + this.vrFixedCamrotRoll);
+            var5.println("vrFixedCamrotW:" + this.vrFixedCamrotQuat.w);
+            var5.println("vrFixedCamrotX:" + this.vrFixedCamrotQuat.x);
+            var5.println("vrFixedCamrotY:" + this.vrFixedCamrotQuat.y);
+            var5.println("vrFixedCamrotZ:" + this.vrFixedCamrotQuat.z);
             var5.println("mrMovingCamOffsetX:" + this.mrMovingCamOffsetX);
             var5.println("mrMovingCamOffsetY:" + this.mrMovingCamOffsetY);
             var5.println("mrMovingCamOffsetZ:" + this.mrMovingCamOffsetZ);

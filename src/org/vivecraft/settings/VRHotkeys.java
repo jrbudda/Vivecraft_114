@@ -4,28 +4,49 @@
 */
 package org.vivecraft.settings;
 
+import org.vivecraft.api.VRData;
+import org.vivecraft.provider.MCOpenVR;
+import org.vivecraft.utils.Angle;
+import org.vivecraft.utils.Axis;
+import org.vivecraft.utils.Quaternion;
+import org.vivecraft.utils.Utils;
+
+import com.google.common.util.concurrent.Runnables;
+import de.fruitfly.ovr.structs.Matrix4f;
+import de.fruitfly.ovr.structs.Vector3f;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiWinGame;
+import net.minecraft.client.util.InputMappings;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextComponentString;
+import org.lwjgl.glfw.GLFW;
 
 public class VRHotkeys {
 
 	static long nextRead = 0;
 	static final long COOLOFF_PERIOD_MILLIS = 500;
+	static boolean debug = false;
 
-	public static boolean handleKeyboardInputs(Minecraft mc)
+	private static int startController;
+	private static VRData.VRDevicePose startControllerPose;
+	private static float startCamposX;
+	private static float startCamposY;
+	private static float startCamposZ;
+	private static Quaternion startCamrotQuat;
+
+	public static boolean handleKeyboardInputs(int key, int scanCode, int action, int modifiers)
 	{
-		return false;
-		/* TODO: Tedious bullshit.
-		 * 
 		// Support cool-off period for key presses - otherwise keys can get spammed...
 		if (nextRead != 0 && System.currentTimeMillis() < nextRead)
-		return false;
+			return false;
+		Minecraft mc = Minecraft.getMinecraft();
 
 		// Capture Minecrift key events
 		boolean gotKey = false;
 
 		// Debug aim
-		if (Keyboard.getEventKey() == Keyboard.KEY_RSHIFT && Keyboard.isKeyDown(Keyboard.KEY_RCONTROL))
+		if (action == GLFW.GLFW_PRESS && key == GLFW.GLFW_KEY_RIGHT_SHIFT && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL))
 		{
 			mc.vrSettings.storeDebugAim = true;
 			mc.printChatMessage("Show aim (RCTRL+RSHIFT): done");
@@ -33,7 +54,7 @@ public class VRHotkeys {
 		}
 
 		// Walk up blocks
-		if (Keyboard.getEventKey() == Keyboard.KEY_B && Keyboard.isKeyDown(Keyboard.KEY_RCONTROL))
+		if (action == GLFW.GLFW_PRESS && key == GLFW.GLFW_KEY_B && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL))
 		{
 			mc.vrSettings.walkUpBlocks = !mc.vrSettings.walkUpBlocks;
 			mc.printChatMessage("Walk up blocks (RCTRL+B): " + (mc.vrSettings.walkUpBlocks ? "YES" : "NO"));
@@ -41,7 +62,7 @@ public class VRHotkeys {
 		}
 
 		// Player inertia
-		if (Keyboard.getEventKey() == Keyboard.KEY_I && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
+		if (action == GLFW.GLFW_PRESS && key == GLFW.GLFW_KEY_I && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL))
 		{
 			mc.vrSettings.inertiaFactor += 1;
 			if (mc.vrSettings.inertiaFactor > VRSettings.INERTIA_MASSIVE)
@@ -65,7 +86,7 @@ public class VRHotkeys {
 		}
 
 		// Render full player model or just an disembodied hand...
-		if (Keyboard.getEventKey() == Keyboard.KEY_H && Keyboard.isKeyDown(Keyboard.KEY_RCONTROL))
+		if (action == GLFW.GLFW_PRESS && key == GLFW.GLFW_KEY_H && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL))
 		{
 			mc.vrSettings.renderFullFirstPersonModelMode++;
 			if (mc.vrSettings.renderFullFirstPersonModelMode > VRSettings.RENDER_FIRST_PERSON_NONE)
@@ -113,7 +134,7 @@ public class VRHotkeys {
 //			gotKey = true;
 //		}
 
-		if (Keyboard.getEventKey() == Keyboard.KEY_R && Keyboard.isKeyDown(Keyboard.KEY_RCONTROL))
+		if (action == GLFW.GLFW_PRESS && key == GLFW.GLFW_KEY_R && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL))
 		{
 			// for testing restricted client mode
 			
@@ -129,13 +150,13 @@ public class VRHotkeys {
 		}
 		
 		
-		if (Keyboard.getEventKey() == Keyboard.KEY_HOME && Keyboard.isKeyDown(Keyboard.KEY_RCONTROL))
+		if (action == GLFW.GLFW_PRESS && key == GLFW.GLFW_KEY_HOME && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL))
 		{
-			snapMRCam(mc, 0);
+			snapMRCam(0);
 			gotKey = true;
 		}
-		if(Keyboard.getEventKey() == Keyboard.KEY_F12){
-            //mc.displayGuiScreen(new GuiWinGame(false, Runnables.doNothing()));
+		if (action == GLFW.GLFW_PRESS && key == GLFW.GLFW_KEY_F12 && debug) {
+            mc.displayGuiScreen(new GuiWinGame(false, Runnables.doNothing()));
 			gotKey = true;
 		}
 
@@ -146,108 +167,106 @@ public class VRHotkeys {
 		}
 
 		return gotKey;
-		*/
 	}
 
 		
 	public static void handleMRKeys() {
-	/*	
 		Minecraft mc = Minecraft.getMinecraft();
 		
 		boolean gotKey = false;
 		
-		if (Keyboard.isKeyDown(Keyboard.KEY_LEFT) && Keyboard.isKeyDown(Keyboard.KEY_RCONTROL) && !Keyboard.isKeyDown(Keyboard.KEY_RSHIFT))
+		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_LEFT) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && !InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
 			mc.vrSettings.vrFixedCamposX -= 0.01;
 			gotKey = true;
 		}
-		if (Keyboard.isKeyDown(Keyboard.KEY_RIGHT) && Keyboard.isKeyDown(Keyboard.KEY_RCONTROL) && !Keyboard.isKeyDown(Keyboard.KEY_RSHIFT))
+		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && !InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
 			mc.vrSettings.vrFixedCamposX += 0.01;
 			gotKey = true;
 		}
-		if (Keyboard.isKeyDown(Keyboard.KEY_UP) && Keyboard.isKeyDown(Keyboard.KEY_RCONTROL) && !Keyboard.isKeyDown(Keyboard.KEY_RSHIFT))
+		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_UP) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && !InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
 			mc.vrSettings.vrFixedCamposZ -= 0.01;
 			gotKey = true;
 		}
-		if (Keyboard.isKeyDown(Keyboard.KEY_DOWN) && Keyboard.isKeyDown(Keyboard.KEY_RCONTROL) && !Keyboard.isKeyDown(Keyboard.KEY_RSHIFT))
+		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_DOWN) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && !InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
 			mc.vrSettings.vrFixedCamposZ += 0.01;
 			gotKey = true;
 		}
-		if (Keyboard.isKeyDown(Keyboard.KEY_PRIOR) && Keyboard.isKeyDown(Keyboard.KEY_RCONTROL) && !Keyboard.isKeyDown(Keyboard.KEY_RSHIFT))
+		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_PAGE_UP) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && !InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
 			mc.vrSettings.vrFixedCamposY += 0.01;
 			gotKey = true;
 		}
-		if (Keyboard.isKeyDown(Keyboard.KEY_NEXT) && Keyboard.isKeyDown(Keyboard.KEY_RCONTROL) && !Keyboard.isKeyDown(Keyboard.KEY_RSHIFT))
+		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_PAGE_DOWN) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && !InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
 			mc.vrSettings.vrFixedCamposY -= 0.01;
 			gotKey = true;
 		}
 
-		if (Keyboard.isKeyDown(Keyboard.KEY_UP) && Keyboard.isKeyDown(Keyboard.KEY_RCONTROL) && Keyboard.isKeyDown(Keyboard.KEY_RSHIFT))
+		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_UP) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
 			if(MCOpenVR.mrMovingCamActive) {
 				mc.vrSettings.mrMovingCamOffsetPitch -= 90;
 			}else {
-				mc.vrSettings.vrFixedCamrotPitch -= 0.5;
+				mc.vrSettings.vrFixedCamrotQuat.set(mc.vrSettings.vrFixedCamrotQuat.rotate(Axis.PITCH, -0.5F));
 			}
 			gotKey = true;
 		}
-		if (Keyboard.isKeyDown(Keyboard.KEY_DOWN) && Keyboard.isKeyDown(Keyboard.KEY_RCONTROL) && Keyboard.isKeyDown(Keyboard.KEY_RSHIFT))
+		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_DOWN) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
 			if(MCOpenVR.mrMovingCamActive) {
 				mc.vrSettings.mrMovingCamOffsetPitch += 90;
 			}else {
-				mc.vrSettings.vrFixedCamrotPitch += 0.5;	
+				mc.vrSettings.vrFixedCamrotQuat.set(mc.vrSettings.vrFixedCamrotQuat.rotate(Axis.PITCH, 0.5F));
 			}
 			gotKey = true;
 
 		}
-		if (Keyboard.isKeyDown(Keyboard.KEY_LEFT) && Keyboard.isKeyDown(Keyboard.KEY_RCONTROL) && Keyboard.isKeyDown(Keyboard.KEY_RSHIFT))
+		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_LEFT) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
 			if(MCOpenVR.mrMovingCamActive) {
 				mc.vrSettings.mrMovingCamOffsetYaw -= 90;
 			}else {
-				mc.vrSettings.vrFixedCamrotYaw -= 0.5;
+				mc.vrSettings.vrFixedCamrotQuat.set(mc.vrSettings.vrFixedCamrotQuat.rotate(Axis.YAW, -0.5F));
 			}
 			gotKey = true;
 		}
-		if (Keyboard.isKeyDown(Keyboard.KEY_RIGHT) && Keyboard.isKeyDown(Keyboard.KEY_RCONTROL) && Keyboard.isKeyDown(Keyboard.KEY_RSHIFT))
+		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
 			if(MCOpenVR.mrMovingCamActive) {
 				mc.vrSettings.mrMovingCamOffsetYaw += 90;
 			}else {
-				mc.vrSettings.vrFixedCamrotYaw += 0.5;
+				mc.vrSettings.vrFixedCamrotQuat.set(mc.vrSettings.vrFixedCamrotQuat.rotate(Axis.YAW, 0.5F));
 			}
 			gotKey = true;
 		}
-		if (Keyboard.isKeyDown(Keyboard.KEY_PRIOR) && Keyboard.isKeyDown(Keyboard.KEY_RCONTROL) && Keyboard.isKeyDown(Keyboard.KEY_RSHIFT))
+		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_PAGE_UP) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
 			if(MCOpenVR.mrMovingCamActive) {
 				mc.vrSettings.mrMovingCamOffsetRoll -= 90;
 			}else {
-				mc.vrSettings.vrFixedCamrotRoll -= 0.05;
+				mc.vrSettings.vrFixedCamrotQuat.set(mc.vrSettings.vrFixedCamrotQuat.rotate(Axis.ROLL, -0.05F));
 			}
 			gotKey = true;
 		}
-		if (Keyboard.isKeyDown(Keyboard.KEY_NEXT) && Keyboard.isKeyDown(Keyboard.KEY_RCONTROL) && Keyboard.isKeyDown(Keyboard.KEY_RSHIFT))
+		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_PAGE_DOWN) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
 			if(MCOpenVR.mrMovingCamActive) {
 				mc.vrSettings.mrMovingCamOffsetRoll += 90;
 			}else {
-				mc.vrSettings.vrFixedCamrotRoll += 0.05;	
+				mc.vrSettings.vrFixedCamrotQuat.set(mc.vrSettings.vrFixedCamrotQuat.rotate(Axis.ROLL, 0.05F));
 			}
 			gotKey = true;
 		}
-		if (Keyboard.isKeyDown(Keyboard.KEY_INSERT) && Keyboard.isKeyDown(Keyboard.KEY_RCONTROL))
+		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_INSERT) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL))
 		{
 			mc.gameSettings.fovSetting +=1 ;
 			gotKey = true;
 		}
-		if (Keyboard.isKeyDown(Keyboard.KEY_DELETE) && Keyboard.isKeyDown(Keyboard.KEY_RCONTROL))
+		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_DELETE) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL))
 		{
 			mc.gameSettings.fovSetting -=1 ;
 			gotKey = true;
@@ -256,22 +275,59 @@ public class VRHotkeys {
 		if(gotKey) {
 			mc.vrSettings.saveOptions();
 			if(MCOpenVR.mrMovingCamActive) { //todo print offsets
-				Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentString("pitch: " + mc.vrSettings.mrMovingCamOffsetPitch + " yaw: " + mc.vrSettings.mrMovingCamOffsetYaw + " roll: " + mc.vrSettings.mrMovingCamOffsetRoll));            
+				Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentString("pitch: " + mc.vrSettings.mrMovingCamOffsetPitch + " yaw: " + mc.vrSettings.mrMovingCamOffsetYaw + " roll: " + mc.vrSettings.mrMovingCamOffsetRoll));
 			} else {
-				Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentString("pitch: " + mc.vrSettings.vrFixedCamrotPitch + " yaw: " + mc.vrSettings.vrFixedCamrotYaw + " roll: " + mc.vrSettings.vrFixedCamrotRoll));            
+				Angle angle = mc.vrSettings.vrFixedCamrotQuat.toEuler();
+				Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentString("pitch: " + angle.getPitch() + " yaw: " + angle.getYaw() + " roll: " + angle.getRoll()));
 			}
 		}
-		*/
 	}
 	
-	public static void snapMRCam(Minecraft mc, int controller) {
+	public static void snapMRCam(int controller) {
+		Minecraft mc = Minecraft.getMinecraft();
 		Vec3d c = mc.vrPlayer.vrdata_room_pre.getController(controller).getPosition();
 		mc.vrSettings.vrFixedCamposX =(float) c.x;
 		mc.vrSettings.vrFixedCamposY =(float) c.y;
-		mc.vrSettings.vrFixedCamposZ =(float) c.z;	
-		
-		mc.vrSettings.vrFixedCamrotPitch = mc.vrPlayer.vrdata_room_pre.getController(controller).getPitch();
-		mc.vrSettings.vrFixedCamrotYaw = mc.vrPlayer.vrdata_room_pre.getController(controller).getYaw();
-		mc.vrSettings.vrFixedCamrotRoll = mc.vrPlayer.vrdata_room_pre.getController(controller).getRoll();
+		mc.vrSettings.vrFixedCamposZ =(float) c.z;
+
+		Quaternion quat = new Quaternion(Utils.convertOVRMatrix(mc.vrPlayer.vrdata_room_pre.getController(controller).getMatrix()));
+		mc.vrSettings.vrFixedCamrotQuat.set(quat);
+	}
+
+	public static void updateMovingThirdPersonCam() {
+		Minecraft mc = Minecraft.getMinecraft();
+
+		if (startControllerPose != null) {
+			VRData.VRDevicePose controllerPose = mc.vrPlayer.vrdata_room_pre.getController(startController);
+			Vec3d startPos = startControllerPose.getPosition();
+			Vec3d deltaPos = controllerPose.getPosition().subtract(startPos);
+
+			Matrix4f deltaMatrix = Matrix4f.multiply(controllerPose.getMatrix(), startControllerPose.getMatrix().inverted());
+			Vector3f offset = new Vector3f(startCamposX - (float)startPos.x, startCamposY - (float)startPos.y, startCamposZ - (float)startPos.z);
+			Vector3f offsetRotated = deltaMatrix.transform(offset);
+
+			mc.vrSettings.vrFixedCamposX = startCamposX + (float)deltaPos.x + (offsetRotated.x - offset.x);
+			mc.vrSettings.vrFixedCamposY = startCamposY + (float)deltaPos.y + (offsetRotated.y - offset.y);
+			mc.vrSettings.vrFixedCamposZ = startCamposZ + (float)deltaPos.z + (offsetRotated.z - offset.z);
+			mc.vrSettings.vrFixedCamrotQuat.set(startCamrotQuat.multiply(new Quaternion(Utils.convertOVRMatrix(deltaMatrix))));
+		}
+	}
+
+	public static void startMovingThirdPersonCam(int controller) {
+		Minecraft mc = Minecraft.getMinecraft();
+		startController = controller;
+		startControllerPose = mc.vrPlayer.vrdata_room_pre.getController(controller);
+		startCamposX = mc.vrSettings.vrFixedCamposX;
+		startCamposY = mc.vrSettings.vrFixedCamposY;
+		startCamposZ = mc.vrSettings.vrFixedCamposZ;
+		startCamrotQuat = mc.vrSettings.vrFixedCamrotQuat.copy();
+	}
+
+	public static void stopMovingThirdPersonCam() {
+		startControllerPose = null;
+	}
+
+	public static boolean isMovingThirdPersonCam() {
+		return startControllerPose != null;
 	}
 }

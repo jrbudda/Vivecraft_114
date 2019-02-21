@@ -592,6 +592,9 @@ public class Installer extends JPanel  implements PropertyChangeListener
 
 			for (int i = 1; i <= 3; i++)
 			{
+			
+				if (monitor.isCanceled()) return null;
+
 				if (DownloadOptiFine())
 				{
 					// Got it!
@@ -812,6 +815,7 @@ public class Installer extends JPanel  implements PropertyChangeListener
 						deleted = fo.delete();
 					}
 					catch (Exception ex1) {
+						JOptionPane.showMessageDialog(null, "Could not delete existing Optifine jar " +ex1.getLocalizedMessage(), "Optifine Installation", JOptionPane.WARNING_MESSAGE);
 						ex1.printStackTrace();
 					}
 				}
@@ -833,6 +837,7 @@ public class Installer extends JPanel  implements PropertyChangeListener
 						deleted = fo.delete();
 					}
 					catch (Exception ex1) {
+						JOptionPane.showMessageDialog(null, "Could not delete existing Optifine jar " +ex1.getLocalizedMessage(), "Download File", JOptionPane.WARNING_MESSAGE);
 						ex1.printStackTrace();
 					}
 					return false;
@@ -982,6 +987,7 @@ public class Installer extends JPanel  implements PropertyChangeListener
 				fos.flush();
 			}
 			catch(Exception ex) {
+				JOptionPane.showMessageDialog(null, "Could not download from " + surl + " to " + fo.getName() + " \r\n " + ex.getLocalizedMessage(), "Error downloading", JOptionPane.ERROR_MESSAGE);
 				ex.printStackTrace();
 				success = false;
 			}
@@ -999,7 +1005,7 @@ public class Installer extends JPanel  implements PropertyChangeListener
 					success = false;
 				}
 			} else {
-				JOptionPane.showMessageDialog(null, "Could not download file: " + surl, "Download File", JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(null, "Could not install " + surl, "Download File", JOptionPane.INFORMATION_MESSAGE);
 			}
 			return success;
 		}
@@ -1117,7 +1123,7 @@ public class Installer extends JPanel  implements PropertyChangeListener
 					mc_jar = new File(tempDir + File.separator + MINECRAFT_VERSION + ".jar");
 					if (!mc_jar.exists() || !checkMD5(mc_jar, MC_MD5)) {
 						if (!downloadFile(mc_url, mc_jar, MC_MD5)) {
-							JOptionPane.showMessageDialog(null, " Error: Failed to download " + MINECRAFT_VERSION + ".jar from " + mc_url, "Warning", JOptionPane.ERROR_MESSAGE);
+							JOptionPane.showMessageDialog(null, " Error: Failed to install " + MINECRAFT_VERSION + ".jar from " + mc_url, "Warning", JOptionPane.ERROR_MESSAGE);
 							return false;
 						}
 					}
@@ -1451,7 +1457,8 @@ public class Installer extends JPanel  implements PropertyChangeListener
 			return result;
 		}
 
-	}
+	}// End InstallTask
+	
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		if ("progress" == evt.getPropertyName()) {

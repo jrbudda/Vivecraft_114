@@ -1176,7 +1176,7 @@
      }
  
      public Minecraft getMinecraft()
-@@ -2288,4 +2726,2204 @@
+@@ -2288,4 +2726,2215 @@
      {
          return this.farPlaneDistance;
      }
@@ -1666,12 +1666,14 @@
 +
 +  	//VIVE
 +  	public void renderDebugAxes(int r, int g, int b, float radius){
-+  		setupPolyRendering(true);
++        setupPolyRendering(true);
++        // Shaders goes crazy without this
++        mc.getTextureManager().bindTexture(new ResourceLocation("vivecraft/textures/white.png"));
 +  		renderCircle(new Vec3d(0, 0, 0), (float) radius, 32, r, g, b	, 255, 0);
 +  		renderCircle(new Vec3d(0, .01, 0), (float) radius * .75f, 32, r, g, b	, 255, 0);
 +  		renderCircle(new Vec3d(0,0.02, 0), (float) radius * .25f, 32, r, g, b	, 255, 0);
 +  		renderCircle(new Vec3d(0, 0, .15), (float) radius *.5f, 32, r, g, b	, 255, 2);
-+  		setupPolyRendering(false);
++        setupPolyRendering(false);
 +  	}
 +
 +  	
@@ -2423,6 +2425,7 @@
 +  		GlStateManager.enableBlend();
 +  		GlStateManager.enableAlphaTest();
 +  		GlStateManager.enableCull();
++        GlStateManager.alphaFunc(GL11.GL_GREATER, 0.1F);
 +  		
 +  		GL11.glPushMatrix();
 +
@@ -2522,7 +2525,7 @@
 +  		if (mc.teleportTracker.isAiming())
 +  			return;
 +
-+  		if (mc.climbTracker.isGrabbingLadder() && mc.climbTracker.latchStartController == 0)
++  		if (mc.climbTracker.isGrabbingLadder(0))
 +  			return;
 +
 +  		if (mc.climbTracker.isClimbeyClimb() && mc.climbTracker.isGrabbingLadder() && (mc.objectMouseOver==null || mc.objectMouseOver.entity == null))
@@ -2969,7 +2972,7 @@
 +           
 +  	private void setupPolyRendering(boolean enable){
 +  		boolean shadersMod = Config.isShaders();
-+  		boolean shadersModShadowPass = false;
++  		//boolean shadersModShadowPass = false;
 +  		if(enable){
 +  			polyblendsrc = GlStateManager.BLEND.srcFactor;
 +  			polyblenddst = GlStateManager.BLEND.dstFactor;
@@ -2985,7 +2988,7 @@
 +  			GlStateManager.disableCull();
 +  			if(shadersMod){
 +  				prog  = Shaders.activeProgram;
-+  				Shaders.useProgram(Shaders.ProgramNone);
++  				Shaders.useProgram(Shaders.ProgramWater);
 +  			}
 +  		} else {
 +  			GlStateManager.blendFunc(polyblendsrc, polyblenddst);
@@ -3139,15 +3142,16 @@
 +  			    			);
 +  							    		    	
 +  					Vec3d pos = interpolatedPlayerPos.subtract(o).add(0, 0.005, 0);
-+  					setupPolyRendering(true);
-+  					GlStateManager.blendFunc(SourceFactor.ZERO, DestFactor.ONE_MINUS_SRC_ALPHA);
++                    setupPolyRendering(true);
 +  					GlStateManager.disableDepthTest();
++                    // Shaders goes crazy without this
++                    mc.getTextureManager().bindTexture(new ResourceLocation("vivecraft/textures/white.png"));
 +  					renderFlatQuad(pos,
 +  							(float)(bb.maxX - bb.minX),
 +  							(float) (bb.maxZ - bb.minZ),
-+  							0, 0, 255, 255, 64);
++  							0, 0, 0, 0, 64);
 +  					GlStateManager.enableDepthTest();
-+  					setupPolyRendering(false);
++                    setupPolyRendering(false);
 +  						
 +  				GL11.glMatrixMode(GL11.GL_PROJECTION);
 +  				GL11.glPopMatrix();
@@ -3177,8 +3181,11 @@
 +  				GL11.glRotated(180, 0, 1, 0);
 +  				renderDebugAxes(0, 0, 0, 0.08f * mc.vrPlayer.vrdata_world_render.worldScale); //TODO: camera model?
 +
++                GL11.glRotated(180, 0, 1, 0);
 +  				GL11.glTranslatef(0, 0.125f, 0);
-+  				
++
++                GlStateManager.blendFunc(SourceFactor.ONE, DestFactor.ZERO);
++                GlStateManager.alphaFunc(GL11.GL_ALWAYS, 0);
 +  				mc.stereoProvider.framebufferMR.bindFramebufferTexture();
 +  				drawSizedQuad(320, 200, 0.25f);
 +  				
@@ -3238,11 +3245,15 @@
 +
 +  	private void drawEyeStencil() {
 +        if(mc.currentPass != RenderPass.THIRD && mc.currentPass != RenderPass.CENTER && mc.vrSettings.vrUseStencil && MCOpenVR.isHMDTracking()){
++            Program lastProgram = Shaders.activeProgram;
 +            if(Config.isShaders()){
 +                GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, Shaders.dfb);
 +                Shaders.useProgram(Shaders.ProgramNone);
 +            }
 +            mc.stereoProvider.doStencilForEye(mc.currentPass == RenderPass.LEFT ? 0 : 1);
++            if(Config.isShaders()){
++                Shaders.useProgram(lastProgram);
++            }
 +        }
 +        else{
 +            GL11.glDisable(GL11.GL_STENCIL_TEST);

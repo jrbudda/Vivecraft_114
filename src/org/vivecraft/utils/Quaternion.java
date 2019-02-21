@@ -163,6 +163,13 @@ public class Quaternion {
 		this.z = z;
 	}
 
+	public void set(Quaternion other) {
+		this.w = other.w;
+		this.x = other.x;
+		this.y = other.y;
+		this.z = other.z;
+	}
+
 	public void normalize() {
 		float norm = (float)Math.sqrt(w * w + x * x + y * y + z * z);
 		if (norm > 0) {

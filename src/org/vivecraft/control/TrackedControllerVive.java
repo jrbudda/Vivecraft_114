@@ -422,15 +422,14 @@ public class TrackedControllerVive extends TrackedController {
 	@Override
 	public AxisInfo getButtonAxis(ButtonType button) {
 		switch (button) {
-			// Technically not wrong, but doesn't make much sense, so removed
-			/*case VIVE_TOUCHPAD_SWIPE_UP:
+			case VIVE_TOUCHPAD_U:
 				return new AxisInfo(AxisType.VIVE_TOUCHPAD, true, false);
-			case VIVE_TOUCHPAD_SWIPE_DOWN:
+			case VIVE_TOUCHPAD_D:
 				return new AxisInfo(AxisType.VIVE_TOUCHPAD, true, true);
-			case VIVE_TOUCHPAD_SWIPE_LEFT:
+			case VIVE_TOUCHPAD_L:
 				return new AxisInfo(AxisType.VIVE_TOUCHPAD, false, true);
-			case VIVE_TOUCHPAD_SWIPE_RIGHT:
-				return new AxisInfo(AxisType.VIVE_TOUCHPAD, false, false);*/
+			case VIVE_TOUCHPAD_R:
+				return new AxisInfo(AxisType.VIVE_TOUCHPAD, false, false);
 			case VIVE_TRIGGER:
 				return new AxisInfo(AxisType.VIVE_TRIGGER, false, false);
 			default:
