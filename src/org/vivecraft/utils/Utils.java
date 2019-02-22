@@ -36,6 +36,7 @@ import org.vivecraft.utils.lwjgl.Vector4f;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import jopenvr.HmdMatrix34_t;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.Vec3d;
 import org.apache.commons.io.IOUtils;
 
@@ -249,6 +250,58 @@ public class Utils
 		mat.m21 = matrix.m21;
 		mat.m22 = matrix.m22;
 		return mat;
+	}
+
+	/**
+	 * HSB to RGB conversion, pinched from java.awt.Color.
+	 * @param hue (0..1.0f)
+	 * @param saturation (0..1.0f)
+	 * @param brightness (0..1.0f)
+	 */
+	public static GlStateManager.Color colorFromHSB(float hue, float saturation, float brightness) {
+		GlStateManager.Color color = new GlStateManager.Color();
+		if (saturation == 0.0F) {
+			color.red = color.green = color.blue = brightness;
+		} else {
+			float f3 = (hue - (float) Math.floor(hue)) * 6F;
+			float f4 = f3 - (float) Math.floor(f3);
+			float f5 = brightness * (1.0F - saturation);
+			float f6 = brightness * (1.0F - saturation * f4);
+			float f7 = brightness * (1.0F - saturation * (1.0F - f4));
+			switch ((int) f3) {
+				case 0 :
+					color.red = brightness;
+					color.green = f7;
+					color.blue = f5;
+					break;
+				case 1 :
+					color.red = f6;
+					color.green = brightness;
+					color.blue = f5;
+					break;
+				case 2 :
+					color.red = f5;
+					color.green = brightness;
+					color.blue = f7;
+					break;
+				case 3 :
+					color.red = f5;
+					color.green = f6;
+					color.blue = brightness;
+					break;
+				case 4 :
+					color.red = f7;
+					color.green = f5;
+					color.blue = brightness;
+					break;
+				case 5 :
+					color.red = brightness;
+					color.green = f5;
+					color.blue = f6;
+					break;
+			}
+		}
+		return color;
 	}
 
 	public static byte[] loadAsset(String name, boolean required) {

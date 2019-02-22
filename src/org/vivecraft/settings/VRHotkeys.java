@@ -10,6 +10,7 @@ import org.vivecraft.utils.Angle;
 import org.vivecraft.utils.Axis;
 import org.vivecraft.utils.Quaternion;
 import org.vivecraft.utils.Utils;
+import org.vivecraft.utils.Vector3;
 
 import com.google.common.util.concurrent.Runnables;
 import de.fruitfly.ovr.structs.Matrix4f;
@@ -177,109 +178,122 @@ public class VRHotkeys {
 		
 		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_LEFT) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && !InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
-			mc.vrSettings.vrFixedCamposX -= 0.01;
+			adjustCamPos(new Vector3(-0.01F, 0, 0));
 			gotKey = true;
 		}
 		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && !InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
-			mc.vrSettings.vrFixedCamposX += 0.01;
+			adjustCamPos(new Vector3(0.01F, 0, 0));
 			gotKey = true;
 		}
 		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_UP) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && !InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
-			mc.vrSettings.vrFixedCamposZ -= 0.01;
+			adjustCamPos(new Vector3(0, 0, -0.01F));
 			gotKey = true;
 		}
 		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_DOWN) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && !InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
-			mc.vrSettings.vrFixedCamposZ += 0.01;
+			adjustCamPos(new Vector3(0, 0, 0.01F));
 			gotKey = true;
 		}
 		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_PAGE_UP) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && !InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
-			mc.vrSettings.vrFixedCamposY += 0.01;
+			adjustCamPos(new Vector3(0, 0.01F, 0));
 			gotKey = true;
 		}
 		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_PAGE_DOWN) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && !InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
-			mc.vrSettings.vrFixedCamposY -= 0.01;
+			adjustCamPos(new Vector3(0, -0.01F, 0));
 			gotKey = true;
 		}
 
 		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_UP) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
-			if(MCOpenVR.mrMovingCamActive) {
-				mc.vrSettings.mrMovingCamOffsetPitch -= 90;
-			}else {
-				mc.vrSettings.vrFixedCamrotQuat.set(mc.vrSettings.vrFixedCamrotQuat.rotate(Axis.PITCH, -0.5F));
-			}
+			adjustCamRot(Axis.PITCH, 0.5F);
 			gotKey = true;
 		}
 		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_DOWN) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
-			if(MCOpenVR.mrMovingCamActive) {
-				mc.vrSettings.mrMovingCamOffsetPitch += 90;
-			}else {
-				mc.vrSettings.vrFixedCamrotQuat.set(mc.vrSettings.vrFixedCamrotQuat.rotate(Axis.PITCH, 0.5F));
-			}
+			adjustCamRot(Axis.PITCH, -0.5F);
 			gotKey = true;
-
 		}
 		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_LEFT) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
-			if(MCOpenVR.mrMovingCamActive) {
-				mc.vrSettings.mrMovingCamOffsetYaw -= 90;
-			}else {
-				mc.vrSettings.vrFixedCamrotQuat.set(mc.vrSettings.vrFixedCamrotQuat.rotate(Axis.YAW, -0.5F));
-			}
+			adjustCamRot(Axis.YAW, 0.5F);
 			gotKey = true;
 		}
 		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
-			if(MCOpenVR.mrMovingCamActive) {
-				mc.vrSettings.mrMovingCamOffsetYaw += 90;
-			}else {
-				mc.vrSettings.vrFixedCamrotQuat.set(mc.vrSettings.vrFixedCamrotQuat.rotate(Axis.YAW, 0.5F));
-			}
+			adjustCamRot(Axis.YAW, -0.5F);
 			gotKey = true;
 		}
 		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_PAGE_UP) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
-			if(MCOpenVR.mrMovingCamActive) {
-				mc.vrSettings.mrMovingCamOffsetRoll -= 90;
-			}else {
-				mc.vrSettings.vrFixedCamrotQuat.set(mc.vrSettings.vrFixedCamrotQuat.rotate(Axis.ROLL, -0.05F));
-			}
+			adjustCamRot(Axis.ROLL, 0.5F);
 			gotKey = true;
 		}
 		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_PAGE_DOWN) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
-			if(MCOpenVR.mrMovingCamActive) {
-				mc.vrSettings.mrMovingCamOffsetRoll += 90;
-			}else {
-				mc.vrSettings.vrFixedCamrotQuat.set(mc.vrSettings.vrFixedCamrotQuat.rotate(Axis.ROLL, 0.05F));
-			}
+			adjustCamRot(Axis.ROLL, -0.5F);
 			gotKey = true;
 		}
-		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_INSERT) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL))
+
+		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_INSERT) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && !InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
-			mc.gameSettings.fovSetting +=1 ;
+			mc.gameSettings.fovSetting += 1;
 			gotKey = true;
 		}
-		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_DELETE) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL))
+		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_DELETE) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && !InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
 		{
-			mc.gameSettings.fovSetting -=1 ;
+			mc.gameSettings.fovSetting -= 1;
+			gotKey = true;
+		}
+		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_INSERT) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
+		{
+			mc.vrSettings.mixedRealityFov += 1;
+			gotKey = true;
+		}
+		if (InputMappings.isKeyDown(GLFW.GLFW_KEY_DELETE) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT))
+		{
+			mc.vrSettings.mixedRealityFov -= 1;
 			gotKey = true;
 		}
 		
-		if(gotKey) {
+		if (gotKey) {
 			mc.vrSettings.saveOptions();
-			if(MCOpenVR.mrMovingCamActive) { //todo print offsets
-				Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentString("pitch: " + mc.vrSettings.mrMovingCamOffsetPitch + " yaw: " + mc.vrSettings.mrMovingCamOffsetYaw + " roll: " + mc.vrSettings.mrMovingCamOffsetRoll));
+			if (MCOpenVR.mrMovingCamActive) {
+				Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentString("X: " + mc.vrSettings.mrMovingCamOffsetX + " Y: " + mc.vrSettings.mrMovingCamOffsetY + " Z: " + mc.vrSettings.mrMovingCamOffsetZ));
+				Angle angle = mc.vrSettings.mrMovingCamOffsetRotQuat.toEuler();
+				Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentString("Pitch: " + angle.getPitch() + " Yaw: " + angle.getYaw() + " Roll: " + angle.getRoll()));
 			} else {
+				Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentString("X: " + mc.vrSettings.vrFixedCamposX + " Y: " + mc.vrSettings.vrFixedCamposY + " Z: " + mc.vrSettings.vrFixedCamposZ));
 				Angle angle = mc.vrSettings.vrFixedCamrotQuat.toEuler();
-				Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentString("pitch: " + angle.getPitch() + " yaw: " + angle.getYaw() + " roll: " + angle.getRoll()));
+				Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentString("Pitch: " + angle.getPitch() + " Yaw: " + angle.getYaw() + " Roll: " + angle.getRoll()));
 			}
+		}
+	}
+
+	private static void adjustCamPos(Vector3 offset) {
+		Minecraft mc = Minecraft.getMinecraft();
+		if (MCOpenVR.mrMovingCamActive) {
+			offset = mc.vrSettings.mrMovingCamOffsetRotQuat.multiply(offset);
+			mc.vrSettings.mrMovingCamOffsetX += offset.getX();
+			mc.vrSettings.mrMovingCamOffsetY += offset.getY();
+			mc.vrSettings.mrMovingCamOffsetZ += offset.getZ();
+		} else {
+			offset = mc.vrSettings.vrFixedCamrotQuat.inverse().multiply(offset);
+			mc.vrSettings.vrFixedCamposX += offset.getX();
+			mc.vrSettings.vrFixedCamposY += offset.getY();
+			mc.vrSettings.vrFixedCamposZ += offset.getZ();
+		}
+	}
+
+	private static void adjustCamRot(Axis axis, float degrees) {
+		Minecraft mc = Minecraft.getMinecraft();
+		if (MCOpenVR.mrMovingCamActive) {
+			mc.vrSettings.mrMovingCamOffsetRotQuat.set(mc.vrSettings.mrMovingCamOffsetRotQuat.rotate(axis, degrees, true));
+		} else {
+			mc.vrSettings.vrFixedCamrotQuat.set(mc.vrSettings.vrFixedCamrotQuat.rotate(axis, degrees, false));
 		}
 	}
 	

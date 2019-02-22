@@ -72,8 +72,6 @@ public class Installer extends JPanel  implements PropertyChangeListener
 	private static final String DONATION_LINK = "https://www.patreon.com/jrbudda";
     private static final String ORIG_FORGE_VERSION = FORGE_VERSION;
 	
-	private String mc_url = "https://s3.amazonaws.com/Minecraft.Download/versions/" + MINECRAFT_VERSION + "/" + MINECRAFT_VERSION +".jar";
-
 	private InstallTask task;
 	private static ProgressMonitor monitor;
 	static private File targetDir;
@@ -643,17 +641,6 @@ public class Installer extends JPanel  implements PropertyChangeListener
 			}
 
 			monitor.setProgress(50);
-			monitor.setNote("Checking for base game...");
-
-
-			if(!isMultiMC)
-				if(!SetupMinecraftAsLibrary())
-				{
-					JOptionPane.showMessageDialog(null,
-							"Could not locate or download base game. The Mincraft Launcher will attempt to download it.",
-							"Warning!",JOptionPane.WARNING_MESSAGE);
-
-				}
 
 			// VIVE START - install openVR
 			monitor.setProgress(52);
@@ -1100,45 +1087,6 @@ public class Installer extends JPanel  implements PropertyChangeListener
 			}
 
 			return true;
-		}
-
-		private boolean SetupMinecraftAsLibrary() {
-			String s = "";
-			try {
-				File mc_jar = null;
-				String minecriftVersionName = "vivecraft-" + version + mod;
-				s+=	minecriftVersionName;
-				File tar = new File(targetDir, "versions" + File.separator + minecriftVersionName + File.separator +  minecriftVersionName + ".jar");
-				s+=MC_MD5 + " " + GetMd5(tar);
-				if(checkMD5(tar, MC_MD5)) return true;
-
-				if(mc_jar == null){
-					File vanilla = new File(targetDir, "versions" + File.separator + MINECRAFT_VERSION + File.separator + MINECRAFT_VERSION+".jar");
-					s+=MC_MD5 + " " + GetMd5(vanilla);
-					if(checkMD5(vanilla, MC_MD5)) mc_jar = vanilla;
-				}
-
-				if(mc_jar == null){
-					// Download the minecraft jar (we don't wont to require that it has previously been downloaded in Minecraft)
-					mc_jar = new File(tempDir + File.separator + MINECRAFT_VERSION + ".jar");
-					if (!mc_jar.exists() || !checkMD5(mc_jar, MC_MD5)) {
-						if (!downloadFile(mc_url, mc_jar, MC_MD5)) {
-							JOptionPane.showMessageDialog(null, " Error: Failed to install " + MINECRAFT_VERSION + ".jar from " + mc_url, "Warning", JOptionPane.ERROR_MESSAGE);
-							return false;
-						}
-					}
-				}
-
-				if(mc_jar == null) return false;
-
-				InputStream src = new FileInputStream(mc_jar);
-				tar.getParentFile().mkdirs();
-				return copyInputStreamToFile(src, tar);
-
-			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null, " Error: "+e.getLocalizedMessage(), "Warning", JOptionPane.ERROR_MESSAGE);
-				return false;
-			}
 		}
 
 		private boolean ExtractVersion() {

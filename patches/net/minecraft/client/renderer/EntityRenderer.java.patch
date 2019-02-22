@@ -1176,7 +1176,7 @@
      }
  
      public Minecraft getMinecraft()
-@@ -2288,4 +2726,2215 @@
+@@ -2288,4 +2726,2220 @@
      {
          return this.farPlaneDistance;
      }
@@ -3199,15 +3199,20 @@
 +  	}
 +  	
 +  	public void applyMRCameraRotation(boolean invert){
-+  			org.vivecraft.utils.lwjgl.Matrix4f view = new org.vivecraft.utils.lwjgl.Matrix4f(mc.thirdPassViewMatrix);
-+  			view.m30 = 0;
-+  			view.m31 = 0;
-+  			view.m32 = 0;
-+  			if(!invert) view = (org.vivecraft.utils.lwjgl.Matrix4f) view.invert(); //yea yea i know.
-+  			view.store(matrixBuffer);
-+  			matrixBuffer.rewind();
-+  			GlStateManager.multMatrixf(matrixBuffer);
-+  			matrixBuffer.rewind();
++        org.vivecraft.utils.lwjgl.Matrix4f view = new org.vivecraft.utils.lwjgl.Matrix4f(mc.thirdPassViewMatrix);
++        view.m30 = 0;
++        view.m31 = 0;
++        view.m32 = 0;
++        if (MCOpenVR.mrMovingCamActive) { // yeah this is gross but whatever
++            org.vivecraft.utils.lwjgl.Matrix4f.mul(view, mc.vrSettings.mrMovingCamOffsetRotQuat.getMatrix(), view);
++            view.translate(new org.vivecraft.utils.lwjgl.Vector3f(mc.vrSettings.mrMovingCamOffsetX, mc.vrSettings.mrMovingCamOffsetY, mc.vrSettings.mrMovingCamOffsetZ));
++            org.vivecraft.utils.lwjgl.Matrix4f.mul(view, (org.vivecraft.utils.lwjgl.Matrix4f)mc.vrSettings.mrMovingCamOffsetRotQuat.getMatrix().invert(), view);
++        }
++        if(!invert) view = (org.vivecraft.utils.lwjgl.Matrix4f) view.invert(); //yea yea i know.
++        view.store(matrixBuffer);
++        matrixBuffer.rewind();
++        GlStateManager.multMatrixf(matrixBuffer);
++        matrixBuffer.rewind();
 +  	}
 +  	
 +  	private void renderViveHudIcons(){

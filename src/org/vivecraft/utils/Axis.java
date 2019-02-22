@@ -5,9 +5,9 @@ package org.vivecraft.utils;
  * @author Techjar
  */
 public enum Axis {
-	PITCH(-1, 0, 0),
-	YAW(0, -1, 0),
-	ROLL(0, 0, -1),
+	PITCH(1, 0, 0),
+	YAW(0, 1, 0),
+	ROLL(0, 0, 1),
 	UNKNOWN(0, 0, 0);
 
 	private Vector3 vector;

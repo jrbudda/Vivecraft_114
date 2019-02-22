@@ -1,0 +1,26 @@
+--- a/net/optifine/gui/GuiPerformanceSettingsOF.java
++++ b/net/optifine/gui/GuiPerformanceSettingsOF.java
+@@ -36,15 +36,22 @@
+             int j = this.width / 2 - 155 + i % 2 * 160;
+             int k = this.height / 6 + 21 * (i / 2) - 12;
+ 
++            // VIVECRAFT: Disable some options here
++            GuiButton button;
+             if (!gamesettings$options.isFloat())
+             {
+-                this.buttonList.add(new GuiOptionButtonOF(gamesettings$options.getOrdinal(), j, k, gamesettings$options, this.settings.getKeyBinding(gamesettings$options)));
++                this.buttonList.add(button = new GuiOptionButtonOF(gamesettings$options.getOrdinal(), j, k, gamesettings$options, this.settings.getKeyBinding(gamesettings$options)));
+             }
+             else
+             {
+                 GuiOptionSlider guioptionslider = new GuiOptionSliderOF(gamesettings$options.getOrdinal(), j, k, gamesettings$options);
+                 this.buttonList.add(guioptionslider);
+                 this.eventListeners.add(guioptionslider);
++                button = guioptionslider;
++            }
++
++            if (gamesettings$options == GameSettings.Options.FAST_RENDER || gamesettings$options == GameSettings.Options.SMOOTH_FPS || gamesettings$options == GameSettings.Options.SMOOTH_WORLD) {
++                button.enabled = false;
+             }
+         }
+ 

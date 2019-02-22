@@ -1,0 +1,25 @@
+--- a/net/optifine/gui/GuiQualitySettingsOF.java
++++ b/net/optifine/gui/GuiQualitySettingsOF.java
+@@ -36,15 +36,21 @@
+             int j = this.width / 2 - 155 + i % 2 * 160;
+             int k = this.height / 6 + 21 * (i / 2) - 12;
+ 
++            GuiButton button;
+             if (!gamesettings$options.isFloat())
+             {
+-                this.buttonList.add(new GuiOptionButtonOF(gamesettings$options.getOrdinal(), j, k, gamesettings$options, this.settings.getKeyBinding(gamesettings$options)));
++                this.buttonList.add(button = new GuiOptionButtonOF(gamesettings$options.getOrdinal(), j, k, gamesettings$options, this.settings.getKeyBinding(gamesettings$options)));
+             }
+             else
+             {
+                 GuiOptionSlider guioptionslider = new GuiOptionSliderOF(gamesettings$options.getOrdinal(), j, k, gamesettings$options);
+                 this.buttonList.add(guioptionslider);
+                 this.eventListeners.add(guioptionslider);
++                button = guioptionslider;
++            }
++
++            if (gamesettings$options == GameSettings.Options.AF_LEVEL || gamesettings$options == GameSettings.Options.AA_LEVEL) {
++                button.enabled = false;
+             }
+         }
+ 

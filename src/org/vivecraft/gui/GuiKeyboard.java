@@ -36,7 +36,7 @@ public class GuiKeyboard extends TwoHandedGuiScreen
 		if (Math.floor(tmp) == tmp)
 			rows = (int) tmp;
 		else
-			rows = (int) (tmp+1);	
+			rows = (int) (tmp+1);
 		
 		for (int r=0; r<rows;r++) {
 			for (int i=0; i<cols;i++) {
@@ -74,28 +74,76 @@ public class GuiKeyboard extends TwoHandedGuiScreen
 		this.addButton(new GuiButton(202, cols * (bwidth+spacing) + margin, margin , 35 , 20, "BKSP") {
 			@Override
 			public void onClick(double mouseX, double mouseY) {
-				mc.keyboardListener.onKeyEvent(mc.mainWindow.getHandle(), GLFW.GLFW_KEY_BACKSPACE, 0, GLFW.GLFW_PRESS, 0);
-				mc.keyboardListener.onKeyEvent(mc.mainWindow.getHandle(), GLFW.GLFW_KEY_BACKSPACE, 0, GLFW.GLFW_RELEASE, 0);
+				InputSimulator.pressKey(GLFW.GLFW_KEY_BACKSPACE);
+				InputSimulator.releaseKey(GLFW.GLFW_KEY_BACKSPACE);
 			}
 		});
 		this.addButton(new GuiButton(203, cols * (bwidth+spacing) + margin, margin + 2*(20 + spacing) , 35 , 20, "ENTER") {
 			@Override
 			public void onClick(double mouseX, double mouseY) {
-				mc.keyboardListener.onKeyEvent(mc.mainWindow.getHandle(), GLFW.GLFW_KEY_ENTER, 0, GLFW.GLFW_PRESS, 0);
-				mc.keyboardListener.onKeyEvent(mc.mainWindow.getHandle(), GLFW.GLFW_KEY_ENTER, 0, GLFW.GLFW_RELEASE, 0);
+				InputSimulator.pressKey(GLFW.GLFW_KEY_ENTER);
+				InputSimulator.releaseKey(GLFW.GLFW_KEY_ENTER);
 			}
 		});
 		this.addButton(new GuiButton(204, 0, margin + (20 + spacing), 30, 20, "TAB") {
 			public void onClick(double mouseX, double mouseY) {
-				mc.keyboardListener.onKeyEvent(mc.mainWindow.getHandle(), GLFW.GLFW_KEY_TAB, 0, GLFW.GLFW_PRESS, 0);
-				mc.keyboardListener.onKeyEvent(mc.mainWindow.getHandle(), GLFW.GLFW_KEY_TAB, 0, GLFW.GLFW_RELEASE, 0);
+				InputSimulator.pressKey(GLFW.GLFW_KEY_TAB);
+				InputSimulator.releaseKey(GLFW.GLFW_KEY_TAB);
 			}	
 		});
 		this.addButton(new GuiButton(205, 0, margin, 30, 20, "ESC") {
 			public void onClick(double mouseX, double mouseY) {
-				mc.keyboardListener.onKeyEvent(mc.mainWindow.getHandle(), GLFW.GLFW_KEY_ESCAPE, 0, GLFW.GLFW_PRESS, 0);
-				mc.keyboardListener.onKeyEvent(mc.mainWindow.getHandle(), GLFW.GLFW_KEY_ESCAPE, 0, GLFW.GLFW_RELEASE, 0);
+				InputSimulator.pressKey(GLFW.GLFW_KEY_ESCAPE);
+				InputSimulator.releaseKey(GLFW.GLFW_KEY_ESCAPE);
 			}	
+		});
+		this.addButton(new GuiButton(206, (cols - 1) * (bwidth + spacing) + margin, margin + rows * (20 + spacing), bwidth, 20, "\u2191") {
+			public void onClick(double mouseX, double mouseY) {
+				InputSimulator.pressKey(GLFW.GLFW_KEY_UP);
+				InputSimulator.releaseKey(GLFW.GLFW_KEY_UP);
+			}
+		});
+		this.addButton(new GuiButton(207, (cols - 1) * (bwidth + spacing) + margin, margin + (rows + 1) * (20 + spacing), bwidth, 20, "\u2193") {
+			public void onClick(double mouseX, double mouseY) {
+				InputSimulator.pressKey(GLFW.GLFW_KEY_DOWN);
+				InputSimulator.releaseKey(GLFW.GLFW_KEY_DOWN);
+			}
+		});
+		this.addButton(new GuiButton(208, (cols - 2) * (bwidth + spacing) + margin, margin + (rows + 1) * (20 + spacing), bwidth, 20, "\u2190") {
+			public void onClick(double mouseX, double mouseY) {
+				InputSimulator.pressKey(GLFW.GLFW_KEY_LEFT);
+				InputSimulator.releaseKey(GLFW.GLFW_KEY_LEFT);
+			}
+		});
+		this.addButton(new GuiButton(209, cols * (bwidth + spacing) + margin, margin + (rows + 1) * (20 + spacing), bwidth, 20, "\u2192") {
+			public void onClick(double mouseX, double mouseY) {
+				InputSimulator.pressKey(GLFW.GLFW_KEY_RIGHT);
+				InputSimulator.releaseKey(GLFW.GLFW_KEY_RIGHT);
+			}
+		});
+		this.addButton(new GuiButton(210, margin, margin + -1 * (20 + spacing), 35, 20, "CUT") {
+			public void onClick(double mouseX, double mouseY) {
+				InputSimulator.pressKey(GLFW.GLFW_KEY_LEFT_CONTROL);
+				InputSimulator.pressKey(GLFW.GLFW_KEY_X);
+				InputSimulator.releaseKey(GLFW.GLFW_KEY_X);
+				InputSimulator.releaseKey(GLFW.GLFW_KEY_LEFT_CONTROL);
+			}
+		});
+		this.addButton(new GuiButton(211, 35 + spacing + margin, margin + -1 * (20 + spacing), 35, 20, "COPY") {
+			public void onClick(double mouseX, double mouseY) {
+				InputSimulator.pressKey(GLFW.GLFW_KEY_LEFT_CONTROL);
+				InputSimulator.pressKey(GLFW.GLFW_KEY_C);
+				InputSimulator.releaseKey(GLFW.GLFW_KEY_C);
+				InputSimulator.releaseKey(GLFW.GLFW_KEY_LEFT_CONTROL);
+			}
+		});
+		this.addButton(new GuiButton(212, 2 * (35 + spacing) + margin, margin + -1 * (20 + spacing), 35, 20, "PASTE") {
+			public void onClick(double mouseX, double mouseY) {
+				InputSimulator.pressKey(GLFW.GLFW_KEY_LEFT_CONTROL);
+				InputSimulator.pressKey(GLFW.GLFW_KEY_V);
+				InputSimulator.releaseKey(GLFW.GLFW_KEY_V);
+				InputSimulator.releaseKey(GLFW.GLFW_KEY_LEFT_CONTROL);
+			}
 		});
 	}
 

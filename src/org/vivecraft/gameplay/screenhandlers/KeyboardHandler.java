@@ -180,11 +180,12 @@ public class KeyboardHandler {
 	}
 	
 	public static boolean handleInputEvent(VRInputEvent event) {
-	
-		if(event.getButtonState() && event.getController().getType() == ControllerType.LEFT && (event.getButton() == ButtonType.VIVE_APPMENU || event.getButton() == ButtonType.OCULUS_BY)) {
-			if (MCOpenVR.controllers[MCOpenVR.LEFT_CONTROLLER].isButtonPressed(ButtonType.VIVE_GRIP) || MCOpenVR.controllers[MCOpenVR.LEFT_CONTROLLER].isButtonPressed(ButtonType.OCULUS_HAND_TRIGGER)) {
-				setOverlayShowing(!Showing);
-				return true;
+		if (!MCOpenVR.isBindingBound(MCOpenVR.keyToggleKeyboard) || mc.world == null) {
+			if (event.getButtonState() && event.getController().getType() == ControllerType.LEFT && (event.getButton() == ButtonType.VIVE_APPMENU || event.getButton() == ButtonType.OCULUS_BY)) {
+				if (MCOpenVR.controllers[MCOpenVR.LEFT_CONTROLLER].isButtonPressed(ButtonType.VIVE_GRIP) || MCOpenVR.controllers[MCOpenVR.LEFT_CONTROLLER].isButtonPressed(ButtonType.OCULUS_HAND_TRIGGER)) {
+					setOverlayShowing(!Showing);
+					return true;
+				}
 			}
 		}
 
@@ -228,11 +229,8 @@ public class KeyboardHandler {
 			}
 			
 			if((PointedL || PointedR) && shift.buttons.stream().anyMatch(predicate)) {
-				if (event.getButtonState())
-					UI.setShift(true);
-				else
-					UI.setShift(false);
-				return true;
+				UI.setShift(event.getButtonState());
+				// No block cause shift is used to select text in the text field
 			}
 		}
 

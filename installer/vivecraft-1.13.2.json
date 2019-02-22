@@ -9,7 +9,6 @@
 	"version": "$VERSION",
 	"mcVersion": "$MCVERSION",
 	"mainClass": "net.minecraft.launchwrapper.Launch",
-	"jar": "$MCVERSION",
 	"arguments": {
     "game": [
       "--tweakClass",

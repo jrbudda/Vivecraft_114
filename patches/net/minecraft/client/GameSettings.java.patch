@@ -111,7 +111,7 @@
              }
  
 -            this.ofFastRender = !this.ofFastRender;
-+            this.ofFastRender = true; //Vivecraft !this.ofFastRender;
++            this.ofFastRender = false; //Vivecraft !this.ofFastRender;
  
              if (this.ofFastRender)
              {

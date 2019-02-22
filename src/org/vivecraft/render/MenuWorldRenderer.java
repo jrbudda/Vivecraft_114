@@ -1,6 +1,7 @@
 package org.vivecraft.render;
 
 import java.nio.FloatBuffer;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -8,11 +9,10 @@ import java.util.Set;
 import org.vivecraft.utils.FakeBlockAccess;
 import org.vivecraft.utils.MCReflection;
 
+import com.google.common.collect.ImmutableMap;
 import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GLAllocation;
@@ -29,17 +29,14 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.IFluidState;
 import net.minecraft.init.Biomes;
 import net.minecraft.init.Fluids;
-import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.src.Config;
+import net.minecraft.state.IProperty;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.Tag;
-import net.minecraft.tags.TagCollection;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.ResourceLocation;
@@ -47,13 +44,10 @@ import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.IRegistry;
 import net.minecraft.world.IWorldReaderBase;
-import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.Dimension;
 import net.minecraft.world.dimension.DimensionType;
-import net.optifine.reflect.Reflector;
 import net.optifine.shaders.Shaders;
 import net.optifine.util.TextureUtils;
 import org.lwjgl.opengl.GL;
@@ -190,7 +184,7 @@ public class MenuWorldRenderer {
 							if (state != null) {
                                 IFluidState fluidState = state.getFluidState();
 								if (!fluidState.isEmpty() && fluidState.getRenderLayer() == layer)
-									blockRenderer.renderFluid(pos, blockAccess, vertBuffer, fluidState);
+									blockRenderer.renderFluid(pos, blockAccess, vertBuffer, new FluidStateWrapper(fluidState));
 
 								if (state.getRenderType() != EnumBlockRenderType.INVISIBLE && state.getBlock().getRenderLayer() == layer)
 								    blockRenderer.renderBlock(state, pos, blockAccess, vertBuffer, random);
@@ -1800,5 +1794,59 @@ public class MenuWorldRenderer {
 
             return this.buffer;
         }
+	}
+
+	private static class FluidStateWrapper implements IFluidState {
+		private final IFluidState fluidState;
+
+		public FluidStateWrapper(IFluidState fluidState) {
+			this.fluidState = fluidState;
+		}
+
+		@Override
+		public Fluid getFluid() {
+			return fluidState.getFluid();
+		}
+
+		@Override
+		public boolean isTagged(Tag<Fluid> tagIn) {
+			// Yeah I know this is super dirty, blame Mojang for making FluidTags server-side
+			if (tagIn == FluidTags.WATER) {
+				return this.getFluid() == Fluids.WATER || this.getFluid() == Fluids.FLOWING_WATER;
+			} else if (tagIn == FluidTags.LAVA) {
+				return this.getFluid() == Fluids.LAVA || this.getFluid() == Fluids.FLOWING_LAVA;
+			}
+			return fluidState.isTagged(tagIn);
+		}
+
+		@Override
+		public Collection<IProperty<?>> getProperties() {
+			return fluidState.getProperties();
+		}
+
+		@Override
+		public <T extends Comparable<T>> boolean has(IProperty<T> property) {
+			return fluidState.has(property);
+		}
+
+		@Override
+		public <T extends Comparable<T>> T get(IProperty<T> property) {
+			return fluidState.get(property);
+		}
+
+		@Override
+		public <T extends Comparable<T>, V extends T> IFluidState with(IProperty<T> property, V value) {
+			return fluidState.with(property, value);
+		}
+
+		@Override
+		public <T extends Comparable<T>> IFluidState cycle(IProperty<T> property) {
+			return fluidState.cycle(property);
+		}
+
+		@Override
+		public ImmutableMap<IProperty<?>, Comparable<?>> getValues() {
+			return fluidState.getValues();
+		}
 	}
 }

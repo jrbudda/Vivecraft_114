@@ -209,11 +209,14 @@ public class Quaternion {
 		return new Angle(euler.pitch,euler.yaw,euler.roll);
 	}
 
-	public Quaternion rotate(Axis axis, float degrees) {
-		//return this.multiply(new Quaternion(axis.getVector(), degrees));
-		Matrix4f matrix = getMatrix();
-		matrix.rotate((float)Math.toRadians(degrees), Utils.convertVector(axis.getVector()));
-		return new Quaternion(matrix);
+	public Quaternion rotate(Axis axis, float degrees, boolean local) {
+		if (local) {
+			return this.multiply(new Quaternion(axis, degrees));
+		} else {
+			Matrix4f matrix = getMatrix();
+			matrix.rotate((float)Math.toRadians(degrees), Utils.convertVector(axis.getVector()));
+			return new Quaternion(matrix);
+		}
 	}
 
 	public Quaternion multiply(Quaternion other) {

@@ -32,7 +32,6 @@ public class PatreonReceiver implements IFileDownloadListener
     					String[] bits = string.split(":");
     					if(bits[0].equalsIgnoreCase(player)) {
     						int level = Integer.parseInt(bits[1]);
-    						p.sendMessage(new TextComponentString("Welcome Patron " + player + "!"));
     		            	PlayerModelController.getInstance().setHMD(p.getUniqueID(), level );
     					}
         			} catch(Exception e){

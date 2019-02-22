@@ -141,7 +141,7 @@
          checkGLError("beginRender");
 -        ShadersRender.renderShadowMap(entityRenderer, 0, partialTicks, finishTimeNano);
 +		// VIVECRAFT: Render shadow map once per frame instead of every damn pass
-+		if (mc.currentPass == RenderPass.LEFT)
++		if (mc.currentPass == RenderPass.LEFT || mc.currentPass == RenderPass.THIRD)
 +			ShadersRender.renderShadowMap(entityRenderer, 0, partialTicks, finishTimeNano);
          mc.profiler.endSection();
          EXTFramebufferObject.glBindFramebufferEXT(36160, dfb);

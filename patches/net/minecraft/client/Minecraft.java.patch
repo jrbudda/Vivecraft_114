@@ -207,7 +207,7 @@
 +	 * The minecriftVerString will be automatically updated by the build scripts, do not modify here.
 +	 * Modify minecriftversion.py in root minecrift dir.
 +	 */
-+    public final String minecriftVerString = "Vivecraft 1.13.2 jrbudda-1-b6";
++    public final String minecriftVerString = "Vivecraft 1.13.2 jrbudda-1-release";
 +	/* end version */
 +	/** END MINECRIFT */
 +    
@@ -860,7 +860,7 @@
 +        this.profiler.endStartSection("vrPostProcessInputs");
 +        MCOpenVR.postProcessBindings();
 +
-+		if (vrSettings.displayMirrorMode != VRSettings.MIRROR_MIXED_REALITY && vrSettings.displayMirrorMode != VRSettings.MIRROR_THIRD_PERSON)
++		if (vrSettings.displayMirrorMode == VRSettings.MIRROR_MIXED_REALITY || vrSettings.displayMirrorMode == VRSettings.MIRROR_THIRD_PERSON)
 +			VRHotkeys.handleMRKeys();
 +
 +        vrPlayer.checkandUpdateRotateScale();
@@ -1012,7 +1012,7 @@
          GuiScreenWorking guiscreenworking = new GuiScreenWorking();
  
          if (worldClientIn != null)
-@@ -2726,4 +3198,635 @@
+@@ -2726,4 +3198,639 @@
      {
          return this.fontResourceMananger;
      }
@@ -1046,7 +1046,8 @@
 +			//m=m.rotate((float) Math.toRadians(-vrSettings.vrFixedCamrotYaw), new org.vivecraft.utils.lwjgl.Vector3f(0, 1, 0));
 +			//m=m.rotate((float) Math.toRadians(-vrSettings.vrFixedCamrotPitch), new org.vivecraft.utils.lwjgl.Vector3f(1, 0, 0));
 +			//m=m.rotate((float) Math.toRadians(vrSettings.vrFixedCamrotRoll), new org.vivecraft.utils.lwjgl.Vector3f(0, 0, 1));
-+			m=m.rotate((float) Math.toRadians(180), new org.vivecraft.utils.lwjgl.Vector3f(0, 1, 0));
++			// idk why this one was here
++			//m=m.rotate((float) Math.toRadians(180), new org.vivecraft.utils.lwjgl.Vector3f(0, 1, 0));
 +			
 +			matrixBuffer2.rewind();
 +			m.store(matrixBuffer2);
@@ -1073,17 +1074,20 @@
 +			Vec3d cp = vrPlayer.vrdata_room_pre.getController(2).getPosition();
 +
 +			GlStateManager.translated(-cp.x, -cp.y, -cp.z);
-+							
-+			//local rots
-+			GlStateManager.rotatef(vrSettings.mrMovingCamOffsetYaw, 0.0F, 1.0F, 0.0F);
-+			GlStateManager.rotatef(vrSettings.mrMovingCamOffsetRoll, 0.0F, 0.0F, 1.0F);
-+			GlStateManager.rotatef(vrSettings.mrMovingCamOffsetPitch, 1.0F, 0.0F, 0.0F);
 +			
 +			//this is here because.
 +			GlStateManager.multMatrixf(conrot);
-+	
-+			//local offsets
-+			GlStateManager.translatef(-vrSettings.mrMovingCamOffsetX, -vrSettings.mrMovingCamOffsetY, -vrSettings.mrMovingCamOffsetZ);
++
++			if (MCOpenVR.mrMovingCamActive) {
++				//local offsets
++				GlStateManager.translatef(vrSettings.mrMovingCamOffsetX, vrSettings.mrMovingCamOffsetY, vrSettings.mrMovingCamOffsetZ);
++
++				//local rots
++				GlStateManager.multMatrixf(Utils.convertToOVRMatrix(vrSettings.mrMovingCamOffsetRotQuat.getMatrix()).toFloatBuffer());
++				//GlStateManager.rotatef(vrSettings.mrMovingCamOffsetYaw, 0.0F, 1.0F, 0.0F);
++				//GlStateManager.rotatef(vrSettings.mrMovingCamOffsetRoll, 0.0F, 0.0F, 1.0F);
++				//GlStateManager.rotatef(vrSettings.mrMovingCamOffsetPitch, 1.0F, 0.0F, 0.0F);
++			}
 +	
 +	
 +			//put back scale

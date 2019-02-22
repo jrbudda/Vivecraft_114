@@ -183,9 +183,7 @@ public class VRSettings
     public float mrMovingCamOffsetX = 0;
     public float mrMovingCamOffsetY = 0;
     public float mrMovingCamOffsetZ = 0;
-    public float mrMovingCamOffsetPitch = 0;
-    public float mrMovingCamOffsetYaw = 0;
-    public float mrMovingCamOffsetRoll = 0;
+    public Quaternion mrMovingCamOffsetRotQuat = new Quaternion();
     //
     
     //HUD/GUI
@@ -550,17 +548,21 @@ public class VRSettings
                     {
                         this.mrMovingCamOffsetZ =  this.parseFloat(optionTokens[1]);
                     }
-                    if (optionTokens[0].equals("mrMovingCamOffsetPitch"))
+                    if (optionTokens[0].equals("mrMovingCamOffsetRotW"))
                     {
-                        this.mrMovingCamOffsetPitch =this.parseFloat(optionTokens[1]);
+                        this.mrMovingCamOffsetRotQuat.w = this.parseFloat(optionTokens[1]);
                     }
-                    if (optionTokens[0].equals("mrMovingCamOffsetYaw"))
+                    if (optionTokens[0].equals("mrMovingCamOffsetRotX"))
                     {
-                        this.mrMovingCamOffsetYaw =this.parseFloat(optionTokens[1]);
+                        this.mrMovingCamOffsetRotQuat.x = this.parseFloat(optionTokens[1]);
                     }
-                    if (optionTokens[0].equals("mrMovingCamOffsetRoll"))
+                    if (optionTokens[0].equals("mrMovingCamOffsetRotY"))
                     {
-                        this.mrMovingCamOffsetRoll =this.parseFloat(optionTokens[1]);
+                        this.mrMovingCamOffsetRotQuat.y = this.parseFloat(optionTokens[1]);
+                    }
+                    if (optionTokens[0].equals("mrMovingCamOffsetRotZ"))
+                    {
+                        this.mrMovingCamOffsetRotQuat.z = this.parseFloat(optionTokens[1]);
                     }
                     if (optionTokens[0].equals("vrTouchHotbar"))
                     {
@@ -1598,9 +1600,10 @@ public class VRSettings
             var5.println("mrMovingCamOffsetX:" + this.mrMovingCamOffsetX);
             var5.println("mrMovingCamOffsetY:" + this.mrMovingCamOffsetY);
             var5.println("mrMovingCamOffsetZ:" + this.mrMovingCamOffsetZ);
-            var5.println("mrMovingCamOffsetPitch:" + this.mrMovingCamOffsetPitch);
-            var5.println("mrMovingCamOffsetYaw:" + this.mrMovingCamOffsetYaw);
-            var5.println("mrMovingCamOffsetRoll:" + this.mrMovingCamOffsetRoll);
+            var5.println("mrMovingCamOffsetRotW:" + this.mrMovingCamOffsetRotQuat.w);
+            var5.println("mrMovingCamOffsetRotX:" + this.mrMovingCamOffsetRotQuat.x);
+            var5.println("mrMovingCamOffsetrotY:" + this.mrMovingCamOffsetRotQuat.y);
+            var5.println("mrMovingCamOffsetRotZ:" + this.mrMovingCamOffsetRotQuat.z);
             var5.println("vrTouchHotbar:" + this.vrTouchHotbar);
             var5.println("seatedhmd:" + this.seatedUseHMD);
             var5.println("seatedHudAltMode:" + this.seatedHudAltMode);
