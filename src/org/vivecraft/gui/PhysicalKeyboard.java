@@ -245,10 +245,11 @@ public class PhysicalKeyboard {
 
 	public boolean handleInputEvent(VRInputEvent event) {
 		VRButtonMapping shift = mc.vrSettings.buttonMappings.get(GuiHandler.keyShift.getKeyDescription());
-		Predicate<ButtonTuple> predicate = b -> b.button.equals(event.getButton()) && b.isTouch == event.isButtonTouchEvent();
+		Predicate<ButtonTuple> predicate = b -> b.button == event.getButton() && b.isTouch == event.isButtonTouchEvent();
 		if(shift.buttons.stream().anyMatch(predicate)) {
 			setShift(event.getButtonState());
-			// No block cause shift is used to select text in the text field
+			// Only block if this isn't a controller where shift is bound, so text can be selected
+			return shift.buttons.stream().noneMatch(b -> b.controller == event.getController().getType());
 		}
 		return false;
 	}
@@ -282,7 +283,7 @@ public class PhysicalKeyboard {
 			}
 		} else {
 			if (label.equals("Enter")) {
-				easterEggActive = true;
+				easterEggActive = !easterEggActive;
 			} else {
 				easterEggIndex = 0;
 			}
@@ -384,7 +385,6 @@ public class PhysicalKeyboard {
 
 	public void show() {
 		this.reinit = true;
-		this.easterEggActive = false;
 	}
 
 	private KeyButton addKey(KeyButton key) {

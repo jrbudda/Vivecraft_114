@@ -164,11 +164,11 @@ public class RadialHandler {
 
 		if(!isShowing()) return false;
 
-		Predicate<ButtonTuple> predicate = b -> b.button.equals(event.getButton()) && b.isTouch == event.isButtonTouchEvent();
+		Predicate<ButtonTuple> predicate = b -> b.button == event.getButton() && b.isTouch == event.isButtonTouchEvent();
 		
 		VRButtonMapping shift = mc.vrSettings.buttonMappings.get(GuiHandler.keyShift.getKeyDescription());
 
-		if((PointedL || PointedR) && shift.buttons.stream().anyMatch( b -> b.button.equals(event.getButton()) && b.isTouch == event.isButtonTouchEvent() && b.controller == event.getController().getType())) {
+		if(((PointedL && event.getController().getType() == ControllerType.LEFT) || (PointedR && event.getController().getType() == ControllerType.RIGHT)) && shift.buttons.stream().anyMatch(predicate)) {
 			if (event.getButtonState())
 				UI.setShift(true);
 			else
@@ -231,5 +231,13 @@ public class RadialHandler {
 
 	public static boolean isShowing() {
 		return Showing;
+	}
+
+	public static boolean isUsingController(ControllerType controller) {
+		if (controller == ControllerType.LEFT) {
+			return PointedL;
+		} else {
+			return PointedR;
+		}
 	}
 }

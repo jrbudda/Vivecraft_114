@@ -3,6 +3,7 @@ package org.vivecraft.gui.settings;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import org.vivecraft.control.ButtonTuple;
 import org.vivecraft.control.VRButtonMapping;
@@ -21,7 +22,7 @@ public class GuiVRControlsList extends GuiListExtended
     
     public GuiVRControlsList(GuiVRControls parent, Minecraft mc)
     {
-        super(Minecraft.getMinecraft(), parent.width + 45, parent.height, 63, parent.height - 32, 20);
+        super(Minecraft.getMinecraft(), parent.width + 80, parent.height, 63, parent.height - 32, 20);
         this.parent = parent;
         this.mc = mc;
         buildList();
@@ -98,16 +99,16 @@ public class GuiVRControlsList extends GuiListExtended
         private final VRButtonMapping myKey;
         private final GuiButton btnChangeKeyBinding;
         private final GuiButton btnChangeKeyBindingList;
-        private final GuiButton btnDeleteKeyBinding;
+		private final GuiButton btnClearKeyBinding;
         private GuiTextField guiEnterText;
         private GuiVRControls parentScreen;
         
         private MappingEntry(VRButtonMapping key, GuiVRControls parent)
         {
             this.myKey = key;
-            this.btnChangeKeyBinding = new GuiButton(0, 0, 0, 120, 18, "") {};
-            this.btnChangeKeyBindingList = new GuiButton(0, 0, 0, 18, 18, "M") {};
-            this.btnDeleteKeyBinding = new GuiButton(0, 0, 0, 18, 18, TextFormatting.RED + "X") {};
+            this.btnChangeKeyBinding = new GuiButton(0, 0, 0, 140, 18, "") {};
+            this.btnChangeKeyBindingList = new GuiButton(0, 0, 0, 38, 18, "Multi...") {};
+			this.btnClearKeyBinding = new GuiButton(0, 0, 0, 18, 18, TextFormatting.RED + "X") {};
             this.parentScreen = parent;
             updateButtonText();
         }
@@ -124,7 +125,7 @@ public class GuiVRControlsList extends GuiListExtended
             	}
             }
             if (str.isEmpty()) str = "None";
-            else str = str.substring(0, Math.min(18, str.length()));
+            //else str = str.substring(0, Math.min(18, str.length()));
 
             if (parent.pressMode && parent.mapping == myKey) {
             	this.btnChangeKeyBinding.displayString = "> " + TextFormatting.YELLOW + str + TextFormatting.RESET + " <";
@@ -139,22 +140,20 @@ public class GuiVRControlsList extends GuiListExtended
         public void drawEntry(int entryWidth, int entryHeight, int mouseX, int mouseY, boolean p_194999_5_, float partialTicks)
         {
         	GuiVRControlsList.this.mc.fontRenderer.drawString(this.myKey.toReadableString(), getX() + 40, getY() + entryHeight / 2 - GuiVRControlsList.this.mc.fontRenderer.FONT_HEIGHT / 2, 16777215);
-        	this.btnChangeKeyBinding.x = GuiVRControlsList.this.mc.currentScreen.width / 2;
+        	this.btnChangeKeyBinding.x = GuiVRControlsList.this.mc.currentScreen.width / 2 - 20;
         	this.btnChangeKeyBinding.y = getY();
         	updateButtonText();
         
         	boolean var10 = GuiVRControlsList.this.parent.mapping == myKey;
         	this.btnChangeKeyBinding.render(mouseX, mouseY, partialTicks);
         	        	
-        	this.btnChangeKeyBindingList.x = GuiVRControlsList.this.mc.currentScreen.width / 2 + 122;
+        	this.btnChangeKeyBindingList.x = GuiVRControlsList.this.mc.currentScreen.width / 2 + 140;
         	this.btnChangeKeyBindingList.y = getY();
         	this.btnChangeKeyBindingList.render(mouseX, mouseY, partialTicks);
 
-        	if (myKey.isKeyboardBinding()) {
-	        	this.btnDeleteKeyBinding.x = GuiVRControlsList.this.mc.currentScreen.width / 2 + 122 + 18 + 2;
-	        	this.btnDeleteKeyBinding.y = getY();
-	        	this.btnDeleteKeyBinding.render(mouseX, mouseY, partialTicks);
-        	}
+			this.btnClearKeyBinding.x = GuiVRControlsList.this.mc.currentScreen.width / 2 + 121;
+			this.btnClearKeyBinding.y = getY();
+			this.btnClearKeyBinding.render(mouseX, mouseY, partialTicks);
         }
         
 		@Override
@@ -182,13 +181,19 @@ public class GuiVRControlsList extends GuiListExtended
             	parent.mappingButtons = new HashSet<>(myKey.buttons);
             	return true;          
             }
-            else if (this.btnDeleteKeyBinding.mouseClicked(mouseX, mouseY, button))
-            {           	
-            	if (parent.pressMode) return false;
-            	GuiVRControlsList.this.mc.vrSettings.buttonMappings.remove(myKey.functionId);
-            	GuiVRControlsList.this.buildList();
-            	return true;          
-            }
+        	else if (this.btnClearKeyBinding.mouseClicked(mouseX, mouseY, button))
+        	{
+				if (parent.pressMode) return false;
+				
+	        	if (myKey.isKeyboardBinding()) {
+	            	GuiVRControlsList.this.mc.vrSettings.buttonMappings.remove(myKey.functionId);
+	            	GuiVRControlsList.this.buildList();
+	        	} else if (!myKey.functionId.equals("GUI Left Click")) { // Another anti-screwing thing
+					myKey.buttons.removeIf(tuple -> tuple.controller.getController().isButtonActive(tuple.button));
+	        	}
+	        	
+				return true;
+			}
             else
             {
                 return false;

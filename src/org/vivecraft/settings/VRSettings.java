@@ -26,6 +26,7 @@ import org.vivecraft.settings.profile.ProfileReader;
 import org.vivecraft.settings.profile.ProfileWriter;
 import org.vivecraft.utils.Quaternion;
 
+import de.fruitfly.ovr.structs.Vector3f;
 import net.minecraft.client.GameSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
@@ -157,6 +158,7 @@ public class VRSettings
     public boolean vehicleRotation = false; 
     public boolean animaltouching = true;
     public boolean analogMovement = true;
+    public boolean allowStandingOriginOffset = false;
     //
     
     //Rendering
@@ -188,7 +190,7 @@ public class VRSettings
     
     //HUD/GUI
     public boolean vrTouchHotbar = true;    
-    public float hudScale = 1.5f;
+    public float hudScale = 1.0f;
     public float hudDistance = 1.25f;
     public float hudPitchOffset = -2f;
     public float hudYawOffset = 0.0f;
@@ -348,7 +350,7 @@ public class VRSettings
                         this.insideBlockSolidColor = optionTokens[1].equals("true");
                     }
 
-                    if (optionTokens[0].equals("hudScale"))
+                    if (optionTokens[0].equals("headHudScale"))
                     {
                         this.hudScale = this.parseFloat(optionTokens[1]);
                     }
@@ -361,6 +363,8 @@ public class VRSettings
                     if (optionTokens[0].equals("vrHudLockMode"))
                     {
                         this.vrHudLockMode =  Integer.parseInt(optionTokens[1]);
+                        if(this.vrHudLockMode == HUD_LOCK_BODY)
+                        	this.vrHudLockMode = HUD_LOCK_HAND;
                     }
 
                     if (optionTokens[0].equals("hudDistance"))
@@ -707,6 +711,15 @@ public class VRSettings
 
 					if(optionTokens[0].equals("physicalKeyboard")){
 					    this.physicalKeyboard = optionTokens[1].equals("true");
+                    }
+
+					if(optionTokens[0].equals("originOffset")){
+                        String[] split = optionTokens[1].split(",");
+					    MCOpenVR.offset = new Vector3f(Float.parseFloat(split[0]), Float.parseFloat(split[1]), Float.parseFloat(split[2]));
+                    }
+
+					if(optionTokens[0].equals("allowStandingOriginOffset")){
+					    this.allowStandingOriginOffset = optionTokens[1].equals("true");
                     }
 
                     if(optionTokens[0].equals("firstRun")){
@@ -1104,6 +1117,8 @@ public class VRSettings
 	            return var4 +  (this.vrTeleportDownLimit > 0 ? this.vrTeleportDownLimit+ " Blocks" :" OFF");
             case TELEPORT_HORIZ_LIMIT:
 	            return var4 +  (this.vrTeleportHorizLimit > 0 ? this.vrTeleportHorizLimit+ " Blocks" :" OFF");
+            case ALLOW_STANDING_ORIGIN_OFFSET:
+                return this.allowStandingOriginOffset ? var4 + "YES" : var4 + "NO";
 
  	        default:
 	        	return "";
@@ -1409,6 +1424,9 @@ public class VRSettings
             case PHYSICAL_KEYBOARD:
                 this.physicalKeyboard = !this.physicalKeyboard;
                 break;
+            case ALLOW_STANDING_ORIGIN_OFFSET:
+                this.allowStandingOriginOffset = !this.allowStandingOriginOffset;
+                break;
             default:
             	break;
     	}
@@ -1554,7 +1572,7 @@ public class VRSettings
             var5.println("mixedRealityFov:" + this.mixedRealityFov);
             var5.println("insideBlockSolidColor:" + this.insideBlockSolidColor);
             var5.println("walkUpBlocks:" + this.walkUpBlocks);
-            var5.println("hudScale:" + this.hudScale);
+            var5.println("headHudScale:" + this.hudScale);
             var5.println("renderScaleFactor:" + this.renderScaleFactor);
             var5.println("vrHudLockMode:" + this.vrHudLockMode);
             var5.println("hudDistance:" + this.hudDistance);
@@ -1640,6 +1658,8 @@ public class VRSettings
             var5.println("keyboardKeysShift:" + this.keyboardKeysShift);
             var5.println("radialModeHold:" + this.radialModeHold);
             var5.println("physicalKeyboard:" + this.physicalKeyboard);
+            var5.println("originOffset:" + MCOpenVR.offset.x + "," + MCOpenVR.offset.y + "," + MCOpenVR.offset.z);
+            var5.println("allowStandingOriginOffset:" + this.allowStandingOriginOffset);
             var5.println("firstRun:" + this.firstRun);
             
             if (vrQuickCommands == null) vrQuickCommands = getQuickCommandsDefaults(); //defaults
@@ -1730,13 +1750,13 @@ public class VRSettings
 
 
     public static enum VrOptions
-    { //TODO: Move tooltips here.
-        HUD_SCALE("HUD Size", true, false,0.35f,2.5f,0.01f,new String[] {
+    {
+        HUD_SCALE("Head HUD Size", true, false,0.35f,2.5f,0.01f,new String[] {
                 "Relative size HUD takes up in field-of-view",
                 "  The units are just relative, not in degrees",
                 "  or a fraction of FOV or anything"
         }),
-        HUD_DISTANCE("HUD Distance", true, false,0.25f,5.0f,0.01f,new String[] {
+        HUD_DISTANCE("Head HUD Distance", true, false,0.25f,5.0f,0.01f,new String[] {
                 "Distance the floating HUD is drawn in front of your body",
                 "  The relative size of the HUD is unchanged by this",
                 "  Distance is in meters (though isn't obstructed by blocks)"
@@ -1761,7 +1781,7 @@ public class VRSettings
         HUD_OPACITY("HUD Opacity", true, false,0.15f, 1.0f, 0.05f, new String[] {
                 "How transparent to draw the in-game HUD and UI",
         }),
-        HUD_HIDE("Hide HUD (F1)", false, true, new String[0]),
+        HUD_HIDE("Hide HUD (F1)", false, true, null),
         RENDER_MENU_BACKGROUND("HUD/GUI Background", false, true,new String[] {
                 "Specifies whether the in game GUI menus have a ",
                 "semi-transparent background or not.",
@@ -1780,14 +1800,14 @@ public class VRSettings
                 "  SEATED: The main menu will only follow in seated mode.",
                 "  ALWAYS The main menu will always follow."
         }),
-        CROSSHAIR_OCCLUSION("Crosshair Occlusion", false, true,new String[0]),
-        CHAT_FADE_AWAY("Chat Persistence", false, true,new String[0]),
-        DUMMY("Dummy", false, true,new String[0]),
-        DUMMY_SMALL("Dummy", false, true,new String[0]),
-        VR_RENDERER("Stereo Renderer", false, true,new String[0]),
-        VR_HEAD_ORIENTATION("Head Orientation", false, true,new String[0]),
-        VR_HEAD_POSITION("Head Position", false, true,new String[0]),
-        VR_CONTROLLER("Controller", false, true,new String[0]),
+        CROSSHAIR_OCCLUSION("Crosshair Occlusion", false, true,null),
+        CHAT_FADE_AWAY("Chat Persistence", false, true,null),
+        DUMMY("Dummy", false, true,null),
+        DUMMY_SMALL("Dummy", false, true,null),
+        VR_RENDERER("Stereo Renderer", false, true,null),
+        VR_HEAD_ORIENTATION("Head Orientation", false, true,null),
+        VR_HEAD_POSITION("Head Position", false, true,null),
+        VR_CONTROLLER("Controller", false, true,null),
         CROSSHAIR_SCALE("Crosshair Size", true, false, 0.25f, 1.0f, 0.01f, new String[] {
                 "Sets the size of the in-game crosshair"
         }),
@@ -1823,10 +1843,10 @@ public class VRSettings
                 "            HUD is enabled",
                 "  Never:    The block outline is never shown"
         }),
-        LOAD_MUMBLE_LIB("Load Mumble Lib", false, true,new String[0]),
-        RENDER_OWN_HEADWEAR("Render Own Headwear", false, true,new String[0]),
-        RENDER_FULL_FIRST_PERSON_MODEL_MODE("First Person Model", false, true,new String[0]),
-        RENDER_PLAYER_OFFSET("View Body Offset", true, false,0,1,0.1f,new String[0]),
+        LOAD_MUMBLE_LIB("Load Mumble Lib", false, true,null),
+        RENDER_OWN_HEADWEAR("Render Own Headwear", false, true,null),
+        RENDER_FULL_FIRST_PERSON_MODEL_MODE("First Person Model", false, true,null),
+        RENDER_PLAYER_OFFSET("View Body Offset", true, false,0,1,0.1f,null),
         AUTO_OPEN_KEYBOARD("Always Open Keyboard", false, true,new String[] {
         		"If disabled, the keyboard will only open when you",
         		"click a text field, or if a text field can't lose focus.",
@@ -1905,7 +1925,7 @@ public class VRSettings
                 "       locomotion induced simulator sickness for some."
         }),
         //Movement/aiming controls
-        DECOUPLE_LOOK_MOVE("Decouple Look/Move", false, true,new String[0]),
+        DECOUPLE_LOOK_MOVE("Decouple Look/Move", false, true,null),
         MOVEMENT_MULTIPLIER("Move. Speed Multiplier", true, false, 0.15f, 1.3f, 0.01f, new String[] {
                 "Sets a movement multiplier, allowing slower movement",
                 "than default. This may help reduce locomotion induced",
@@ -1925,14 +1945,14 @@ public class VRSettings
                 "Defaults to 0.33 (1.0 is standard Minecraft movement",
                 "speed)."
         }),
-        PITCH_AFFECTS_CAMERA("Pitch Affects Camera", false, true,new String[0]),
-        JOYSTICK_DEADZONE("Joystick Deadzone",true,false,0,1,0.1f,new String[0]),
-        KEYHOLE_HEAD_RELATIVE("Keyhole Moves With Head",false,true,new String[0]),
-        MOUSE_AIM_TYPE("Aim Type",false,true,new String[0]),
-        CROSSHAIR_HEAD_RELATIVE("Cursor Relative To",false,true,new String[0]),
-        MOVEAIM_HYDRA_USE_CONTROLLER_ONE("Controller", false, true,new String[0]),
-        JOYSTICK_AIM_TYPE("Aim Type", false, false,new String[0]),
-        AIM_PITCH_OFFSET("Vertical Cursor Offset",true,false,0,1,0.1f,new String[0]),
+        PITCH_AFFECTS_CAMERA("Pitch Affects Camera", false, true,null),
+        JOYSTICK_DEADZONE("Joystick Deadzone",true,false,0,1,0.1f,null),
+        KEYHOLE_HEAD_RELATIVE("Keyhole Moves With Head",false,true,null),
+        MOUSE_AIM_TYPE("Aim Type",false,true,null),
+        CROSSHAIR_HEAD_RELATIVE("Cursor Relative To",false,true,null),
+        MOVEAIM_HYDRA_USE_CONTROLLER_ONE("Controller", false, true,null),
+        JOYSTICK_AIM_TYPE("Aim Type", false, false,null),
+        AIM_PITCH_OFFSET("Vertical Cursor Offset",true,false,0,1,0.1f,null),
         INERTIA_FACTOR("Player Inertia",false,true,new String[]{
                 "Sets the player's movement inertia in single player",
                 "mode. Lower inertia means faster acceleration, higher",
@@ -2044,7 +2064,7 @@ public class VRSettings
         REALISTIC_ROW("Roomscale Rowing",false,true,new String[]{
                 "Row, row, row your boat... by flapping your arms like mad."
         }),
-        CALIBRATE_HEIGHT("Calibrate Height",false,true,new String[0]),
+        CALIBRATE_HEIGHT("Calibrate Height",false,true,null),
         WALK_MULTIPLIER("Walking Multipier",true,false,1f, 10f, 0.1f, new String[]{
                 "Multiplies your position in the room by a factor",
                 "Allows you to walk around more,",
@@ -2059,7 +2079,7 @@ public class VRSettings
                 "Joy/Pad: ",
                 "    Uses the offhand touchpad or joystick for all motion.",
         }),
-        FREEMOVE_WMR_STICK("Freemove Control", false, true,new String[0]),
+        FREEMOVE_WMR_STICK("Freemove Control", false, true,null),
         ANALOG_DEADZONE("Analog Deadzone", true, false, 0, 0.5f, 0.01f, new String[] {
     			"How far an axis must be pushed before movement is",
     			"registered for Joy/Pad or Analog movement. Adjust this",
@@ -2072,8 +2092,9 @@ public class VRSettings
         }),
         //SEATED
         RESET_ORIGIN("Reset Origin",false,true,new String[] {
-                "Recenter the player's feet in the world to 1.62m below the current",
-                "HMD position. For non-lighthouse tracking systems."
+                "Recenter the player's feet in the world to 1.62m below",
+                "the current HMD position. For non-absolute tracking",
+                "systems or seated play."
         }),
         X_SENSITIVITY("Rotation Speed",true,false, 0.1f, 5f, 0.01f, new String[] {
                 "Speed the view will rotate when pushed on the edge of the keyhole"
@@ -2096,7 +2117,7 @@ public class VRSettings
         OTHER_RENDER_SETTINGS("IPD / FOV...", false, true,new String[] {
                 "Configure IPD and FOV border settings."
         }),
-        LOCOMOTION_SETTINGS("Locomotion Settings...", false, true, new String[0]), 
+        LOCOMOTION_SETTINGS("Locomotion Settings...", false, true, null),
         SEATED_HMD("Forward Direction",false,true,new String[] {
                 "The direction the forward (W) key will go. You can ",
                 "HMD view direction or crosshair pointing direction"
@@ -2130,6 +2151,11 @@ public class VRSettings
         }),
         TELEPORT_HORIZ_LIMIT("Teleport Distance Limit", true, false, 0, 32, 1, new String[] {
                 "Limit the number of blocks you can teleport sideways you"
+        }),
+        ALLOW_STANDING_ORIGIN_OFFSET("Allow Origin Offset", false, true, new String[] {
+                "Allows the \"Reset Origin\" button to be used in",
+                "standing mode, for those that wish to play physically",
+                "seated while using tracked controllers."
         });
     	
 //        ANISOTROPIC_FILTERING("options.anisotropicFiltering", true, false, 1.0F, 16.0F, 0.0F)

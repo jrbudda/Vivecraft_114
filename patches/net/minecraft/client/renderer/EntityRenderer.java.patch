@@ -86,7 +86,7 @@
  import net.minecraft.util.math.shapes.VoxelShape;
  import net.minecraft.util.text.Style;
  import net.minecraft.util.text.TextComponentString;
-@@ -88,13 +107,29 @@
+@@ -88,13 +107,30 @@
  import net.optifine.gui.GuiChatOF;
  import net.optifine.reflect.Reflector;
  import net.optifine.reflect.ReflectorForge;
@@ -104,6 +104,7 @@
 +import org.lwjgl.opengl.GL14;
 +import org.lwjgl.opengl.GL30;
 +
++import org.vivecraft.control.ControllerType;
 +import org.vivecraft.gameplay.OpenVRPlayer;
 +import org.vivecraft.gameplay.screenhandlers.GuiHandler;
 +import org.vivecraft.gameplay.screenhandlers.KeyboardHandler;
@@ -116,7 +117,7 @@
  
  public class EntityRenderer implements AutoCloseable, IResourceManagerReloadListener
  {
-@@ -165,7 +200,7 @@
+@@ -165,7 +201,7 @@
      private boolean initialized = false;
      private World updatedWorld = null;
      public boolean fogStandard = false;
@@ -125,7 +126,7 @@
      private long lastServerTime = 0L;
      private int lastServerTicks = 0;
      private int serverWaitTime = 0;
-@@ -176,6 +211,38 @@
+@@ -176,6 +212,38 @@
      public int loadVisibleChunksCounter = -1;
      public static final int loadVisibleChunksMessageId = 201435902;
  
@@ -164,7 +165,7 @@
      public EntityRenderer(Minecraft mcIn, IResourceManager resourceManagerIn)
      {
          this.shaderIndex = SHADER_COUNT;
-@@ -198,6 +265,14 @@
+@@ -198,6 +266,14 @@
                  this.rainYCoords[i << 5 | j] = f / f2;
              }
          }
@@ -179,7 +180,7 @@
      }
  
      public void close()
-@@ -378,21 +453,27 @@
+@@ -378,21 +454,27 @@
              this.mc.renderGlobal.createBindEntityOutlineFbs(width, height);
          }
      }
@@ -214,7 +215,7 @@
              boolean flag = false;
              int i = 3;
              double d1 = d0;
-@@ -411,8 +492,9 @@
+@@ -411,8 +493,9 @@
              {
                  d1 = this.mc.objectMouseOver.hitVec.distanceTo(vec3d);
              }
@@ -226,7 +227,7 @@
              Vec3d vec3d2 = vec3d.add(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0);
              this.pointedEntity = null;
              Vec3d vec3d3 = null;
-@@ -631,17 +713,20 @@
+@@ -631,17 +714,20 @@
      private void orientCamera(float partialTicks)
      {
          Entity entity = this.mc.getRenderViewEntity();
@@ -254,7 +255,7 @@
              {
                  BlockPos blockpos = new BlockPos(entity);
                  IBlockState iblockstate = this.mc.world.getBlockState(blockpos);
-@@ -670,9 +755,12 @@
+@@ -670,9 +756,12 @@
              }
              else
              {
@@ -270,7 +271,7 @@
                  if (this.mc.gameSettings.thirdPersonView == 2)
                  {
                      f2 += 180.0F;
-@@ -717,7 +805,8 @@
+@@ -717,7 +806,8 @@
          }
          else if (!this.debugView)
          {
@@ -280,7 +281,7 @@
          }
  
          if (Reflector.EntityViewRenderEvent_CameraSetup_Constructor.exists())
-@@ -747,15 +836,63 @@
+@@ -747,15 +837,63 @@
          }
          else if (!this.mc.gameSettings.debugCamEnable)
          {
@@ -349,7 +350,7 @@
          this.farPlaneDistance = (float)(this.mc.gameSettings.renderDistanceChunks * 16);
  
          if (Config.isFogFancy())
-@@ -767,32 +904,62 @@
+@@ -767,32 +905,62 @@
          {
              this.farPlaneDistance *= 0.83F;
          }
@@ -424,7 +425,7 @@
          float f = this.mc.player.prevTimeInPortal + (this.mc.player.timeInPortal - this.mc.player.prevTimeInPortal) * partialTicks;
  
          if (f > 0.0F)
-@@ -818,10 +985,65 @@
+@@ -818,10 +986,65 @@
      {
          this.renderHand(partialTicks, true, true, false);
      }
@@ -491,7 +492,7 @@
          {
              GlStateManager.matrixMode(5889);
              GlStateManager.loadIdentity();
-@@ -916,19 +1138,22 @@
+@@ -916,19 +1139,22 @@
  
      public void updateCameraAndRender(float partialTicks, long nanoTime, boolean renderWorldIn)
      {
@@ -527,7 +528,7 @@
  
          if (!this.mc.skipRenderWorld)
          {
-@@ -939,13 +1164,17 @@
+@@ -939,13 +1165,17 @@
              if (renderWorldIn && this.mc.world != null)
              {
                  this.mc.profiler.startSection("level");
@@ -547,7 +548,7 @@
                  {
                      this.timeWorldIcon = Util.milliTime();
  
-@@ -971,10 +1200,11 @@
+@@ -971,10 +1201,11 @@
                      this.mc.getFramebuffer().bindFramebuffer(true);
                  }
  
@@ -560,7 +561,7 @@
                      GlStateManager.alphaFunc(516, 0.1F);
                      this.mc.mainWindow.setupOverlayRendering();
                      this.renderItemActivation(this.mc.mainWindow.getScaledWidth(), this.mc.mainWindow.getScaledHeight(), partialTicks);
-@@ -989,23 +1219,26 @@
+@@ -989,23 +1220,26 @@
                      {
                          Lagometer.showLagometer((int)this.mc.mainWindow.getGuiScaleFactor());
                      }
@@ -588,7 +589,7 @@
              {
                  GlStateManager.clear(256);
  
-@@ -1040,6 +1273,35 @@
+@@ -1040,6 +1274,35 @@
                  }
              }
          }
@@ -624,7 +625,7 @@
  
          this.frameFinish();
          this.waitForServerThread();
-@@ -1125,63 +1387,83 @@
+@@ -1125,63 +1388,83 @@
  
      private boolean isDrawBlockOutline()
      {
@@ -760,7 +761,7 @@
      }
  
      private void updateCameraAndRender(float partialTicks, long nanoTime)
-@@ -1197,15 +1479,16 @@
+@@ -1197,15 +1480,16 @@
          ParticleManager particlemanager = this.mc.effectRenderer;
          boolean flag1 = this.isDrawBlockOutline();
          GlStateManager.enableCull();
@@ -779,7 +780,7 @@
          }
  
          this.fogRenderer.updateFogColor(partialTicks);
-@@ -1216,9 +1499,18 @@
+@@ -1216,9 +1500,18 @@
              Shaders.clearRenderBuffer();
          }
  
@@ -798,7 +799,7 @@
          if (flag)
          {
              Shaders.setCamera(partialTicks);
-@@ -1257,9 +1549,14 @@
+@@ -1257,9 +1550,14 @@
              this.fogRenderer.setupFog(-1, partialTicks);
              this.mc.profiler.endStartSection("sky");
              GlStateManager.matrixMode(5889);
@@ -815,7 +816,7 @@
  
              if (flag)
              {
-@@ -1274,9 +1571,13 @@
+@@ -1274,9 +1572,13 @@
              }
  
              GlStateManager.matrixMode(5889);
@@ -831,7 +832,7 @@
          }
          else
          {
-@@ -1306,15 +1607,17 @@
+@@ -1306,15 +1608,17 @@
          {
              renderglobal.setupTerrain(entity, partialTicks, icamera, this.frameCount++, this.mc.player.isSpectator());
          }
@@ -858,7 +859,7 @@
          {
              this.mc.profiler.endStartSection("finish");
              GL11.glFinish();
-@@ -1381,6 +1684,7 @@
+@@ -1381,6 +1685,7 @@
          this.disableLightmap();
          GlStateManager.matrixMode(5888);
          GlStateManager.popMatrix();
@@ -866,7 +867,7 @@
  
          if (flag1 && this.mc.objectMouseOver != null)
          {
-@@ -1417,12 +1721,43 @@
+@@ -1417,12 +1722,43 @@
  
          GlStateManager.blendFuncSeparate(770, 771, 1, 0);
          GlStateManager.disableBlend();
@@ -912,7 +913,7 @@
          }
  
          particlemanager.renderLitParticles(entity, partialTicks);
-@@ -1432,14 +1767,14 @@
+@@ -1432,14 +1768,14 @@
  
          if (flag)
          {
@@ -929,7 +930,7 @@
          }
  
          this.disableLightmap();
-@@ -1447,7 +1782,7 @@
+@@ -1447,7 +1783,7 @@
  
          if (Config.isShaders())
          {
@@ -938,7 +939,7 @@
          }
  
          GlStateManager.enableCull();
-@@ -1470,7 +1805,8 @@
+@@ -1470,7 +1806,8 @@
  
          if (flag)
          {
@@ -948,7 +949,7 @@
              Shaders.preWater();
          }
  
-@@ -1520,17 +1856,113 @@
+@@ -1520,17 +1857,113 @@
              this.renderCloudsCheck(renderglobal, partialTicks, d0, d1, d2);
          }
  
@@ -1063,7 +1064,7 @@
              {
                  ShadersRender.renderHand1(this, partialTicks);
                  Shaders.renderCompositeFinal();
-@@ -1547,11 +1979,16 @@
+@@ -1547,11 +1980,16 @@
                  this.renderHand(partialTicks);
              }
          }
@@ -1081,7 +1082,7 @@
      }
  
      private void renderCloudsCheck(RenderGlobal renderGlobalIn, float partialTicks, double viewEntityX, double viewEntityY, double viewEntityZ)
-@@ -1561,7 +1998,11 @@
+@@ -1561,7 +1999,11 @@
              this.mc.profiler.endStartSection("clouds");
              GlStateManager.matrixMode(5889);
              GlStateManager.loadIdentity();
@@ -1094,7 +1095,7 @@
              GlStateManager.matrixMode(5888);
              GlStateManager.pushMatrix();
              this.fogRenderer.setupFog(0, partialTicks);
-@@ -1570,7 +2011,11 @@
+@@ -1570,7 +2012,11 @@
              GlStateManager.popMatrix();
              GlStateManager.matrixMode(5889);
              GlStateManager.loadIdentity();
@@ -1107,7 +1108,7 @@
              GlStateManager.matrixMode(5888);
          }
      }
-@@ -2002,7 +2447,7 @@
+@@ -2002,7 +2448,7 @@
              this.updatedWorld = world;
          }
  
@@ -1116,7 +1117,7 @@
          {
              Shaders.configAntialiasingLevel = 0;
          }
-@@ -2242,36 +2687,29 @@
+@@ -2242,36 +2688,29 @@
      }
  
      private void renderItemActivation(int widthsp, int heightScaled, float partialTicks)
@@ -1176,7 +1177,7 @@
      }
  
      public Minecraft getMinecraft()
-@@ -2288,4 +2726,2220 @@
+@@ -2288,4 +2727,2222 @@
      {
          return this.farPlaneDistance;
      }
@@ -2513,7 +2514,7 @@
 +  		if(KeyboardHandler.Showing)
 +  			return;
 +  		
-+  		if(RadialHandler.isShowing())
++  		if(RadialHandler.isUsingController(ControllerType.RIGHT))
 +  			return;
 +
 +  		if(this.mc.gameSettings.thirdPersonView != 0)
@@ -2731,9 +2732,9 @@
 +  						max = de.fruitfly.ovr.structs.Matrix4f.multiply(rot, MCOpenVR.getAimRotation(0));
 +  					}
 +
-+  					guipos = new Vec3d((v.x + d.x*mc.vrPlayer.vrdata_world_render.worldScale),
-+  							(v.y + d.y*mc.vrPlayer.vrdata_world_render.worldScale),
-+  							(v.z + d.z*mc.vrPlayer.vrdata_world_render.worldScale));
++  					guipos = new Vec3d((v.x + d.x*mc.vrPlayer.vrdata_world_render.worldScale*mc.vrSettings.hudDistance),
++  							(v.y + d.y*mc.vrPlayer.vrdata_world_render.worldScale*mc.vrSettings.hudDistance),
++  							(v.z + d.z*mc.vrPlayer.vrdata_world_render.worldScale*mc.vrSettings.hudDistance));
 +
 +
 +  					Quatf orientationQuat = OpenVRUtil.convertMatrix4ftoRotationQuat(max);
@@ -2745,6 +2746,8 @@
 +  					//guiRotationPose = Matrix4f.multiply(guiRotationPose, OpenVRUtil.rotationXMatrix(yawOffset));
 +  					//guiRotationPose = Matrix4f.multiply(guiRotationPose, Matrix4f.rotationY(pitchOffset));
 +  					guirot.M[3][3] = 1.0f;
++
++  					scale = mc.vrSettings.hudScale;
 +
 +  				}else if (mc.vrSettings.vrHudLockMode == VRSettings.HUD_LOCK_HAND)//hud on hand
 +  				{

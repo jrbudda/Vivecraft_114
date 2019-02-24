@@ -120,43 +120,12 @@ public class PlayerModelController {
 
 			}
 		}
-
-		
+	
 		Vector3 shoulderR=new Vector3(0,-0.0f,0);
-
-		//Vector3f sLV3f=MCOpenVR.hmdRotation.transform(new Vector3f((float) shoulderL.x,(float) shoulderL.y,(float) shoulderL.z));
-		//Vector3f sRV3f=MCOpenVR.hmdRotation.transform(new Vector3f((float) shoulderR.x,(float) shoulderR.y,(float) shoulderR.z));
-
 		Vector3 forward = new Vector3(0,0,-1);
 		Vector3 dir = hmdq.multiply(forward);
 		Vector3 dir2 = c0q.multiply(forward);
 		Vector3 dir3 = c1q.multiply(forward);
-
-
-				 
-		//Quaternion qua=new Quaternion(Vector3.up(),yaw1);
-
-		//shoulderL=shoulderL.multiply(qua.getMatrix());
-		//shoulderR=shoulderR.multiply(qua.getMatrix());
-
-//		Vec2f[] vecs=new Vec2f[2];
-//
-//		for (int i = 0; i <= 1; i++) {
-//			Vec3d ctr= i == 0 ? c0pos : c1pos;
-//
-//			Vec3d offset= i==0 ? shoulderR.toVec3d() : shoulderR.toVec3d();
-//			Vec3d vecCtr = ctr.subtract(hmdpos.add(offset)).normalize();
-//			Vec3d def = new Vec3d(0,0,-1);
-//			
-//			Angle euler=Quaternion.createFromToVector(Utils.convertVector(def),Utils.convertVector(vecCtr)).toEuler();
-//
-//			double pitch = -euler.getPitch();
-//			double yaw = euler.getYaw();
-//			pitch-=90;
-//			yaw=-yaw;
-//
-//			vecs[i] = new Vec2f((float)Math.toRadians(pitch), (float)Math.toRadians(yaw));
-//		}
 		
 		RotInfo out = new RotInfo();
 		out.reverse =reverse;
@@ -170,20 +139,8 @@ public class PlayerModelController {
 		out.rightArmPos = c0pos;
 		out.leftArmQuat = c1q;
 		out.rightArmQuat = c0q;
-		out.headQuat = hmdq;
-		
-		if(out.hmd > 3 && rand.nextInt(10) < 4){
-			Vector3 derp = dir.multiply(0.1f);
-			Particle particle = mc.effectRenderer.addParticle(Particles.FIREWORK,
-					hmdpos.x+ ((double)this.rand.nextFloat() - 0.5D)*.02f,
-					hmdpos.y - 0.8f + ((double)this.rand.nextFloat() - 0.5D)*.02f,
-					hmdpos.z + ((double)this.rand.nextFloat()- 0.5D)*.02f,
-					-derp.getX() + ((double)this.rand.nextFloat()- 0.5D)*.01f,((double)this.rand.nextFloat()- .05f)*.05f, -derp.getZ() + ((double)this.rand.nextFloat()- 0.5D)*.01f
-					);
-			if (particle != null)
-				particle.setColor(0.5F + rand.nextFloat() / 2, 0.5F + rand.nextFloat() / 2, 0.5F + rand.nextFloat() / 2);
-		}
-		
+		out.headQuat = hmdq;	
+	
 		vivePlayersReceived.put(uuid, out);
 
 	}
@@ -202,10 +159,25 @@ public class PlayerModelController {
 		for (Iterator<UUID> it = vivePlayers.keySet().iterator(); it.hasNext();) {
 			UUID uuid = it.next();
 			World world = Minecraft.getMinecraft().world;
-			if (world != null && world.getPlayerEntityByUUID(uuid) == null) {
-				it.remove();
-				vivePlayersLast.remove(uuid);
-				vivePlayersReceived.remove(uuid);
+			if (world != null) {
+				if (world.getPlayerEntityByUUID(uuid) == null) {
+					it.remove();
+					vivePlayersLast.remove(uuid);
+					vivePlayersReceived.remove(uuid);
+				} else {
+					RotInfo out = vivePlayers.get(uuid);
+					if(out.hmd > 3 && rand.nextInt(10) < 4){
+						Vec3d derp = out.headRot.scale(0.1f);
+						Particle particle = mc.effectRenderer.addParticle(Particles.FIREWORK,
+								out.Headpos.x+ ((double)this.rand.nextFloat() - 0.5D)*.02f,
+								out.Headpos.y - 0.8f + ((double)this.rand.nextFloat() - 0.5D)*.02f,
+								out.Headpos.z + ((double)this.rand.nextFloat()- 0.5D)*.02f,
+								-derp.x + ((double)this.rand.nextFloat()- 0.5D)*.01f,((double)this.rand.nextFloat()- .05f)*.05f, -derp.z + ((double)this.rand.nextFloat()- 0.5D)*.01f
+						);
+						if (particle != null)
+							particle.setColor(0.5F + rand.nextFloat() / 2, 0.5F + rand.nextFloat() / 2, 0.5F + rand.nextFloat() / 2);
+					}
+				}
 			}
 		}
 	}

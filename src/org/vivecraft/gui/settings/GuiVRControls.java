@@ -38,6 +38,7 @@ public class GuiVRControls extends GuiVROptionsBase {
     private GuiButton btnKeyboardHold;
     private GuiButton btnLeftTouchpadMode;
     private GuiButton btnRightTouchpadMode;
+	private GuiButton btnClearBinding;
 
 	public GuiVRControls(GuiScreen par1GuiScreen) {
 		super(par1GuiScreen);
@@ -79,17 +80,7 @@ public class GuiVRControls extends GuiVROptionsBase {
         
     	this.guiList = new GuiVRControlsList(this, mc);
     	this.guiSelection = new GuiKeyBindingSelection(this);
-
-//    	btnCancel = (new GuiButton(99, this.width / 2 - 155  + 80, this.height -25,150,20, "Cancel") {
-//        	@Override
-//        	public void onClick(double mouseX, double mouseY) {
-//        		GuiVRControls.this.selectionMode = false;
-//        		GuiVRControls.this.waitingForKey = false;
-//        		GuiVRControls.this.keyboardHoldSelect = false;
-//        		GuiVRControls.this.mappingButtons = null;
-//        	}
-//        });
-        btnAddKey = (new GuiButton(100, 40 , 38 ,100,20, "Add Keyboard Key") {
+        btnAddKey = (new GuiButton(100, this.width / 2 - 171, 16, 100, 20, "Add Keyboard Key") {
         	@Override
         	public void onClick(double mouseX, double mouseY) {
         		GuiVRControls.this.keyboardHoldSelect = true;
@@ -111,7 +102,7 @@ public class GuiVRControls extends GuiVROptionsBase {
         		GuiVRControls.this.keyboardHoldSelect = false;
         	}
         });
-        btnLeftTouchpadMode = (new GuiButton(103, this.width / 2+2, 24, this.width / 2 - 30, 16, "") {
+        btnLeftTouchpadMode = (new GuiButton(103, this.width / 2 - 171, 38, 170, 20, "") {
         	@Override
         	public void onClick(double mouseX, double mouseY) {
             	if (MCOpenVR.isVive()) {
@@ -127,7 +118,7 @@ public class GuiVRControls extends GuiVROptionsBase {
             	}
         	}
         });
-        btnRightTouchpadMode = (new GuiButton(104, this.width / 2 +2, 41 ,this.width / 2 - 30, 16, "") {
+        btnRightTouchpadMode = (new GuiButton(104, this.width / 2 + 1, 38, 170, 20, "") {
         	@Override
         	public void onClick(double mouseX, double mouseY) {
             	if (MCOpenVR.isVive()) {
@@ -143,6 +134,13 @@ public class GuiVRControls extends GuiVROptionsBase {
             	}     		
         	}
         });
+		btnClearBinding = new GuiButton(105, this.width / 2 - 40, 38, 80, 20, "Clear All") {
+			@Override
+			public void onClick(double mouseX, double mouseY) {
+				if (mapping != null)
+					mappingButtons.removeIf(tuple -> tuple.controller.getController().isButtonActive(tuple.button));
+			}
+		};
 
         this.addButton(btnAddKey);
         this.addButton(btnKeyboardPress);
@@ -151,6 +149,7 @@ public class GuiVRControls extends GuiVROptionsBase {
             this.addButton(btnLeftTouchpadMode);
             this.addButton(btnRightTouchpadMode);
         }
+		this.addButton(btnClearBinding);
         super.addDefaultButtons();
     }
 
@@ -164,6 +163,7 @@ public class GuiVRControls extends GuiVROptionsBase {
     		btnKeyboardHold.visible = false;
     		btnLeftTouchpadMode.visible = false;
     		btnRightTouchpadMode.visible = false;
+			btnClearBinding.visible = false;
     	}else {
     		if(this.selectionMode && this.mapping != null){
     			btnAddKey.visible = false;
@@ -171,6 +171,7 @@ public class GuiVRControls extends GuiVROptionsBase {
         		btnKeyboardHold.visible = false;
         		btnLeftTouchpadMode.visible = false;
         		btnRightTouchpadMode.visible = false;
+				btnClearBinding.visible = true;
     			title = "Choose buttons for " + this.mapping.toReadableString();
     			this.visibleList = guiSelection;
     		}
@@ -180,6 +181,7 @@ public class GuiVRControls extends GuiVROptionsBase {
         		btnKeyboardHold.visible = true;
         		btnLeftTouchpadMode.visible = false;
         		btnRightTouchpadMode.visible = false;
+				btnClearBinding.visible = false;
     			title = "Choose keyboard key mode";
     		}
     		else{
@@ -188,9 +190,10 @@ public class GuiVRControls extends GuiVROptionsBase {
         		btnKeyboardHold.visible = false;
         		btnLeftTouchpadMode.visible = true;
         		btnRightTouchpadMode.visible = true;
+				btnClearBinding.visible = false;
     			if (MCOpenVR.isVive()) {
-    				btnLeftTouchpadMode.displayString = "Left TP: " + ((TrackedControllerVive)ControllerType.LEFT.getController()).getTouchpadMode();
-    				btnRightTouchpadMode.displayString = "Right TP: " + ((TrackedControllerVive)ControllerType.RIGHT.getController()).getTouchpadMode();
+    				btnLeftTouchpadMode.displayString = "Left TP: " + ((TrackedControllerVive)ControllerType.LEFT.getController()).getTouchpadMode().friendlyName;
+    				btnRightTouchpadMode.displayString = "Right TP: " + ((TrackedControllerVive)ControllerType.RIGHT.getController()).getTouchpadMode().friendlyName;
     			}
     			this.selectionMode = false;
     			title = "VR Control Remapping";
@@ -198,13 +201,19 @@ public class GuiVRControls extends GuiVROptionsBase {
     			if (this.guiFilter) {
         			title = "VR GUI Control Remapping";
         			btnAddKey.visible = false;
-    				this.drawCenteredString(this.fontRenderer, TextFormatting.RED + "Changing these wrongly can break GUI controller input. Tread carefully.", this.width / 2, 28, 16777215);
     			}
     		}
     	}
 	}
-	    
-    @Override
+
+	@Override
+	public void render(int mouseX, int mouseY, float partialTicks) {
+		super.render(mouseX, mouseY, partialTicks);
+		if (this.guiFilter)
+			this.drawCenteredString(this.fontRenderer, TextFormatting.RED + "Changing these wrongly can break GUI controller input. Tread carefully.", this.width / 2, 28, 16777215);
+	}
+
+	@Override
     protected void loadDefaults() {
     	if (this.selectionMode && this.mapping != null) { //
     		for (ControllerType controller : ControllerType.values()) {

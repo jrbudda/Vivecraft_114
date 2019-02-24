@@ -1,9 +1,10 @@
 --- a/net/minecraft/util/MovementInputFromOptions.java
 +++ b/net/minecraft/util/MovementInputFromOptions.java
-@@ -1,6 +1,17 @@
+@@ -1,6 +1,18 @@
  package net.minecraft.util;
  
 +import org.vivecraft.control.ButtonTuple;
++import org.vivecraft.control.ControllerType;
 +import org.vivecraft.control.TrackedController;
 +import org.vivecraft.control.VRButtonMapping;
 +import org.vivecraft.gameplay.screenhandlers.KeyboardHandler;
@@ -18,7 +19,7 @@
  
  public class MovementInputFromOptions extends MovementInput
  {
-@@ -11,58 +22,128 @@
+@@ -11,58 +23,130 @@
          this.gameSettings = gameSettingsIn;
      }
  
@@ -92,36 +93,38 @@
 +			this.rightKeyDown = false;
 +		}
 +
-+		if (!flag && mc.vrPlayer.getFreeMove() && !mc.vrSettings.seated && mc.currentScreen == null && !RadialHandler.isShowing() && !KeyboardHandler.Showing){
++		if (!flag && mc.vrPlayer.getFreeMove() && !mc.vrSettings.seated && mc.currentScreen == null && !KeyboardHandler.Showing){
 +			boolean set = false;
 +			// override everything
 +
 +			if (mc.vrSettings.vrFreeMoveMode == mc.vrSettings.FREEMOVE_JOYPAD) {
-+				this.moveForward = MCOpenVR.joyPadZ;
-+				this.moveStrafe = MCOpenVR.joyPadX;
-+				set = true;
++				if (!RadialHandler.isUsingController(ControllerType.LEFT)) {
++					this.moveForward = MCOpenVR.joyPadZ;
++					this.moveStrafe = MCOpenVR.joyPadX;
++					set = true;
++				}
 +			} else 	if (mc.vrSettings.analogMovement) {
 +				set = true;
 +				this.moveForward = 0;
 +				this.moveStrafe = 0;
 +
 +				ButtonTuple button = MCOpenVR.findAnyBindingButton(this.gameSettings.keyBindForward);
-+				if (button != null) {
++				if (button != null && !RadialHandler.isUsingController(button.controller)) {
 +					this.moveForward += getMovementAxisValue(button);
 +				}
 +
 +				button = MCOpenVR.findAnyBindingButton(this.gameSettings.keyBindBack);
-+				if (button != null) {
++				if (button != null && !RadialHandler.isUsingController(button.controller)) {
 +					this.moveForward -= getMovementAxisValue(button);
 +				}
 +
 +				button = MCOpenVR.findAnyBindingButton(this.gameSettings.keyBindRight);
-+				if (button != null) {
++				if (button != null && !RadialHandler.isUsingController(button.controller)) {
 +					this.moveStrafe -= getMovementAxisValue(button);
 +				}
 +
 +				button = MCOpenVR.findAnyBindingButton(this.gameSettings.keyBindLeft);
-+				if (button != null) {
++				if (button != null && !RadialHandler.isUsingController(button.controller)) {
 +					this.moveStrafe += getMovementAxisValue(button);
 +        		}
 +        	}

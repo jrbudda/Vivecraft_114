@@ -454,17 +454,23 @@ public class TrackedControllerVive extends TrackedController {
 	}
 
 	public static enum TouchpadMode {
-		SINGLE,
-		SPLIT_UD,
-		SPLIT_LR,
-		SPLIT_QUAD,
-		SPLIT_QUAD_CENTER,
-		SPLIT_CROSS,
-		SPLIT_CROSS_CENTER,
-		SPLIT_HEX,
-		SPLIT_HEX_CENTER,
-		SPLIT_OCT,
-		SPLIT_OCT_CENTER
+		SINGLE("Single"),
+		SPLIT_UD("Up/Down Split"),
+		SPLIT_LR("Left/Right Split"),
+		SPLIT_QUAD("Quad Split"),
+		SPLIT_QUAD_CENTER("Quad/Center Split"),
+		SPLIT_CROSS("Cross Split"),
+		SPLIT_CROSS_CENTER("Cross/Center Split"),
+		SPLIT_HEX("Hexagon Split"),
+		SPLIT_HEX_CENTER("Hexagon/Center Split"),
+		SPLIT_OCT("Octagon Split"),
+		SPLIT_OCT_CENTER("Octagon/Center Split");
+
+		public final String friendlyName;
+
+		TouchpadMode(String friendlyName) {
+			this.friendlyName = friendlyName;
+		}
 	}
 
 	@Override

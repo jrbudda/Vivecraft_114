@@ -20,9 +20,9 @@ public class GuiHUDSettings extends GuiVROptionsBase
     static VROptionEntry[] hudOptions = new VROptionEntry[] {
             new VROptionEntry(VRSettings.VrOptions.HUD_HIDE),
             new VROptionEntry(VRSettings.VrOptions.HUD_LOCK_TO),
+			new VROptionEntry(VRSettings.VrOptions.HUD_SCALE),
+			new VROptionEntry(VRSettings.VrOptions.HUD_DISTANCE),
             new VROptionEntry(VRSettings.VrOptions.HUD_OCCLUSION),
-            //new VROptionEntry(VRSettings.VrOptions.HUD_SCALE),
-            //new VROptionEntry(VRSettings.VrOptions.HUD_DISTANCE),
             //new VROptionEntry(VRSettings.VrOptions.HUD_PITCH),
             //new VROptionEntry(VRSettings.VrOptions.HUD_YAW),
             new VROptionEntry(VRSettings.VrOptions.HUD_OPACITY),
@@ -69,7 +69,7 @@ public class GuiHUDSettings extends GuiVROptionsBase
     @Override
     protected void loadDefaults() {
         this.settings.hudDistance = 1.25f;
-        this.settings.hudScale = 1.5f;
+        this.settings.hudScale = 1.0f;
         this.settings.hudPitchOffset = -2f;
         this.settings.hudYawOffset = 0f;
         this.settings.hudOpacity = 1f;

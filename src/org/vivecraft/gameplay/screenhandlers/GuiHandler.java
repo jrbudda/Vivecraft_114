@@ -374,22 +374,12 @@ public class GuiHandler {
 	public static void onGuiScreenChanged(GuiScreen previousScreen, GuiScreen newScreen, boolean unpressKeys)
 	{
 		if(unpressKeys){
-			//if(Display.isActive()){ //why do we do this again? something about awt.robot keys getting stuck?
-			//KeyboardSimulator.robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-			//KeyboardSimulator.robot.mouseRelease(InputEvent.BUTTON2_DOWN_MASK);
-			//KeyboardSimulator.robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
-			//put these back if needed, actually causes a crash opening creative inventory.
-			//				InputSimulator.releaseMouse(GLFW.GLFW_MOUSE_BUTTON_LEFT);
-			//				InputSimulator.releaseMouse(GLFW.GLFW_MOUSE_BUTTON_RIGHT);
-			//				InputSimulator.releaseMouse(GLFW.GLFW_MOUSE_BUTTON_MIDDLE);
-			//				InputSimulator.releaseKey(GLFW.GLFW_KEY_LEFT_SHIFT);
 			for (VRButtonMapping mapping : mc.vrSettings.buttonMappings.values()) {
 				if(newScreen!=null) {
 					if(mapping.isGUIBinding() && mapping.keyBinding != mc.gameSettings.keyBindInventory)
 						mapping.actuallyUnpress();
 				} else
 					mapping.actuallyUnpress();
-				//				}
 			}
 		}
 
@@ -463,7 +453,6 @@ public class GuiHandler {
 				double dist = temp_room.subtract(pos).length();
 				guiScale = (float) Math.sqrt(dist);
 
-
 				//idk it works.
 				Vec3d guiPosWorld = new Vec3d(temp.x, mc.objectMouseOver.getBlockPos().getY() + 1.1 + (0.5f * guiScale/2), temp.z);
 
@@ -485,9 +474,9 @@ public class GuiHandler {
 				//static screens like menu, inventory, and dead.
 				Vec3d adj = new Vec3d(0,0,-2);
 				if (newScreen instanceof GuiChat){
-					adj = new Vec3d(0.3,0.75,-2);
+					adj = new Vec3d(0,0.5,-2);
 				} else if (newScreen instanceof GuiScreenBook || newScreen instanceof GuiEditSign) {
-					adj = new Vec3d(0,1,-2);
+					adj = new Vec3d(0,0.25,-2);
 				}
 
 				Vec3d v = mc.vrPlayer.vrdata_room_pre.hmd.getPosition();

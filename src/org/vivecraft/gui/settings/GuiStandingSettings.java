@@ -23,6 +23,7 @@ public class GuiStandingSettings extends GuiVROptionsBase
 					new VROptionEntry(VRSettings.VrOptions.WALK_MULTIPLIER),
 					new VROptionEntry(VRSettings.VrOptions.ALLOW_MODE_SWITCH),
 					new VROptionEntry(VRSettings.VrOptions.WORLD_ROTATION_INCREMENT),
+					new VROptionEntry(VRSettings.VrOptions.ALLOW_STANDING_ORIGIN_OFFSET),
 					new VROptionEntry(VRSettings.VrOptions.MOVE_MODE, (button, mousePos) -> {
 						GuiStandingSettings.this.reinit = true;
 						return false;

@@ -42,7 +42,7 @@ public abstract class GuiVROptionsBase extends GuiScreen
 	}
 
 	protected void addDefaultButtons() {
-		this.addButton(btnDone = new GuiButton(DONE_BUTTON, this.width / 2 + 5, this.height / 6 + 168, 150, 20, I18n.format("gui.back"))
+		this.addButton(btnDone = new GuiButton(DONE_BUTTON, this.width / 2 + 5, this.height - 30, 150, 20, I18n.format("gui.back"))
 		{
 			public void onClick(double mouseX, double mouseY)
 			{
@@ -52,7 +52,7 @@ public abstract class GuiVROptionsBase extends GuiScreen
 				}
 			}
 		});
-		this.addButton(btnDefaults = new GuiButton(DEFAULTS_BUTTON, this.width / 2 - 155, this.height / 6 + 168, 150, 20, "Load Defaults")
+		this.addButton(btnDefaults = new GuiButton(DEFAULTS_BUTTON, this.width / 2 - 155, this.height - 30, 150, 20, "Load Defaults")
 		{
 			public void onClick(double mouseX, double mouseY)
 			{

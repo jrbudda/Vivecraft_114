@@ -46,9 +46,7 @@ public class GuiMainVRSettings extends GuiVROptionsBase
             {
                     new VROptionLayout(GuiSeatedOptions.class, VROptionLayout.Position.POS_LEFT, 4f, VROptionLayout.ENABLED, "Seated Settings..."),
                     new VROptionLayout(VRSettings.VrOptions.RESET_ORIGIN, (button, mousePos) -> {
-						MCOpenVR.resetPosition();
-						settings.saveOptions();
-						this.mc.displayGuiScreen(null);
+                    	resetOrigin();
 						return true;
 					}, VROptionLayout.Position.POS_RIGHT,   4f, VROptionLayout.ENABLED, null),
             };
@@ -84,6 +82,12 @@ public class GuiMainVRSettings extends GuiVROptionsBase
     			super.initGui(vrSeatedOptions, true);
     		}else {
     			super.initGui(vrStandingOptions, true);
+    			if (mc.vrSettings.allowStandingOriginOffset) {
+    				super.initGui(new VROptionLayout[]{new VROptionLayout(VRSettings.VrOptions.RESET_ORIGIN, (button, mousePos) -> {
+						resetOrigin();
+						return true;
+					}, VROptionLayout.Position.POS_LEFT, 7f, VROptionLayout.ENABLED, null)}, false);
+				}
     		}
     		super.initGui(vrAlwaysOptions, false);
 			super.addDefaultButtons();
@@ -104,6 +108,12 @@ public class GuiMainVRSettings extends GuiVROptionsBase
         mc.vrSettings.seated = false;
 		MCOpenVR.clearOffset();
     }
+
+    protected void resetOrigin() {
+		MCOpenVR.resetPosition();
+		settings.saveOptions();
+		this.mc.displayGuiScreen(null);
+	}
     
 //    @Override
 //    protected String[] getTooltipLines(String displayString, int buttonId)

@@ -38,10 +38,10 @@ public class ButtonTuple {
 
 	// This is slightly dirty code for the sake of nicer button names in GUI
 	public String toReadableString() {
-		String buttonName = button.toString().substring(button.toString().indexOf('_') + 1);
-		if (buttonName.equals("AX")) buttonName = controller == ControllerType.LEFT ? "X" : "A";
-		if (buttonName.equals("BY")) buttonName = controller == ControllerType.LEFT ? "Y" : "B";
-		return controller.toString() + "_" + buttonName + (isTouch ? "_TOUCH" : "");
+		String prefix = controller == ControllerType.LEFT ? "Left " : "Right ";
+		if (!button.friendlyNameLeft.equals(button.friendlyNameRight))
+			prefix = "";
+		return prefix + (controller == ControllerType.LEFT ? button.friendlyNameLeft : button.friendlyNameRight) + (isTouch ? " Touch" : "");
 	}
 
 	@Override

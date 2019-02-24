@@ -146,7 +146,7 @@ public class MCOpenVR
 
 	static Vec3d[] aimSource = new Vec3d[3];
 
-	static Vector3f offset=new Vector3f(0,0,0);
+	public static Vector3f offset=new Vector3f(0,0,0);
 
 	static boolean[] controllerTracking = new boolean[3];
 	public static TrackedController[] controllers = new TrackedController[2];
@@ -638,12 +638,6 @@ public class MCOpenVR
 				detectedHardware = HardwareType.fromManufacturer(id);
 				mc.vrSettings.loadOptions();
 
-				//TODO: detect tracking system
-				if(mc.vrSettings.seated && detectedHardware == HardwareType.OCULUS)
-					resetPosition();
-				else
-					clearOffset();
-
 			} else {
 				throw new Exception(jopenvr.JOpenVRLibrary.VR_GetVRInitErrorAsEnglishDescription(getError()).getString(0));			 
 			}
@@ -957,7 +951,6 @@ public class MCOpenVR
 			VRInputEvent event = nextInputEvent();
 			
 			if (event.isButtonPressEvent()) {
-								
 				if (event.getButtonState() && mc.currentScreen instanceof GuiVRControls && ((GuiVRControls)mc.currentScreen).pressMode) {
 					((GuiVRControls)mc.currentScreen).bindSingleButton(new ButtonTuple(event.getButton(), event.getController().getType()));
 					continue;
@@ -975,10 +968,10 @@ public class MCOpenVR
 						}
 					}
 				}
-							
-				if(KeyboardHandler.handleInputEvent(event)) continue;
-				if(RadialHandler.handleInputEvent(event)) continue;
 			}
+
+			if(KeyboardHandler.handleInputEvent(event)) continue;
+			if(RadialHandler.handleInputEvent(event)) continue;
 
 			if (!isBindingBound(keyMoveThirdPersonCam)) {
 				if (VRHotkeys.isMovingThirdPersonCam()) {
@@ -994,20 +987,29 @@ public class MCOpenVR
 			for (VRButtonMapping binding : mc.vrSettings.buttonMappings.values()) {
 				if (binding.buttons.contains(new ButtonTuple(event.getButton(), event.getController().getType(), event.isButtonTouchEvent()))) {
 					if (event.getButtonState()) {
-						if ((mc.currentScreen != null || KeyboardHandler.Showing || RadialHandler.isShowing()) && (binding.isGUIBinding() || binding.isKeyboardBinding())) {
+						if ((mc.currentScreen != null || KeyboardHandler.Showing || RadialHandler.isUsingController(event.getController().getType())) && (binding.isGUIBinding() || binding.isKeyboardBinding())) {
 							binding.press();
 							if (binding.keyBinding != null)
 								activeBindings.put(binding.keyBinding.getKeyDescription(), new ButtonTuple(event.getButton(), event.getController().getType()));
 							continue outer; // GUI bindings override in-game ones
 						}
 					} else {
+						boolean unpress = true;
 						for (ButtonTuple button : binding.buttons) {
-							if (button.isTouch && controllers[button.controller.ordinal()].isButtonTouched(button.button))
+							if (!controllers[button.controller.ordinal()].isButtonActive(button.button))
 								continue;
-							if (!button.isTouch && controllers[button.controller.ordinal()].isButtonPressed(button.button))
-								continue;
+							if (button.isTouch && controllers[button.controller.ordinal()].isButtonTouched(button.button)) {
+								unpress = false;
+								break;
+							}
+							if (!button.isTouch && controllers[button.controller.ordinal()].isButtonPressed(button.button)) {
+								unpress = false;
+								break;
+							}
 						}
-						binding.scheduleUnpress(1);
+
+						if (unpress)
+							binding.scheduleUnpress(1);
 					}
 				}
 			}
@@ -1017,19 +1019,28 @@ public class MCOpenVR
 				if (binding.buttons.contains(new ButtonTuple(event.getButton(), event.getController().getType(), event.isButtonTouchEvent()))) {
 					if (event.getButtonState()) {
 						// Right controller blocked in GUI since it's the pointer
-						if ((!binding.isGUIBinding() || binding.isKeyboardBinding()) && (mc.currentScreen == null /*|| event.getController().getType() == ControllerType.LEFT*/)) {
+						if ((!binding.isGUIBinding() || binding.isKeyboardBinding()) && (mc.currentScreen == null && !RadialHandler.isUsingController(event.getController().getType()) /*|| event.getController().getType() == ControllerType.LEFT*/)) {
 							binding.press();
 							if (binding.keyBinding != null)
 								activeBindings.put(binding.keyBinding.getKeyDescription(), new ButtonTuple(event.getButton(), event.getController().getType()));
 						}
 					} else {
+						boolean unpress = true;
 						for (ButtonTuple button : binding.buttons) {
-							if (button.isTouch && controllers[button.controller.ordinal()].isButtonTouched(button.button))
+							if (!controllers[button.controller.ordinal()].isButtonActive(button.button))
 								continue;
-							if (!button.isTouch && controllers[button.controller.ordinal()].isButtonPressed(button.button))
-								continue;
+							if (button.isTouch && controllers[button.controller.ordinal()].isButtonTouched(button.button)) {
+								unpress = false;
+								break;
+							}
+							if (!button.isTouch && controllers[button.controller.ordinal()].isButtonPressed(button.button)) {
+								unpress = false;
+								break;
+							}
 						}
-						binding.scheduleUnpress(1);
+
+						if (unpress)
+							binding.scheduleUnpress(1);
 					}
 				}
 			}
@@ -1580,7 +1591,8 @@ public class MCOpenVR
 
 	public static Vec3d getCenterEyePosition() {
 		Vector3f pos = OpenVRUtil.convertMatrix4ftoTranslationVector(hmdPose);
-		pos=pos.add(offset);
+		if (mc.vrSettings.seated || mc.vrSettings.allowStandingOriginOffset)
+			pos=pos.add(offset);
 		return new Vec3d(pos.x, pos.y, pos.z);
 	}
 
@@ -1604,12 +1616,14 @@ public class MCOpenVR
 		if(hmdToEye == null){
 			Matrix4f pose = hmdPose;
 			Vector3f pos = OpenVRUtil.convertMatrix4ftoTranslationVector(pose);
-			pos=pos.add(offset);
+			if (mc.vrSettings.seated || mc.vrSettings.allowStandingOriginOffset)
+				pos=pos.add(offset);
 			return new Vec3d(pos.x, pos.y, pos.z);
 		} else {
 			Matrix4f pose = Matrix4f.multiply( hmdPose, hmdToEye );
 			Vector3f pos = OpenVRUtil.convertMatrix4ftoTranslationVector(pose);
-			pos=pos.add(offset);
+			if (mc.vrSettings.seated || mc.vrSettings.allowStandingOriginOffset)
+				pos=pos.add(offset);
 			return new Vec3d(pos.x, pos.y, pos.z);
 		}
 	}
@@ -1687,8 +1701,8 @@ public class MCOpenVR
 
 	public static Vec3d getAimSource( int controller ) {
 		Vec3d out = new Vec3d(aimSource[controller].x, aimSource[controller].y, aimSource[controller].z);
-		if(!mc.vrSettings.seated) 
-			out.add((double)offset.x, (double)offset.y,(double) offset.z);
+		if(!mc.vrSettings.seated && mc.vrSettings.allowStandingOriginOffset)
+			out = out.add(offset.x, offset.y, offset.z);
 		return out;
 	}
 

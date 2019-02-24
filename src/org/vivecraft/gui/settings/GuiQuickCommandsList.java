@@ -12,7 +12,7 @@ public class GuiQuickCommandsList extends GuiListExtended
         
     public GuiQuickCommandsList(GuiQuickCommandEditor parent, Minecraft mc)
     {
-        super(mc, parent.width, parent.height, 24, parent.height - 24, 20);
+        super(mc, parent.width, parent.height, 32, parent.height - 32, 20);
         this.parent = parent;
         this.mc = mc;
         

@@ -207,7 +207,7 @@
 +	 * The minecriftVerString will be automatically updated by the build scripts, do not modify here.
 +	 * Modify minecriftversion.py in root minecrift dir.
 +	 */
-+    public final String minecriftVerString = "Vivecraft 1.13.2 jrbudda-1-release";
++    public final String minecriftVerString = "Vivecraft 1.13.2 jrbudda-1-r1b2";
 +	/* end version */
 +	/** END MINECRIFT */
 +    
@@ -658,7 +658,7 @@
 +                GlStateManager.clearColor(0, 0, 0, 1);
 +                GlStateManager.clear(GL11.GL_COLOR_BUFFER_BIT);
 +                entityRenderer.displayNotificationText("Mirror is OFF", "", "", this.mainWindow.getWidth(), this.mainWindow.getHeight(), false, true);
-+                this.framebuffer.bindFramebuffer(true);
++                //this.framebuffer.bindFramebuffer(true);
 +            }
 +
 +            profiler.startSection("Display/Reproject");
@@ -1182,8 +1182,8 @@
 +		
 +		this.framebuffer.unbindFramebuffer();	//draw directly to window
 +					
-+		GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, 0);
-+		GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, stereoProvider.framebufferMR.framebufferObject);
++		//GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, 0);
++		//GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, stereoProvider.framebufferMR.framebufferObject);
 +
 +		if (!alphaMask) GlStateManager.clearColor(vrSettings.mixedRealityKeyColor.getRed() / 255F, vrSettings.mixedRealityKeyColor.getGreen() / 255F, vrSettings.mixedRealityKeyColor.getBlue() / 255F, 1);
 +		else GlStateManager.clearColor(0, 0, 0, 1);
@@ -1276,20 +1276,20 @@
 +		
 +		for(int i = 0; i < (alphaMask ? 3 : 2); i++) {
 +		
-+			int resW = mainWindow.getWidth() / 2;
-+			int resH = mainWindow.getHeight();
-+			int posW = (mainWindow.getWidth() / 2) * i;
++			int resW = mainWindow.getFramebufferWidth() / 2;
++			int resH = mainWindow.getFramebufferHeight();
++			int posW = (mainWindow.getFramebufferWidth() / 2) * i;
 +			int posH = 0;
 +			
 +			if (this.vrSettings.mixedRealityUnityLike) {
-+				resW = mainWindow.getWidth() / 2;
-+				resH = mainWindow.getHeight() / 2;
++				resW = mainWindow.getFramebufferWidth() / 2;
++				resH = mainWindow.getFramebufferHeight() / 2;
 +				if (this.vrSettings.mixedRealityAlphaMask && i == 2) {
-+					posW = mainWindow.getWidth() / 2;
-+					posH = mainWindow.getHeight() / 2;
++					posW = mainWindow.getFramebufferWidth() / 2;
++					posH = mainWindow.getFramebufferHeight() / 2;
 +				} else {
 +					posW = 0;
-+					posH = (mainWindow.getHeight() / 2) * (1 - i);
++					posH = (mainWindow.getFramebufferHeight() / 2) * (1 - i);
 +				}
 +			}
 +			
@@ -1307,12 +1307,12 @@
 +		
 +		if (this.vrSettings.mixedRealityUnityLike) {
 +			if(this.vrSettings.mixedRealityMRPlusUndistorted)
-+				stereoProvider.framebufferUndistorted.framebufferRenderExt(mainWindow.getWidth() / 2, mainWindow.getWidth() / 2, mainWindow.getHeight() / 2, 0, true);
++				stereoProvider.framebufferUndistorted.framebufferRenderExt(mainWindow.getFramebufferWidth() / 2, mainWindow.getFramebufferWidth() / 2, mainWindow.getFramebufferHeight() / 2, 0, true);
 +			else
-+				stereoProvider.framebufferEye0.framebufferRenderExt(mainWindow.getWidth() / 2, mainWindow.getWidth() / 2, mainWindow.getHeight() / 2, 0, true);
++				stereoProvider.framebufferEye0.framebufferRenderExt(mainWindow.getFramebufferWidth() / 2, mainWindow.getFramebufferWidth() / 2, mainWindow.getFramebufferHeight() / 2, 0, true);
 +		}
 +
-+		
++
 +	}
 +
 +	private float fov = 1.0f;

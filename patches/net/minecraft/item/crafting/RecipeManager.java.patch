@@ -1,0 +1,47 @@
+--- a/net/minecraft/item/crafting/RecipeManager.java
++++ b/net/minecraft/item/crafting/RecipeManager.java
+@@ -11,6 +11,9 @@
+ import java.util.Map;
+ import java.util.function.Predicate;
+ import javax.annotation.Nullable;
++
++import net.minecraft.init.Blocks;
++import net.minecraft.init.Items;
+ import net.minecraft.inventory.IInventory;
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.resources.IResource;
+@@ -19,6 +22,7 @@
+ import net.minecraft.util.JsonUtils;
+ import net.minecraft.util.NonNullList;
+ import net.minecraft.util.ResourceLocation;
++import net.minecraft.util.text.TextComponentString;
+ import net.minecraft.world.World;
+ import org.apache.commons.io.IOUtils;
+ import org.apache.logging.log4j.LogManager;
+@@ -102,6 +106,26 @@
+                 this.someRecipesErrored = true;
+             }
+         }
++        
++        
++        //VIVECRAFT - This prolly cant stay here. Move to .json files someday.
++        ItemStack is = new ItemStack(Items.LEATHER_BOOTS);
++        is.setDisplayName(new TextComponentString("Jump Boots"));
++        is.getTag().setBoolean("Unbreakable", true);
++        is.getTag().setInteger("HideFlags",4);
++
++        ItemStack is2 = new ItemStack(Items.SHEARS);
++        is2.setDisplayName(new TextComponentString("Climb Claws"));
++        is2.getTag().setBoolean("Unbreakable", true);
++        is2.getTag().setInteger("HideFlags",4);
++        
++        ShapedRecipe boot = new ShapedRecipe(new ResourceLocation("jumpboots"),"Vivecraft", 1, 2, NonNullList.from(Ingredient.EMPTY,Ingredient.fromItems(Items.LEATHER_BOOTS), Ingredient.fromStacks(new ItemStack(Blocks.SLIME_BLOCK))), is);
++        ShapedRecipe claw = new ShapedRecipe(new ResourceLocation("climbclaws"),"Vivecraft", 3, 2, NonNullList.from(Ingredient.EMPTY,Ingredient.fromItems(Items.SPIDER_EYE),Ingredient.EMPTY,Ingredient.fromItems(Items.SPIDER_EYE),Ingredient.fromItems(Items.SHEARS),Ingredient.EMPTY,Ingredient.fromItems(Items.SHEARS)), is2);
++
++        addRecipe(boot);
++        addRecipe(claw);   
++        //
++        
+         LOGGER.info("Loaded {} recipes", (int)this.recipes.size());
+     }
+ 

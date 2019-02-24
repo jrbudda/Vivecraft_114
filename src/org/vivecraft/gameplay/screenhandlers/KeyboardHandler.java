@@ -196,7 +196,7 @@ public class KeyboardHandler {
 			VRButtonMapping leftClick = mc.vrSettings.buttonMappings.get(GuiHandler.keyLeftClick.getKeyDescription());
 			VRButtonMapping rightClick = mc.vrSettings.buttonMappings.get(GuiHandler.keyRightClick.getKeyDescription());
 			VRButtonMapping shift = mc.vrSettings.buttonMappings.get(GuiHandler.keyShift.getKeyDescription());
-			Predicate<ButtonTuple> predicate = b -> b.button.equals(event.getButton()) && b.isTouch == event.isButtonTouchEvent();
+			Predicate<ButtonTuple> predicate = b -> b.button == event.getButton() && b.isTouch == event.isButtonTouchEvent();
 			boolean isClick = leftClick.buttons.stream().anyMatch(predicate) || rightClick.buttons.stream().anyMatch(predicate);
 
 			double d0 = Math.min(Math.max((int) UI.cursorX1, 0), mc.mainWindow.getWidth())
@@ -230,7 +230,8 @@ public class KeyboardHandler {
 			
 			if((PointedL || PointedR) && shift.buttons.stream().anyMatch(predicate)) {
 				UI.setShift(event.getButtonState());
-				// No block cause shift is used to select text in the text field
+				// Only block if this isn't a controller where shift is bound, so text can be selected
+				return shift.buttons.stream().noneMatch(b -> b.controller == event.getController().getType());
 			}
 		}
 

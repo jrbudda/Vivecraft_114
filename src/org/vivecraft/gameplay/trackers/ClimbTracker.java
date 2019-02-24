@@ -540,15 +540,16 @@ public class ClimbTracker extends Tracker{
 				MCOpenVR.triggerHapticPulse(1, 100);
 			}
 
-			if(mc.isIntegratedServerRunning()) //handle server falling.
+			if(mc.isIntegratedServerRunning()) { //handle server falling.
 				for (EntityPlayerMP p : mc.getIntegratedServer().getPlayerList().getPlayers()) {
-					if(p.getEntityId() == mc.player.getEntityId())
+					if (p.getEntityId() == mc.player.getEntityId())
 						p.fallDistance = 0;
-				} else {
-					CPacketCustomPayload pack =	NetworkHelper.getVivecraftClientPacket(PacketDiscriminators.CLIMBING, new byte[]{});
-					if(mc.getConnection() !=null)
-						mc.getConnection().sendPacket(pack);
 				}
+			} else {
+				CPacketCustomPayload pack =	NetworkHelper.getVivecraftClientPacket(PacketDiscriminators.CLIMBING, new byte[]{});
+				if(mc.getConnection() !=null)
+					mc.getConnection().sendPacket(pack);
+			}
 
 		} else { //jump!
 			wantjump = false;
