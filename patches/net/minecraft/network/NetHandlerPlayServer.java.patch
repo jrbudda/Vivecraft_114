@@ -31,7 +31,18 @@
  
  public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
  {
-@@ -1727,5 +1737,89 @@
+@@ -281,6 +291,10 @@
+         {
+             this.disconnect(new TextComponentTranslation("multiplayer.disconnect.idling", new Object[0]));
+         }
++        
++        //VIVECRAFT
++        NetworkHelper.sendPosData(player); //has to go somewhere?
++
+     }
+ 
+     public void captureCurrentPosition()
+@@ -1727,5 +1741,89 @@
       */
      public void processCustomPayload(CPacketCustomPayload packetIn)
      {
