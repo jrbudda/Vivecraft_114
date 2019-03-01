@@ -8,7 +8,8 @@ import net.minecraft.client.entity.EntityPlayerSP;
 
 public class SneakTracker extends Tracker {
 	public boolean sneakOverride=false;
-
+	public int sneakCounter = 0;
+	
 	public SneakTracker(Minecraft mc) {
 		super(mc);
 	}

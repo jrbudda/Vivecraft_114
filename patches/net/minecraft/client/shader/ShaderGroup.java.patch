@@ -1,0 +1,30 @@
+--- a/net/minecraft/client/shader/ShaderGroup.java
++++ b/net/minecraft/client/shader/ShaderGroup.java
+@@ -13,6 +13,8 @@
+ import java.nio.charset.StandardCharsets;
+ import java.util.List;
+ import java.util.Map;
++
++import net.minecraft.client.Minecraft;
+ import net.minecraft.client.renderer.GlStateManager;
+ import net.minecraft.client.renderer.Matrix4f;
+ import net.minecraft.client.renderer.texture.ITextureObject;
+@@ -347,13 +349,15 @@
+ 
+     private void resetProjectionMatrix()
+     {
+-        this.projectionMatrix = Matrix4f.orthographic((float)this.mainFramebuffer.framebufferTextureWidth, (float)this.mainFramebuffer.framebufferTextureHeight, 0.1F, 1000.0F);
++        // VIVECRAFT: Use eye framebuffer instead of window
++        this.projectionMatrix = Matrix4f.orthographic((float)Minecraft.getMinecraft().stereoProvider.framebufferVrRender.framebufferTextureWidth, (float)Minecraft.getMinecraft().stereoProvider.framebufferVrRender.framebufferTextureHeight, 0.1F, 1000.0F);
+     }
+ 
+     public void createBindFramebuffers(int width, int height)
+     {
+-        this.mainFramebufferWidth = this.mainFramebuffer.framebufferTextureWidth;
+-        this.mainFramebufferHeight = this.mainFramebuffer.framebufferTextureHeight;
++        // VIVECRAFT: Use eye framebuffer instead of window
++        this.mainFramebufferWidth = Minecraft.getMinecraft().stereoProvider.framebufferVrRender.framebufferTextureWidth;
++        this.mainFramebufferHeight = Minecraft.getMinecraft().stereoProvider.framebufferVrRender.framebufferTextureHeight;
+         this.resetProjectionMatrix();
+ 
+         for (Shader shader : this.listShaders)

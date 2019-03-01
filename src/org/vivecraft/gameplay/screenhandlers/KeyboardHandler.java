@@ -137,7 +137,6 @@ public class KeyboardHandler {
 			Vec3d pos = mc.vrPlayer.vrdata_room_pre.hmd.getPosition();
 			Vec3d offset = new Vec3d(0, -0.5, 0.3);
 			offset = offset.rotateYaw((float)Math.toRadians(-mc.vrPlayer.vrdata_room_pre.hmd.getYaw()));
-			System.out.println(offset);
 			Pos_room = new Vec3d(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
 
 			float yaw = (float)Math.PI + (float)Math.toRadians(-mc.vrPlayer.vrdata_room_pre.hmd.getYaw());

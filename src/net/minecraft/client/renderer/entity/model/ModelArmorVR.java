@@ -26,8 +26,8 @@ public class ModelArmorVR extends ModelBase
 
     /** The Biped's Left Leg */
     public ModelRenderer bipedLeftLeg;
-    public ModelArmorVR.ArmPose leftArmPose;
-    public ModelArmorVR.ArmPose rightArmPose;
+    public ModelPlayerVR.ArmPose leftArmPose;
+    public ModelPlayerVR.ArmPose rightArmPose;
     public boolean isSneak;
 
     public ModelArmorVR()
@@ -42,8 +42,8 @@ public class ModelArmorVR extends ModelBase
 
     public ModelArmorVR(float modelSize, float p_i1149_2_, int textureWidthIn, int textureHeightIn)
     {
-        this.leftArmPose = ModelArmorVR.ArmPose.EMPTY;
-        this.rightArmPose = ModelArmorVR.ArmPose.EMPTY;
+        this.leftArmPose = ModelPlayerVR.ArmPose.EMPTY;
+        this.rightArmPose = ModelPlayerVR.ArmPose.EMPTY;
         this.textureWidth = textureWidthIn;
         this.textureHeight = textureHeightIn;
         this.bipedHead = new ModelRenderer(this, 0, 0);
@@ -282,14 +282,14 @@ public class ModelArmorVR extends ModelBase
         this.bipedRightArm.rotateAngleX += MathHelper.sin(ageInTicks * 0.067F) * 0.05F;
         this.bipedLeftArm.rotateAngleX -= MathHelper.sin(ageInTicks * 0.067F) * 0.05F;
 
-        if (this.rightArmPose == ModelArmorVR.ArmPose.BOW_AND_ARROW)
+        if (this.rightArmPose == ModelPlayerVR.ArmPose.BOW_AND_ARROW)
         {
             this.bipedRightArm.rotateAngleY = -0.1F + this.bipedHead.rotateAngleY;
             this.bipedLeftArm.rotateAngleY = 0.1F + this.bipedHead.rotateAngleY + 0.4F;
             this.bipedRightArm.rotateAngleX = -((float)Math.PI / 2F) + this.bipedHead.rotateAngleX;
             this.bipedLeftArm.rotateAngleX = -((float)Math.PI / 2F) + this.bipedHead.rotateAngleX;
         }
-        else if (this.leftArmPose == ModelArmorVR.ArmPose.BOW_AND_ARROW)
+        else if (this.leftArmPose == ModelPlayerVR.ArmPose.BOW_AND_ARROW)
         {
             this.bipedRightArm.rotateAngleY = -0.1F + this.bipedHead.rotateAngleY - 0.4F;
             this.bipedLeftArm.rotateAngleY = 0.1F + this.bipedHead.rotateAngleY;
@@ -307,9 +307,9 @@ public class ModelArmorVR extends ModelBase
     {
         super.setModelAttributes(model);
 
-        if (model instanceof ModelArmorVR)
+        if (model instanceof ModelPlayerVR)
         {
-            ModelArmorVR modelbiped = (ModelArmorVR)model;
+            ModelPlayerVR modelbiped = (ModelPlayerVR)model;
             this.leftArmPose = modelbiped.leftArmPose;
             this.rightArmPose = modelbiped.rightArmPose;
             this.isSneak = modelbiped.isSneak;
@@ -349,13 +349,5 @@ public class ModelArmorVR extends ModelBase
         {
             return EnumHandSide.RIGHT;
         }
-    }
-
-    public static enum ArmPose
-    {
-        EMPTY,
-        ITEM,
-        BLOCK,
-        BOW_AND_ARROW;
     }
 }

@@ -17,7 +17,9 @@ import org.vivecraft.utils.Vector3;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Particles;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -30,6 +32,7 @@ public class PlayerModelController {
 	private Map<UUID, RotInfo> vivePlayers = new HashMap<UUID, RotInfo>();
 	private Map<UUID, RotInfo> vivePlayersLast = new HashMap<UUID, RotInfo>();
 	private Map<UUID, RotInfo> vivePlayersReceived = Collections.synchronizedMap(new HashMap<UUID, RotInfo>());
+	private Map<UUID, Integer> donors = new HashMap<UUID, Integer>();
 	
 
 	static PlayerModelController instance;
@@ -156,23 +159,43 @@ public class PlayerModelController {
 		for (Map.Entry<UUID, RotInfo> entry : vivePlayersReceived.entrySet()) {
 			vivePlayers.put(entry.getKey(), entry.getValue());
 		}
-		for (Iterator<UUID> it = vivePlayers.keySet().iterator(); it.hasNext();) {
-			UUID uuid = it.next();
-			World world = Minecraft.getMinecraft().world;
-			if (world != null) {
+
+		World world = Minecraft.getMinecraft().world;
+		if (world != null) {
+			for (Iterator<UUID> it = vivePlayers.keySet().iterator(); it.hasNext(); ) {
+				UUID uuid = it.next();
 				if (world.getPlayerEntityByUUID(uuid) == null) {
 					it.remove();
 					vivePlayersLast.remove(uuid);
 					vivePlayersReceived.remove(uuid);
-				} else {
-					RotInfo out = vivePlayers.get(uuid);
-					if(out.hmd > 3 && rand.nextInt(10) < 4){
-						Vec3d derp = out.headRot.scale(0.1f);
+				}
+			}
+
+			if (!mc.isGamePaused()) {
+				for (EntityPlayer player : world.getPlayers(EntityPlayer.class, p -> donors.getOrDefault(p.getUniqueID(), 0) > 3)) {
+					if (rand.nextInt(10) < 4) {
+						RotInfo rotInfo = vivePlayers.get(player.getUniqueID());
+						Vec3d derp = player.getLookVec();
+						if (rotInfo != null) {
+							derp = rotInfo.leftArmPos.subtract(rotInfo.rightArmPos).rotateYaw((float)-Math.PI / 2);
+							if (rotInfo.reverse)
+								derp = derp.scale(-1);
+							else if (rotInfo.seated)
+								derp = rotInfo.rightArmRot;
+
+							// Hands are at origin or something
+							if (derp.length() < 0.0001f)
+								derp = rotInfo.headRot;
+						}
+						derp = derp.scale(0.1f);
+
+						// Use hmd pos for self so we don't have butt sparkles in face
+						Vec3d pos = rotInfo != null && player == mc.player ? rotInfo.Headpos : player.getEyePosition(1);
 						Particle particle = mc.effectRenderer.addParticle(Particles.FIREWORK,
-								out.Headpos.x+ ((double)this.rand.nextFloat() - 0.5D)*.02f,
-								out.Headpos.y - 0.8f + ((double)this.rand.nextFloat() - 0.5D)*.02f,
-								out.Headpos.z + ((double)this.rand.nextFloat()- 0.5D)*.02f,
-								-derp.x + ((double)this.rand.nextFloat()- 0.5D)*.01f,((double)this.rand.nextFloat()- .05f)*.05f, -derp.z + ((double)this.rand.nextFloat()- 0.5D)*.01f
+								pos.x + (player.isSneaking() ? -derp.x * 3 : 0) + ((double) this.rand.nextFloat() - 0.5D) * .02f,
+								pos.y - (player.isSneaking() ? 1.0f : 0.8f) + ((double) this.rand.nextFloat() - 0.5D) * .02f,
+								pos.z + (player.isSneaking() ? -derp.z * 3 : 0) + ((double) this.rand.nextFloat() - 0.5D) * .02f,
+								-derp.x + ((double) this.rand.nextFloat() - 0.5D) * .01f, ((double) this.rand.nextFloat() - .05f) * .05f, -derp.z + ((double) this.rand.nextFloat() - 0.5D) * .01f
 						);
 						if (particle != null)
 							particle.setColor(0.5F + rand.nextFloat() / 2, 0.5F + rand.nextFloat() / 2, 0.5F + rand.nextFloat() / 2);
@@ -181,8 +204,6 @@ public class PlayerModelController {
 			}
 		}
 	}
-	
-	private Map<UUID, Integer> donors = new HashMap<UUID, Integer>();
 
 	public void setHMD(UUID uuid, int level){
 		donors.put(uuid, level);

@@ -58,6 +58,7 @@ public class RenderPlayerVR extends RenderLivingBase<AbstractClientPlayer>
      */
     public void doRender(AbstractClientPlayer entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
+        if (this.renderOutlines) return; // TODO: figure out why model is gigantic in outline rendering
         if (!entity.isUser() || this.renderManager.renderViewEntity == entity)
         {
             double d0 = y;

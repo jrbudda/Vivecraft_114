@@ -12,7 +12,7 @@
      }
  
      public void close()
-@@ -597,11 +600,15 @@
+@@ -597,16 +600,21 @@
              this.mc.currentScreen.onResize(this.mc, this.scaledWidth, this.scaledHeight);
          }
  
@@ -29,3 +29,10 @@
          }
  
          if (this.mc.entityRenderer != null)
+         {
+-            this.mc.entityRenderer.updateShaderGroupSize(this.framebufferWidth, this.framebufferHeight);
++            // VIVECRAFT: Use eye framebuffer instead of window
++            this.mc.entityRenderer.updateShaderGroupSize(this.mc.stereoProvider.framebufferVrRender.framebufferTextureWidth, this.mc.stereoProvider.framebufferVrRender.framebufferTextureHeight);
+         }
+ 
+         if (this.mc.mouseHelper != null)

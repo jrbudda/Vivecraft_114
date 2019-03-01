@@ -40,16 +40,41 @@ public class RowTracker extends Tracker{
 	double transmissionEfficiency=0.9;
 	
 	public boolean isRowing(){
-		return true;
+		return ROar + LOar + Foar > 0;
+	}
+	
+	public float LOar, ROar, Foar;
+	
+	@Override
+	public void reset(EntityPlayerSP player) {
+		LOar = 0;
+		ROar = 0;
+		Foar = 0;
+	}
+	
+	@Override
+	public void doProcess (EntityPlayerSP player){
+		double c0move = MCOpenVR.controllerHistory[0].averageSpeed(0.5);
+		double c1move = MCOpenVR.controllerHistory[1].averageSpeed(0.5);
+
+		float minspeed = 0.5f;
+		float maxspeed = 2;
+
+		ROar = (float) Math.max(c0move - minspeed,0);
+		LOar = (float) Math.max(c1move - minspeed,0);
+		Foar = ROar > 0 && LOar > 0 ? (ROar + LOar) / 2 : 0;
+		if(Foar > maxspeed) Foar = maxspeed;
+		if(ROar > maxspeed) ROar = maxspeed;
+		if(LOar > maxspeed) LOar = maxspeed;
+
+		//TODO: Backwards paddlin'	
 	}
 
 
-	public void doProcess(EntityPlayerSP player){
-
+	public void doProcessFinaltransmithastofixthis(EntityPlayerSP player){
 
 		EntityBoat boat=(EntityBoat) player.getRidingEntity();
 		Quaternion boatRot = new Quaternion(boat.rotationPitch, -(boat.rotationYaw % 360f), 0).normalized();
-
 
 
 		for (int paddle = 0; paddle <= 1 ; paddle++) {
@@ -92,8 +117,6 @@ public class RowTracker extends Tracker{
 
 		return attachAbs.subtract(armAbs);
 	}
-
-
 
 
 	Vec3d getAttachmentPoint(int paddle, EntityBoat boat){

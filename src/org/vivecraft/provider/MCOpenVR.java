@@ -1245,16 +1245,18 @@ public class MCOpenVR
 			KeyboardHandler.setOverlayShowing(!KeyboardHandler.Showing);
 		}
 
-		if (keyMoveThirdPersonCam.isPressed() && !Main.kiosk && (mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_MIXED_REALITY || mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_THIRD_PERSON)) {
-			TrackedController controller = MCOpenVR.findActiveBindingController(keyMoveThirdPersonCam);
-			if (controller != null)
-				VRHotkeys.startMovingThirdPersonCam(controller.getType().ordinal());
+		if (isBindingBound(keyMoveThirdPersonCam)) {
+			if (keyMoveThirdPersonCam.isPressed() && !Main.kiosk && (mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_MIXED_REALITY || mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_THIRD_PERSON)) {
+				TrackedController controller = MCOpenVR.findActiveBindingController(keyMoveThirdPersonCam);
+				if (controller != null)
+					VRHotkeys.startMovingThirdPersonCam(controller.getType().ordinal());
+			}
+			if (!keyMoveThirdPersonCam.isKeyDown() && VRHotkeys.isMovingThirdPersonCam()) {
+				VRHotkeys.stopMovingThirdPersonCam();
+				mc.vrSettings.saveOptions();
+			}
 		}
-		if (!keyMoveThirdPersonCam.isKeyDown() && VRHotkeys.isMovingThirdPersonCam()) {
-			VRHotkeys.stopMovingThirdPersonCam();
-			mc.vrSettings.saveOptions();
-		}
-		
+
 		if(keyMenuButton.isPressed()) { //handle menu directly
 			if(!gui) {
 				if(!Main.kiosk){

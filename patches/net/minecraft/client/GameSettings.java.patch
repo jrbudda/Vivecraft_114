@@ -115,7 +115,7 @@
  
              if (this.ofFastRender)
              {
-@@ -3210,6 +3223,13 @@
+@@ -3210,6 +3223,14 @@
              KeyUtils.fixKeyConflicts(this.keyBindings, new KeyBinding[] {this.ofKeyBindZoom});
              KeyBinding.resetKeyBindingArrayAndHash();
              bufferedreader.close();
@@ -124,12 +124,13 @@
 +            this.ofFastRender = false;
 +            this.fboEnable = true;
 +            this.ofAaLevel = 0;
++            this.ofAfLevel = 1;
 +            //
 +            
          }
          catch (Exception exception11)
          {
-@@ -3578,7 +3598,7 @@
+@@ -3578,7 +3599,7 @@
          INVERT_MOUSE("options.invertMouse", false, true),
          SENSITIVITY("options.sensitivity", true, false),
          FOV("options.fov", true, false, 30.0D, 110.0D, 1.0F),

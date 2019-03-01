@@ -6,6 +6,7 @@ import java.util.Random;
 import org.vivecraft.api.NetworkHelper;
 import org.vivecraft.api.NetworkHelper.PacketDiscriminators;
 import org.vivecraft.api.VRData;
+import org.vivecraft.control.VRButtonMapping;
 import org.vivecraft.gameplay.screenhandlers.GuiHandler;
 import org.vivecraft.gameplay.screenhandlers.KeyboardHandler;
 import org.vivecraft.gameplay.screenhandlers.RadialHandler;
@@ -14,6 +15,7 @@ import org.vivecraft.gameplay.trackers.Tracker;
 import org.vivecraft.provider.MCOpenVR;
 import org.vivecraft.settings.AutoCalibration;
 import org.vivecraft.settings.VRSettings;
+import org.vivecraft.utils.InputSimulator;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -228,10 +230,12 @@ public class OpenVRPlayer
 		z = player.posZ - campos.z;
 		y = player.posY;
 
+		
 		if(player.isPassenger()){
-			x = player.posX - campos.x;
-			y = player.getRidingEntity().posY + player.getRidingEntity().getMountedYOffset();
-			z = player.posZ - campos.z;
+			Entity e= player.getRidingEntity();
+			x = e.posX - campos.x;
+			y = e.posY;
+			z = e.posZ - campos.z;
 		}
 
 		//System.out.println("Snap " + player.posX + " " + player.posY + " " + player.posZ);
@@ -331,13 +335,12 @@ public class OpenVRPlayer
 
 			} else {
 				cartFlip =false;
-				wasRiding = mc.player.isPassenger();
-				if(wasRiding){		
-					vrot = mc.player.getRidingEntity().rotationYaw;				
-					if(mc.player.getRidingEntity() instanceof EntityMinecart){ 
-						vrot = getMinecartRenderYaw(mc.player.getRidingEntity());
-					}
-				}
+//				if(wasRiding){		
+//					vrot = mc.player.getRidingEntity().rotationYaw;				
+//					if(mc.player.getRidingEntity() instanceof EntityMinecart){ 
+//						vrot = getMinecartRenderYaw(mc.player.getRidingEntity());
+//					}
+//				}
 			}
 		}
 	}
@@ -438,7 +441,7 @@ public class OpenVRPlayer
 			//    	   player.height = 1.8f;
 			//    	   player.spEyeHeight = 0.12f;
 		}
-
+		wasRiding = player.isPassenger();
 		if(player.isPassenger()){
 			Entity e = mc.player.getRidingEntity();		
 			if (e instanceof AbstractHorse) {
@@ -466,12 +469,12 @@ public class OpenVRPlayer
 		Minecraft mc = Minecraft.getMinecraft();
 		if(player == null) return;
 		if(player.isSneaking()) {return;} //jrbudda : prevent falling off things or walking up blocks while moving in room scale.
-		if(player.isPassenger()) return; //dont fall off the tracks man
-		if(player.isDead) return; //
 		if(player.isPlayerSleeping()) return; //
 		if(mc.jumpTracker.isjumping()) return; //
 		if(mc.climbTracker.isGrabbingLadder()) return; //
-
+		if(player.isDead) return; //
+		
+		VRData temp = new VRData(this.roomOrigin, mc.vrSettings.walkMultiplier, worldScale, (float) Math.toRadians(mc.vrSettings.vrWorldRotation));
 		//if(Math.abs(player.motionX) > 0.01) return;
 		//if(Math.abs(player.motionZ) > 0.01) return;
 
@@ -479,7 +482,6 @@ public class OpenVRPlayer
 
 		// move player's X/Z coords as the HMD moves around the room
 
-		VRData temp = new VRData(this.roomOrigin, mc.vrSettings.walkMultiplier, worldScale, (float) Math.toRadians(mc.vrSettings.vrWorldRotation));
 		//OK this is the first place I've found where we reallly need to update the VR data before doing this calculation.
 
 		Vec3d eyePos = temp.hmd.getPosition();
@@ -499,12 +501,21 @@ public class OpenVRPlayer
 
 		Vec3d torso = null;
 
+		if(wasRiding) {
+			if (mc.world.getEntitiesWithinAABBExcludingEntity(player, bb).isEmpty()) {
+				mc.sneakTracker.sneakCounter = 5;
+			}	
+			return; 
+		}
+		
 		// valid place to move player to?
 		float var27 = 0.0625F;
 		boolean emptySpot = mc.world.isCollisionBoxesEmpty(player, bb);
-
+		
 		if (emptySpot)
 		{
+
+
 			// don't call setPosition style functions to avoid shifting room origin
 			player.posX = x;
 			if (!mc.vrSettings.simulateFalling)	{
@@ -512,20 +523,10 @@ public class OpenVRPlayer
 			}
 			player.posZ = z;
 
-			if(player.getRidingEntity()!=null){ //you're coming with me, horse! //TODO: use mount's bounding box.
-				player.getRidingEntity().posX = x;
-				if (!mc.vrSettings.simulateFalling)	{
-					player.getRidingEntity().posY = y;                	
-				}
-				player.getRidingEntity().posZ = z;
-			}
-
 			player.setEntityBoundingBox(new AxisAlignedBB(bb.minX, bb.minY, bb.minZ, bb.maxX, bb.minY + player.height, bb.maxZ));
 			player.fallDistance = 0.0F;
 
 			torso = getEstimatedTorsoPosition(x, y, z);
-
-
 		}
 
 		//test for climbing up a block

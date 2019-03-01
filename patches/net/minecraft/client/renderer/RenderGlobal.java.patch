@@ -42,7 +42,26 @@
  
  public class RenderGlobal implements IWorldEventListener, AutoCloseable, IResourceManagerReloadListener
  {
-@@ -806,6 +807,10 @@
+@@ -319,7 +320,8 @@
+             try
+             {
+                 this.entityOutlineShader = new ShaderGroup(this.mc.getTextureManager(), this.mc.getResourceManager(), this.mc.getFramebuffer(), resourcelocation);
+-                this.entityOutlineShader.createBindFramebuffers(this.mc.mainWindow.getFramebufferWidth(), this.mc.mainWindow.getFramebufferHeight());
++                // VIVECRAFT: Use eye framebuffer instead of window
++                this.entityOutlineShader.createBindFramebuffers(this.mc.stereoProvider.framebufferVrRender.framebufferWidth, this.mc.stereoProvider.framebufferVrRender.framebufferHeight);
+                 this.entityOutlineFramebuffer = this.entityOutlineShader.getFramebufferRaw("final");
+             }
+             catch (IOException ioexception)
+@@ -348,7 +350,7 @@
+         {
+             GlStateManager.enableBlend();
+             GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
+-            this.entityOutlineFramebuffer.framebufferRenderExt(this.mc.mainWindow.getFramebufferWidth(), this.mc.mainWindow.getFramebufferHeight(), false);
++            this.entityOutlineFramebuffer.framebufferRenderExt(this.mc.getFramebuffer().framebufferWidth, this.mc.getFramebuffer().framebufferHeight, false);
+             GlStateManager.disableBlend();
+         }
+     }
+@@ -806,6 +808,10 @@
                                  {
                                      boolean flag3 = this.mc.getRenderViewEntity() instanceof EntityLivingBase && ((EntityLivingBase)this.mc.getRenderViewEntity()).isPlayerSleeping();
  
@@ -53,7 +72,7 @@
                                      if ((entity2 != this.mc.getRenderViewEntity() || this.mc.gameSettings.thirdPersonView != 0 || flag3) && (entity2.posY < 0.0D || entity2.posY >= 256.0D || this.world.isBlockLoaded(blockpos$pooledmutableblockpos.setPos(entity2))))
                                      {
                                          ++this.countEntitiesRendered;
-@@ -816,9 +821,22 @@
+@@ -816,9 +822,22 @@
                                              Shaders.nextEntity(entity2);
                                          }
  
@@ -72,11 +91,31 @@
 +                                        	mc.entityRenderer.setupRVE();
 +                                        }
 +                                        //
-+                                        
++
                                          if (this.isOutlineActive(entity2, entity, camera))
                                          {
                                              list.add(entity2);
-@@ -1200,7 +1218,11 @@
+@@ -888,7 +907,8 @@
+                 {
+                     GlStateManager.depthFunc(519);
+                     GlStateManager.disableFog();
+-                    this.entityOutlineFramebuffer.bindFramebuffer(false);
++                    // VIVECRAFT: Set viewport to the shader framebuffer
++                    this.entityOutlineFramebuffer.bindFramebuffer(true);
+                     RenderHelper.disableStandardItemLighting();
+                     this.renderManager.setRenderOutlines(true);
+ 
+@@ -921,7 +941,8 @@
+                     GlStateManager.enableAlphaTest();
+                 }
+ 
+-                this.mc.getFramebuffer().bindFramebuffer(false);
++                // VIVECRAFT: Reset viewport to normal
++                this.mc.getFramebuffer().bindFramebuffer(true);
+             }
+ 
+             if (!this.isRenderEntityOutlines() && (!list.isEmpty() || this.entityOutlinesRendered))
+@@ -1200,7 +1221,11 @@
          new BlockPos(MathHelper.floor(d3 / 16.0D) * 16, MathHelper.floor(d4 / 16.0D) * 16, MathHelper.floor(d5 / 16.0D) * 16);
          float f = entityIn.getPitch(partialTicks);
          float f1 = entityIn.getYaw(partialTicks);
@@ -89,7 +128,7 @@
          this.lastViewEntityX = entityIn.posX;
          this.lastViewEntityY = entityIn.posY;
          this.lastViewEntityZ = entityIn.posZ;
-@@ -1431,6 +1453,7 @@
+@@ -1431,6 +1456,7 @@
                      {
                          this.chunksToUpdate.add(renderchunk5);
                      }
@@ -97,7 +136,7 @@
                      else if (!renderchunk5.isPlayerUpdate())
                      {
                          this.chunksToUpdateForced.add(renderchunk5);
-@@ -1537,13 +1560,16 @@
+@@ -1537,13 +1563,16 @@
                  this.prevRenderSortY = entityIn.posY;
                  this.prevRenderSortZ = entityIn.posZ;
                  int k = 0;
@@ -114,7 +153,7 @@
                      }
                  }
              }
-@@ -2336,6 +2362,7 @@
+@@ -2336,6 +2365,7 @@
          finishTimeNano = (long)((double)finishTimeNano + 1.0E8D);
          this.displayListEntitiesDirty |= this.renderDispatcher.runChunkUploads(finishTimeNano);
  
@@ -122,7 +161,7 @@
          if (this.chunksToUpdateForced.size() > 0)
          {
              Iterator iterator = this.chunksToUpdateForced.iterator();
-@@ -2373,7 +2400,7 @@
+@@ -2373,7 +2403,7 @@
  
          double d1 = 0.0D;
          int i = Config.getUpdatesPerFrame();
@@ -131,7 +170,7 @@
          if (!this.chunksToUpdate.isEmpty())
          {
              Iterator<RenderChunk> iterator1 = this.chunksToUpdate.iterator();
-@@ -2401,6 +2428,7 @@
+@@ -2401,6 +2431,7 @@
                  renderchunk1.clearNeedsUpdate();
                  iterator1.remove();
  
@@ -139,7 +178,7 @@
                  if (!flag1)
                  {
                      double d0 = 2.0D * RenderChunkUtils.getRelativeBufferSize(renderchunk1);
-@@ -3144,6 +3172,8 @@
+@@ -3144,6 +3175,8 @@
      {
          Random random = this.world.rand;
  
@@ -148,7 +187,7 @@
          switch (type)
          {
              case 1000:
-@@ -3199,18 +3229,26 @@
+@@ -3199,18 +3232,26 @@
                  break;
  
              case 1011:
@@ -175,7 +214,7 @@
                  this.world.playSound(blockPosIn, SoundEvents.BLOCK_FENCE_GATE_CLOSE, SoundCategory.BLOCKS, 1.0F, this.world.rand.nextFloat() * 0.1F + 0.9F, false);
                  break;
  
-@@ -3231,14 +3269,26 @@
+@@ -3231,14 +3272,26 @@
                  break;
  
              case 1019:
@@ -202,7 +241,7 @@
                  this.world.playSound(blockPosIn, SoundEvents.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, SoundCategory.HOSTILE, 2.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F, false);
                  break;
  
-@@ -3267,10 +3317,17 @@
+@@ -3267,10 +3320,17 @@
                  break;
  
              case 1030:
@@ -220,7 +259,7 @@
                  this.world.playSound(blockPosIn, SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.BLOCKS, 0.3F, this.world.rand.nextFloat() * 0.1F + 0.9F, false);
                  break;
  
-@@ -3291,6 +3348,9 @@
+@@ -3291,6 +3351,9 @@
                  break;
  
              case 1036:
@@ -230,7 +269,7 @@
                  this.world.playSound(blockPosIn, SoundEvents.BLOCK_IRON_TRAPDOOR_CLOSE, SoundCategory.BLOCKS, 1.0F, this.world.rand.nextFloat() * 0.1F + 0.9F, false);
                  break;
  
-@@ -3344,7 +3404,8 @@
+@@ -3344,7 +3407,8 @@
                      {
                          soundtype = (SoundType)Reflector.call(iblockstate.getBlock(), Reflector.ForgeBlock_getSoundType, Block.getStateById(data), this.world, blockPosIn, null);
                      }

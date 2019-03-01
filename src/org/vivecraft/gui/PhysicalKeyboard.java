@@ -36,6 +36,7 @@ public class PhysicalKeyboard {
 	private final Minecraft mc = Minecraft.getMinecraft();
 	private boolean reinit;
 	private boolean shift;
+	private boolean shiftSticky;
 	private List<KeyButton> keys;
 
 	private int rows = 4;
@@ -48,6 +49,7 @@ public class PhysicalKeyboard {
 	private KeyButton[] pressedKey = new KeyButton[2];
 	private long[] pressTime = new long[2];
 	private long[] pressRepeatTime = new long[2];
+	private long shiftPressTime;
 
 	private String easterEggText = new String(new byte[]{0x72, 0x6f, 0x79, 0x61, 0x6c, 0x20, 0x72, 0x61, 0x69, 0x6e, 0x62, 0x6f, 0x77}, StandardCharsets.UTF_8);
 	private int easterEggIndex = 0;
@@ -77,34 +79,43 @@ public class PhysicalKeyboard {
 				}
 
 				final char chr = ch;
-				this.addKey(new KeyButton(String.valueOf(ch), keyWidthSpecial + spacing + column * (keyWidth + spacing), row * (keyHeight + spacing), keyWidth, keyHeight) {
+				this.addKey(new KeyButton(index, String.valueOf(ch), keyWidthSpecial + spacing + column * (keyWidth + spacing), row * (keyHeight + spacing), keyWidth, keyHeight) {
 					@Override
 					public void onPressed() {
 						InputSimulator.typeChar(chr);
+						if (!shiftSticky)
+							setShift(false, false);
 					}
 				});
 			}
 		}
 
-		KeyButton shiftKey = this.addKey(new KeyButton("Shift", 0, 3 * (keyHeight + spacing), keyWidthSpecial, keyHeight) {
-			@Override
-			public void onPressed() {
-				setShift(!PhysicalKeyboard.this.shift);
+		for (int i = 0; i < 2; i++) {
+			KeyButton shiftKey = this.addKey(new KeyButton(1000 + i, "Shift", i == 1 ? keyWidthSpecial + spacing + columns * (keyWidth + spacing) : 0, 3 * (keyHeight + spacing), keyWidthSpecial, keyHeight) {
+				@Override
+				public void onPressed() {
+					if (shift && !shiftSticky && Utils.milliTime() - shiftPressTime < 400)
+						setShift(true, true);
+					else
+						setShift(!shift, false);
+					shiftPressTime = Utils.milliTime();
+				}
+			});
+			if (this.shift) {
+				if (!this.shiftSticky)
+					shiftKey.color.red = 0;
+				shiftKey.color.blue = 0;
 			}
-		});
-		if (this.shift) {
-			shiftKey.color.red = 0;
-			shiftKey.color.blue = 0;
 		}
 
-		this.addKey(new KeyButton(" ", keyWidthSpecial + spacing + ((columns - 5) / 2.0F) * (keyWidth + spacing), rows * (keyHeight + spacing), 5 * (keyWidth + spacing) - spacing, keyHeight) {
+		this.addKey(new KeyButton(1002, " ", keyWidthSpecial + spacing + ((columns - 5) / 2.0F) * (keyWidth + spacing), rows * (keyHeight + spacing), 5 * (keyWidth + spacing) - spacing, keyHeight) {
 			@Override
 			public void onPressed() {
 				InputSimulator.typeChar(' ');
 			}
 		});
 
-		this.addKey(new KeyButton("Tab", 0, keyHeight + spacing, keyWidthSpecial, keyHeight) {
+		this.addKey(new KeyButton(1003, "Tab", 0, keyHeight + spacing, keyWidthSpecial, keyHeight) {
 			@Override
 			public void onPressed() {
 				InputSimulator.pressKey(GLFW.GLFW_KEY_TAB);
@@ -112,7 +123,7 @@ public class PhysicalKeyboard {
 			}
 		});
 
-		this.addKey(new KeyButton("Esc", 0, 0, keyWidthSpecial, keyHeight) {
+		this.addKey(new KeyButton(1004, "Esc", 0, 0, keyWidthSpecial, keyHeight) {
 			@Override
 			public void onPressed() {
 				InputSimulator.pressKey(GLFW.GLFW_KEY_ESCAPE);
@@ -120,7 +131,7 @@ public class PhysicalKeyboard {
 			}
 		});
 
-		this.addKey(new KeyButton("Bksp", keyWidthSpecial + spacing + columns * (keyWidth + spacing), 0, keyWidthSpecial, keyHeight) {
+		this.addKey(new KeyButton(1005, "Bksp", keyWidthSpecial + spacing + columns * (keyWidth + spacing), 0, keyWidthSpecial, keyHeight) {
 			@Override
 			public void onPressed() {
 				InputSimulator.pressKey(GLFW.GLFW_KEY_BACKSPACE);
@@ -128,7 +139,7 @@ public class PhysicalKeyboard {
 			}
 		});
 
-		this.addKey(new KeyButton("Enter", keyWidthSpecial + spacing + columns * (keyWidth + spacing), 2 * (keyHeight + spacing), keyWidthSpecial, keyHeight) {
+		this.addKey(new KeyButton(1006, "Enter", keyWidthSpecial + spacing + columns * (keyWidth + spacing), 2 * (keyHeight + spacing), keyWidthSpecial, keyHeight) {
 			@Override
 			public void onPressed() {
 				InputSimulator.pressKey(GLFW.GLFW_KEY_ENTER);
@@ -136,7 +147,7 @@ public class PhysicalKeyboard {
 			}
 		});
 
-		this.addKey(new KeyButton("\u2191", keyWidthSpecial + spacing + (columns + 1) * (keyWidth + spacing), 3 * (keyHeight + spacing), keyWidth, keyHeight) {
+		this.addKey(new KeyButton(1007, "\u2191", keyWidthSpecial + spacing + (columns + 1) * (keyWidth + spacing), 4 * (keyHeight + spacing), keyWidth, keyHeight) {
 			@Override
 			public void onPressed() {
 				InputSimulator.pressKey(GLFW.GLFW_KEY_UP);
@@ -144,7 +155,7 @@ public class PhysicalKeyboard {
 			}
 		});
 
-		this.addKey(new KeyButton("\u2193", keyWidthSpecial + spacing + (columns + 1) * (keyWidth + spacing), 4 * (keyHeight + spacing), keyWidth, keyHeight) {
+		this.addKey(new KeyButton(1008, "\u2193", keyWidthSpecial + spacing + (columns + 1) * (keyWidth + spacing), 5 * (keyHeight + spacing), keyWidth, keyHeight) {
 			@Override
 			public void onPressed() {
 				InputSimulator.pressKey(GLFW.GLFW_KEY_DOWN);
@@ -152,7 +163,7 @@ public class PhysicalKeyboard {
 			}
 		});
 
-		this.addKey(new KeyButton("\u2190", keyWidthSpecial + spacing + columns * (keyWidth + spacing), 4 * (keyHeight + spacing), keyWidth, keyHeight) {
+		this.addKey(new KeyButton(1009, "\u2190", keyWidthSpecial + spacing + columns * (keyWidth + spacing), 5 * (keyHeight + spacing), keyWidth, keyHeight) {
 			@Override
 			public void onPressed() {
 				InputSimulator.pressKey(GLFW.GLFW_KEY_LEFT);
@@ -160,7 +171,7 @@ public class PhysicalKeyboard {
 			}
 		});
 
-		this.addKey(new KeyButton("\u2192", keyWidthSpecial + spacing + (columns + 2) * (keyWidth + spacing), 4 * (keyHeight + spacing), keyWidth, keyHeight) {
+		this.addKey(new KeyButton(1010, "\u2192", keyWidthSpecial + spacing + (columns + 2) * (keyWidth + spacing), 5 * (keyHeight + spacing), keyWidth, keyHeight) {
 			@Override
 			public void onPressed() {
 				InputSimulator.pressKey(GLFW.GLFW_KEY_RIGHT);
@@ -168,7 +179,7 @@ public class PhysicalKeyboard {
 			}
 		});
 
-		this.addKey(new KeyButton("Cut", 1 * (keyWidthSpecial + spacing), -1 * (keyHeight + spacing), keyWidthSpecial, keyHeight) {
+		this.addKey(new KeyButton(1011, "Cut", 1 * (keyWidthSpecial + spacing), -1 * (keyHeight + spacing), keyWidthSpecial, keyHeight) {
 			@Override
 			public void onPressed() {
 				InputSimulator.pressKey(GLFW.GLFW_KEY_LEFT_CONTROL);
@@ -178,7 +189,7 @@ public class PhysicalKeyboard {
 			}
 		});
 
-		this.addKey(new KeyButton("Copy", 2 * (keyWidthSpecial + spacing), -1 * (keyHeight + spacing), keyWidthSpecial, keyHeight) {
+		this.addKey(new KeyButton(1012, "Copy", 2 * (keyWidthSpecial + spacing), -1 * (keyHeight + spacing), keyWidthSpecial, keyHeight) {
 			@Override
 			public void onPressed() {
 				InputSimulator.pressKey(GLFW.GLFW_KEY_LEFT_CONTROL);
@@ -188,7 +199,7 @@ public class PhysicalKeyboard {
 			}
 		});
 
-		this.addKey(new KeyButton("Paste", 3 * (keyWidthSpecial + spacing), -1 * (keyHeight + spacing), keyWidthSpecial, keyHeight) {
+		this.addKey(new KeyButton(1013, "Paste", 3 * (keyWidthSpecial + spacing), -1 * (keyHeight + spacing), keyWidthSpecial, keyHeight) {
 			@Override
 			public void onPressed() {
 				InputSimulator.pressKey(GLFW.GLFW_KEY_LEFT_CONTROL);
@@ -202,7 +213,7 @@ public class PhysicalKeyboard {
 		for (int c = 0; c < 2; c++) {
 			if (pressedKey[c] != null) {
 				for (KeyButton key : keys) {
-					if (key.label.equals(pressedKey[c].label)) {
+					if (key.id == pressedKey[c].id) {
 						pressedKey[c] = key;
 						key.pressed = true;
 						break;
@@ -247,7 +258,7 @@ public class PhysicalKeyboard {
 		VRButtonMapping shift = mc.vrSettings.buttonMappings.get(GuiHandler.keyShift.getKeyDescription());
 		Predicate<ButtonTuple> predicate = b -> b.button == event.getButton() && b.isTouch == event.isButtonTouchEvent();
 		if(shift.buttons.stream().anyMatch(predicate)) {
-			setShift(event.getButtonState());
+			setShift(event.getButtonState(), false);
 			// Only block if this isn't a controller where shift is bound, so text can be selected
 			return shift.buttons.stream().noneMatch(b -> b.controller == event.getController().getType());
 		}
@@ -384,6 +395,8 @@ public class PhysicalKeyboard {
 	}
 
 	public void show() {
+		if (!this.shiftSticky)
+			this.shift = false;
 		this.reinit = true;
 	}
 
@@ -396,20 +409,27 @@ public class PhysicalKeyboard {
 		return this.shift;
 	}
 
-	public void setShift(boolean shift) {
-		if (shift != this.shift) {
+	public boolean isShiftSticky() {
+		return this.shiftSticky;
+	}
+
+	public void setShift(boolean shift, boolean sticky) {
+		if (shift != this.shift || sticky != this.shiftSticky) {
 			this.shift = shift;
+			this.shiftSticky = shift && sticky;
 			this.reinit = true;
 		}
 	}
 
 	private abstract class KeyButton {
+		public final int id;
 		public final String label;
 		public final AxisAlignedBB boundingBox;
 		public GlStateManager.Color color = new GlStateManager.Color(1.0F, 1.0F, 1.0F, 0.5F);
 		public boolean pressed;
 
-		public KeyButton(String label, float x, float y, float width, float height) {
+		public KeyButton(int id, String label, float x, float y, float width, float height) {
+			this.id = id;
 			this.label = label;
 			this.boundingBox = new AxisAlignedBB(x, y, 0.0, x + width, y + height, 0.035);
 		}

@@ -127,7 +127,7 @@
 +
 +    		} else {
 +    			//roomscale or vanilla behavior
-+    			if(mc.rowTracker.isRowing()){
++    			if(mc.rowTracker.isRowing() && !mc.vrSettings.seated){
 +    				this.deltaRotation += mc.rowTracker.forces[0] *50;
 +    				this.deltaRotation -= mc.rowTracker.forces[1] *50;
 +

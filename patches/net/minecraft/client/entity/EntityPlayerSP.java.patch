@@ -137,7 +137,7 @@
      public boolean startRiding(Entity entityIn, boolean force)
      {
          if (!super.startRiding(entityIn, force))
-@@ -219,10 +283,32 @@
+@@ -219,10 +283,33 @@
                  this.setRotationYawHead(entityIn.rotationYaw);
              }
  
@@ -156,10 +156,11 @@
 +            	mc.vrSettings.vrWorldRotation %= 360;
 +            	MCOpenVR.seatedRot = mc.vrPlayer.vrot = mc.vrSettings.vrWorldRotation;
 +        		mc.vrPlayer.checkandUpdateRotateScale();
-+        		snapReq = true;
++        
 +            }
 +    		//
-+            
++    		
++    		snapReq = true;
              return true;
          }
      }
@@ -170,13 +171,14 @@
      /**
       * Dismounts this entity from the entity it is riding.
       */
-@@ -230,6 +316,14 @@
+@@ -230,6 +317,15 @@
      {
          super.stopRiding();
          this.rowingBoat = false;
 +        //VIVE
 +        mc.swingTracker.disableSwing = 10;
-+        if(Minecraft.getMinecraft().vrSettings.vehicleRotation){
++        mc.sneakTracker.sneakCounter = 0;
++        if(mc.vrSettings.vehicleRotation){
 +        	mc.vrSettings.vrWorldRotation = startmountrotate;
 +        	MCOpenVR.seatedRot = startmountrotate;
 +        	mc.vrPlayer.checkandUpdateRotateScale();
@@ -185,7 +187,7 @@
      }
  
      /**
-@@ -329,6 +423,18 @@
+@@ -329,6 +425,18 @@
              boolean flag2 = d0 * d0 + d1 * d1 + d2 * d2 > 9.0E-4D || this.positionUpdateTicks >= 20;
              boolean flag3 = d3 != 0.0D || d4 != 0.0D;
  
@@ -204,7 +206,7 @@
              if (this.isPassenger())
              {
                  this.connection.sendPacket(new CPacketPlayer.PositionRotation(this.motionX, -999.0D, this.motionZ, this.rotationYaw, this.rotationPitch, this.onGround));
-@@ -350,6 +456,7 @@
+@@ -350,6 +458,7 @@
              {
                  this.connection.sendPacket(new CPacketPlayer(this.onGround));
              }
@@ -212,7 +214,7 @@
  
              if (flag2)
              {
-@@ -366,6 +473,13 @@
+@@ -366,6 +475,13 @@
              }
  
              this.prevOnGround = this.onGround;
@@ -226,7 +228,7 @@
              this.autoJumpEnabled = this.mc.gameSettings.autoJump;
          }
      }
-@@ -974,6 +1088,9 @@
+@@ -974,6 +1090,9 @@
          float f = 0.8F;
          boolean flag2 = this.movementInput.moveForward >= 0.8F;
          this.movementInput.updatePlayerMoveState();
@@ -236,7 +238,7 @@
          this.mc.getTutorial().handleMovement(this.movementInput);
  
          if (this.isHandActive() && !this.isPassenger())
-@@ -1147,6 +1264,9 @@
+@@ -1147,6 +1266,9 @@
          }
  
          super.livingTick();
@@ -246,10 +248,14 @@
  
          if (this.onGround && this.capabilities.isFlying && !this.mc.playerController.isSpectatorMode())
          {
-@@ -1198,12 +1318,49 @@
+@@ -1198,10 +1320,47 @@
       */
      public void move(MoverType type, double x, double y, double z)
      {
+-        double d0 = this.posX;
+-        double d1 = this.posZ;
+-        super.move(type, x, y, z);
+-        this.updateAutoJump((float)(this.posX - d0), (float)(this.posZ - d1));
 +    	if(x==0 && y==0 && z==0) return;
 +    	if(this.isPassenger())return;
 +    	boolean freemove = OpenVRPlayer.get().getFreeMove();
@@ -262,41 +268,39 @@
 +    	{
 +    		double ox = roomOrigin.x - posX;
 +    		double oz = roomOrigin.z - posZ;
-         double d0 = this.posX;
-         double d1 = this.posZ;
-         super.move(type, x, y, z);
-+    		
++    		double d0 = this.posX;
++    		double d1 = this.posZ;
++    		super.move(type, x, y, z);
++
 +    		if(mc.vrSettings.walkUpBlocks)
 +    			this.stepHeight = 1.0f;
 +    		else {
 +    			this.stepHeight = 0.6f;
-         this.updateAutoJump((float)(this.posX - d0), (float)(this.posZ - d1));
-     }
- 
-+    			double oy = this.posY;
-+    			OpenVRPlayer.get().setRoomOrigin(
-+    					posX + ox, 
-+    					oy, 
-+    					posZ  + oz, false);
++    			this.updateAutoJump((float)(this.posX - d0), (float)(this.posZ - d1));
++    		}
++
++    		double oy = this.posY;
++    		OpenVRPlayer.get().setRoomOrigin(
++    				posX + ox, 
++    				oy, 
++    				posZ  + oz, false);
 +    	} else {
 +    		if(doY) {      	 
 +    			super.move(type,0,y,0);
-+    				OpenVRPlayer.get().setRoomOrigin(
-+    						OpenVRPlayer.get().roomOrigin.x, 
-+    						this.posY,
-+    						OpenVRPlayer.get().roomOrigin.z, false);
++    			OpenVRPlayer.get().setRoomOrigin(
++    					OpenVRPlayer.get().roomOrigin.x, 
++    					this.posY,
++    					OpenVRPlayer.get().roomOrigin.z, false);
 +
 +    		} else {
 +    			this.onGround = true; //
 +    			//do not move player, VRPlayer.moveplayerinroom will move him around.
 +    		}
 +    	}
-+    }
-+
+     }
+ 
      public boolean isAutoJumpEnabled()
-     {
-         return this.autoJumpEnabled;
-@@ -1227,12 +1384,17 @@
+@@ -1227,12 +1386,17 @@
                      float f = this.getAIMoveSpeed();
                      float f1 = (float)vec3d2.lengthSquared();
  
@@ -316,7 +320,7 @@
                          vec3d2 = new Vec3d((double)(f2 * f5 - f3 * f4), vec3d2.y, (double)(f3 * f5 + f2 * f4));
                          f1 = (float)vec3d2.lengthSquared();
  
-@@ -1406,4 +1568,386 @@
+@@ -1406,4 +1570,386 @@
              return this.eyesInWaterPlayer;
          }
      }
