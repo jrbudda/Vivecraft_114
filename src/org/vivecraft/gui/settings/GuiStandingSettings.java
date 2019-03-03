@@ -18,7 +18,7 @@ public class GuiStandingSettings extends GuiVROptionsBase
 			{
 					new VROptionEntry(VRSettings.VrOptions.REVERSE_HANDS),
 					new VROptionEntry(VRSettings.VrOptions.WALK_UP_BLOCKS),
-			//		new VROptionEntry(VRSettings.VrOptions.VEHICLE_ROTATION),
+					new VROptionEntry(VRSettings.VrOptions.VEHICLE_ROTATION),
 					new VROptionEntry(VRSettings.VrOptions.BCB_ON),
 					new VROptionEntry(VRSettings.VrOptions.WALK_MULTIPLIER),
 					new VROptionEntry(VRSettings.VrOptions.ALLOW_MODE_SWITCH),
@@ -105,7 +105,7 @@ public class GuiStandingSettings extends GuiVROptionsBase
 		vr.vrShowBlueCircleBuddy = true;
 		vr.walkMultiplier=1;
 		vr.vrFreeMoveMode = vr.FREEMOVE_CONTROLLER;
-		vr.vehicleRotation = false;
+		vr.vehicleRotation = true;
 		vr.useFOVReduction = false;
 		vr.walkUpBlocks = true;
 		vr.analogMovement = true;

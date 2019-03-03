@@ -19,7 +19,7 @@
  
  public class MovementInputFromOptions extends MovementInput
  {
-@@ -11,58 +23,132 @@
+@@ -11,58 +23,131 @@
          this.gameSettings = gameSettingsIn;
      }
  
@@ -38,13 +38,13 @@
          this.moveStrafe = 0.0F;
          this.moveForward = 0.0F;
 +		Minecraft mc = Minecraft.getMinecraft();
-+
-+		boolean flag = false;
-+		if (mc.climbTracker.isClimbeyClimb() && !mc.player.isInWater() && (mc.climbTracker.isGrabbingLadder()))
-+			flag = true;
  
 -        if (this.gameSettings.keyBindForward.isKeyDown())
 -        {
++		boolean flag = false;
++		if (mc.climbTracker.isClimbeyClimb() && !mc.player.isInWater() && (mc.climbTracker.isGrabbingLadder()))
++			flag = true;
++
 +		if (!flag && this.gameSettings.keyBindForward.isKeyDown()) {
              ++this.moveForward;
              this.forwardKeyDown = true;
@@ -89,12 +89,6 @@
 -        {
 -            this.rightKeyDown = false;
 -        }
--
--        this.jump = this.gameSettings.keyBindJump.isKeyDown();
--        this.sneak = this.gameSettings.keyBindSneak.isKeyDown();
--
--        if (this.sneak)
--        {
 +		} else {
 +			this.rightKeyDown = false;
 +		}
@@ -162,8 +156,12 @@
 +		
 +		this.sneak = (mc.sneakTracker.sneakCounter > 0 || mc.sneakTracker.sneakOverride || this.gameSettings.keyBindSneak.isKeyDown())
 +				&& mc.currentScreen == null;
-+
-+		if (mc.sneakTracker.sneakCounter > 0) mc.sneakTracker.sneakCounter--;
+ 
+-        this.jump = this.gameSettings.keyBindJump.isKeyDown();
+-        this.sneak = this.gameSettings.keyBindSneak.isKeyDown();
+-
+-        if (this.sneak)
+-        {
 +		
 +		if (this.sneak) {
              this.moveStrafe = (float)((double)this.moveStrafe * 0.3D);

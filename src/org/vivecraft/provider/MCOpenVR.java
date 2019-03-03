@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.function.Predicate;
 
 import org.vivecraft.api.Vec3History;
 import org.vivecraft.control.AxisType;
@@ -986,6 +987,25 @@ public class MCOpenVR
 			// GUI bindings
 			for (VRButtonMapping binding : mc.vrSettings.buttonMappings.values()) {
 				if (binding.buttons.contains(new ButtonTuple(event.getButton(), event.getController().getType(), event.isButtonTouchEvent()))) {
+					if (binding.and && event.getButtonState()) {
+						boolean allButtonsPressed = true;
+						for (ButtonTuple tuple : binding.buttons) {
+							if (tuple.controller.getController().isButtonActive(tuple.button)) {
+								if (tuple.isTouch && !tuple.controller.getController().isButtonTouched(tuple.button)) {
+									allButtonsPressed = false;
+									break;
+								}
+								if (!tuple.isTouch && !tuple.controller.getController().isButtonPressed(tuple.button)) {
+									allButtonsPressed = false;
+									break;
+								}
+							}
+						}
+
+						if (!allButtonsPressed)
+							continue;
+					}
+
 					if (event.getButtonState()) {
 						if ((mc.currentScreen != null || KeyboardHandler.Showing || RadialHandler.isUsingController(event.getController().getType())) && (binding.isGUIBinding() || binding.isKeyboardBinding())) {
 							binding.press();
@@ -995,16 +1015,18 @@ public class MCOpenVR
 						}
 					} else {
 						boolean unpress = true;
-						for (ButtonTuple button : binding.buttons) {
-							if (!controllers[button.controller.ordinal()].isButtonActive(button.button))
-								continue;
-							if (button.isTouch && controllers[button.controller.ordinal()].isButtonTouched(button.button)) {
-								unpress = false;
-								break;
-							}
-							if (!button.isTouch && controllers[button.controller.ordinal()].isButtonPressed(button.button)) {
-								unpress = false;
-								break;
+						if (!binding.and) {
+							for (ButtonTuple button : binding.buttons) {
+								if (!controllers[button.controller.ordinal()].isButtonActive(button.button))
+									continue;
+								if (button.isTouch && controllers[button.controller.ordinal()].isButtonTouched(button.button)) {
+									unpress = false;
+									break;
+								}
+								if (!button.isTouch && controllers[button.controller.ordinal()].isButtonPressed(button.button)) {
+									unpress = false;
+									break;
+								}
 							}
 						}
 
@@ -1017,6 +1039,25 @@ public class MCOpenVR
 			// In-game bindings
 			for (VRButtonMapping binding : mc.vrSettings.buttonMappings.values()) {
 				if (binding.buttons.contains(new ButtonTuple(event.getButton(), event.getController().getType(), event.isButtonTouchEvent()))) {
+					if (binding.and && event.getButtonState()) {
+						boolean allButtonsPressed = true;
+						for (ButtonTuple tuple : binding.buttons) {
+							if (tuple.controller.getController().isButtonActive(tuple.button)) {
+								if (tuple.isTouch && !tuple.controller.getController().isButtonTouched(tuple.button)) {
+									allButtonsPressed = false;
+									break;
+								}
+								if (!tuple.isTouch && !tuple.controller.getController().isButtonPressed(tuple.button)) {
+									allButtonsPressed = false;
+									break;
+								}
+							}
+						}
+
+						if (!allButtonsPressed)
+							continue;
+					}
+
 					if (event.getButtonState()) {
 						// Right controller blocked in GUI since it's the pointer
 						if ((!binding.isGUIBinding() || binding.isKeyboardBinding()) && (mc.currentScreen == null && !RadialHandler.isUsingController(event.getController().getType()) /*|| event.getController().getType() == ControllerType.LEFT*/)) {
@@ -1026,16 +1067,18 @@ public class MCOpenVR
 						}
 					} else {
 						boolean unpress = true;
-						for (ButtonTuple button : binding.buttons) {
-							if (!controllers[button.controller.ordinal()].isButtonActive(button.button))
-								continue;
-							if (button.isTouch && controllers[button.controller.ordinal()].isButtonTouched(button.button)) {
-								unpress = false;
-								break;
-							}
-							if (!button.isTouch && controllers[button.controller.ordinal()].isButtonPressed(button.button)) {
-								unpress = false;
-								break;
+						if (!binding.and) {
+							for (ButtonTuple button : binding.buttons) {
+								if (!controllers[button.controller.ordinal()].isButtonActive(button.button))
+									continue;
+								if (button.isTouch && controllers[button.controller.ordinal()].isButtonTouched(button.button)) {
+									unpress = false;
+									break;
+								}
+								if (!button.isTouch && controllers[button.controller.ordinal()].isButtonPressed(button.button)) {
+									unpress = false;
+									break;
+								}
 							}
 						}
 

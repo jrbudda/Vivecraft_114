@@ -137,57 +137,36 @@
      public boolean startRiding(Entity entityIn, boolean force)
      {
          if (!super.startRiding(entityIn, force))
-@@ -219,10 +283,33 @@
+@@ -219,10 +283,16 @@
                  this.setRotationYawHead(entityIn.rotationYaw);
              }
  
 +            //Vivecraft
-+    		startmountrotate = Minecraft.getMinecraft().vrSettings.vrWorldRotation;
-+    		//mc.vrPlayer.snapRoomOriginToPlayerEntity(this, false);
-+    		if(mc.vrSettings.vehicleRotation){
-+    			float end = mc.vrPlayer.vrdata_world_pre.hmd.getYaw();
-+    			float start = entityIn.rotationYaw % 360;
-+ 			
-+    			if(entityIn instanceof EntityMinecart)start-=90;
-+    			
-+				float difference = mc.vrPlayer.rotDiff_Degrees(start, end);
-+
-+            	mc.vrSettings.vrWorldRotation += difference;
-+            	mc.vrSettings.vrWorldRotation %= 360;
-+            	MCOpenVR.seatedRot = mc.vrPlayer.vrot = mc.vrSettings.vrWorldRotation;
-+        		mc.vrPlayer.checkandUpdateRotateScale();
-+        
-+            }
-+    		//
-+    		
++            this.mc.vehicleTracker.onStartRiding(entityIn, this);
 +    		snapReq = true;
++    		//
              return true;
          }
      }
  
-+    private float startmountrotate;
 +	public boolean teleported;
 +
      /**
       * Dismounts this entity from the entity it is riding.
       */
-@@ -230,6 +317,15 @@
+@@ -230,6 +300,11 @@
      {
          super.stopRiding();
          this.rowingBoat = false;
-+        //VIVE
-+        mc.swingTracker.disableSwing = 10;
-+        mc.sneakTracker.sneakCounter = 0;
-+        if(mc.vrSettings.vehicleRotation){
-+        	mc.vrSettings.vrWorldRotation = startmountrotate;
-+        	MCOpenVR.seatedRot = startmountrotate;
-+        	mc.vrPlayer.checkandUpdateRotateScale();
-+        }
-+        ///
++        
++        //Vivecraft
++        this.mc.vehicleTracker.onStopRiding(this);
++		//
++
      }
  
      /**
-@@ -329,6 +425,18 @@
+@@ -329,6 +404,18 @@
              boolean flag2 = d0 * d0 + d1 * d1 + d2 * d2 > 9.0E-4D || this.positionUpdateTicks >= 20;
              boolean flag3 = d3 != 0.0D || d4 != 0.0D;
  
@@ -206,7 +185,7 @@
              if (this.isPassenger())
              {
                  this.connection.sendPacket(new CPacketPlayer.PositionRotation(this.motionX, -999.0D, this.motionZ, this.rotationYaw, this.rotationPitch, this.onGround));
-@@ -350,6 +458,7 @@
+@@ -350,6 +437,7 @@
              {
                  this.connection.sendPacket(new CPacketPlayer(this.onGround));
              }
@@ -214,7 +193,7 @@
  
              if (flag2)
              {
-@@ -366,6 +475,13 @@
+@@ -366,6 +454,13 @@
              }
  
              this.prevOnGround = this.onGround;
@@ -222,13 +201,13 @@
 +            //VIVECRAFT
 +            mc.swingTracker.IAmLookingAtMyHand[0] = mc.swingTracker.shouldIlookatMyHand[0];
 +            mc.swingTracker.IAmLookingAtMyHand[1] = mc.swingTracker.shouldIlookatMyHand[1];
-+           if(mc.vrSettings.walkUpBlocks) mc.gameSettings.autoJump = false;
++            if(mc.vrSettings.walkUpBlocks) mc.gameSettings.autoJump = false;
 +            //END VIVECRAFT
 +            
              this.autoJumpEnabled = this.mc.gameSettings.autoJump;
          }
      }
-@@ -974,6 +1090,9 @@
+@@ -974,6 +1069,9 @@
          float f = 0.8F;
          boolean flag2 = this.movementInput.moveForward >= 0.8F;
          this.movementInput.updatePlayerMoveState();
@@ -238,17 +217,17 @@
          this.mc.getTutorial().handleMovement(this.movementInput);
  
          if (this.isHandActive() && !this.isPassenger())
-@@ -1147,6 +1266,9 @@
+@@ -1147,6 +1245,9 @@
          }
  
          super.livingTick();
 +        // VIVE START - teleport movement
-+        mc.vrPlayer.onLivingUpdate(this, this.mc, this.rand);
++        mc.vrPlayer.tick(this, this.mc, this.rand);
 +        // VIVE END - teleport movement
  
          if (this.onGround && this.capabilities.isFlying && !this.mc.playerController.isSpectatorMode())
          {
-@@ -1198,10 +1320,47 @@
+@@ -1198,10 +1299,47 @@
       */
      public void move(MoverType type, double x, double y, double z)
      {
@@ -300,7 +279,7 @@
      }
  
      public boolean isAutoJumpEnabled()
-@@ -1227,12 +1386,17 @@
+@@ -1227,12 +1365,17 @@
                      float f = this.getAIMoveSpeed();
                      float f1 = (float)vec3d2.lengthSquared();
  
@@ -320,7 +299,7 @@
                          vec3d2 = new Vec3d((double)(f2 * f5 - f3 * f4), vec3d2.y, (double)(f3 * f5 + f2 * f4));
                          f1 = (float)vec3d2.lengthSquared();
  
-@@ -1406,4 +1570,386 @@
+@@ -1406,4 +1549,374 @@
              return this.eyesInWaterPlayer;
          }
      }
@@ -332,23 +311,16 @@
 +     */
 +    @Override
 +    public void setLocationAndAngles(double x, double y, double z, float yaw, float pitch)
-+    {
-+    	 	
-+//    	Vec3 roomOrigin = OpenVRPlayer.get().getRoomOriginPos_World();
-+//    	double ox = roomOrigin.x - posX;
-+//    	double oz = roomOrigin.z - posZ;
-+//    	
++   {
 +    	super.setLocationAndAngles(x, y, z, yaw, pitch);
++
++    	//Vivecraft - this is for when the server moves the player entity, such as spawning, dimension change
++    	//or dismount.
++    	if(!initFromServer) 
++    		return;
 +    	
-+    	if(!initFromServer) return;
-+    	else { //still init.
-+            mc.vrPlayer.snapRoomOriginToPlayerEntity(this, false, false);
-+            
-+//    		OpenVRPlayer.get().setRoomOrigin(
-+//    				posX + ox, 
-+//    				this.boundingBox.minY, 
-+//    				posZ  + oz, false);
-+    	}
++    	mc.vrPlayer.snapRoomOriginToPlayerEntity(this, false, false);
++    	mc.vrSettings.vrWorldRotation = yaw;
 +    }
 +    
 +    @Override
@@ -356,8 +328,9 @@
 +    {
 +        super.setPositionAndRotation(x, y, z, yaw, pitch);
 +		
-+        OpenVRPlayer.get().snapRoomOriginToPlayerEntity(this, false, false);
-+      
++    	mc.vrPlayer.snapRoomOriginToPlayerEntity(this, false, false);
++    	//mc.vrSettings.vrWorldRotation = yaw;
++
 +		if(initFromServer == false){
 +			this.setLocationAndAngles(x, y, z, yaw, pitch);
 +            initFromServer = true;    
@@ -377,32 +350,26 @@
 +
 +    	double ax = this.posX;
 +    	double ay = this.posY;
-+    	double az = this.posZ;
-+    	
-+    	//if(this.isRiding()){   			
-+    		Vec3d roomOrigin = Minecraft.getMinecraft().vrPlayer.roomOrigin;
-+//    		Vec3d me = OpenVRPlayer.get().getHMDPos_World();
-+//    		double ox = roomOrigin.x - me.x;
-+//    		double oy = roomOrigin.y - me.y;
-+//    		double oz = roomOrigin.z - me.z;
-+//    		
++    	double az = this.posZ;   	
++
 +    		Entity mount = this.getRidingEntity();
-+    		
-+//    		OpenVRPlayer.get().setRoomOrigin(
-+//    				this.getRidingEntity().posX + ox, 
-+//    				this.getRidingEntity().posY + this.getRidingEntity().getMountedYOffset(),
-+//    				this.getRidingEntity().posZ + oz, false); 		    
-+//    		    	
-+      		OpenVRPlayer.get().setRoomOrigin(
-+      				roomOrigin.x + (ax - bx),
-+      				roomOrigin.y + (ay - by),
-+      				roomOrigin.z + (az - bz),
-+      				false
-+      				);
-+      		
-+            if (snapReq){
-+            	mc.vrPlayer.snapRoomOriginToPlayerEntity(this, false,true);
-+            	snapReq = false;
++    				
++            if (isPassenger()){          	
++    			Vec3d offset = mc.vehicleTracker.Premount_Pos_Room;
++    			offset = offset.rotateYaw(mc.vrPlayer.vrdata_world_pre.rotation_radians);    			
++    			Entity e= mount;
++    			x = x - offset.x;
++    			y = mc.vehicleTracker.getVehicleFloor(mount, y);
++    			z = z - offset.z;
++    			mc.vrPlayer.setRoomOrigin(x, y, z, false);   		
++            } else {
++        		Vec3d roomOrigin = Minecraft.getMinecraft().vrPlayer.roomOrigin;
++          		OpenVRPlayer.get().setRoomOrigin(
++          				roomOrigin.x + (ax - bx),
++          				roomOrigin.y + (ay - by),
++          				roomOrigin.z + (az - bz),
++          				false
++          				);
 +            }
 +            
 +   // 	} 
@@ -498,7 +465,7 @@
 +  			
 +            	speed =  jkatvr.getSpeed() * jkatvr.walkDirection() * mc.vrSettings.movementSpeedMultiplier;
 +             	directionVec = new Vec3d(0, 0,speed);
-+    			directionVec=directionVec.rotateYaw(-jkatvr.getYaw()* PIOVER180 + mc.vrPlayer.vrdata_world_pre.rotation);	    		
++    			directionVec=directionVec.rotateYaw(-jkatvr.getYaw()* PIOVER180 + mc.vrPlayer.vrdata_world_pre.rotation_radians);	    		
 +
 +    			if(this.capabilities.isFlying || this.inWater){
 +                	directionVec=directionVec.rotatePitch(con.vrdata_world_pre.hmd.getPitch()* PIOVER180);				

@@ -1,10 +1,13 @@
 package org.vivecraft.gui.settings;
 
+import java.util.HashSet;
+
 import org.vivecraft.control.ButtonTuple;
 import org.vivecraft.control.ButtonType;
 import org.vivecraft.control.ControllerType;
 import org.vivecraft.control.VRButtonMapping;
 
+import com.google.common.collect.Sets;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiListExtended;
 import net.minecraft.client.resources.I18n;
@@ -105,12 +108,42 @@ public class GuiKeyBindingSelection extends GuiListExtended
         }
 
         private boolean checkMappingConflict() {
-        	if (GuiKeyBindingSelection.this.controlsScreen.mapping == null) return false;
+        	if (GuiKeyBindingSelection.this.controlsScreen.mapping == null)
+        		return false;
+
+			HashSet<ButtonTuple> set = new HashSet<>();
+			set.add(this.button);
+
+        	if (GuiKeyBindingSelection.this.controlsScreen.mappingAnd
+					&& GuiKeyBindingSelection.this.controlsScreen.mappingButtons.stream().noneMatch(b -> b.controller.getController().isButtonActive(b.button)))
+			{
+				for (VRButtonMapping mapping : mc.vrSettings.buttonMappings.values()) {
+					if (mapping == GuiKeyBindingSelection.this.controlsScreen.mapping)
+						continue;
+					if (mapping.isGUIBinding() != GuiKeyBindingSelection.this.controlsScreen.mapping.isGUIBinding())
+						continue;
+					if (mapping.conflictsWith(set, true))
+						return true;
+				}
+
+				return false;
+			}
+
         	for (VRButtonMapping mapping : mc.vrSettings.buttonMappings.values()) {
-        		if (mapping == GuiKeyBindingSelection.this.controlsScreen.mapping) continue;
-        		if (mapping.isGUIBinding() != GuiKeyBindingSelection.this.controlsScreen.mapping.isGUIBinding()) continue;
-        		if (mapping.buttons.contains(this.button)) return true;
+				if (mapping == GuiKeyBindingSelection.this.controlsScreen.mapping)
+					continue;
+				if (mapping.isGUIBinding() != GuiKeyBindingSelection.this.controlsScreen.mapping.isGUIBinding())
+					continue;
+
+        		if (GuiKeyBindingSelection.this.controlsScreen.mappingAnd) {
+        			if (mapping.conflictsWith(Sets.union(GuiKeyBindingSelection.this.controlsScreen.mappingButtons, set), true))
+        				return true;
+				} else {
+					if (mapping.buttons.contains(this.button))
+						return true;
+				}
         	}
+
         	return false;
         }
     }

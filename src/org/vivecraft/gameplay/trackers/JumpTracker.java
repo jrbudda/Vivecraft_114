@@ -109,7 +109,7 @@ public class JumpTracker extends Tracker {
 
 			Vec3d delta= now.subtract(latchStart[c]);
 
-			delta = delta.rotateYaw(mc.vrPlayer.vrdata_world_pre.rotation);
+			delta = delta.rotateYaw(mc.vrPlayer.vrdata_world_pre.rotation_radians);
 			
 
 			if(!jump && isjumping()){ //bzzzzzz
@@ -128,7 +128,7 @@ public class JumpTracker extends Tracker {
 				if (player.isPotionActive(MobEffects.JUMP_BOOST))
 					m=m.scale((player.getActivePotionEffect(MobEffects.JUMP_BOOST).getAmplifier() + 1.5));
 				
-				m=m.rotateYaw(mc.vrPlayer.vrdata_world_pre.rotation);
+				m=m.rotateYaw(mc.vrPlayer.vrdata_world_pre.rotation_radians);
 				
 				Vec3d pl = mc.player.getPositionVector().subtract(delta);
 

@@ -1,9 +1,9 @@
 package org.vivecraft.control;
 
-import java.awt.event.KeyEvent;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.vivecraft.provider.MCOpenVR;
 import org.vivecraft.utils.InputSimulator;
@@ -24,6 +24,7 @@ public class VRButtonMapping implements Comparable<VRButtonMapping> {
 	public final int functionExt;
 	public KeyBinding keyBinding;
 	public Set<ButtonTuple> buttons;
+	public boolean and;
 	protected int unpress;
 	protected boolean pressed;
 	
@@ -49,7 +50,7 @@ public class VRButtonMapping implements Comparable<VRButtonMapping> {
 	
 	@Override
 	public String toString() {
-		return "vrmapping_" + functionId + ":" + (!buttons.isEmpty() ? Joiner.on(',').join(buttons) : "none");
+		return "vrmapping_" + functionId + ":" + (!buttons.isEmpty() ? (and ? "&," : "") + Joiner.on(',').join(buttons) : "none");
 	}
 
 	public String toReadableString() {
@@ -62,6 +63,45 @@ public class VRButtonMapping implements Comparable<VRButtonMapping> {
 				return "Keyboard (Press) " + InputMappings.getInputByCode(functionExt, 0).getName();
 		}
 		return this.functionId;
+	}
+
+	public boolean conflictsWith(VRButtonMapping other) {
+		if (this.functionId.equals(other.functionId))
+			return false;
+		if (this.isGUIBinding() != other.isGUIBinding())
+			return false;
+
+		if (this.and && other.and) {
+			Set<ButtonTuple> thisButtons = this.buttons.stream().filter(b -> b.controller.getController().isButtonActive(b.button)).collect(Collectors.toSet());
+			Set<ButtonTuple> otherButtons = other.buttons.stream().filter(b -> b.controller.getController().isButtonActive(b.button)).collect(Collectors.toSet());
+			return thisButtons.containsAll(otherButtons) || otherButtons.containsAll(thisButtons);
+		} else {
+			for (ButtonTuple button : this.buttons) {
+				if (button.controller.getController().isButtonActive(button.button)) {
+					if (other.buttons.contains(button))
+						return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	public boolean conflictsWith(Set<ButtonTuple> otherButtons, boolean otherAnd) {
+		if (this.and && otherAnd) {
+			Set<ButtonTuple> thisButtons = this.buttons.stream().filter(b -> b.controller.getController().isButtonActive(b.button)).collect(Collectors.toSet());
+			otherButtons = otherButtons.stream().filter(b -> b.controller.getController().isButtonActive(b.button)).collect(Collectors.toSet());
+			return thisButtons.containsAll(otherButtons) || otherButtons.containsAll(thisButtons);
+		} else {
+			for (ButtonTuple button : this.buttons) {
+				if (button.controller.getController().isButtonActive(button.button)) {
+					if (otherButtons.contains(button))
+						return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	@Override

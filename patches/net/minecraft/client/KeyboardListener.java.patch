@@ -73,7 +73,15 @@
                              this.mc.displayInGameMenu();
                          }
  
-@@ -464,7 +487,7 @@
+@@ -431,6 +454,7 @@
+                         if (key == 290)
+                         {
+                             this.mc.gameSettings.hideGUI = !this.mc.gameSettings.hideGUI;
++                            this.mc.vrSettings.saveOptions();
+                         }
+                     }
+ 
+@@ -464,7 +488,7 @@
          }
      }
  

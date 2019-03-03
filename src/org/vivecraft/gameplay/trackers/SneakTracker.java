@@ -34,7 +34,12 @@ public class SneakTracker extends Tracker {
 	}
 
 	public void doProcess(EntityPlayerSP player){
-
+		
+		if(!mc.isGamePaused()) {
+			if (mc.sneakTracker.sneakCounter > 0) 
+				mc.sneakTracker.sneakCounter--;
+		}
+		
 	    if(( AutoCalibration.getPlayerHeight() - MCOpenVR.hmdPivotHistory.latest().y )> mc.vrSettings.sneakThreshold){
 		   sneakOverride=true;
 	    }else{

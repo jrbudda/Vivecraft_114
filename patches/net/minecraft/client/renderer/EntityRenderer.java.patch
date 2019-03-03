@@ -141,7 +141,7 @@
 +    public Matrix4f thirdPassProjectionMatrix = new Matrix4f();
 +
 +    public boolean menuWorldFastTime;
-+    public boolean inwater, inportal, inblock, onfire;
++    public boolean inwater, wasinwater, inportal, inblock, onfire;
 +    public float inBlock = 0;
 +    Frustum currentFrustum = new Frustum();
 +    private boolean always_true = true;
@@ -2731,7 +2731,7 @@
 +  				//					}
 +  				if (mc.vrSettings.seated || mc.vrSettings.vrHudLockMode == VRSettings.HUD_LOCK_HEAD)
 +  				{
-+  					de.fruitfly.ovr.structs.Matrix4f rot = de.fruitfly.ovr.structs.Matrix4f.rotationY((float)mc.vrPlayer.vrdata_world_render.rotation);
++  					de.fruitfly.ovr.structs.Matrix4f rot = de.fruitfly.ovr.structs.Matrix4f.rotationY((float)mc.vrPlayer.vrdata_world_render.rotation_radians);
 +  					de.fruitfly.ovr.structs.Matrix4f max = de.fruitfly.ovr.structs.Matrix4f.multiply(rot, MCOpenVR.hmdRotation);
 +
 +  					Vec3d v = mc.vrPlayer.vrdata_world_render.hmd.getPosition();
@@ -2762,7 +2762,7 @@
 +  				}else if (mc.vrSettings.vrHudLockMode == VRSettings.HUD_LOCK_HAND)//hud on hand
 +  				{
 +  					de.fruitfly.ovr.structs.Matrix4f out = MCOpenVR.getAimRotation(1);
-+  					de.fruitfly.ovr.structs.Matrix4f rot = de.fruitfly.ovr.structs.Matrix4f.rotationY((float) mc.vrPlayer.vrdata_world_render.rotation);
++  					de.fruitfly.ovr.structs.Matrix4f rot = de.fruitfly.ovr.structs.Matrix4f.rotationY((float) mc.vrPlayer.vrdata_world_render.rotation_radians);
 +  					de.fruitfly.ovr.structs.Matrix4f MguiRotationPose =  de.fruitfly.ovr.structs.Matrix4f.multiply(rot,out);
 +  					//	MguiRotationPose.M[1][3] = 0.5f;
 +  					//guiRotationPose = mc.vrPlayer.getControllerMatrix_World(1);
@@ -2781,7 +2781,7 @@
 +  				{
 +
 +  					de.fruitfly.ovr.structs.Matrix4f out = MCOpenVR.getAimRotation(1);
-+  					de.fruitfly.ovr.structs.Matrix4f rot = de.fruitfly.ovr.structs.Matrix4f.rotationY((float) mc.vrPlayer.vrdata_world_render.rotation);
++  					de.fruitfly.ovr.structs.Matrix4f rot = de.fruitfly.ovr.structs.Matrix4f.rotationY((float) mc.vrPlayer.vrdata_world_render.rotation_radians);
 +  					guirot =  de.fruitfly.ovr.structs.Matrix4f.multiply(rot,out);
 +
 +                    guirot = de.fruitfly.ovr.structs.Matrix4f.multiply(guirot, OpenVRUtil.rotationZMatrix((float)Math.PI * 0.5f * i));
@@ -2832,7 +2832,7 @@
 +  		} else {
 +  			//convert previously calculated coords to world coords
 +  			guipos = mc.vrPlayer.room_to_world_pos(guipos, mc.vrPlayer.vrdata_world_render);
-+  			de.fruitfly.ovr.structs.Matrix4f rot = de.fruitfly.ovr.structs.Matrix4f.rotationY(mc.vrPlayer.vrdata_world_render.rotation);
++  			de.fruitfly.ovr.structs.Matrix4f rot = de.fruitfly.ovr.structs.Matrix4f.rotationY(mc.vrPlayer.vrdata_world_render.rotation_radians);
 +  			guirot = de.fruitfly.ovr.structs.Matrix4f.multiply(rot, guirot);
 +  		}
 +
@@ -2865,7 +2865,7 @@
 +
 +  			de.fruitfly.ovr.structs.Matrix4f gr = de.fruitfly.ovr.structs.Matrix4f.rotationY(135-yawAvg); // don't ask
 +
-+  			guirot = de.fruitfly.ovr.structs.Matrix4f.multiply(gr, de.fruitfly.ovr.structs.Matrix4f.rotationY(mc.vrPlayer.vrdata_world_render.rotation));
++  			guirot = de.fruitfly.ovr.structs.Matrix4f.multiply(gr, de.fruitfly.ovr.structs.Matrix4f.rotationY(mc.vrPlayer.vrdata_world_render.rotation_radians));
 +  			guipos = mc.vrPlayer.room_to_world_pos(gpr, mc.vrPlayer.vrdata_world_render);
 +
 +  			//for mouse control
@@ -2915,7 +2915,7 @@
 +
 +		//convert previously calculated coords to world coords
 +		guipos = mc.vrPlayer.room_to_world_pos(guipos, mc.vrPlayer.vrdata_world_render);
-+		de.fruitfly.ovr.structs.Matrix4f rot = de.fruitfly.ovr.structs.Matrix4f.rotationY(mc.vrPlayer.vrdata_world_render.rotation);
++		de.fruitfly.ovr.structs.Matrix4f rot = de.fruitfly.ovr.structs.Matrix4f.rotationY(mc.vrPlayer.vrdata_world_render.rotation_radians);
 +		guirot = de.fruitfly.ovr.structs.Matrix4f.multiply(rot, guirot);
 +
 +
@@ -2948,7 +2948,7 @@
 +
 +		//convert previously calculated coords to world coords
 +		guipos = mc.vrPlayer.room_to_world_pos(guipos, mc.vrPlayer.vrdata_world_render);
-+		de.fruitfly.ovr.structs.Matrix4f rot = de.fruitfly.ovr.structs.Matrix4f.rotationY(mc.vrPlayer.vrdata_world_render.rotation);
++		de.fruitfly.ovr.structs.Matrix4f rot = de.fruitfly.ovr.structs.Matrix4f.rotationY(mc.vrPlayer.vrdata_world_render.rotation_radians);
 +		guirot = de.fruitfly.ovr.structs.Matrix4f.multiply(rot, guirot);
 +
 +		// counter head rotation
@@ -3153,7 +3153,7 @@
 +  			    			rvelastY + (rveY - rvelastY) * (double)par1,
 +  			    			rvelastZ + (rveZ - rvelastZ) * (double)par1
 +  			    			);
-+  							    		    	
++  			    	
 +  					Vec3d pos = interpolatedPlayerPos.subtract(o).add(0, 0.005, 0);
 +                    setupPolyRendering(true);
 +  					GlStateManager.disableDepthTest();

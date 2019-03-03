@@ -155,7 +155,7 @@ public class VRSettings
     public float walkMultiplier=1;
     public boolean vrAllowCrawling = false; //unused
     public boolean vrShowBlueCircleBuddy = true;
-    public boolean vehicleRotation = false; 
+    public boolean vehicleRotation = true; 
     public boolean animaltouching = true;
     public boolean analogMovement = true;
     public boolean allowStandingOriginOffset = false;
@@ -642,7 +642,6 @@ public class VRSettings
                     
                     if(optionTokens[0].equals("vehicleRotation")){
                         this.vehicleRotation=optionTokens[1].equals("true");
-                        this.vehicleRotation=false; //TODO: Fix.
                     }
                     
                     if(optionTokens[0].equals("fovReduction")){
@@ -786,6 +785,11 @@ public class VRSettings
                     	if (!optionTokens[1].equals("none")) {
                     		String[] split = optionTokens[1].split(",");
                     		for (int i = 0; i < split.length; i++) {
+                    		    if (split[i].equals("&")) {
+                    		        vb.and = true;
+                    		        continue;
+                                }
+
                     			try {
                     				vb.buttons.add(ButtonTuple.parse(split[i]));
                             	} catch (IllegalArgumentException ex) {

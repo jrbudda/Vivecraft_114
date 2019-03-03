@@ -62,15 +62,8 @@ public class GuiVRControlsList extends GuiListExtended
     
     private boolean checkMappingConflict(VRButtonMapping mapping) {
     	for (VRButtonMapping vb : mc.vrSettings.buttonMappings.values()) {
-    		if (vb == mapping) continue;
-    		if (vb.isGUIBinding() != mapping.isGUIBinding()) continue;
-    		for (ButtonTuple button : vb.buttons) {
-    			if (button.controller.getController().isButtonActive(button.button)) {
-	    			for (ButtonTuple button2 : mapping.buttons) {
-	    				if (button.equals(button2)) return true;
-	    			}
-    			}
-    		}
+    		if (vb.conflictsWith(mapping))
+    			return true;
     	}
     	return false;
     }
@@ -118,7 +111,7 @@ public class GuiVRControlsList extends GuiListExtended
             for (ButtonTuple tuple : myKey.buttons) {
             	if (tuple.controller.getController().isButtonActive(tuple.button)) {
             		if (!str.isEmpty()) {
-            			str = "Multiple";
+            			str = myKey.and ? "Multiple (AND)" : "Multiple";
             			break;
             		}
             		str = tuple.toReadableString();
@@ -143,10 +136,9 @@ public class GuiVRControlsList extends GuiListExtended
         	this.btnChangeKeyBinding.x = GuiVRControlsList.this.mc.currentScreen.width / 2 - 20;
         	this.btnChangeKeyBinding.y = getY();
         	updateButtonText();
-        
-        	boolean var10 = GuiVRControlsList.this.parent.mapping == myKey;
+
         	this.btnChangeKeyBinding.render(mouseX, mouseY, partialTicks);
-        	        	
+
         	this.btnChangeKeyBindingList.x = GuiVRControlsList.this.mc.currentScreen.width / 2 + 140;
         	this.btnChangeKeyBindingList.y = getY();
         	this.btnChangeKeyBindingList.render(mouseX, mouseY, partialTicks);
@@ -164,6 +156,7 @@ public class GuiVRControlsList extends GuiListExtended
         			parent.pressMode = true;
                 	parent.mapping = myKey;   
                 	parent.mappingButtons = new HashSet<>(myKey.buttons);
+                	parent.mappingAnd = myKey.and;
                 	return true;
         		} else if (parent.mapping == myKey) {
     				parent.pressMode = false;
@@ -179,6 +172,7 @@ public class GuiVRControlsList extends GuiListExtended
             	parent.selectionMode = true;
             	parent.mapping = myKey;   
             	parent.mappingButtons = new HashSet<>(myKey.buttons);
+            	parent.mappingAnd = myKey.and;
             	return true;          
             }
         	else if (this.btnClearKeyBinding.mouseClicked(mouseX, mouseY, button))
@@ -190,6 +184,7 @@ public class GuiVRControlsList extends GuiListExtended
 	            	GuiVRControlsList.this.buildList();
 	        	} else if (!myKey.functionId.equals("GUI Left Click")) { // Another anti-screwing thing
 					myKey.buttons.removeIf(tuple -> tuple.controller.getController().isButtonActive(tuple.button));
+					myKey.and = false;
 	        	}
 	        	
 				return true;

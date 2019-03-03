@@ -83,7 +83,7 @@ public class OpenVRPlayer
 	//
 
 	private int roomScaleMovementDelay = 0;
-	public float vrot = 0;
+
 	boolean initdone =false;
 	
 	public static OpenVRPlayer get()
@@ -93,14 +93,14 @@ public class OpenVRPlayer
 
 	public Vec3d room_to_world_pos(Vec3d pos, VRData data){
 		Vec3d out = new Vec3d(pos.x*data.worldScale, pos.y*data.worldScale, pos.z*worldScale);
-		out =out.rotateYaw(data.rotation);
+		out =out.rotateYaw(data.rotation_radians);
 		return out.add(data.origin.x, data.origin.y, data.origin.z);
 	}
 
 	public Vec3d world_to_room_pos(Vec3d pos, VRData data){
 		Vec3d out = pos.add(-data.origin.x, -data.origin.y, -data.origin.z);
 		out = new Vec3d(out.x/data.worldScale, out.y/data.worldScale, out.z/data.worldScale);
-		return out.rotateYaw(-data.rotation);
+		return out.rotateYaw(-data.rotation_radians);
 	}
 
 	public void postPoll(){
@@ -116,7 +116,7 @@ public class OpenVRPlayer
 
 		if(mc.vrSettings.seated && !mc.entityRenderer.isInMenuRoom())
 			mc.vrSettings.vrWorldRotation = MCOpenVR.seatedRot;
-
+	
 		//Vivecraft - setup the player entity with the correct view for the logic tick.
 		doLookOverride(vrdata_world_pre);
 		////
@@ -125,6 +125,14 @@ public class OpenVRPlayer
 
 	public void postTick(){
 		Minecraft mc = Minecraft.getMinecraft();
+		
+		//Handle all room translations up to this point and then rotate it around the hmd.
+		VRData temp = new VRData(roomOrigin, mc.vrSettings.walkMultiplier, this.worldScale, vrdata_world_pre.rotation_radians);		
+		float end = mc.vrSettings.vrWorldRotation;
+		float start = (float) Math.toDegrees(vrdata_world_pre.rotation_radians);	
+		rotateOriginAround(-end+start, temp.hmd.getPosition());
+		//
+		
 		this.vrdata_room_post = new VRData(new Vec3d(0, 0, 0), mc.vrSettings.walkMultiplier, 1, 0);
 		this.vrdata_world_post = new VRData(this.roomOrigin, mc.vrSettings.walkMultiplier, worldScale, (float) Math.toRadians(mc.vrSettings.vrWorldRotation));
 
@@ -143,8 +151,8 @@ public class OpenVRPlayer
 
 		float interpolatedWorldScale = vrdata_world_post.worldScale*par1 + vrdata_world_pre.worldScale*(1-par1);
 
-		float end = vrdata_world_post.rotation;
-		float start = vrdata_world_pre.rotation;
+		float end = vrdata_world_post.rotation_radians;
+		float start = vrdata_world_pre.rotation_radians;
 
 		float difference = Math.abs(end - start);
 
@@ -182,10 +190,6 @@ public class OpenVRPlayer
 
 	public void postRender(float par1){
 		//insurance.
-		//vrdata_room_pre = null;
-		//vrdata_world_pre = null;
-		//vrdata_room_post = null; 
-		//vrdata_world_post = null; //This has to be available for the integrated server. TODO: use network api.
 		vrdata_world_render = null; 		
 	}
 
@@ -215,8 +219,10 @@ public class OpenVRPlayer
 			return;
 
 		if(player.posX == 0 && player.posY == 0 &&player.posZ == 0) return;
-
+		
 		Minecraft mc = Minecraft.getMinecraft();
+		
+		if(mc.sneakTracker.sneakCounter > 0) return; //avoid relocating the view while roomscale dismounting.
 
 		VRData temp = vrdata_world_pre;
 
@@ -229,125 +235,21 @@ public class OpenVRPlayer
 		x = player.posX - campos.x;
 		z = player.posZ - campos.z;
 		y = player.posY;
-
-		
-		if(player.isPassenger()){
-			Entity e= player.getRidingEntity();
-			x = e.posX - campos.x;
-			y = e.posY;
-			z = e.posZ - campos.z;
-		}
-
-		//System.out.println("Snap " + player.posX + " " + player.posY + " " + player.posZ);
+	
 		setRoomOrigin(x, y, z, reset);
 	}
 
 
 	public float rotDiff_Degrees(float start, float end){ //calculate shortest difference between 2 angles.
-		start = start % 360;
-		end = end % 360;
 
-		if (Math.abs(end - start) > 180)
-			if (end > start)
-				start += 360;
-			else
-				end += 360;
-
-		return end - start;
-	}
-
-	private boolean cartFlip, wasRiding;
-
-	public void checkandUpdateRotateScale(){
-		Minecraft mc = Minecraft.getMinecraft();
-		if (mc.world == null)
-			this.worldScale = 1.0f;
-		if (mc.player == null || mc.player.initFromServer == false)
-			return;
-
-		if (mc.currentScreen instanceof GuiWinGame) {
-			this.worldScale = 1.0f;
-		} else if (this.wfCount > 0 && !mc.isGamePaused()) {
-			if(this.wfCount < 40){
-				this.worldScale-=this.wfMode / 2;
-				if(this.worldScale >  mc.vrSettings.vrWorldScale && this.wfMode <0) this.worldScale = mc.vrSettings.vrWorldScale;
-				if(this.worldScale <  mc.vrSettings.vrWorldScale && this.wfMode >0) this.worldScale = mc.vrSettings.vrWorldScale;
-			} else {
-				this.worldScale+=this.wfMode / 2;
-				if(this.worldScale >  mc.vrSettings.vrWorldScale*20) this.worldScale = 20;
-				if(this.worldScale <  mc.vrSettings.vrWorldScale/10) this.worldScale = 0.1f;				
-			}
-			this.wfCount--;
-		} else {
-			this.worldScale = mc.vrSettings.vrWorldScale;
-		}
-
-		//handle changes up to this point (menu, buttons, seated)
-		VRData testbefore = new VRData(roomOrigin, mc.vrSettings.walkMultiplier, this.worldScale, vrdata_world_pre.rotation);		
-		float end = mc.vrSettings.vrWorldRotation;
-		float start = (float) Math.toDegrees(vrdata_world_pre.rotation);
-		rotateOriginAround(-end+start, testbefore.hmd.getPosition());
-		//
-
-		if(!mc.isGamePaused())
-		{ //do vehicle rotation, which rotates around a different point.
-			if(mc.vrSettings.vehicleRotation && mc.player.isPassenger() && wasRiding){
-				Entity e = mc.player.getRidingEntity();		
-				end = e.rotationYaw;
-
-				if (e instanceof AbstractHorse && !mc.horseTracker.isActive(mc.player)) {
-					AbstractHorse el = (AbstractHorse) e;
-					end = el.renderYawOffset;
-					if (el.canBeSteered() && el.isHorseSaddled()){
-						return;
-					}
-				}else if (e instanceof EntityLiving) {
-					EntityLiving el = (EntityLiving) e; //this is just pigs in vanilla
-					end = el.renderYawOffset;
-					if (el.canBeSteered()){
-						return; 
-					}
-				}
-
-				start = vrot;			
-
-				if(e instanceof EntityMinecart){ //what a pain in my ass
-					end = getMinecartRenderYaw(e);
-					if (Math.abs(rotDiff_Degrees(end, start)) > 155){ // the thing just flipped
-						cartFlip =! cartFlip;
-						end = (end + 180) % 360;
-					}
-				}
-
-				float difference = rotDiff_Degrees(start, end);
-
-				rotateOriginAround(difference,  e.getPositionVector());
-
-				mc.vrSettings.vrWorldRotation -= difference;
-				mc.vrSettings.vrWorldRotation %= 360;
-				MCOpenVR.seatedRot = mc.vrSettings.vrWorldRotation;
-				///uhh i dont like this at alll.
-
-				if(cartFlip)
-					vrot = (end + 180) % 360;
-				else
-					vrot = end;
-
-			} else {
-				cartFlip =false;
-//				if(wasRiding){		
-//					vrot = mc.player.getRidingEntity().rotationYaw;				
-//					if(mc.player.getRidingEntity() instanceof EntityMinecart){ 
-//						vrot = getMinecartRenderYaw(mc.player.getRidingEntity());
-//					}
-//				}
-			}
-		}
+		double x = Math.toRadians(end);
+		double y = Math.toRadians(start);
+		
+		return (float) Math.toDegrees((Math.atan2(Math.sin(x-y), Math.cos(x - y))));
 	}
 
 	public void rotateOriginAround(float degrees, Vec3d o){
 		Vec3d pt = roomOrigin;
-
 
 		float rads = (float) Math.toRadians(degrees); //reverse rotate.
 
@@ -365,39 +267,9 @@ public class OpenVRPlayer
 		double dist = b.distanceTo(a); //should always be 0 (unless in a vehicle)   		
 	}
 
-	private float getMinecartRenderYaw(Entity entity){
-		Vec3d vec3d = entity.getPositionVector();
-		EntityMinecart m = (EntityMinecart) entity;
-		if (vec3d != null)
-		{
-			Vec3d vec3d1 = m.getPosOffset(vec3d.x, vec3d.y, vec3d.z, 0.30000001192092896D);
-			Vec3d vec3d2 = m.getPosOffset(vec3d.x, vec3d.y, vec3d.z, -0.30000001192092896D);
 
-			if (vec3d1 == null)	vec3d1 = vec3d;
-			if (vec3d2 == null)	vec3d2 = vec3d;
 
-			Vec3d vec3d3 = vec3d2.subtract(vec3d1);
-
-			Vec3d spd = new Vec3d(entity.posX - entity.lastTickPosX, entity.posY - entity.lastTickPosY, entity.posZ - entity.lastTickPosZ);
-			boolean flip = false;
-			if(vec3d3.dotProduct(spd) < 0){
-				vec3d3 = vec3d1.subtract(vec3d2);
-				flip = true;
-			}
-
-			if (vec3d3.length() != 0.0D)
-			{
-				vec3d3 = vec3d3.normalize();
-				float out = (float)Math.toDegrees((Math.atan2(-vec3d3.x, vec3d3.z)));
-				return out;
-			}
-
-		}
-
-		return vrot;
-	}
-
-	public void onLivingUpdate(EntityPlayerSP player, Minecraft mc, Random rand)
+	public void tick(EntityPlayerSP player, Minecraft mc, Random rand)
 	{
 		if(!player.initFromServer) return;
 
@@ -413,6 +285,24 @@ public class OpenVRPlayer
 			initdone =true;
 		}
 
+		//adjust world scale
+		if (mc.world == null || mc.currentScreen instanceof GuiWinGame) 
+			this.worldScale = 1.0f;
+		else if (this.wfCount > 0 && !mc.isGamePaused()) {
+			if(this.wfCount < 40){
+				this.worldScale-=this.wfMode / 2;
+				if(this.worldScale >  mc.vrSettings.vrWorldScale && this.wfMode <0) this.worldScale = mc.vrSettings.vrWorldScale;
+				if(this.worldScale <  mc.vrSettings.vrWorldScale && this.wfMode >0) this.worldScale = mc.vrSettings.vrWorldScale;
+			} else {
+				this.worldScale+=this.wfMode / 2;
+				if(this.worldScale >  mc.vrSettings.vrWorldScale*20) this.worldScale = 20;
+				if(this.worldScale <  mc.vrSettings.vrWorldScale/10) this.worldScale = 0.1f;				
+			}
+			this.wfCount--;
+		} else {
+			this.worldScale = mc.vrSettings.vrWorldScale;
+		}
+		
 		AutoCalibration.logHeadPos(MCOpenVR.hmdPivotHistory.latest());
 
 		doPlayerMoveInRoom(player);
@@ -441,7 +331,6 @@ public class OpenVRPlayer
 			//    	   player.height = 1.8f;
 			//    	   player.spEyeHeight = 0.12f;
 		}
-		wasRiding = player.isPassenger();
 		if(player.isPassenger()){
 			Entity e = mc.player.getRidingEntity();		
 			if (e instanceof AbstractHorse) {
@@ -474,7 +363,17 @@ public class OpenVRPlayer
 		if(mc.climbTracker.isGrabbingLadder()) return; //
 		if(player.isDead) return; //
 		
-		VRData temp = new VRData(this.roomOrigin, mc.vrSettings.walkMultiplier, worldScale, (float) Math.toRadians(mc.vrSettings.vrWorldRotation));
+		if(mc.vehicleTracker.canRoomscaleDismount(mc.player)) {
+			Vec3d mountpos = mc.player.getRidingEntity().getPositionVector();
+			Vec3d tp = vrdata_world_pre.hmd.getPosition();
+			double dist = Math.sqrt((tp.x - mountpos.x) * (tp.x - mountpos.x) + (tp.z - mountpos.z) *(tp.z - mountpos.z));
+			if (dist > 0.85) {
+				mc.sneakTracker.sneakCounter = 5;
+			}	
+			return; 
+		}
+		
+		VRData temp = new VRData(this.roomOrigin, mc.vrSettings.walkMultiplier, worldScale, this.vrdata_world_pre.rotation_radians);
 		//if(Math.abs(player.motionX) > 0.01) return;
 		//if(Math.abs(player.motionZ) > 0.01) return;
 
@@ -501,12 +400,7 @@ public class OpenVRPlayer
 
 		Vec3d torso = null;
 
-		if(wasRiding) {
-			if (mc.world.getEntitiesWithinAABBExcludingEntity(player, bb).isEmpty()) {
-				mc.sneakTracker.sneakCounter = 5;
-			}	
-			return; 
-		}
+
 		
 		// valid place to move player to?
 		float var27 = 0.0625F;
@@ -514,8 +408,6 @@ public class OpenVRPlayer
 		
 		if (emptySpot)
 		{
-
-
 			// don't call setPosition style functions to avoid shifting room origin
 			player.posX = x;
 			if (!mc.vrSettings.simulateFalling)	{

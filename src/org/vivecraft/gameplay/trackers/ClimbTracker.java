@@ -563,7 +563,7 @@ public class ClimbTracker extends Tracker{
 			if (player.isPotionActive(MobEffects.JUMP_BOOST))
 				m=m.scale((player.getActivePotionEffect(MobEffects.JUMP_BOOST).getAmplifier() + 1.5));
 
-			m=m.rotateYaw(mc.vrPlayer.vrdata_world_pre.rotation);
+			m=m.rotateYaw(mc.vrPlayer.vrdata_world_pre.rotation_radians);
 
 			player.motionX=-m.x;
 			player.motionY=-m.y;

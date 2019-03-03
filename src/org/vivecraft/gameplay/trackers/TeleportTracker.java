@@ -323,7 +323,7 @@ public class TeleportTracker extends Tracker{
         	handRotation =MCOpenVR.getAimRotation(0);
         }
         
-        Matrix4f rot = Matrix4f.rotationY(mc.vrPlayer.vrdata_world_render.rotation);
+        Matrix4f rot = Matrix4f.rotationY(mc.vrPlayer.vrdata_world_render.rotation_radians);
         handRotation = Matrix4f.multiply(rot, handRotation);
         
         // extract hand roll

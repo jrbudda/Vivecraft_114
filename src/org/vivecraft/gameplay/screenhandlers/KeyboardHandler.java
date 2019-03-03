@@ -180,7 +180,7 @@ public class KeyboardHandler {
 	
 	public static boolean handleInputEvent(VRInputEvent event) {
 		if (!MCOpenVR.isBindingBound(MCOpenVR.keyToggleKeyboard) || mc.world == null) {
-			if (event.getButtonState() && event.getController().getType() == ControllerType.LEFT && (event.getButton() == ButtonType.VIVE_APPMENU || event.getButton() == ButtonType.OCULUS_BY)) {
+			if (event.getButtonState() && event.isButtonPressEvent() && event.getController().getType() == ControllerType.LEFT && (event.getButton() == ButtonType.VIVE_APPMENU || event.getButton() == ButtonType.OCULUS_BY)) {
 				if (MCOpenVR.controllers[MCOpenVR.LEFT_CONTROLLER].isButtonPressed(ButtonType.VIVE_GRIP) || MCOpenVR.controllers[MCOpenVR.LEFT_CONTROLLER].isButtonPressed(ButtonType.OCULUS_HAND_TRIGGER)) {
 					setOverlayShowing(!Showing);
 					return true;

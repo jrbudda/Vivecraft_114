@@ -17,13 +17,13 @@ import org.vivecraft.provider.MCOpenVR;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.TextFormatting;
 
 public class GuiVRControls extends GuiVROptionsBase {
 
 	public VRButtonMapping mapping; 
 	public Set<ButtonTuple> mappingButtons;
+	public boolean mappingAnd;
 	public boolean selectionMode = false;
 	public boolean pressMode = false;
 	public boolean guiFilter = false;
@@ -39,6 +39,7 @@ public class GuiVRControls extends GuiVROptionsBase {
     private GuiButton btnLeftTouchpadMode;
     private GuiButton btnRightTouchpadMode;
 	private GuiButton btnClearBinding;
+	private GuiButton btnLogicMode;
 
 	public GuiVRControls(GuiScreen par1GuiScreen) {
 		super(par1GuiScreen);
@@ -134,11 +135,17 @@ public class GuiVRControls extends GuiVROptionsBase {
             	}     		
         	}
         });
-		btnClearBinding = new GuiButton(105, this.width / 2 - 40, 38, 80, 20, "Clear All") {
+		btnClearBinding = new GuiButton(105, this.width / 2 + 5, 38, 80, 20, "Clear All") {
 			@Override
 			public void onClick(double mouseX, double mouseY) {
 				if (mapping != null)
 					mappingButtons.removeIf(tuple -> tuple.controller.getController().isButtonActive(tuple.button));
+			}
+		};
+		btnLogicMode = new GuiButton(106, this.width / 2 - 85, 38, 80, 20, "") {
+			@Override
+			public void onClick(double mouseX, double mouseY) {
+				mappingAnd = !mappingAnd;
 			}
 		};
 
@@ -150,6 +157,7 @@ public class GuiVRControls extends GuiVROptionsBase {
             this.addButton(btnRightTouchpadMode);
         }
 		this.addButton(btnClearBinding);
+        this.addButton(btnLogicMode);
         super.addDefaultButtons();
     }
 
@@ -164,6 +172,7 @@ public class GuiVRControls extends GuiVROptionsBase {
     		btnLeftTouchpadMode.visible = false;
     		btnRightTouchpadMode.visible = false;
 			btnClearBinding.visible = false;
+			btnLogicMode.visible = false;
     	}else {
     		if(this.selectionMode && this.mapping != null){
     			btnAddKey.visible = false;
@@ -172,6 +181,8 @@ public class GuiVRControls extends GuiVROptionsBase {
         		btnLeftTouchpadMode.visible = false;
         		btnRightTouchpadMode.visible = false;
 				btnClearBinding.visible = true;
+				btnLogicMode.visible = true;
+				btnLogicMode.displayString = mappingAnd ? "AND" : "OR";
     			title = "Choose buttons for " + this.mapping.toReadableString();
     			this.visibleList = guiSelection;
     		}
@@ -182,6 +193,7 @@ public class GuiVRControls extends GuiVROptionsBase {
         		btnLeftTouchpadMode.visible = false;
         		btnRightTouchpadMode.visible = false;
 				btnClearBinding.visible = false;
+				btnLogicMode.visible = false;
     			title = "Choose keyboard key mode";
     		}
     		else{
@@ -191,6 +203,7 @@ public class GuiVRControls extends GuiVROptionsBase {
         		btnLeftTouchpadMode.visible = true;
         		btnRightTouchpadMode.visible = true;
 				btnClearBinding.visible = false;
+				btnLogicMode.visible = false;
     			if (MCOpenVR.isVive()) {
     				btnLeftTouchpadMode.displayString = "Left TP: " + ((TrackedControllerVive)ControllerType.LEFT.getController()).getTouchpadMode().friendlyName;
     				btnRightTouchpadMode.displayString = "Right TP: " + ((TrackedControllerVive)ControllerType.RIGHT.getController()).getTouchpadMode().friendlyName;
@@ -216,10 +229,12 @@ public class GuiVRControls extends GuiVROptionsBase {
 	@Override
     protected void loadDefaults() {
     	if (this.selectionMode && this.mapping != null) { //
-    		for (ControllerType controller : ControllerType.values()) {
-				for (ButtonType button : controller.getController().getActiveButtons()) {
-					mappingButtons.remove(new ButtonTuple(button, controller));
-				}
+    		mappingButtons.clear();
+    		mappingAnd = false;
+			VRButtonMapping defaultBinding = mc.vrSettings.getBindingsDefaults().get(mapping.functionId);
+			if (defaultBinding != null) {
+				mappingButtons.addAll(defaultBinding.buttons);
+				mappingAnd = defaultBinding.and;
 			}
     	} else {
     		this.settings.leftTouchpadMode = TouchpadMode.SPLIT_UD;
@@ -251,6 +266,7 @@ public class GuiVRControls extends GuiVROptionsBase {
 			}
 			this.mapping.buttons.clear();
 			this.mapping.buttons.addAll(mappingButtons);
+			this.mapping.and = mappingAnd;
 			this.mappingButtons = null;
 			this.selectionMode = false;
 			return true;
@@ -269,12 +285,9 @@ public class GuiVRControls extends GuiVROptionsBase {
           
     public void bindSingleButton(ButtonTuple button) {
     	if (this.pressMode && this.mapping != null) {
-    		for (ControllerType controller : ControllerType.values()) {
-				for (ButtonType buttonType : controller.getController().getActiveButtons()) {
-					mapping.buttons.remove(new ButtonTuple(buttonType, controller));
-				}
-			}
+			mapping.buttons.removeIf(tuple -> tuple.controller.getController().isButtonActive(tuple.button));
     		mapping.buttons.add(button);
+    		mapping.and = false;
     		this.pressMode = false;
     		this.mapping = null;
     		this.mappingButtons = null;

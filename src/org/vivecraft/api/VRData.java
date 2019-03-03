@@ -25,18 +25,18 @@ public class VRData{
 		
 		public Vec3d getPosition(){
 			Vec3d out = pos.scale(worldScale);
-			out = out.rotateYaw(data.rotation);
+			out = out.rotateYaw(data.rotation_radians);
 			return out.add(data.origin.x, data.origin.y, data.origin.z);
 		}
 	
 		public Vec3d getDirection() {
-			Vec3d out = new Vec3d(dir.x, dir.y, dir.z).rotateYaw(data.rotation);
+			Vec3d out = new Vec3d(dir.x, dir.y, dir.z).rotateYaw(data.rotation_radians);
 			return out;
 		}
 		
 		public Vec3d getCustomVector(Vec3d axis) {
 			Vector3f v3 = matrix.transform(new Vector3f((float)axis.x, (float)axis.y,(float) axis.z));
-			Vec3d out =  new Vec3d(v3.x, v3.y, v3.z).rotateYaw(data.rotation);
+			Vec3d out =  new Vec3d(v3.x, v3.y, v3.z).rotateYaw(data.rotation_radians);
 			return out;
 		}
 		
@@ -55,7 +55,7 @@ public class VRData{
 		}
 		
 		public Matrix4f getMatrix() {
-			Matrix4f rot = Matrix4f.rotationY(rotation);
+			Matrix4f rot = Matrix4f.rotationY(rotation_radians);
 			return Matrix4f.multiply(rot,matrix);
 		}
 		
@@ -76,7 +76,7 @@ public class VRData{
 	public VRDevicePose h1;
 		
 	public Vec3d origin;
-	public float rotation;
+	public float rotation_radians;
 	public float worldScale;
 	
 	public VRData(Vec3d origin, float walkMul,float worldScale, float rotation) {
@@ -84,7 +84,7 @@ public class VRData{
 		
 		this.origin = origin;
 		this.worldScale =worldScale;
-		this.rotation = rotation;
+		this.rotation_radians = rotation;
 		
 		Vec3d hmd_raw = MCOpenVR.getCenterEyePosition();
 		Vec3d scaledPos = new Vec3d(hmd_raw.x * walkMul, hmd_raw.y, hmd_raw.z * walkMul);
@@ -144,7 +144,7 @@ public class VRData{
 	public String toString() {
 		return "data:" + 
 				"\r\n \t\t origin: " + this.origin +
-				"\r\n \t\t rotation: " + String.format("%.2f", this.rotation) +
+				"\r\n \t\t rotation: " + String.format("%.2f", this.rotation_radians) +
 				"\r\n \t\t scale: " + String.format("%.2f", this.worldScale) + 
 				"\r\n \t\t hmd " + this.hmd + 
 				"\r\n \t\t c0 " + this.c0 + 
