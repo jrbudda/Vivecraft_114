@@ -320,7 +320,7 @@
 +    		return;
 +    	
 +    	mc.vrPlayer.snapRoomOriginToPlayerEntity(this, false, false);
-+    	mc.vrSettings.vrWorldRotation = yaw;
++    	//mc.vrSettings.vrWorldRotation = yaw; this was a terrible idea
 +    }
 +    
 +    @Override
