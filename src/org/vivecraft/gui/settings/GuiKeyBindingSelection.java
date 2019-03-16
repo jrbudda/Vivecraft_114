@@ -114,34 +114,13 @@ public class GuiKeyBindingSelection extends GuiListExtended
 			HashSet<ButtonTuple> set = new HashSet<>();
 			set.add(this.button);
 
-        	if (GuiKeyBindingSelection.this.controlsScreen.mappingAnd
-					&& GuiKeyBindingSelection.this.controlsScreen.mappingButtons.stream().noneMatch(b -> b.controller.getController().isButtonActive(b.button)))
-			{
-				for (VRButtonMapping mapping : mc.vrSettings.buttonMappings.values()) {
-					if (mapping == GuiKeyBindingSelection.this.controlsScreen.mapping)
-						continue;
-					if (mapping.isGUIBinding() != GuiKeyBindingSelection.this.controlsScreen.mapping.isGUIBinding())
-						continue;
-					if (mapping.conflictsWith(set, true))
-						return true;
-				}
-
-				return false;
-			}
-
         	for (VRButtonMapping mapping : mc.vrSettings.buttonMappings.values()) {
 				if (mapping == GuiKeyBindingSelection.this.controlsScreen.mapping)
 					continue;
 				if (mapping.isGUIBinding() != GuiKeyBindingSelection.this.controlsScreen.mapping.isGUIBinding())
 					continue;
-
-        		if (GuiKeyBindingSelection.this.controlsScreen.mappingAnd) {
-        			if (mapping.conflictsWith(Sets.union(GuiKeyBindingSelection.this.controlsScreen.mappingButtons, set), true))
-        				return true;
-				} else {
-					if (mapping.buttons.contains(this.button))
-						return true;
-				}
+				if (mapping.conflictsWith(set, GuiKeyBindingSelection.this.controlsScreen.mappingModifiers, GuiKeyBindingSelection.this.controlsScreen.mapping.isModifierBinding()))
+					return true;
         	}
 
         	return false;

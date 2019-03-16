@@ -24,7 +24,7 @@ public class VRButtonMapping implements Comparable<VRButtonMapping> {
 	public final int functionExt;
 	public KeyBinding keyBinding;
 	public Set<ButtonTuple> buttons;
-	public boolean and;
+	public int modifiers;
 	protected int unpress;
 	protected boolean pressed;
 	
@@ -50,7 +50,7 @@ public class VRButtonMapping implements Comparable<VRButtonMapping> {
 	
 	@Override
 	public String toString() {
-		return "vrmapping_" + functionId + ":" + (!buttons.isEmpty() ? (and ? "&," : "") + Joiner.on(',').join(buttons) : "none");
+		return "vrmapping_" + functionId + ":" + (!buttons.isEmpty() ? (modifiers != 0 ? "mods_" + modifiers + "," : "") + Joiner.on(',').join(buttons) : "none");
 	}
 
 	public String toReadableString() {
@@ -70,34 +70,27 @@ public class VRButtonMapping implements Comparable<VRButtonMapping> {
 			return false;
 		if (this.isGUIBinding() != other.isGUIBinding())
 			return false;
+		if (this.modifiers != other.modifiers && !this.isModifierBinding() && !other.isModifierBinding())
+			return false;
 
-		if (this.and && other.and) {
-			Set<ButtonTuple> thisButtons = this.buttons.stream().filter(b -> b.controller.getController().isButtonActive(b.button)).collect(Collectors.toSet());
-			Set<ButtonTuple> otherButtons = other.buttons.stream().filter(b -> b.controller.getController().isButtonActive(b.button)).collect(Collectors.toSet());
-			return thisButtons.containsAll(otherButtons) || otherButtons.containsAll(thisButtons);
-		} else {
-			for (ButtonTuple button : this.buttons) {
-				if (button.controller.getController().isButtonActive(button.button)) {
-					if (other.buttons.contains(button))
-						return true;
-				}
+		for (ButtonTuple button : this.buttons) {
+			if (button.controller.getController().isButtonActive(button.button)) {
+				if (other.buttons.contains(button))
+					return true;
 			}
 		}
 
 		return false;
 	}
 
-	public boolean conflictsWith(Set<ButtonTuple> otherButtons, boolean otherAnd) {
-		if (this.and && otherAnd) {
-			Set<ButtonTuple> thisButtons = this.buttons.stream().filter(b -> b.controller.getController().isButtonActive(b.button)).collect(Collectors.toSet());
-			otherButtons = otherButtons.stream().filter(b -> b.controller.getController().isButtonActive(b.button)).collect(Collectors.toSet());
-			return thisButtons.containsAll(otherButtons) || otherButtons.containsAll(thisButtons);
-		} else {
-			for (ButtonTuple button : this.buttons) {
-				if (button.controller.getController().isButtonActive(button.button)) {
-					if (otherButtons.contains(button))
-						return true;
-				}
+	public boolean conflictsWith(Set<ButtonTuple> otherButtons, int otherModifiers, boolean otherIsModifier) {
+		if (this.modifiers != otherModifiers && !this.isModifierBinding() && !otherIsModifier)
+			return false;
+
+		for (ButtonTuple button : this.buttons) {
+			if (button.controller.getController().isButtonActive(button.button)) {
+				if (otherButtons.contains(button))
+					return true;
 			}
 		}
 
@@ -127,6 +120,14 @@ public class VRButtonMapping implements Comparable<VRButtonMapping> {
 	
 	public boolean isKeyboardBinding() {
 		return functionExt != -1 && keyBinding == null;
+	}
+
+	public boolean isModifierBinding() {
+		return keyBinding != null && keyBinding.getKeyCategory().startsWith("Vivecraft") && keyBinding.getKeyDescription().startsWith("Modifier");
+	}
+
+	public boolean hasModifier(int modifier) {
+		return (modifiers & (1 << modifier)) != 0;
 	}
 	
 	public void tick() {

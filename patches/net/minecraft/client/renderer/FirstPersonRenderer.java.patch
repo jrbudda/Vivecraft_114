@@ -278,7 +278,7 @@
      }
  
      /**
-@@ -371,185 +433,399 @@
+@@ -371,185 +433,409 @@
          RenderHelper.disableStandardItemLighting();
      }
  
@@ -609,10 +609,12 @@
 +    		case Spear:
 +    			   			
 +				float prog = 0;
-+         
++				boolean charging = false;
++				int j = 0;
 +				if (player.isHandActive() && player.getItemInUseCount() > 0 && player.getActiveHand() == hand)
 +				{
-+					int j = EnchantmentHelper.getRiptideModifier(stack);
++					charging = true;
++					j = EnchantmentHelper.getRiptideModifier(stack);
 +					
 +					if(j<=0 || (j>0 &&player.isWet())){
 +						prog = (float)stack.getUseDuration() - ((float)this.mc.player.getItemInUseCount() - partialTicks + 1.0F);
@@ -620,7 +622,7 @@
 +							prog = 10;
 +							
 +							if (j>0 && player.isWet()) {                
-+								GlStateManager.rotatef((player.getItemInUseCount()*10*j) % 360 - partialTicks*10*j , 0.0F, 0.0F, 1.0F);      							
++								GlStateManager.rotatef((-mc.tickCounter*10*j) % 360 - partialTicks*10*j , 0.0F, 0.0F, 1.0F);      							
 +							} 
 +							
 +							if(mc.frameIndex % 4 == 0) {
@@ -634,15 +636,23 @@
 +				}
 +                
 +                if(player.isSpinAttacking()) {
-+        			GlStateManager.translated(0 ,0, -0.15f);  						
++                	j = 5;
++        			GlStateManager.translated(0 ,0, -0.15f);  	
++					GlStateManager.rotatef((-mc.tickCounter*10*j) % 360 - partialTicks*10*j , 0.0F, 0.0F, 1.0F);      							
++        			charging = true;
                  }
 -                else
-+        
++                
++				if(!vive && !charging) {
++    				GlStateManager.rotatef(39.4f, 1.0F, 0.0F, 0.0F);
++				}
++				
 +                GlStateManager.translatef(0.3f, -0.3f, -0.75f + prog /10 * (0.25f) );		
 +				GlStateManager.scaled(0.6, 0.6, 0.6);	
 +				GlStateManager.rotatef(90.0F, 0.0F, 1.0F, 0.0F);   
 +				GlStateManager.rotatef(-90.0F, 0.0F, 0.0F, 1.0F);     
 +				
++	
 +
 +    			break;
 +    		case Sword:
@@ -826,7 +836,7 @@
                  this.renderFireInFirstPerson();
              }
          }
-@@ -631,13 +907,13 @@
+@@ -631,13 +917,13 @@
          Tessellator tessellator = Tessellator.getInstance();
          BufferBuilder bufferbuilder = tessellator.getBuffer();
          GlStateManager.color4f(1.0F, 1.0F, 1.0F, 0.9F);
@@ -843,7 +853,7 @@
          {
              GlStateManager.pushMatrix();
              TextureAtlasSprite textureatlassprite = this.mc.getTextureMap().getSprite(ModelBakery.LOCATION_FIRE_1);
-@@ -646,19 +922,20 @@
+@@ -646,19 +932,20 @@
              float f2 = textureatlassprite.getMaxU();
              float f3 = textureatlassprite.getMinV();
              float f4 = textureatlassprite.getMaxV();
@@ -875,7 +885,7 @@
              tessellator.draw();
              GlStateManager.popMatrix();
          }
-@@ -743,4 +1020,130 @@
+@@ -743,4 +1030,130 @@
              this.equippedProgressOffHand = 0.0F;
          }
      }

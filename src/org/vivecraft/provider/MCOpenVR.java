@@ -198,6 +198,10 @@ public class MCOpenVR
 		return "openvr";
 	}
 
+	public static final int MODIFIER_COUNT = 2;
+
+	public static final KeyBinding keyModifier1 = new KeyBinding("Modifier 1", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft");
+	public static final KeyBinding keyModifier2 = new KeyBinding("Modifier 2", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft");
 	public static final KeyBinding keyHotbarNext = new KeyBinding("Hotbar Next", GLFW.GLFW_KEY_PAGE_UP, "Vivecraft");
 	public static final KeyBinding keyHotbarPrev = new KeyBinding("Hotbar Prev", GLFW.GLFW_KEY_PAGE_DOWN, "Vivecraft");
 	public static final KeyBinding keyRotateLeft = new KeyBinding("Rotate Left", GLFW.GLFW_KEY_LEFT, "Vivecraft");
@@ -363,6 +367,8 @@ public class MCOpenVR
 	}
 
 	public static KeyBinding[] initializeBindings(KeyBinding[] keyBindings) {
+		keyBindings = ArrayUtils.add(keyBindings, keyModifier1);
+		keyBindings = ArrayUtils.add(keyBindings, keyModifier2);
 		keyBindings = ArrayUtils.add(keyBindings, keyRotateLeft);
 		keyBindings = ArrayUtils.add(keyBindings, keyRotateRight);
 		keyBindings = ArrayUtils.add(keyBindings, keyRotateFree);
@@ -987,23 +993,8 @@ public class MCOpenVR
 			// GUI bindings
 			for (VRButtonMapping binding : mc.vrSettings.buttonMappings.values()) {
 				if (binding.buttons.contains(new ButtonTuple(event.getButton(), event.getController().getType(), event.isButtonTouchEvent()))) {
-					if (binding.and && event.getButtonState()) {
-						boolean allButtonsPressed = true;
-						for (ButtonTuple tuple : binding.buttons) {
-							if (tuple.controller.getController().isButtonActive(tuple.button)) {
-								if (tuple.isTouch && !tuple.controller.getController().isButtonTouched(tuple.button)) {
-									allButtonsPressed = false;
-									break;
-								}
-								if (!tuple.isTouch && !tuple.controller.getController().isButtonPressed(tuple.button)) {
-									allButtonsPressed = false;
-									break;
-								}
-							}
-						}
-
-						if (!allButtonsPressed)
-							continue;
+					if (!binding.isModifierBinding() && (keyModifier1.isKeyDown() != binding.hasModifier(0) || keyModifier2.isKeyDown() != binding.hasModifier(1))) {
+						continue;
 					}
 
 					if (event.getButtonState()) {
@@ -1015,23 +1006,34 @@ public class MCOpenVR
 						}
 					} else {
 						boolean unpress = true;
-						if (!binding.and) {
-							for (ButtonTuple button : binding.buttons) {
-								if (!controllers[button.controller.ordinal()].isButtonActive(button.button))
-									continue;
-								if (button.isTouch && controllers[button.controller.ordinal()].isButtonTouched(button.button)) {
-									unpress = false;
-									break;
-								}
-								if (!button.isTouch && controllers[button.controller.ordinal()].isButtonPressed(button.button)) {
-									unpress = false;
-									break;
-								}
+						for (ButtonTuple button : binding.buttons) {
+							if (!controllers[button.controller.ordinal()].isButtonActive(button.button))
+								continue;
+							if (button.isTouch && controllers[button.controller.ordinal()].isButtonTouched(button.button)) {
+								unpress = false;
+								break;
+							}
+							if (!button.isTouch && controllers[button.controller.ordinal()].isButtonPressed(button.button)) {
+								unpress = false;
+								break;
 							}
 						}
 
-						if (unpress)
+						if (unpress) {
 							binding.scheduleUnpress(1);
+
+							if (binding.isModifierBinding()) {
+								int modifier = 0;
+								if (binding.keyBinding == keyModifier2)
+									modifier = 1;
+
+								// Unpress any bindings using this modifier
+								for (VRButtonMapping binding2 : mc.vrSettings.buttonMappings.values()) {
+									if (binding2.hasModifier(modifier))
+										binding2.scheduleUnpress(1);
+								}
+							}
+						}
 					}
 				}
 			}
@@ -1039,23 +1041,8 @@ public class MCOpenVR
 			// In-game bindings
 			for (VRButtonMapping binding : mc.vrSettings.buttonMappings.values()) {
 				if (binding.buttons.contains(new ButtonTuple(event.getButton(), event.getController().getType(), event.isButtonTouchEvent()))) {
-					if (binding.and && event.getButtonState()) {
-						boolean allButtonsPressed = true;
-						for (ButtonTuple tuple : binding.buttons) {
-							if (tuple.controller.getController().isButtonActive(tuple.button)) {
-								if (tuple.isTouch && !tuple.controller.getController().isButtonTouched(tuple.button)) {
-									allButtonsPressed = false;
-									break;
-								}
-								if (!tuple.isTouch && !tuple.controller.getController().isButtonPressed(tuple.button)) {
-									allButtonsPressed = false;
-									break;
-								}
-							}
-						}
-
-						if (!allButtonsPressed)
-							continue;
+					if (!binding.isModifierBinding() && (keyModifier1.isKeyDown() != binding.hasModifier(0) || keyModifier2.isKeyDown() != binding.hasModifier(1))) {
+						continue;
 					}
 
 					if (event.getButtonState()) {
@@ -1067,23 +1054,34 @@ public class MCOpenVR
 						}
 					} else {
 						boolean unpress = true;
-						if (!binding.and) {
-							for (ButtonTuple button : binding.buttons) {
-								if (!controllers[button.controller.ordinal()].isButtonActive(button.button))
-									continue;
-								if (button.isTouch && controllers[button.controller.ordinal()].isButtonTouched(button.button)) {
-									unpress = false;
-									break;
-								}
-								if (!button.isTouch && controllers[button.controller.ordinal()].isButtonPressed(button.button)) {
-									unpress = false;
-									break;
-								}
+						for (ButtonTuple button : binding.buttons) {
+							if (!controllers[button.controller.ordinal()].isButtonActive(button.button))
+								continue;
+							if (button.isTouch && controllers[button.controller.ordinal()].isButtonTouched(button.button)) {
+								unpress = false;
+								break;
+							}
+							if (!button.isTouch && controllers[button.controller.ordinal()].isButtonPressed(button.button)) {
+								unpress = false;
+								break;
 							}
 						}
 
-						if (unpress)
+						if (unpress) {
 							binding.scheduleUnpress(1);
+
+							if (binding.isModifierBinding()) {
+								int modifier = 0;
+								if (binding.keyBinding == keyModifier2)
+									modifier = 1;
+
+								// Unpress any bindings using this modifier
+								for (VRButtonMapping binding2 : mc.vrSettings.buttonMappings.values()) {
+									if (binding2.hasModifier(modifier))
+										binding2.scheduleUnpress(1);
+								}
+							}
+						}
 					}
 				}
 			}
@@ -1515,6 +1513,9 @@ public class MCOpenVR
 		if(but != null) return but;
 
 		VRButtonMapping vb = mc.vrSettings.buttonMappings.get(binding.getKeyDescription());
+		if (!vb.isModifierBinding() && (keyModifier1.isKeyDown() != vb.hasModifier(0) || keyModifier2.isKeyDown() != vb.hasModifier(1))) {
+			return null;
+		}
 		for (ButtonTuple tuple : vb.buttons) {
 			if (tuple.controller.getController().isButtonActive(tuple.button))
 				return tuple;

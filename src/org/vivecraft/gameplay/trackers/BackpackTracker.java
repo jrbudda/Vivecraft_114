@@ -36,9 +36,9 @@ public class BackpackTracker extends Tracker {
 	public void doProcess(EntityPlayerSP player){
 		OpenVRPlayer provider = mc.vrPlayer;
 
-		Vec3d hmdPos=provider.vrdata_room_pre.hmd.getPosition();
+		Vec3d hmdPos=provider.vrdata_room_pre.getHeadRear();
 
-		for(int c=0; c<2; c++) { //just main for 1710, no dual wielding
+		for(int c=0; c<2; c++) {
 			Vec3d controllerPos = provider.vrdata_room_pre.getController(c).getPosition();//.add(provider.getCustomControllerVector(c, new Vec3(0, 0, -0.1)));
 			Vec3d controllerDir = provider.vrdata_room_pre.getController(c).getDirection();
 			Vec3d hmddir = provider.vrdata_room_pre.hmd.getDirection();

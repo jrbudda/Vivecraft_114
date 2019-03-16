@@ -4,16 +4,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 import org.vivecraft.control.ButtonTuple;
 import org.vivecraft.control.VRButtonMapping;
+import org.vivecraft.provider.MCOpenVR;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiListExtended;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.TextFormatting;
+import org.apache.commons.lang3.StringUtils;
 
 public class GuiVRControlsList extends GuiListExtended
 {
@@ -93,6 +98,7 @@ public class GuiVRControlsList extends GuiListExtended
         private final GuiButton btnChangeKeyBinding;
         private final GuiButton btnChangeKeyBindingList;
 		private final GuiButton btnClearKeyBinding;
+		private List<String> tooltip = new ArrayList<>();
         private GuiTextField guiEnterText;
         private GuiVRControls parentScreen;
         
@@ -111,14 +117,36 @@ public class GuiVRControlsList extends GuiListExtended
             for (ButtonTuple tuple : myKey.buttons) {
             	if (tuple.controller.getController().isButtonActive(tuple.button)) {
             		if (!str.isEmpty()) {
-            			str = myKey.and ? "Multiple (AND)" : "Multiple";
+            			str = "Multiple";
             			break;
             		}
             		str = tuple.toReadableString();
             	}
             }
-            if (str.isEmpty()) str = "None";
-            //else str = str.substring(0, Math.min(18, str.length()));
+
+            if (str.isEmpty()) {
+            	str = "None";
+			} else if (myKey.modifiers != 0) {
+				StringBuilder sb = new StringBuilder();
+				for (int i = 0; i < MCOpenVR.MODIFIER_COUNT; i++) {
+					if (myKey.hasModifier(i))
+						sb.append("Mod ").append(i + 1).append(" + ");
+				}
+
+				str = sb.append(str).toString();
+			}
+
+			tooltip.clear();
+			if (GuiVRControlsList.this.mc.fontRenderer.getStringWidth(str) > this.btnChangeKeyBinding.getWidth() - 6) {
+				tooltip.add(str);
+
+				StringBuilder sb = new StringBuilder(str);
+				while (sb.length() > 5 && GuiVRControlsList.this.mc.fontRenderer.getStringWidth(StringUtils.abbreviate(sb.toString(), sb.length() - 1)) > this.btnChangeKeyBinding.getWidth() - 6) {
+					sb.setLength(sb.length() - 1);
+				}
+
+				str = StringUtils.abbreviate(sb.toString(), sb.length() - 1);
+			}
 
             if (parent.pressMode && parent.mapping == myKey) {
             	this.btnChangeKeyBinding.displayString = "> " + TextFormatting.YELLOW + str + TextFormatting.RESET + " <";
@@ -146,6 +174,14 @@ public class GuiVRControlsList extends GuiListExtended
 			this.btnClearKeyBinding.x = GuiVRControlsList.this.mc.currentScreen.width / 2 + 121;
 			this.btnClearKeyBinding.y = getY();
 			this.btnClearKeyBinding.render(mouseX, mouseY, partialTicks);
+
+			if (this.btnChangeKeyBinding.isMouseOver()) {
+				GuiVRControlsList.this.parent.drawHoveringText(tooltip, mouseX, mouseY);
+				GlStateManager.disableLighting();
+				GlStateManager.disableDepthTest();
+				RenderHelper.disableStandardItemLighting();
+				GlStateManager.disableRescaleNormal();
+			}
         }
         
 		@Override
@@ -156,7 +192,7 @@ public class GuiVRControlsList extends GuiListExtended
         			parent.pressMode = true;
                 	parent.mapping = myKey;   
                 	parent.mappingButtons = new HashSet<>(myKey.buttons);
-                	parent.mappingAnd = myKey.and;
+                	parent.mappingModifiers = myKey.modifiers;
                 	return true;
         		} else if (parent.mapping == myKey) {
     				parent.pressMode = false;
@@ -172,7 +208,7 @@ public class GuiVRControlsList extends GuiListExtended
             	parent.selectionMode = true;
             	parent.mapping = myKey;   
             	parent.mappingButtons = new HashSet<>(myKey.buttons);
-            	parent.mappingAnd = myKey.and;
+            	parent.mappingModifiers = myKey.modifiers;
             	return true;          
             }
         	else if (this.btnClearKeyBinding.mouseClicked(mouseX, mouseY, button))
@@ -184,7 +220,7 @@ public class GuiVRControlsList extends GuiListExtended
 	            	GuiVRControlsList.this.buildList();
 	        	} else if (!myKey.functionId.equals("GUI Left Click")) { // Another anti-screwing thing
 					myKey.buttons.removeIf(tuple -> tuple.controller.getController().isButtonActive(tuple.button));
-					myKey.and = false;
+					myKey.modifiers = 0;
 	        	}
 	        	
 				return true;

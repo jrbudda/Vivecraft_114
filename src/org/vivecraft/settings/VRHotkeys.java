@@ -18,6 +18,8 @@ import de.fruitfly.ovr.structs.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiWinGame;
 import net.minecraft.client.util.InputMappings;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
@@ -138,7 +140,7 @@ public class VRHotkeys {
 		if (action == GLFW.GLFW_PRESS && key == GLFW.GLFW_KEY_R && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL))
 		{
 			// for testing restricted client mode
-			
+
 			if (mc.vrPlayer.getFreeMove()) {
 				mc.vrPlayer.setFreeMove(false);
 							mc.printChatMessage("Restricted movement disabled (teleporting allowed)");

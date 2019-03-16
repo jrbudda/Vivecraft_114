@@ -124,6 +124,17 @@ public class VRData{
 		
 	}
 	
+	public Vec3d getHeadPivot() {
+		Vec3d eye = hmd.getPosition();
+		Vector3f v3 = hmd.getMatrix().transform(new Vector3f(0,-.1f, .1f));
+		return (new Vec3d(v3.x+eye.x, v3.y+eye.y, v3.z+eye.z));
+	}
+	
+	public Vec3d getHeadRear() {
+		Vec3d eye = hmd.getPosition();
+		Vector3f v3 = hmd.getMatrix().transform(new Vector3f(0,-.2f, .2f));
+		return (new Vec3d(v3.x+eye.x, v3.y+eye.y, v3.z+eye.z));
+	}
 	
 	public VRDevicePose getEye(RenderPass pass){
 		switch(pass){

@@ -14,11 +14,13 @@ import jopenvr.OpenVRUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLadder;
 import net.minecraft.block.BlockVine;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.entity.Entity;
+import net.minecraft.fluid.IFluidState;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.EnumFacing;
@@ -29,6 +31,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceFluidMode;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
+import net.minecraft.util.math.shapes.ShapeUtils;
+import net.minecraft.world.World;
 import net.minecraft.util.math.Vec3d;
 
 public class TeleportTracker extends Tracker{
@@ -376,14 +380,15 @@ public class TeleportTracker extends Tracker{
             pos.z + velocity.z);
 
       	
-//            boolean	water =false;
-//            if(mc.vrSettings.seated )
-//            	water = mc.entityRenderer.inwater;
-//            else{
-//                water = mc.entityRenderer.itemRenderer.isInsideOfMaterial(start, Material.WATER);
-//            }
-            
-            RayTraceResult collision = player.world.rayTraceBlocks(pos, newPos, RayTraceFluidMode.NEVER) ;
+            boolean	water =false;
+            if(mc.vrSettings.seated )
+            	water = mc.entityRenderer.inwater;
+            else{
+            	water = !mc.world.getFluidState(new BlockPos(start)).isEmpty();
+            }
+        	
+            //bool params are 'checkcollision' and 'return misses'
+            RayTraceResult collision = TPrayTraceBlocks(mc.world, pos, newPos, water ? RayTraceFluidMode.NEVER : RayTraceFluidMode.ALWAYS , true, false) ;
             //TODO: Re-do custom raytracer for teleport          
             		//tpRaytrace(player.world, pos, newPos, !water, true, false);
 			
@@ -447,7 +452,228 @@ public class TeleportTracker extends Tracker{
 
         }
     }
+    public RayTraceResult TPrayTraceBlocks(World w, Vec3d start, Vec3d end, RayTraceFluidMode fluidMode, boolean ignoreUncollidable, boolean returnMissInsteadOfNull)
+    {
+        double d0 = start.x;
+        double d1 = start.y;
+        double d2 = start.z;
 
+        if (!Double.isNaN(d0) && !Double.isNaN(d1) && !Double.isNaN(d2))
+        {
+            if (!Double.isNaN(end.x) && !Double.isNaN(end.y) && !Double.isNaN(end.z))
+            {
+                int i = MathHelper.floor(end.x);
+                int j = MathHelper.floor(end.y);
+                int k = MathHelper.floor(end.z);
+                int l = MathHelper.floor(d0);
+                int i1 = MathHelper.floor(d1);
+                int j1 = MathHelper.floor(d2);
+                BlockPos blockpos = new BlockPos(l, i1, j1);
+                IBlockState iblockstate = w.getBlockState(blockpos);
+                IFluidState ifluidstate = w.getFluidState(blockpos);
+                
+                boolean flag1 = fluidMode.predicate.test(ifluidstate);
+                boolean flag9 =flag1 && fluidMode == RayTraceFluidMode.ALWAYS;
+                		
+                if (flag9 || !ignoreUncollidable || !iblockstate.getCollisionShape(w, blockpos).isEmpty())
+                {
+                    boolean flag = iblockstate.getBlock().isCollidable(iblockstate);
+                 
+
+                    if (flag || flag1)
+                    {
+                        RayTraceResult raytraceresult = null;
+
+                        if (flag)
+                        {
+                            raytraceresult = Block.collisionRayTrace(iblockstate, w, blockpos, start, end);
+                        }
+
+                        if (raytraceresult == null && flag1)
+                        {
+                            raytraceresult = ShapeUtils.create(0.0D, 0.0D, 0.0D, 1.0D, (double)ifluidstate.getHeight(), 1.0D).func_502194_a(start, end, blockpos);
+                        }
+
+                        if (raytraceresult != null)
+                        {
+                            return raytraceresult;
+                        }
+                    }
+                }
+
+                RayTraceResult raytraceresult2 = null;
+                int k1 = 200;
+
+                while (k1-- >= 0)
+                {
+                    if (Double.isNaN(d0) || Double.isNaN(d1) || Double.isNaN(d2))
+                    {
+                        return null;
+                    }
+
+                    if (l == i && i1 == j && j1 == k)
+                    {
+                        return returnMissInsteadOfNull ? raytraceresult2 : null;
+                    }
+
+                    boolean flag4 = true;
+                    boolean flag5 = true;
+                    boolean flag6 = true;
+                    double d3 = 999.0D;
+                    double d4 = 999.0D;
+                    double d5 = 999.0D;
+
+                    if (i > l)
+                    {
+                        d3 = (double)l + 1.0D;
+                    }
+                    else if (i < l)
+                    {
+                        d3 = (double)l + 0.0D;
+                    }
+                    else
+                    {
+                        flag4 = false;
+                    }
+
+                    if (j > i1)
+                    {
+                        d4 = (double)i1 + 1.0D;
+                    }
+                    else if (j < i1)
+                    {
+                        d4 = (double)i1 + 0.0D;
+                    }
+                    else
+                    {
+                        flag5 = false;
+                    }
+
+                    if (k > j1)
+                    {
+                        d5 = (double)j1 + 1.0D;
+                    }
+                    else if (k < j1)
+                    {
+                        d5 = (double)j1 + 0.0D;
+                    }
+                    else
+                    {
+                        flag6 = false;
+                    }
+
+                    double d6 = 999.0D;
+                    double d7 = 999.0D;
+                    double d8 = 999.0D;
+                    double d9 = end.x - d0;
+                    double d10 = end.y - d1;
+                    double d11 = end.z - d2;
+
+                    if (flag4)
+                    {
+                        d6 = (d3 - d0) / d9;
+                    }
+
+                    if (flag5)
+                    {
+                        d7 = (d4 - d1) / d10;
+                    }
+
+                    if (flag6)
+                    {
+                        d8 = (d5 - d2) / d11;
+                    }
+
+                    if (d6 == -0.0D)
+                    {
+                        d6 = -1.0E-4D;
+                    }
+
+                    if (d7 == -0.0D)
+                    {
+                        d7 = -1.0E-4D;
+                    }
+
+                    if (d8 == -0.0D)
+                    {
+                        d8 = -1.0E-4D;
+                    }
+
+                    EnumFacing enumfacing;
+
+                    if (d6 < d7 && d6 < d8)
+                    {
+                        enumfacing = i > l ? EnumFacing.WEST : EnumFacing.EAST;
+                        d0 = d3;
+                        d1 += d10 * d6;
+                        d2 += d11 * d6;
+                    }
+                    else if (d7 < d8)
+                    {
+                        enumfacing = j > i1 ? EnumFacing.DOWN : EnumFacing.UP;
+                        d0 += d9 * d7;
+                        d1 = d4;
+                        d2 += d11 * d7;
+                    }
+                    else
+                    {
+                        enumfacing = k > j1 ? EnumFacing.NORTH : EnumFacing.SOUTH;
+                        d0 += d9 * d8;
+                        d1 += d10 * d8;
+                        d2 = d5;
+                    }
+
+                    l = MathHelper.floor(d0) - (enumfacing == EnumFacing.EAST ? 1 : 0);
+                    i1 = MathHelper.floor(d1) - (enumfacing == EnumFacing.UP ? 1 : 0);
+                    j1 = MathHelper.floor(d2) - (enumfacing == EnumFacing.SOUTH ? 1 : 0);
+                    blockpos = new BlockPos(l, i1, j1);
+                    IBlockState iblockstate1 = w.getBlockState(blockpos);
+                    IFluidState ifluidstate1 = w.getFluidState(blockpos);
+
+                    if (!ignoreUncollidable || iblockstate1.getMaterial() == Material.PORTAL || !iblockstate1.getCollisionShape(w, blockpos).isEmpty())
+                    {
+                        boolean flag2 = iblockstate1.getBlock().isCollidable(iblockstate1);
+                        boolean flag3 = fluidMode.predicate.test(ifluidstate1);
+
+                        if (!flag2 && !flag3)
+                        {
+                            raytraceresult2 = new RayTraceResult(RayTraceResult.Type.MISS, new Vec3d(d0, d1, d2), enumfacing, blockpos);
+                        }
+                        else
+                        {
+                            RayTraceResult raytraceresult1 = null;
+
+                            if (flag2)
+                            {
+                                raytraceresult1 = Block.collisionRayTrace(iblockstate1, w, blockpos, start, end);
+                            }
+
+                            if (raytraceresult1 == null && flag3)
+                            {
+                                raytraceresult1 = ShapeUtils.create(0.0D, 0.0D, 0.0D, 1.0D, (double)ifluidstate1.getHeight(), 1.0D).func_502194_a(start, end, blockpos);
+                            }
+
+                            if (raytraceresult1 != null)
+                            {
+                                return raytraceresult1;
+                            }
+                        }
+                    }
+                }
+
+                return returnMissInsteadOfNull ? raytraceresult2 : null;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        else
+        {
+            return null;
+        }
+    }
+    
 //    private RayTraceResult tpRaytrace(World w, Vec3d vec31, Vec3d vec32, boolean stopOnLiquid, boolean ignoreBlockWithoutBoundingBox, boolean returnLastUncollidableBlock)
 //    {
 //        if (!Double.isNaN(vec31.x) && !Double.isNaN(vec31.y) && !Double.isNaN(vec31.z))
@@ -659,7 +885,7 @@ public class TeleportTracker extends Tracker{
     	IBlockState testClimb = player.world.getBlockState(bp);
     	
     	
-    	if (testClimb.getBlock() == Blocks.WATER){
+    	if (!mc.world.getFluidState(bp).isEmpty()){
     		Vec3d hitVec = new Vec3d(collision.hitVec.x, bp.getY(), collision.hitVec.z );
 
     		Vec3d offset = hitVec.subtract(player.posX, player.getEntityBoundingBox().minY, player.posZ);

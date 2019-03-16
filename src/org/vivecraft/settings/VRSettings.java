@@ -785,12 +785,12 @@ public class VRSettings
                     	if (!optionTokens[1].equals("none")) {
                     		String[] split = optionTokens[1].split(",");
                     		for (int i = 0; i < split.length; i++) {
-                    		    if (split[i].equals("&")) {
-                    		        vb.and = true;
-                    		        continue;
-                                }
-
                     			try {
+                                    if (split[i].startsWith("mods_")) {
+                                        vb.modifiers = Integer.parseInt(split[i].substring(split[i].indexOf('_') + 1));
+                                        continue;
+                                    }
+
                     				vb.buttons.add(ButtonTuple.parse(split[i]));
                             	} catch (IllegalArgumentException ex) {
                             		System.out.println("Ignoring invalid button: " + split[i]);

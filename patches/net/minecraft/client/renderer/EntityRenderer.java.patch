@@ -408,7 +408,7 @@
 +		else
 +		{
 +			float clip = isClouds ? clipDistance * 4 : clipDistance;
-+			if (mc.currentPass == RenderPass.THIRD) {
++			if (mc.currentPass == RenderPass.THIRD && this.mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_MIXED_REALITY) {
 +				GlStateManager.multMatrixf(Matrix4f.perspective(this.mc.vrSettings.mixedRealityFov, this.mc.vrSettings.mixedRealityAspectRatio , minClipDistance, clip));
 +				GL11.glGetFloatv(GL11.GL_PROJECTION_MATRIX, matrixBuffer);
 +				matrixBuffer.rewind();
@@ -1382,7 +1382,7 @@
 +  				if(i > 1) i = 0;
 +  				GL11.glMultMatrixf(mc.stereoProvider.cloudeyeproj[i]);
 +  			}
-+  			else if (mc.currentPass == RenderPass.THIRD) {
++  			else if (mc.currentPass == RenderPass.THIRD && this.mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_MIXED_REALITY) {
 +  				GlStateManager.multMatrixf(Matrix4f.perspective(this.mc.vrSettings.mixedRealityFov, this.mc.vrSettings.mixedRealityAspectRatio, minClipDistance, clipDistance * 4));
 +  			} else {
 +  				GlStateManager.multMatrixf(Matrix4f.perspective((float)this.mc.gameSettings.fovSetting, (float)this.mc.mainWindow.getWidth() / (float)this.mc.mainWindow.getHeight(), minClipDistance, clipDistance * 4));
@@ -1502,7 +1502,7 @@
 +            if(i > 1) i = 0;
 +            GL11.glMultMatrixf(mc.stereoProvider.cloudeyeproj[i]);
 +        }
-+        else if (mc.currentPass == RenderPass.THIRD) {
++        else if (mc.currentPass == RenderPass.THIRD && this.mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_MIXED_REALITY) {
 +            GlStateManager.multMatrixf(Matrix4f.perspective(this.mc.vrSettings.mixedRealityFov, this.mc.vrSettings.mixedRealityAspectRatio, minClipDistance, clipDistance * 4));
 +        } else {
 +            GlStateManager.multMatrixf(Matrix4f.perspective((float)this.mc.gameSettings.fovSetting, (float)this.mc.mainWindow.getWidth() / (float)this.mc.mainWindow.getHeight(), minClipDistance, clipDistance * 4));
@@ -1552,7 +1552,7 @@
 +  			if(i > 1) i = 0;
 +  			GL11.glMultMatrixf(mc.stereoProvider.cloudeyeproj[i]);
 +  		}
-+  		else if (mc.currentPass == RenderPass.THIRD) {
++  		else if (mc.currentPass == RenderPass.THIRD && this.mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_MIXED_REALITY) {
 +			GlStateManager.multMatrixf(Matrix4f.perspective(this.mc.vrSettings.mixedRealityFov, this.mc.vrSettings.mixedRealityAspectRatio , minClipDistance, clipDistance*4));
 +  		} else {
 +  			GlStateManager.multMatrixf(Matrix4f.perspective((float)this.mc.gameSettings.fovSetting, (float)this.mc.mainWindow.getWidth() / (float) this.mc.mainWindow.getHeight(), minClipDistance, clipDistance * 4));
@@ -2120,7 +2120,7 @@
 +  				if(i>1) i = 0;
 +  				GL11.glMultMatrixf(mc.stereoProvider.eyeproj[i]);
 +  			} else {
-+  				if (mc.currentPass == RenderPass.THIRD) {
++  				if (mc.currentPass == RenderPass.THIRD && this.mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_MIXED_REALITY) {
 +  					GlStateManager.multMatrixf(Matrix4f.perspective(this.mc.vrSettings.mixedRealityFov, this.mc.vrSettings.mixedRealityAspectRatio, minClipDistance, clipDistance));
 +  				} else {
 +  					GlStateManager.multMatrixf(Matrix4f.perspective((float)this.mc.gameSettings.fovSetting, (float)this.mc.mainWindow.getWidth() / (float) this.mc.mainWindow.getHeight(), minClipDistance, clipDistance));
