@@ -19,8 +19,8 @@
  import net.minecraft.world.World;
 +import net.optifine.http.FileDownloadThread;
  import net.optifine.player.CapeUtils;
- import net.optifine.player.PlayerCape;
- import net.optifine.player.PlayerConfiguration;
+ import net.optifine.player.PlayerConfigurations;
+ import net.optifine.reflect.Reflector;
 @@ -51,6 +56,11 @@
  
          CapeUtils.downloadCape(this);

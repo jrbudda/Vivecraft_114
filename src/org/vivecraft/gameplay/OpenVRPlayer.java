@@ -112,6 +112,24 @@ public class OpenVRPlayer
 
 	public void preTick(){
 		
+		//adjust world scale
+		if (mc.world == null || mc.currentScreen instanceof GuiWinGame) 
+			this.worldScale = 1.0f;
+		else if (this.wfCount > 0 && !mc.isGamePaused()) {
+			if(this.wfCount < 40){
+				this.worldScale-=this.wfMode / 2;
+				if(this.worldScale >  mc.vrSettings.vrWorldScale && this.wfMode <0) this.worldScale = mc.vrSettings.vrWorldScale;
+				if(this.worldScale <  mc.vrSettings.vrWorldScale && this.wfMode >0) this.worldScale = mc.vrSettings.vrWorldScale;
+			} else {
+				this.worldScale+=this.wfMode / 2;
+				if(this.worldScale >  mc.vrSettings.vrWorldScale*20) this.worldScale = 20;
+				if(this.worldScale <  mc.vrSettings.vrWorldScale/10) this.worldScale = 0.1f;				
+			}
+			this.wfCount--;
+		} else {
+			this.worldScale = mc.vrSettings.vrWorldScale;
+		}
+		
 		this.vrdata_world_pre = new VRData(this.roomOrigin, mc.vrSettings.walkMultiplier, worldScale, (float) Math.toRadians(mc.vrSettings.vrWorldRotation));
 
 		if(mc.vrSettings.seated && !mc.entityRenderer.isInMenuRoom())
@@ -285,23 +303,6 @@ public class OpenVRPlayer
 			initdone =true;
 		}
 
-		//adjust world scale
-		if (mc.world == null || mc.currentScreen instanceof GuiWinGame) 
-			this.worldScale = 1.0f;
-		else if (this.wfCount > 0 && !mc.isGamePaused()) {
-			if(this.wfCount < 40){
-				this.worldScale-=this.wfMode / 2;
-				if(this.worldScale >  mc.vrSettings.vrWorldScale && this.wfMode <0) this.worldScale = mc.vrSettings.vrWorldScale;
-				if(this.worldScale <  mc.vrSettings.vrWorldScale && this.wfMode >0) this.worldScale = mc.vrSettings.vrWorldScale;
-			} else {
-				this.worldScale+=this.wfMode / 2;
-				if(this.worldScale >  mc.vrSettings.vrWorldScale*20) this.worldScale = 20;
-				if(this.worldScale <  mc.vrSettings.vrWorldScale/10) this.worldScale = 0.1f;				
-			}
-			this.wfCount--;
-		} else {
-			this.worldScale = mc.vrSettings.vrWorldScale;
-		}
 		
 		AutoCalibration.logHeadPos(MCOpenVR.hmdPivotHistory.latest());
 

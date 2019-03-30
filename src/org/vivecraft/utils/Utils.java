@@ -305,15 +305,15 @@ public class Utils
 	}
 
 	public static byte[] loadAsset(String name, boolean required) {
-		InputStream is = VRShaders.class.getResourceAsStream("/assets/minecraft/vivecraft/" + name);
+		InputStream is = VRShaders.class.getResourceAsStream("/assets/vivecraft/" + name);
 		byte[] out = new byte[0];
 		try {
 			if (is == null) {
 				//uhh debugging?
 				Path dir = Paths.get(System.getProperty("user.dir")); // ../mcpxxx/jars/
-				Path p5 = dir.getParent().resolve("src/resources/assets/minecraft/vivecraft/" + name);
+				Path p5 = dir.getParent().resolve("src/resources/assets/vivecraft/" + name);
 				if (!p5.toFile().exists()) {
-					p5 = dir.getParent().getParent().resolve("resources/assets/minecraft/vivecraft/" + name);
+					p5 = dir.getParent().getParent().resolve("resources/assets/vivecraft/" + name);
 				}
 				if (p5.toFile().exists()) {
 					is = new FileInputStream(p5.toFile());

@@ -328,7 +328,7 @@ public class PhysicalKeyboard {
 			GlStateManager.Color color = key.getRenderColor();
 
 			// Shaders goes crazy without this
-			mc.getTextureManager().bindTexture(new ResourceLocation("vivecraft/textures/white.png"));
+			mc.getTextureManager().bindTexture(new ResourceLocation("vivecraft:textures/white.png"));
 
 			// Alright let's draw a box
 			BufferBuilder buf = tess.getBuffer();

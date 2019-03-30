@@ -38,9 +38,9 @@ public class ModelPlayerVR extends ModelBiped
 
     //VIVE START
     public Vec3d renderPos;
-    ResourceLocation DIAMOND_HMD = new ResourceLocation("vivecraft/textures/diamond_hmd.png");
-    ResourceLocation GOLD_HMD = new ResourceLocation("vivecraft/textures/gold_hmd.png");
-    ResourceLocation BLACK_HMD = new ResourceLocation("vivecraft/textures/black_hmd.png");
+    ResourceLocation DIAMOND_HMD = new ResourceLocation("vivecraft:textures/diamond_hmd.png");
+    ResourceLocation GOLD_HMD = new ResourceLocation("vivecraft:textures/gold_hmd.png");
+    ResourceLocation BLACK_HMD = new ResourceLocation("vivecraft:textures/black_hmd.png");
     //VIVE END
     
    public  LayerBipedArmorVR armor = null;
