@@ -8,7 +8,7 @@
  import net.minecraft.entity.Entity;
  import net.minecraft.entity.EntityLivingBase;
  import net.minecraft.entity.EntityType;
-@@ -922,41 +923,115 @@
+@@ -922,41 +923,117 @@
  
      private void controlBoat()
      {
@@ -50,15 +50,19 @@
 +    	if (this.isBeingRidden())
 +    	{
 +    		float f = 0.0F;
-+
++    		
++    		//Vivecraft
++    		Minecraft mc = Minecraft.getMinecraft();
++    		float strafe = mc.player.movementInput.moveStrafe;
++    		
 +    		if (this.leftInputDown)
 +    		{
-+    			this.deltaRotation += -1.0F;
++    			this.deltaRotation -= strafe;
 +    		}
 +
 +    		if (this.rightInputDown)
 +    		{
-+    			++this.deltaRotation;
++    			this.deltaRotation -= strafe;
 +    		}
 +
 +    		if (this.rightInputDown != this.leftInputDown && !this.forwardInputDown && !this.backInputDown)
@@ -78,8 +82,6 @@
 +    			f -= 0.005F;
 +    		}
 +
-+    		//Vivecraft
-+    		Minecraft mc = Minecraft.getMinecraft();
 +
 +    		if(this.forwardInputDown && !mc.vrSettings.seated){
 +    			//controller-based

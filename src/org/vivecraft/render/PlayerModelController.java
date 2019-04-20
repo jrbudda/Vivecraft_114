@@ -245,6 +245,14 @@ public class PlayerModelController {
 		UUID playerId = player.getGameProfile().getId();
 		if (mc.player.getUniqueID().equals(playerId)) {
 			VRData data=Minecraft.getMinecraft().vrPlayer.vrdata_world_render;
+			return getMainPlayerRotInfo(data);
+			
+		} else {
+			return PlayerModelController.getInstance().getRotationsForPlayer(playerId);
+		}
+	}
+	
+	public static RotInfo getMainPlayerRotInfo(VRData data){
 			RotInfo rotInfo=new RotInfo();
 
 			Quaternion quatLeft=new Quaternion(data.getController(1).getMatrix());
@@ -254,17 +262,13 @@ public class PlayerModelController {
 			rotInfo.headQuat=quatHmd;
 			rotInfo.leftArmQuat=quatLeft;
 			rotInfo.rightArmQuat=quatRight;
-			rotInfo.seated=mc.vrSettings.seated;
+			rotInfo.seated=Minecraft.getMinecraft().vrSettings.seated;
 
 			rotInfo.leftArmPos = data.getController(1).getPosition();
 			rotInfo.rightArmPos = data.getController(0).getPosition();
 			rotInfo.Headpos = data.hmd.getPosition(); 
 
 			return rotInfo;
-
-		} else {
-			return PlayerModelController.getInstance().getRotationsForPlayer(playerId);
-		}
 	}
 
 	public boolean debug = false;
@@ -274,4 +278,48 @@ public class PlayerModelController {
 		if(debug) return true;
 		return vivePlayers.containsKey(uuid);
 	}
+	
+	
+	/**
+	 * @return the yaw of the direction the head is oriented in, no matter their pitch
+	 * Is not the same as the hmd yaw. Creates better results at extreme pitches
+	 * Simplified: Takes hmd-forward when looking at horizon, takes hmd-up when looking at ground.
+	 * */
+	public static float getFacingYaw(RotInfo rotInfo){
+		Vec3d facingVec=getOrientVec(rotInfo.headQuat);
+		float yaw=(float)Math.toDegrees( Math.atan2(facingVec.x,facingVec.z));
+		return yaw;
+	}
+	
+	public static Vec3d getOrientVec(Quaternion quat){
+		Vec3d facingPlaneNormal=quat.multiply(new Vec3d(0,0,-1))
+				.crossProduct(quat.multiply(new Vec3d(0,1,0))).normalize();
+		return new Vec3d(0,1,0).crossProduct(facingPlaneNormal).normalize();
+	}
+	
+	
+	public static float getBodyYaw(RotInfo rotInfo){
+		
+		if(rotInfo.seated)
+			return rotInfo.headQuat.toEuler().getYaw();
+		
+		Vec3d leftCDir=getOrientVec(rotInfo.leftArmQuat);
+		Vec3d rightCDir=getOrientVec(rotInfo.rightArmQuat);
+		
+		Vec3d hmdDir=getOrientVec(rotInfo.headQuat);
+		
+		Vec3d dirVec=leftCDir.add(leftCDir).add(rightCDir).add(hmdDir);
+		
+		return (float)Math.toDegrees( Math.atan2(dirVec.x,dirVec.z));
+		
+		
+		/*Vec3d v = (c1.getPosition().subtract(c0.getPosition())).normalize().rotateYaw((float) (-Math.PI/2));
+		
+		if(Minecraft.getMinecraft().vrSettings.vrReverseHands)
+			return(float) Math.toDegrees(Math.atan2(v.x, -v.z));
+		else
+			return(float) Math.toDegrees(Math.atan2(-v.x, v.z));*/
+		
+	}
+	
 }

@@ -7,11 +7,11 @@ import org.vivecraft.api.VRData.VRDevicePose;
 import org.vivecraft.control.VRButtonMapping;
 import org.vivecraft.provider.MCOpenVR;
 import org.vivecraft.utils.InputSimulator;
+import org.vivecraft.utils.OpenVRUtil;
 
 import de.fruitfly.ovr.structs.Matrix4f;
 import de.fruitfly.ovr.structs.Quatf;
 import de.fruitfly.ovr.structs.Vector3f;
-import jopenvr.OpenVRUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.GuiEnchantment;

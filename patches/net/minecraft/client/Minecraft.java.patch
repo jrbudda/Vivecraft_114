@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/Minecraft.java
 +++ b/net/minecraft/client/Minecraft.java
-@@ -13,36 +13,76 @@
+@@ -13,36 +13,74 @@
  import com.mojang.authlib.properties.PropertyMap;
  import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
  import com.mojang.datafixers.DataFixer;
@@ -20,18 +20,13 @@
  import java.text.DecimalFormat;
  import java.text.DecimalFormatSymbols;
  import java.text.SimpleDateFormat;
-+import java.util.ArrayDeque;
-+import java.util.Arrays;
- import java.util.Collections;
- import java.util.Date;
-+import java.util.Deque;
-+import java.util.Iterator;
-+import java.util.LinkedList;
- import java.util.List;
- import java.util.Locale;
- import java.util.Queue;
-+import java.util.Random;
- import java.util.UUID;
+-import java.util.Collections;
+-import java.util.Date;
+-import java.util.List;
+-import java.util.Locale;
+-import java.util.Queue;
+-import java.util.UUID;
++import java.util.*;
  import java.util.concurrent.Callable;
  import java.util.concurrent.Executors;
  import java.util.concurrent.FutureTask;
@@ -45,6 +40,17 @@
  import java.util.stream.Collectors;
  import javax.annotation.Nullable;
 +
++import net.minecraft.block.state.BlockState;
++import net.minecraft.client.renderer.block.model.ModelBakery;
++import net.minecraft.client.renderer.block.model.ModelResourceLocation;
++import net.minecraft.init.Blocks;
++import net.minecraft.state.AbstractProperty;
++import net.minecraft.state.EnumProperty;
++import net.minecraft.state.StateContainer;
++import net.minecraft.util.*;
++import net.minecraft.util.Timer;
++import net.optifine.CustomItems;
++import net.optifine.util.TextureUtils;
 +import org.apache.commons.lang3.Validate;
 +import org.apache.logging.log4j.LogManager;
 +import org.apache.logging.log4j.Logger;
@@ -59,6 +65,7 @@
 +import org.vivecraft.gameplay.screenhandlers.KeyboardHandler;
 +import org.vivecraft.gameplay.screenhandlers.RadialHandler;
 +import org.vivecraft.gameplay.trackers.*;
++import org.vivecraft.gui.physical.PhysicalGuiManager;
 +import org.vivecraft.provider.MCOpenVR;
 +import org.vivecraft.provider.OpenVRStereoRenderer;
 +import org.vivecraft.render.MenuWorldRenderer;
@@ -69,10 +76,7 @@
 +import org.vivecraft.settings.VRHotkeys;
 +import org.vivecraft.settings.VRSettings;
 +import org.vivecraft.settings.VRSettings.VrOptions;
-+import org.vivecraft.utils.MCReflection;
-+import org.vivecraft.utils.MenuWorldDownloader;
-+import org.vivecraft.utils.MenuWorldExporter;
-+import org.vivecraft.utils.Utils;
++import org.vivecraft.utils.*;
 +import org.vivecraft.utils.lwjgl.Matrix4f;
 +
  import net.minecraft.block.Block;
@@ -83,7 +87,7 @@
  import net.minecraft.client.entity.EntityPlayerSP;
  import net.minecraft.client.gui.FontRenderer;
  import net.minecraft.client.gui.GuiChat;
-@@ -79,6 +119,7 @@
+@@ -79,6 +117,7 @@
  import net.minecraft.client.renderer.BufferBuilder;
  import net.minecraft.client.renderer.EntityRenderer;
  import net.minecraft.client.renderer.FirstPersonRenderer;
@@ -91,7 +95,7 @@
  import net.minecraft.client.renderer.GlDebugTextUtils;
  import net.minecraft.client.renderer.GlStateManager;
  import net.minecraft.client.renderer.ItemRenderer;
-@@ -115,7 +156,6 @@
+@@ -115,7 +154,6 @@
  import net.minecraft.client.util.SearchTreeManager;
  import net.minecraft.crash.CrashReport;
  import net.minecraft.crash.CrashReportCategory;
@@ -99,7 +103,7 @@
  import net.minecraft.crash.ReportedException;
  import net.minecraft.entity.Entity;
  import net.minecraft.entity.EntityLeashKnot;
-@@ -158,6 +198,7 @@
+@@ -158,25 +196,15 @@
  import net.minecraft.server.MinecraftServer;
  import net.minecraft.server.integrated.IntegratedServer;
  import net.minecraft.server.management.PlayerProfileCache;
@@ -107,15 +111,19 @@
  import net.minecraft.stats.StatisticsManager;
  import net.minecraft.tileentity.TileEntity;
  import net.minecraft.tileentity.TileEntitySkull;
-@@ -170,6 +211,7 @@
- import net.minecraft.util.MovementInputFromOptions;
- import net.minecraft.util.NonNullList;
- import net.minecraft.util.ResourceLocation;
-+import net.minecraft.util.ScreenShotHelper;
- import net.minecraft.util.Session;
- import net.minecraft.util.Timer;
- import net.minecraft.util.Util;
-@@ -177,6 +219,7 @@
+-import net.minecraft.util.DefaultUncaughtExceptionHandler;
+-import net.minecraft.util.EnumActionResult;
+-import net.minecraft.util.EnumFacing;
+-import net.minecraft.util.EnumHand;
+-import net.minecraft.util.FrameTimer;
+-import net.minecraft.util.IThreadListener;
+-import net.minecraft.util.MovementInputFromOptions;
+-import net.minecraft.util.NonNullList;
+-import net.minecraft.util.ResourceLocation;
+-import net.minecraft.util.Session;
+-import net.minecraft.util.Timer;
+-import net.minecraft.util.Util;
+ import net.minecraft.util.datafix.DataFixesManager;
  import net.minecraft.util.math.BlockPos;
  import net.minecraft.util.math.MathHelper;
  import net.minecraft.util.math.RayTraceResult;
@@ -123,7 +131,7 @@
  import net.minecraft.util.registry.IRegistry;
  import net.minecraft.util.text.ITextComponent;
  import net.minecraft.util.text.TextComponentKeybind;
-@@ -193,16 +236,87 @@
+@@ -193,16 +221,91 @@
  import net.minecraft.world.storage.ISaveFormat;
  import net.minecraft.world.storage.ISaveHandler;
  import net.minecraft.world.storage.WorldInfo;
@@ -155,6 +163,10 @@
 +	public SwingTracker swingTracker = new SwingTracker(this);
 +	public HorseTracker horseTracker = new HorseTracker(this);
 +	public VehicleTracker vehicleTracker = new VehicleTracker(this);
++	public PhysicalGuiManager physicalGuiManager=new PhysicalGuiManager(this);
++	
++	
++	public ThreadGroup backgroundThreadGroup= new ThreadGroup("background");
 +	// VIVE END - teleport movement
 +	
 +	/** MINECRIFT */
@@ -215,7 +227,7 @@
      private static final Logger LOGGER = LogManager.getLogger();
      public static final boolean IS_RUNNING_ON_MAC = Util.getOSType() == Util.EnumOS.OSX;
      public static final ResourceLocation DEFAULT_FONT_RENDERER_NAME = new ResourceLocation("default");
-@@ -239,7 +353,7 @@
+@@ -239,7 +342,7 @@
  
      /** True if the player is connected to a realms server */
      private boolean connectedToRealms;
@@ -224,7 +236,7 @@
  
      /** Instance of PlayerUsageSnooper. */
      private final Snooper snooper = new Snooper("client", this, Util.milliTime());
-@@ -338,7 +452,7 @@
+@@ -338,7 +441,7 @@
      private LanguageManager languageManager;
      private BlockColors blockColors;
      private ItemColors itemColors;
@@ -233,7 +245,17 @@
      private TextureMap textureMap;
      private SoundHandler soundHandler;
      private MusicTicker musicTicker;
-@@ -353,7 +467,7 @@
+@@ -347,13 +450,16 @@
+     private SkinManager skinManager;
+     private final Queue < FutureTask<? >> scheduledTasks = Queues. < FutureTask<? >> newConcurrentLinkedQueue();
+     private final Thread thread = Thread.currentThread();
+-    private ModelManager modelManager;
++    public ModelManager modelManager;
++	
++	public static String[] customModels=new String[]{ "vivecraft:bag", "vivecraft:trashbin", "vivecraft:mini_crafting" };
++	public static String[] customTextures=new String[] {"vivecraft:textures/blocks/inv_button.png"};
+ 
+     /**
       * The BlockRenderDispatcher instance that will be used based off gamesettings
       */
      private BlockRendererDispatcher blockRenderDispatcher;
@@ -242,17 +264,18 @@
  
      /**
       * Set to true to keep the game loop running. Set to false by shutdown() to allow the game loop to exit cleanly.
-@@ -379,6 +493,9 @@
+@@ -379,6 +485,10 @@
      {
          this.displayInfo = gameConfig.displayInfo;
          instance = this;
++		//IdeDebugHelper.init();
 +        //Vivecraft
 +        loadClassPath();
 +        //
          this.gameDir = gameConfig.folderInfo.gameDir;
          this.fileAssets = gameConfig.folderInfo.assetsDir;
          this.fileResourcepacks = gameConfig.folderInfo.resourcePacksDir;
-@@ -409,7 +526,7 @@
+@@ -409,7 +519,7 @@
          this.sessionService = (new YggdrasilAuthenticationService(this.proxy, UUID.randomUUID().toString())).createMinecraftSessionService();
          this.session = gameConfig.userInfo.session;
          LOGGER.info("Setting user: {}", (Object)this.session.getUsername());
@@ -261,7 +284,7 @@
          this.isDemo = gameConfig.gameInfo.isDemo;
          this.jvm64bit = isJvm64bit();
          this.integratedServer = null;
-@@ -425,6 +542,15 @@
+@@ -425,6 +535,15 @@
          this.dataFixer = DataFixesManager.getDataFixer();
          this.toastGui = new GuiToast(this);
          this.tutorial = new Tutorial(this);
@@ -277,7 +300,7 @@
      }
  
      public void run()
-@@ -512,10 +638,14 @@
+@@ -512,10 +631,14 @@
          this.checkForGLFWInitError();
          this.virtualScreen = new VirtualScreen(this);
          this.mainWindow = this.virtualScreen.createMainWindow(gameconfiguration$displayinformation, this.gameSettings.fullscreenResolution);
@@ -294,7 +317,7 @@
          this.resourceManager = new SimpleReloadableResourceManager(ResourcePackType.CLIENT_RESOURCES);
          this.languageManager = new LanguageManager(this.gameSettings.language);
          this.resourceManager.addReloadListener(this.languageManager);
-@@ -540,6 +670,15 @@
+@@ -540,6 +663,15 @@
              this.fontRenderer.setBidiFlag(this.languageManager.isCurrentLanguageBidirectional());
          }
  
@@ -310,7 +333,19 @@
          this.resourceManager.addReloadListener(new GrassColorReloadListener());
          this.resourceManager.addReloadListener(new FoliageColorReloadListener());
          this.mainWindow.setRenderPhase("Startup");
-@@ -580,6 +719,36 @@
+@@ -560,7 +692,10 @@
+         this.textureManager.loadTickableTexture(TextureMap.LOCATION_BLOCKS_TEXTURE, this.textureMap);
+         this.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+         this.textureMap.setBlurMipmapDirect(false, this.gameSettings.mipmapLevels > 0);
+-        this.modelManager = new ModelManager(this.textureMap);
++        
++		registerCustomResources();
++		this.modelManager = new ModelManager(textureMap);
++		
+         this.resourceManager.addReloadListener(this.modelManager);
+         this.blockColors = BlockColors.init();
+         this.itemColors = ItemColors.init(this.blockColors);
+@@ -580,6 +715,36 @@
          this.effectRenderer = new ParticleManager(this.world, this.textureManager);
          this.ingameGUI = new GuiIngame(this);
  
@@ -347,7 +382,7 @@
          if (this.serverName != null)
          {
              this.displayGuiScreen(new GuiConnecting(new GuiMainMenu(), this, this.serverName, this.serverPort));
-@@ -599,7 +768,15 @@
+@@ -599,7 +764,15 @@
  
          this.mainWindow.updateVsyncFromGameSettings();
          this.mainWindow.setLogOnGlError();
@@ -364,7 +399,49 @@
      }
  
      private void checkForGLFWInitError()
-@@ -886,6 +1063,10 @@
+@@ -633,7 +806,40 @@
+             GLFW.glfwSetErrorCallback(glfwerrorcallback).free();
+         }
+     }
+-
++	
++	private void registerCustomResources() {
++		
++		ModelBakery.field_209607_C.put(new ResourceLocation("vivecraft:bag"),
++				new StateContainer.Builder<Block, IBlockState>(Blocks.AIR)
++						.add(EnumProperty.create("type",PropertiesBag.class))
++						.create(BlockState::new));
++		
++		ModelBakery.field_209607_C.put(new ResourceLocation("vivecraft:trashbin"),
++				new StateContainer.Builder<Block, IBlockState>(Blocks.AIR)
++						.create(BlockState::new));
++		
++		ModelBakery.field_209607_C.put(new ResourceLocation("vivecraft:mini_crafting"),
++				new StateContainer.Builder<Block, IBlockState>(Blocks.AIR)
++						.create(BlockState::new));
++		
++		
++		//"vivecraft:bag", "vivecraft:trashbin", "vivecraft:mini_crafting"
++		
++		for(String texture: customTextures){
++			LogManager.getLogger().debug("Loading custom texture: "+texture);
++			ResourceLocation loc=new ResourceLocation(texture);
++			getTextureManager().loadTexture(loc, TextureUtils.getTexture(loc));
++		}
++	}
++	
++	enum PropertiesBag implements IStringSerializable { closed, gold, gold_closed, normal;
++		
++		@Override
++		public String getName() {
++			return this.name();
++		}
++	}
++    
+     /**
+      * Fills {@link #searchTreeManager} with the current item and recipe registry contents.
+      */
+@@ -886,6 +1092,10 @@
              this.gameSettings.showDebugInfo = false;
              this.ingameGUI.getChatGUI().clearChatMessages(true);
          }
@@ -375,7 +452,7 @@
  
          this.currentScreen = guiScreenIn;
  
-@@ -932,16 +1113,24 @@
+@@ -932,16 +1142,24 @@
              this.entityRenderer.close();
              this.renderGlobal.close();
              this.soundHandler.unloadSounds();
@@ -407,7 +484,7 @@
          }
  
          System.gc();
-@@ -951,13 +1140,65 @@
+@@ -951,13 +1169,65 @@
      {
          this.mainWindow.setRenderPhase("Pre render");
          long i = Util.nanoTime();
@@ -474,7 +551,7 @@
          if (renderWorldIn)
          {
              this.timer.updateTimer(Util.milliTime());
-@@ -980,46 +1221,205 @@
+@@ -980,46 +1250,205 @@
  
              for (int j = 0; j < Math.min(10, this.timer.elapsedTicks); ++j)
              {
@@ -696,7 +773,7 @@
          this.framebuffer.unbindFramebuffer();
          GlStateManager.popMatrix();
          GlStateManager.pushMatrix();
-@@ -1028,12 +1428,16 @@
+@@ -1028,12 +1457,16 @@
          GlStateManager.pushMatrix();
          this.entityRenderer.renderStreamIndicator(this.timer.renderPartialTicks);
          GlStateManager.popMatrix();
@@ -715,7 +792,7 @@
  
          if (this.isGamePaused != flag)
          {
-@@ -1139,8 +1543,8 @@
+@@ -1139,8 +1572,8 @@
          }
      }
  
@@ -726,7 +803,7 @@
          if (this.profiler.isProfiling())
          {
              List<Profiler.Result> list = this.profiler.getProfilingData(this.debugProfilerName);
-@@ -1149,17 +1553,22 @@
+@@ -1149,17 +1582,22 @@
              GlStateManager.matrixMode(5889);
              GlStateManager.enableColorMaterial();
              GlStateManager.loadIdentity();
@@ -752,7 +829,7 @@
              GlStateManager.enableBlend();
              bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR);
              bufferbuilder.pos((double)((float)j - 176.0F), (double)((float)k - 96.0F - 16.0F), 0.0D).color(200, 0, 0, 0).endVertex();
-@@ -1251,6 +1660,7 @@
+@@ -1251,6 +1689,7 @@
                  this.fontRenderer.drawStringWithShadow(s1, (float)(j + 160 - this.fontRenderer.getStringWidth(s1)), (float)(k + 80 + k2 * 8 + 20), profiler$result2.getColor());
              }
          }
@@ -760,7 +837,7 @@
      }
  
      /**
-@@ -1296,7 +1706,7 @@
+@@ -1296,7 +1735,7 @@
                      this.player.swingArm(EnumHand.MAIN_HAND);
                  }
              }
@@ -769,7 +846,7 @@
              {
                  this.playerController.resetBlockRemoving();
              }
-@@ -1304,8 +1714,8 @@
+@@ -1304,8 +1743,8 @@
      }
  
      private void clickMouse()
@@ -780,17 +857,32 @@
          {
              if (this.objectMouseOver == null)
              {
-@@ -1348,15 +1758,15 @@
+@@ -1321,6 +1760,7 @@
+                 switch (this.objectMouseOver.type)
+                 {
+                     case ENTITY:
++						Minecraft.getMinecraft().physicalGuiManager.preClickAction();
+                         this.playerController.attackEntity(this.player, this.objectMouseOver.entity);
+                         break;
+ 
+@@ -1329,6 +1769,7 @@
+ 
+                         if (!this.world.getBlockState(blockpos).isAir())
+                         {
++							Minecraft.getMinecraft().physicalGuiManager.preClickAction();
+                             this.playerController.clickBlock(blockpos, this.objectMouseOver.sideHit);
+                             break;
+                         }
+@@ -1348,15 +1789,11 @@
      }
  
      @SuppressWarnings("incomplete-switch")
-+	public
- 
-     /**
-      * Called when user clicked he's mouse right button (place)
+-
+-    /**
+-     * Called when user clicked he's mouse right button (place)
 -     */
 -    private void rightClickMouse()
-+     */ void rightClickMouse()
++	public void rightClickMouse()
      {
 -        if (!this.playerController.getIsHittingBlock())
 +        if (!this.playerController.getIsHittingBlock() || vrSettings.seated == false)
@@ -800,7 +892,32 @@
  
              if (!this.player.isRowingBoat())
              {
-@@ -1437,6 +1847,8 @@
+@@ -1374,6 +1811,7 @@
+                         switch (this.objectMouseOver.type)
+                         {
+                             case ENTITY:
++								Minecraft.getMinecraft().physicalGuiManager.preClickAction();
+                                 if (this.playerController.interactWithEntity(this.player, this.objectMouseOver.entity, this.objectMouseOver, enumhand) == EnumActionResult.SUCCESS)
+                                 {
+                                     return;
+@@ -1392,6 +1830,7 @@
+                                 if (!this.world.getBlockState(blockpos).isAir())
+                                 {
+                                     int i = itemstack.getCount();
++									Minecraft.getMinecraft().physicalGuiManager.preClickAction();
+                                     EnumActionResult enumactionresult = this.playerController.processRightClickBlock(this.player, this.world, blockpos, this.objectMouseOver.sideHit, this.objectMouseOver.hitVec, enumhand);
+ 
+                                     if (enumactionresult == EnumActionResult.SUCCESS)
+@@ -1413,7 +1852,7 @@
+                                 }
+                         }
+                     }
+-
++					Minecraft.getMinecraft().physicalGuiManager.preClickAction();
+                     if (!itemstack.isEmpty() && this.playerController.processRightClick(this.player, this.world, enumhand) == EnumActionResult.SUCCESS)
+                     {
+                         this.entityRenderer.itemRenderer.resetEquippedProgress(enumhand);
+@@ -1437,6 +1876,8 @@
       */
      public void runTick()
      {
@@ -809,7 +926,7 @@
          if (this.rightClickDelayTimer > 0)
          {
              --this.rightClickDelayTimer;
-@@ -1450,7 +1862,10 @@
+@@ -1450,7 +1891,10 @@
          }
  
          this.profiler.endSection();
@@ -821,7 +938,7 @@
          this.tutorial.onMouseHover(this.world, this.objectMouseOver);
          this.profiler.startSection("gameMode");
  
-@@ -1461,10 +1876,11 @@
+@@ -1461,10 +1905,11 @@
  
          this.profiler.endStartSection("textures");
  
@@ -836,7 +953,7 @@
  
          if (this.currentScreen == null && this.player != null)
          {
-@@ -1494,7 +1910,13 @@
+@@ -1494,7 +1939,13 @@
                  this.currentScreen.tick();
              }, "Ticking screen", this.currentScreen.getClass().getCanonicalName());
          }
@@ -851,7 +968,7 @@
          if (this.currentScreen == null || this.currentScreen.allowUserInput)
          {
              this.profiler.endStartSection("GLFW events");
-@@ -1506,6 +1928,18 @@
+@@ -1506,6 +1957,18 @@
                  --this.leftClickCounter;
              }
          }
@@ -870,7 +987,7 @@
  
          if (this.world != null)
          {
-@@ -1521,7 +1955,7 @@
+@@ -1521,7 +1984,7 @@
              }
  
              this.profiler.endStartSection("gameRenderer");
@@ -879,7 +996,7 @@
              if (!this.isGamePaused)
              {
                  this.entityRenderer.tick();
-@@ -1550,7 +1984,13 @@
+@@ -1550,7 +2013,13 @@
          {
              this.entityRenderer.stopUseShader();
          }
@@ -894,7 +1011,7 @@
          if (!this.isGamePaused)
          {
              this.musicTicker.tick();
-@@ -1618,6 +2058,13 @@
+@@ -1618,6 +2087,13 @@
      {
          for (; this.gameSettings.keyBindTogglePerspective.isPressed(); this.renderGlobal.setDisplayListEntitiesDirty())
          {
@@ -908,7 +1025,7 @@
              ++this.gameSettings.thirdPersonView;
  
              if (this.gameSettings.thirdPersonView > 2)
-@@ -1633,6 +2080,7 @@
+@@ -1633,6 +2109,7 @@
              {
                  this.entityRenderer.loadEntityShader((Entity)null);
              }
@@ -916,7 +1033,7 @@
          }
  
          while (this.gameSettings.keyBindSmoothCamera.isPressed())
-@@ -1700,22 +2148,34 @@
+@@ -1700,22 +2177,34 @@
  
          if (flag2)
          {
@@ -964,7 +1081,7 @@
              }
  
              label109:
-@@ -1741,13 +2201,23 @@
+@@ -1741,13 +2230,23 @@
                  }
              }
          }
@@ -994,7 +1111,7 @@
              while (this.gameSettings.keyBindUseItem.isPressed())
              {
                  this.rightClickMouse();
-@@ -1764,7 +2234,7 @@
+@@ -1764,7 +2263,7 @@
              this.rightClickMouse();
          }
  
@@ -1003,7 +1120,7 @@
      }
  
      /**
-@@ -1870,6 +2340,10 @@
+@@ -1870,6 +2369,10 @@
       */
      public void loadWorld(@Nullable WorldClient worldClientIn)
      {
@@ -1014,7 +1131,34 @@
          GuiScreenWorking guiscreenworking = new GuiScreenWorking();
  
          if (worldClientIn != null)
-@@ -2726,4 +3200,644 @@
+@@ -1896,6 +2399,8 @@
+             this.entityRenderer.resetData();
+             this.playerController = null;
+             NarratorChatListener.INSTANCE.clear();
++			if(player!=null)
++				physicalGuiManager.reset(player);
+         }
+ 
+         this.musicTicker.stopMusic();
+@@ -1950,6 +2455,8 @@
+                     this.integratedServer.setPlayerUuid(this.player.getUniqueID());
+                 }
+             }
++	
++			physicalGuiManager.init(player);
+ 
+             this.player.preparePlayerToSpawn();
+             worldIn.spawnEntity(this.player);
+@@ -1998,6 +2505,8 @@
+         {
+             this.displayGuiScreen((GuiScreen)null);
+         }
++	
++		physicalGuiManager.init(player);
+     }
+ 
+     /**
+@@ -2726,4 +3235,645 @@
      {
          return this.fontResourceMananger;
      }
@@ -1364,6 +1508,7 @@
 +		vrPlayer.registerTracker(teleportTracker);
 +		vrPlayer.registerTracker(horseTracker);
 +		vrPlayer.registerTracker(vehicleTracker);
++		vrPlayer.registerTracker(physicalGuiManager);
 +
 +		//TODO: init new steroerenderer
 +
@@ -1485,7 +1630,7 @@
 +				if (this.vrSettings.useFsaa)
 +				{
 +					this.profiler.startSection("fsaa");
-+					stereoProvider.doFSAA();
++					stereoProvider.doFSAA(Config.isShaders());
 +					source = stereoProvider.fsaaLastPassResultFBO;
 +					checkGLError("fsaa " + eye);
 +					this.profiler.endSection();

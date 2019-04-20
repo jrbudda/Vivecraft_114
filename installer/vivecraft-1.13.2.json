@@ -20,8 +20,7 @@
 	"order": 6,
 	"libraries": [
 	{
-		"name": "optifine:OptiFine:$OFVERSION",
-		"MMC-hint": "local"
+		"name": "optifine:OptiFine:$OFVERSION"
 	},
 	{
 		"name": "org.ow2.asm:asm-all:5.0.3"
@@ -36,6 +35,53 @@
 	{
 		"url": "http://vivecraft.org/jar/", 
 		"name": "com.sun:jna:4.2.1"
+	}, 
+	{
+		"name": "org.lwjgl:lwjgl-openvr:3.1.6",
+		"downloads": {
+			"artifact": {
+				"path": "org/lwjgl/lwjgl-openvr/3.1.6/lwjgl-openvr-3.1.6.jar",
+				"sha1": "ff23e78b0e0f50e857923e1b630fe6f5490bc45e",
+				"size": 325450,
+				"url": "http://vivecraft.org/jar/org/lwjgl/lwjgl-openvr/3.1.6/lwjgl-openvr-3.1.6.jar"
+			}
+		}
+	},
+	{
+		"name": "org.lwjgl:lwjgl-openvr:3.1.6",
+		"downloads": {
+			"artifact": {
+				"path": "org/lwjgl/lwjgl-openvr/3.1.6/lwjgl-openvr-3.1.6.jar",
+				"sha1": "ff23e78b0e0f50e857923e1b630fe6f5490bc45e",
+				"size": 325450,
+				"url": "http://vivecraft.org/jar/org/lwjgl/lwjgl-openvr/3.1.6/lwjgl-openvr-3.1.6.jar"
+			},
+			"classifiers": {
+				"natives-linux": {
+					"path": "org/lwjgl/lwjgl-openvr/3.1.6/lwjgl-openvr-3.1.6-natives-linux.jar",
+					"sha1": "ea562c3276c0040f64512c8f3b75207d7a04b685",
+					"size": 117411,
+					"url": "http://vivecraft.org/jar/org/lwjgl/lwjgl-openvr/3.1.6/lwjgl-openvr-3.1.6-natives-linux.jar"
+				},
+				"natives-macos": {
+					"path": "org/lwjgl/lwjgl-openvr/3.1.6/lwjgl-openvr-3.1.6-natives-macos.jar",
+					"sha1": "4f304f228625fcfbe3413333293042de6ee81cc2",
+					"size": 91979,
+					"url": "http://vivecraft.org/jar/org/lwjgl/lwjgl-openvr/3.1.6/lwjgl-openvr-3.1.6-natives-macos.jar"
+				},
+				"natives-windows": {
+					"path": "org/lwjgl/lwjgl-openvr/3.1.6/lwjgl-openvr-3.1.6-natives-windows.jar",
+					"sha1": "393ed9c27af2ffe4b4917412a60201b1b9516171",
+					"size": 574851,
+					"url": "http://vivecraft.org/jar/org/lwjgl/lwjgl-openvr/3.1.6/lwjgl-openvr-3.1.6-natives-windows.jar"
+				}
+			}
+		},
+		"natives": {
+			"linux": "natives-linux",
+			"osx": "natives-macos",
+			"windows": "natives-windows"
+		}
 	}, 
 	{
 		"url": "http://vivecraft.org/jar/", 

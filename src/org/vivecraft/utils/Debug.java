@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.debug.DebugRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
 
 public class Debug {
@@ -59,6 +60,7 @@ public class Debug {
 	}
 
 	public void drawPoint(Vec3d point, Color color){
+		point=rotation.multiply(point);
 		Vec3d global=root.add(point);
 		Polygon poly=cross.offset(global);
 		for (int i = 0; i < poly.colors.length; i++) {
@@ -70,7 +72,10 @@ public class Debug {
 
 	public void drawVector(Vec3d start, Vec3d direction, Color color){
 		Polygon poly=new Polygon(2);
-
+		
+		start=rotation.multiply(start);
+		direction=rotation.multiply(direction);
+		
 		poly.vertices[0]=root.add(start);
 		poly.colors[0]=new Color(0,0,0,0);
 
@@ -90,6 +95,9 @@ public class Debug {
 	}
 
 	public void drawLine(Vec3d start, Vec3d end, Color color){
+		start=rotation.multiply(start);
+		end=rotation.multiply(end);
+		
 		Polygon poly=new Polygon(2);
 
 		poly.vertices[0]=root.add(start);
@@ -98,6 +106,54 @@ public class Debug {
 		poly.vertices[1]=root.add(end);
 		poly.colors[1]=color;
 
+		renderer.toDraw.add(poly);
+	}
+	
+	public void drawBoundingBox(AxisAlignedBB box, Color color){
+		Polygon poly=new Polygon(16);
+		Vec3d[] lower=new Vec3d[4];
+		Vec3d[] upper=new Vec3d[4];
+		int index=0;
+		
+		lower[0]=new Vec3d(box.minX,box.minY,box.minZ);
+		lower[1]=new Vec3d(box.minX,box.minY,box.maxZ);
+		lower[2]=new Vec3d(box.maxX,box.minY,box.maxZ);
+		lower[3]=new Vec3d(box.maxX,box.minY,box.minZ);
+		
+		upper[0]=new Vec3d(box.minX,box.maxY,box.minZ);
+		upper[1]=new Vec3d(box.minX,box.maxY,box.maxZ);
+		upper[2]=new Vec3d(box.maxX,box.maxY,box.maxZ);
+		upper[3]=new Vec3d(box.maxX,box.maxY,box.minZ);
+		
+		
+		for (int i = 0; i < 4; i++) {
+			lower[i]=root.add(rotation.multiply(lower[i]));
+			upper[i]=root.add(rotation.multiply(upper[i]));
+		}
+		
+		for (int i = 0; i < 5; i++) {
+			if(i==0)
+				poly.colors[index]=new Color(0,0,0,0);
+			else
+				poly.colors[index]=color;
+			poly.vertices[index]=lower[i%4];
+			index++;
+		}
+		
+		for (int i = 0; i < 5; i++) {
+			poly.colors[index]=color;
+			poly.vertices[index]=upper[i%4];
+			index++;
+		}
+		
+		for (int i = 1; i < 4; i++) {
+			poly.vertices[index]=lower[i];
+			poly.colors[index]=new Color(0,0,0,0);
+			index++;
+			poly.vertices[index]=upper[i];
+			poly.colors[index]=color;
+			index++;
+		}
 		renderer.toDraw.add(poly);
 	}
 

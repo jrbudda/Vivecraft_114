@@ -70,6 +70,13 @@ public class OpenVRPlayer
 		this.vrdata_world_post = new VRData(new Vec3d(0, 0, 0), mc.vrSettings.walkMultiplier, 1, 0);
 		this.vrdata_world_pre = new VRData(new Vec3d(0, 0, 0), mc.vrSettings.walkMultiplier, 1, 0);
 	}
+	
+	public VRData getVRDataWorld(){
+		if(vrdata_world_render!=null)
+			return vrdata_world_render;
+		else
+			return vrdata_world_pre;
+	}
 
 	public float worldScale =  Minecraft.getMinecraft().vrSettings.vrWorldScale;
 	public boolean noTeleportClient = true;

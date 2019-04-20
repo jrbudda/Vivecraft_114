@@ -3,13 +3,13 @@ package org.vivecraft.control;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lwjgl.openvr.VR;
 import org.vivecraft.provider.MCOpenVR;
 import org.vivecraft.utils.Vector2;
 import org.vivecraft.utils.Vector3;
 import org.vivecraft.utils.lwjgl.Vector2f;
 
 import de.fruitfly.ovr.structs.Vector3f;
-import jopenvr.JOpenVRLibrary;
 
 public class TrackedControllerVive extends TrackedController {
 	private TouchpadMode touchpadMode = TouchpadMode.SINGLE;
@@ -22,10 +22,10 @@ public class TrackedControllerVive extends TrackedController {
 	private float swipeAccumX = 0;
 	private float swipeAccumY = 0;
 
-	private static final long k_buttonAppMenu = (1L << JOpenVRLibrary.EVRButtonId.EVRButtonId_k_EButton_ApplicationMenu);
-	private static final long k_buttonGrip =  (1L << JOpenVRLibrary.EVRButtonId.EVRButtonId_k_EButton_Grip);
-	private static final long k_buttonTouchpad = (1L << JOpenVRLibrary.EVRButtonId.EVRButtonId_k_EButton_SteamVR_Touchpad);
-	private static final long k_buttonTrigger = (1L << JOpenVRLibrary.EVRButtonId.EVRButtonId_k_EButton_SteamVR_Trigger);
+	private static final long k_buttonAppMenu = (1L << VR.EVRButtonId_k_EButton_ApplicationMenu);
+	private static final long k_buttonGrip =  (1L << VR.EVRButtonId_k_EButton_Grip);
+	private static final long k_buttonTouchpad = (1L << VR.EVRButtonId_k_EButton_SteamVR_Touchpad);
+	private static final long k_buttonTrigger = (1L << VR.EVRButtonId_k_EButton_SteamVR_Trigger);
 	private static final int k_axisTouchpad = 0;
 	private static final int k_axisTrigger = 1;
 
@@ -42,9 +42,9 @@ public class TrackedControllerVive extends TrackedController {
 	}
 
 	private void updateTouchpadSampleBuffer() {
-		if (state.rAxis[k_axisTouchpad] != null && (state.ulButtonTouched & k_buttonTouchpad) > 0) {
-			touchpadSampleBuffer[touchpadSampleIndex].x = state.rAxis[k_axisTouchpad].x;
-			touchpadSampleBuffer[touchpadSampleIndex].y = state.rAxis[k_axisTouchpad].y;
+		if (state.rAxis(k_axisTouchpad) != null && (state.ulButtonTouched() & k_buttonTouchpad) > 0) {
+			touchpadSampleBuffer[touchpadSampleIndex].x = state.rAxis(k_axisTouchpad).x();
+			touchpadSampleBuffer[touchpadSampleIndex].y = state.rAxis(k_axisTouchpad).y();
 			if (++touchpadSampleIndex >= touchpadSampleBuffer.length) touchpadSampleIndex = 0;
 			touchpadSampleCount++;
 		} else {
@@ -59,25 +59,25 @@ public class TrackedControllerVive extends TrackedController {
 	@Override
 	public void processInput() {
 		// button touch
-		if ((state.ulButtonTouched & k_buttonTouchpad) > 0 && getTouchpadButton() != lastTouchedTouchpadButton && lastTouchedTouchpadButton != null) {
+		if ((state.ulButtonTouched() & k_buttonTouchpad) > 0 && getTouchpadButton() != lastTouchedTouchpadButton && lastTouchedTouchpadButton != null) {
 			MCOpenVR.queueInputEvent(this, lastTouchedTouchpadButton, null, false, false, null);
 			MCOpenVR.queueInputEvent(this, getTouchpadButton(), null, true, false, null);
 			lastTouchedTouchpadButton = getTouchpadButton();
 		}
 
 		// button press
-		if ((state.ulButtonPressed & k_buttonTouchpad) > 0 && getTouchpadButton() != lastPressedTouchpadButton && lastPressedTouchpadButton != null) {
+		if ((state.ulButtonPressed() & k_buttonTouchpad) > 0 && getTouchpadButton() != lastPressedTouchpadButton && lastPressedTouchpadButton != null) {
 			MCOpenVR.queueInputEvent(this, lastPressedTouchpadButton, null, false, true, null);
 			MCOpenVR.queueInputEvent(this, getTouchpadButton(), null, true, true, null);
 			lastPressedTouchpadButton = getTouchpadButton();
 		}
-		if (state.rAxis[k_axisTrigger] != null && (state.rAxis[k_axisTrigger].x > 0.99F) != (lastState.rAxis[k_axisTrigger].x > 0.99F)) {
+		if (state.rAxis(k_axisTrigger) != null && (state.rAxis(k_axisTrigger).x() > 0.99F) != (lastState.rAxis(k_axisTrigger).x() > 0.99F)) {
 			// ulButtonPressed returns true on partial press for some reason, but we want actual click
-			MCOpenVR.queueInputEvent(this, ButtonType.VIVE_TRIGGER_CLICK, null, state.rAxis[k_axisTrigger].x > 0.99F, true, null);
+			MCOpenVR.queueInputEvent(this, ButtonType.VIVE_TRIGGER_CLICK, null, state.rAxis(k_axisTrigger).x() > 0.99F, true, null);
 		}
 		
 		// touchpad swipe "buttons"
-		if (swipeEnabled && touchpadSampleCount >= touchpadSampleBuffer.length && (state.ulButtonPressed & k_buttonTouchpad) == 0) {
+		if (swipeEnabled && touchpadSampleCount >= touchpadSampleBuffer.length && (state.ulButtonPressed() & k_buttonTouchpad) == 0) {
 			float swipeThreshold = 0.5F;
 			int nextSampleIndex = (touchpadSampleIndex + 1) % touchpadSampleBuffer.length;
 			swipeAccumX += touchpadSampleBuffer[nextSampleIndex].x - touchpadSampleBuffer[touchpadSampleIndex].x;
@@ -109,12 +109,12 @@ public class TrackedControllerVive extends TrackedController {
 		}
 
 		// axis change
-		if (state.rAxis[k_axisTouchpad] != null && (state.rAxis[k_axisTouchpad].x != lastState.rAxis[k_axisTouchpad].x || state.rAxis[k_axisTouchpad].y != lastState.rAxis[k_axisTouchpad].y)) {
-			Vector2 deltaVec = new Vector2(state.rAxis[k_axisTouchpad].x - lastState.rAxis[k_axisTouchpad].x, state.rAxis[k_axisTouchpad].y - lastState.rAxis[k_axisTouchpad].y);
+		if (state.rAxis(k_axisTouchpad) != null && (state.rAxis(k_axisTouchpad).x() != lastState.rAxis(k_axisTouchpad).x() || state.rAxis(k_axisTouchpad).y() != lastState.rAxis(k_axisTouchpad).y())) {
+			Vector2 deltaVec = new Vector2(state.rAxis(k_axisTouchpad).x() - lastState.rAxis(k_axisTouchpad).x(), state.rAxis(k_axisTouchpad).y() - lastState.rAxis(k_axisTouchpad).y());
 			MCOpenVR.queueInputEvent(this, null, AxisType.VIVE_TOUCHPAD, false, false, deltaVec);
 		}
-		if (state.rAxis[k_axisTrigger] != null && state.rAxis[k_axisTrigger].x != lastState.rAxis[k_axisTrigger].x) {
-			Vector2 deltaVec = new Vector2(state.rAxis[k_axisTrigger].x - lastState.rAxis[k_axisTrigger].x, 0);
+		if (state.rAxis(k_axisTrigger) != null && state.rAxis(k_axisTrigger).x() != lastState.rAxis(k_axisTrigger).x()) {
+			Vector2 deltaVec = new Vector2(state.rAxis(k_axisTrigger).x() - lastState.rAxis(k_axisTrigger).x(), 0);
 			MCOpenVR.queueInputEvent(this, null, AxisType.VIVE_TRIGGER, false, false, deltaVec);
 		}
 	}
@@ -122,13 +122,13 @@ public class TrackedControllerVive extends TrackedController {
 	@Override
 	public void processButtonEvent(int button, boolean state, boolean press) {
 		switch (button) {
-			case JOpenVRLibrary.EVRButtonId.EVRButtonId_k_EButton_ApplicationMenu:
+			case VR.EVRButtonId_k_EButton_ApplicationMenu:
 				MCOpenVR.queueInputEvent(this, ButtonType.VIVE_APPMENU, null, state, press, null);
 				break;
-			case JOpenVRLibrary.EVRButtonId.EVRButtonId_k_EButton_Grip:
+			case VR.EVRButtonId_k_EButton_Grip:
 				MCOpenVR.queueInputEvent(this, ButtonType.VIVE_GRIP, null, state, press, null);
 				break;
-			case JOpenVRLibrary.EVRButtonId.EVRButtonId_k_EButton_SteamVR_Touchpad:
+			case VR.EVRButtonId_k_EButton_SteamVR_Touchpad:
 				if (press) {
 					if (state) {
 						MCOpenVR.queueInputEvent(this, getTouchpadButton(), null, true, true, null);
@@ -147,7 +147,7 @@ public class TrackedControllerVive extends TrackedController {
 					}
 				}
 				break;
-			case JOpenVRLibrary.EVRButtonId.EVRButtonId_k_EButton_SteamVR_Trigger:
+			case VR.EVRButtonId_k_EButton_SteamVR_Trigger:
 				MCOpenVR.queueInputEvent(this, ButtonType.VIVE_TRIGGER, null, state, press, null);
 				break;
 		}
@@ -314,7 +314,7 @@ public class TrackedControllerVive extends TrackedController {
 	public boolean isButtonTouched(ButtonType button) {
 		switch (button) {
 			case VIVE_TOUCHPAD:
-				return (state.ulButtonTouched & k_buttonTouchpad) > 0;
+				return (state.ulButtonTouched() & k_buttonTouchpad) > 0;
 			case VIVE_TOUCHPAD_U:
 			case VIVE_TOUCHPAD_D:
 			case VIVE_TOUCHPAD_L:
@@ -332,7 +332,7 @@ public class TrackedControllerVive extends TrackedController {
 			case VIVE_TOUCHPAD_S7:
 			case VIVE_TOUCHPAD_S8:
 			case VIVE_TOUCHPAD_C:
-				return (state.ulButtonTouched & k_buttonTouchpad) > 0 && button == getTouchpadButton();
+				return (state.ulButtonTouched() & k_buttonTouchpad) > 0 && button == getTouchpadButton();
 			default:
 				return false;
 		}
@@ -342,15 +342,15 @@ public class TrackedControllerVive extends TrackedController {
 	public boolean isButtonPressed(ButtonType button) {
 		switch (button) {
 			case VIVE_APPMENU:
-				return (state.ulButtonPressed & k_buttonAppMenu) > 0;
+				return (state.ulButtonPressed() & k_buttonAppMenu) > 0;
 			case VIVE_GRIP:
-				return (state.ulButtonPressed & k_buttonGrip) > 0;
+				return (state.ulButtonPressed() & k_buttonGrip) > 0;
 			case VIVE_TOUCHPAD:
-				return (state.ulButtonPressed & k_buttonTouchpad) > 0;
+				return (state.ulButtonPressed() & k_buttonTouchpad) > 0;
 			case VIVE_TRIGGER:
-				return (state.ulButtonPressed & k_buttonTrigger) > 0;
+				return (state.ulButtonPressed() & k_buttonTrigger) > 0;
 			case VIVE_TRIGGER_CLICK:
-				return state.rAxis[k_axisTrigger] != null && state.rAxis[k_axisTrigger].x > 0.99F;
+				return state.rAxis(k_axisTrigger) != null && state.rAxis(k_axisTrigger).x() > 0.99F;
 			case VIVE_TOUCHPAD_U:
 			case VIVE_TOUCHPAD_D:
 			case VIVE_TOUCHPAD_L:
@@ -368,7 +368,7 @@ public class TrackedControllerVive extends TrackedController {
 			case VIVE_TOUCHPAD_S7:
 			case VIVE_TOUCHPAD_S8:
 			case VIVE_TOUCHPAD_C:
-				return (state.ulButtonPressed & k_buttonTouchpad) > 0 && button == getTouchpadButton();
+				return (state.ulButtonPressed() & k_buttonTouchpad) > 0 && button == getTouchpadButton();
 			default:
 				return false;
 		}
@@ -407,12 +407,12 @@ public class TrackedControllerVive extends TrackedController {
 	public Vector2 getAxis(AxisType axis) {
 		switch (axis) {
 			case VIVE_TOUCHPAD:
-				if (state.rAxis[k_axisTouchpad] != null)
-					return new Vector2(state.rAxis[k_axisTouchpad].x, state.rAxis[k_axisTouchpad].y);
+				if (state.rAxis(k_axisTouchpad) != null)
+					return new Vector2(state.rAxis(k_axisTouchpad).x(), state.rAxis(k_axisTouchpad).y());
 				return new Vector2();
 			case VIVE_TRIGGER:
-				if (state.rAxis[k_axisTrigger] != null)
-					return new Vector2(state.rAxis[k_axisTrigger].x, 0);
+				if (state.rAxis(k_axisTrigger) != null)
+					return new Vector2(state.rAxis(k_axisTrigger).x(), 0);
 				return new Vector2();
 			default:
 				return new Vector2();

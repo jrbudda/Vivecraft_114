@@ -1,5 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.layers.LayerArrow;
@@ -25,6 +26,7 @@ import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import org.vivecraft.utils.Quaternion;
 
 public class RenderPlayerVR extends RenderLivingBase<AbstractClientPlayer>
 {
@@ -67,6 +69,14 @@ public class RenderPlayerVR extends RenderLivingBase<AbstractClientPlayer>
             {
                 d0 = y - 0.125D;
             }
+			if(entity.isUser()){
+				Vec3d offset=new Vec3d(0,0,0);
+				float yaw= Minecraft.getMinecraft().vrPlayer.vrdata_world_render.hmd.getYaw();
+				offset=new Quaternion(0,-yaw,0).multiply(offset);
+				x+=offset.x;
+				y+=offset.y;
+				z+=offset.z;
+			}
 
             this.setModelVisibilities(entity);
             GlStateManager.enableBlendProfile(GlStateManager.Profile.PLAYER_SKIN);
@@ -111,6 +121,15 @@ public class RenderPlayerVR extends RenderLivingBase<AbstractClientPlayer>
                 modelplayer.leftArmPose = modelbiped$armpose;
             }
         }
+		if(clientPlayer.isUser()){
+			modelplayer.bipedHead.showModel=false;
+			modelplayer.vrHMD.showModel=false;
+			modelplayer.bipedLeftArm.showModel=false;
+			modelplayer.bipedRightArm.showModel=false;
+			modelplayer.bipedLeftArmwear.showModel=false;
+			modelplayer.bipedRightArmwear.showModel=false;
+			modelplayer.bipedHeadwear.showModel=false;
+		}
     }
 
     /**

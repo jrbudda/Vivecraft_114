@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/entity/EntityPlayerSP.java
 +++ b/net/minecraft/client/entity/EntityPlayerSP.java
-@@ -1,10 +1,24 @@
+@@ -1,10 +1,30 @@
  package net.minecraft.client.entity;
  
  import com.google.common.collect.Lists;
@@ -8,16 +8,22 @@
 +import io.netty.buffer.ByteBuf;
 +import io.netty.buffer.Unpooled;
 +
++import java.util.HashMap;
  import java.util.Iterator;
  import java.util.List;
  import java.util.function.Function;
  import javax.annotation.Nullable;
 +
++import net.minecraft.inventory.ClickType;
++import net.minecraft.network.play.client.*;
++import org.apache.commons.lang3.tuple.Pair;
++import org.apache.logging.log4j.LogManager;
 +import org.vivecraft.api.NetworkHelper;
 +import org.vivecraft.api.NetworkHelper.PacketDiscriminators;
 +import org.vivecraft.gameplay.OpenVRPlayer;
 +import org.vivecraft.provider.MCOpenVR;
 +import org.vivecraft.settings.VRSettings;
++import org.vivecraft.utils.TransactionMutex;
 +import org.vivecraft.utils.jkatvr;
 +
 +import net.minecraft.block.Block;
@@ -25,7 +31,7 @@
  import net.minecraft.block.state.IBlockState;
  import net.minecraft.client.Minecraft;
  import net.minecraft.client.audio.ElytraSound;
-@@ -32,7 +46,9 @@
+@@ -32,7 +52,9 @@
  import net.minecraft.client.gui.inventory.GuiFurnace;
  import net.minecraft.client.gui.inventory.GuiScreenHorseInventory;
  import net.minecraft.client.gui.inventory.GuiShulkerBox;
@@ -35,7 +41,7 @@
  import net.minecraft.client.util.RecipeBookClient;
  import net.minecraft.entity.Entity;
  import net.minecraft.entity.IJumpingMount;
-@@ -42,12 +58,15 @@
+@@ -42,28 +64,21 @@
  import net.minecraft.entity.item.EntityItem;
  import net.minecraft.entity.item.EntityMinecart;
  import net.minecraft.entity.passive.AbstractHorse;
@@ -51,23 +57,24 @@
  import net.minecraft.item.Item;
  import net.minecraft.item.ItemElytra;
  import net.minecraft.item.ItemStack;
-@@ -57,6 +76,7 @@
- import net.minecraft.network.play.client.CPacketChatMessage;
- import net.minecraft.network.play.client.CPacketClientStatus;
- import net.minecraft.network.play.client.CPacketCloseWindow;
-+import net.minecraft.network.play.client.CPacketCustomPayload;
- import net.minecraft.network.play.client.CPacketEntityAction;
- import net.minecraft.network.play.client.CPacketInput;
- import net.minecraft.network.play.client.CPacketPlayer;
-@@ -64,6 +84,7 @@
- import net.minecraft.network.play.client.CPacketPlayerDigging;
- import net.minecraft.network.play.client.CPacketRecipeInfo;
- import net.minecraft.network.play.client.CPacketVehicleMove;
+ import net.minecraft.item.crafting.IRecipe;
+ import net.minecraft.network.datasync.DataParameter;
+-import net.minecraft.network.play.client.CPacketAnimation;
+-import net.minecraft.network.play.client.CPacketChatMessage;
+-import net.minecraft.network.play.client.CPacketClientStatus;
+-import net.minecraft.network.play.client.CPacketCloseWindow;
+-import net.minecraft.network.play.client.CPacketEntityAction;
+-import net.minecraft.network.play.client.CPacketInput;
+-import net.minecraft.network.play.client.CPacketPlayer;
+-import net.minecraft.network.play.client.CPacketPlayerAbilities;
+-import net.minecraft.network.play.client.CPacketPlayerDigging;
+-import net.minecraft.network.play.client.CPacketRecipeInfo;
+-import net.minecraft.network.play.client.CPacketVehicleMove;
 +import net.minecraft.particles.ItemParticleData;
  import net.minecraft.potion.Potion;
  import net.minecraft.potion.PotionEffect;
  import net.minecraft.stats.StatisticsManager;
-@@ -151,6 +172,20 @@
+@@ -151,6 +166,20 @@
       */
      protected int sprintToggleTimer;
  
@@ -88,22 +95,87 @@
      /** Ticks left before sprinting is disabled. */
      public int sprintingTicksLeft;
      public float renderArmYaw;
-@@ -183,12 +218,39 @@
+@@ -183,12 +212,103 @@
          this.dimension = DimensionType.OVERWORLD;
          this.ambientSoundHandlers.add(new UnderwaterAmbientSoundHandler(this, p_i48190_1_.getSoundHandler()));
      }
+-
 +    //VIVE
 +    public void setItemInUseClient(ItemStack item){
 +    	this.activeItemStack = item;
 +    }
- 
++
 +    
 +    public void setItemInUseCountClient(int count){
 +    	this.activeItemStackUseCount = count;
 +    }
 +    
-+    //END VIVECRAFT
 +    
++	
++	HashMap<Pair<Short, Integer>, TransactionMutex> pendingTransactions = new HashMap<>();
++	
++	public boolean windowClickSynced(int windowId, int slotId, int mouseButton, ClickType type, long timeout) {
++		short transactionID = this.openContainer.getNextTransactionID(this.inventory);
++		ItemStack itemstack = this.openContainer.slotClick(slotId, mouseButton, type, this);
++		
++		
++		TransactionMutex mutex = new TransactionMutex();
++		
++		Thread watchdog = new Thread(mc.backgroundThreadGroup,new Runnable() {
++			@Override
++			public void run() {
++				try {
++					Thread.sleep(timeout);
++					
++					synchronized (mutex) {
++						if (mutex.consumed)
++							return;
++						
++						mutex.approved = false;
++						mutex.consumed = true;
++						pendingTransactions.remove(Pair.of(transactionID, windowId));
++						mutex.notifyAll();
++						LogManager.getLogger().warn("Timeout on window operation "+transactionID);
++					}
++				} catch (InterruptedException e) {}
++			}
++		});
++		mutex.watchdog = watchdog;
++		
++		
++		pendingTransactions.put(Pair.of(transactionID, windowId), mutex);
++		try {
++			synchronized (mutex) {
++				this.connection.sendPacket(new CPacketClickWindow(windowId, slotId, mouseButton, type, itemstack, transactionID));
++				watchdog.start();
++				mutex.wait();
++				return mutex.approved;
++			}
++		} catch (InterruptedException e) {
++			e.printStackTrace();
++			return false;
++		}
++	}
++	
++	
++	public void confirmTransaction(short transactionID, int windowId, boolean approved) {
++		TransactionMutex mutex = pendingTransactions.get(Pair.of(transactionID, windowId));
++		if (mutex != null) {
++			synchronized (mutex) {
++				if (mutex.consumed)
++					return; //Avoid race condition with watchdog
++				
++				mutex.watchdog.interrupt();
++				pendingTransactions.remove(Pair.of(transactionID, windowId));
++				mutex.approved = approved;
++				mutex.consumed = true;
++				mutex.notifyAll();
++				
++			}
++		}
++	}
++	
++	//END VIVECRAFT
 +    
      /**
       * Called when the entity is attacked.
@@ -128,7 +200,7 @@
          return false;
      }
  
-@@ -199,6 +261,8 @@
+@@ -199,6 +319,8 @@
      {
      }
  
@@ -137,7 +209,7 @@
      public boolean startRiding(Entity entityIn, boolean force)
      {
          if (!super.startRiding(entityIn, force))
-@@ -219,10 +283,16 @@
+@@ -219,10 +341,16 @@
                  this.setRotationYawHead(entityIn.rotationYaw);
              }
  
@@ -154,7 +226,7 @@
      /**
       * Dismounts this entity from the entity it is riding.
       */
-@@ -230,6 +300,11 @@
+@@ -230,6 +358,11 @@
      {
          super.stopRiding();
          this.rowingBoat = false;
@@ -166,7 +238,7 @@
      }
  
      /**
-@@ -329,6 +404,18 @@
+@@ -329,6 +462,18 @@
              boolean flag2 = d0 * d0 + d1 * d1 + d2 * d2 > 9.0E-4D || this.positionUpdateTicks >= 20;
              boolean flag3 = d3 != 0.0D || d4 != 0.0D;
  
@@ -185,7 +257,7 @@
              if (this.isPassenger())
              {
                  this.connection.sendPacket(new CPacketPlayer.PositionRotation(this.motionX, -999.0D, this.motionZ, this.rotationYaw, this.rotationPitch, this.onGround));
-@@ -350,6 +437,7 @@
+@@ -350,6 +495,7 @@
              {
                  this.connection.sendPacket(new CPacketPlayer(this.onGround));
              }
@@ -193,7 +265,7 @@
  
              if (flag2)
              {
-@@ -366,6 +454,13 @@
+@@ -366,6 +512,13 @@
              }
  
              this.prevOnGround = this.onGround;
@@ -207,7 +279,66 @@
              this.autoJumpEnabled = this.mc.gameSettings.autoJump;
          }
      }
-@@ -974,6 +1069,9 @@
+@@ -791,6 +944,15 @@
+      */
+     public void displayGUIChest(IInventory chestInventory)
+     {
++		//VIVECRAFT START
++		if (mc.physicalGuiManager.isIntercepting()) {
++			mc.physicalGuiManager.handleWindow(chestInventory);
++			return;
++		} else if (mc.physicalGuiManager.activeGui != null) {
++			return;
++		}
++		//VIVECRAFT END
++		
+         String s = chestInventory instanceof IInteractionObject ? ((IInteractionObject)chestInventory).getGuiID() : "minecraft:container";
+ 
+         if ("minecraft:chest".equals(s))
+@@ -832,11 +994,27 @@
+ 
+     public void openHorseInventory(AbstractHorse horse, IInventory inventoryIn)
+     {
++		//VIVECRAFT START
++		if (mc.physicalGuiManager.isIntercepting()) {
++			mc.physicalGuiManager.handleWindow(inventoryIn);
++			return;
++		} else if (mc.physicalGuiManager.activeGui != null) {
++			return;
++		}
++		//VIVECRAFT END
+         this.mc.displayGuiScreen(new GuiScreenHorseInventory(this.inventory, inventoryIn, horse));
+     }
+ 
+     public void displayGui(IInteractionObject guiOwner)
+     {
++		//VIVECRAFT START
++		if (mc.physicalGuiManager.isIntercepting()) {
++			mc.physicalGuiManager.handleWindow(guiOwner);
++			return;
++		} else if (mc.physicalGuiManager.activeGui != null) {
++			return;
++		}
++		//VIVECRAFT END
+         String s = guiOwner.getGuiID();
+ 
+         if ("minecraft:crafting_table".equals(s))
+@@ -855,6 +1033,14 @@
+ 
+     public void displayVillagerTradeGui(IMerchant villager)
+     {
++		//VIVECRAFT START
++		if (mc.physicalGuiManager.isIntercepting()) {
++			mc.physicalGuiManager.handleWindow(villager);
++			return;
++		} else if (mc.physicalGuiManager.activeGui != null) {
++			return;
++		}
++		//VIVECRAFT END
+         this.mc.displayGuiScreen(new GuiMerchant(this.inventory, villager, this.world));
+     }
+ 
+@@ -974,6 +1160,9 @@
          float f = 0.8F;
          boolean flag2 = this.movementInput.moveForward >= 0.8F;
          this.movementInput.updatePlayerMoveState();
@@ -217,7 +348,7 @@
          this.mc.getTutorial().handleMovement(this.movementInput);
  
          if (this.isHandActive() && !this.isPassenger())
-@@ -1147,6 +1245,9 @@
+@@ -1147,6 +1336,9 @@
          }
  
          super.livingTick();
@@ -227,7 +358,7 @@
  
          if (this.onGround && this.capabilities.isFlying && !this.mc.playerController.isSpectatorMode())
          {
-@@ -1198,10 +1299,47 @@
+@@ -1198,10 +1390,47 @@
       */
      public void move(MoverType type, double x, double y, double z)
      {
@@ -279,7 +410,7 @@
      }
  
      public boolean isAutoJumpEnabled()
-@@ -1227,12 +1365,17 @@
+@@ -1227,12 +1456,17 @@
                      float f = this.getAIMoveSpeed();
                      float f1 = (float)vec3d2.lengthSquared();
  
@@ -299,7 +430,7 @@
                          vec3d2 = new Vec3d((double)(f2 * f5 - f3 * f4), vec3d2.y, (double)(f3 * f5 + f2 * f4));
                          f1 = (float)vec3d2.lengthSquared();
  
-@@ -1406,4 +1549,374 @@
+@@ -1406,4 +1640,374 @@
              return this.eyesInWaterPlayer;
          }
      }

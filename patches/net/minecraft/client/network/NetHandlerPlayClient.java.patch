@@ -122,7 +122,27 @@
      }
  
      /**
-@@ -2144,110 +2173,165 @@
+@@ -1329,7 +1358,7 @@
+     {
+         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+         Container container = null;
+-        EntityPlayer entityplayer = this.client.player;
++        EntityPlayerSP entityplayer = this.client.player;
+ 
+         if (packetIn.getWindowId() == 0)
+         {
+@@ -1344,7 +1373,9 @@
+         {
+             this.sendPacket(new CPacketConfirmTransaction(packetIn.getWindowId(), packetIn.getActionNumber(), true));
+         }
+-    }
++		entityplayer.confirmTransaction(packetIn.getActionNumber(),packetIn.getWindowId(),packetIn.wasAccepted());
++	
++	}
+ 
+     /**
+      * Handles the placement of a specified ItemStack in a specified container/inventory slot
+@@ -2144,110 +2175,165 @@
       */
      public void handleCustomPayload(SPacketCustomPayload packetIn)
      {
@@ -390,7 +410,7 @@
      /**
       * May create a scoreboard objective, remove an objective from the scoreboard or update an objectives' displayname
       */
-@@ -2553,4 +2637,15 @@
+@@ -2553,4 +2639,15 @@
      {
          return this.nbtQueryManager;
      }

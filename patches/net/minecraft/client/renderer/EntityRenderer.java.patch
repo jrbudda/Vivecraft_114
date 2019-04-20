@@ -1,12 +1,11 @@
 --- a/net/minecraft/client/renderer/EntityRenderer.java
 +++ b/net/minecraft/client/renderer/EntityRenderer.java
-@@ -1,13 +1,18 @@
+@@ -1,13 +1,17 @@
  package net.minecraft.client.renderer;
  
  import com.google.gson.JsonSyntaxException;
 +
 +import de.fruitfly.ovr.structs.Quatf;
-+import jopenvr.OpenVRUtil;
 +
  import java.io.IOException;
 +import java.nio.FloatBuffer;
@@ -20,7 +19,7 @@
  import javax.annotation.Nullable;
  import net.minecraft.block.Block;
  import net.minecraft.block.BlockBed;
-@@ -15,12 +20,21 @@
+@@ -15,12 +19,21 @@
  import net.minecraft.block.state.IBlockState;
  import net.minecraft.client.Minecraft;
  import net.minecraft.client.entity.AbstractClientPlayer;
@@ -42,7 +41,7 @@
  import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
  import net.minecraft.client.renderer.chunk.RenderChunk;
  import net.minecraft.client.renderer.culling.ClippingHelper;
-@@ -28,15 +42,16 @@
+@@ -28,15 +41,16 @@
  import net.minecraft.client.renderer.culling.Frustum;
  import net.minecraft.client.renderer.culling.ICamera;
  import net.minecraft.client.renderer.texture.NativeImage;
@@ -60,7 +59,7 @@
  import net.minecraft.crash.ReportedException;
  import net.minecraft.entity.Entity;
  import net.minecraft.entity.EntityLivingBase;
-@@ -48,6 +63,7 @@
+@@ -48,6 +62,7 @@
  import net.minecraft.entity.player.EntityPlayer;
  import net.minecraft.fluid.IFluidState;
  import net.minecraft.init.Blocks;
@@ -68,7 +67,7 @@
  import net.minecraft.init.MobEffects;
  import net.minecraft.init.Particles;
  import net.minecraft.init.SoundEvents;
-@@ -62,6 +78,7 @@
+@@ -62,6 +77,7 @@
  import net.minecraft.util.BlockRenderLayer;
  import net.minecraft.util.EntitySelectors;
  import net.minecraft.util.EnumFacing;
@@ -76,7 +75,7 @@
  import net.minecraft.util.ResourceLocation;
  import net.minecraft.util.ScreenShotHelper;
  import net.minecraft.util.SoundCategory;
-@@ -71,7 +88,9 @@
+@@ -71,7 +87,9 @@
  import net.minecraft.util.math.MathHelper;
  import net.minecraft.util.math.RayTraceFluidMode;
  import net.minecraft.util.math.RayTraceResult;
@@ -86,7 +85,7 @@
  import net.minecraft.util.math.shapes.VoxelShape;
  import net.minecraft.util.text.Style;
  import net.minecraft.util.text.TextComponentString;
-@@ -88,13 +107,30 @@
+@@ -88,13 +106,31 @@
  import net.optifine.gui.GuiChatOF;
  import net.optifine.reflect.Reflector;
  import net.optifine.reflect.ReflectorForge;
@@ -113,6 +112,7 @@
 +import org.vivecraft.provider.MCOpenVR;
 +import org.vivecraft.render.RenderPass;
 +import org.vivecraft.settings.VRSettings;
++import org.vivecraft.utils.OpenVRUtil;
 +import org.vivecraft.utils.Utils;
  
  public class EntityRenderer implements AutoCloseable, IResourceManagerReloadListener
@@ -435,7 +435,7 @@
          float f = this.mc.player.prevTimeInPortal + (this.mc.player.timeInPortal - this.mc.player.prevTimeInPortal) * partialTicks;
  
          if (f > 0.0F)
-@@ -818,10 +987,65 @@
+@@ -818,10 +987,68 @@
      {
          this.renderHand(partialTicks, true, true, false);
      }
@@ -460,9 +460,12 @@
 +				SetupRenderingAtController(0);
 +
 +				ItemStack item = mc.player.getHeldItemMainhand();
++				ItemStack override=mc.physicalGuiManager.getHeldItemOverride();
++				if(override!=null)
++					item=override;
 +
 +				if(mc.climbTracker.isClimbeyClimb() && (item.getItem() != Items.SHEARS)){
-+					itemRenderer.renderItemInFirstPerson(mc.player, partialTicks, 0, EnumHand.MAIN_HAND, mc.player.getSwingProgress(partialTicks), mc.player.getHeldItemOffhand(), 0);				
++					itemRenderer.renderItemInFirstPerson(mc.player, partialTicks, 0, EnumHand.MAIN_HAND, mc.player.getSwingProgress(partialTicks), override==null? mc.player.getHeldItemOffhand() : override, 0);
 +				}
 +
 +				if(BowTracker.isHoldingBow(mc.player, EnumHand.MAIN_HAND)){
@@ -502,7 +505,7 @@
          {
              GlStateManager.matrixMode(5889);
              GlStateManager.loadIdentity();
-@@ -916,19 +1140,22 @@
+@@ -916,19 +1143,22 @@
  
      public void updateCameraAndRender(float partialTicks, long nanoTime, boolean renderWorldIn)
      {
@@ -538,7 +541,7 @@
  
          if (!this.mc.skipRenderWorld)
          {
-@@ -939,13 +1166,17 @@
+@@ -939,13 +1169,17 @@
              if (renderWorldIn && this.mc.world != null)
              {
                  this.mc.profiler.startSection("level");
@@ -558,7 +561,7 @@
                  {
                      this.timeWorldIcon = Util.milliTime();
  
-@@ -971,10 +1202,11 @@
+@@ -971,10 +1205,11 @@
                      this.mc.getFramebuffer().bindFramebuffer(true);
                  }
  
@@ -571,7 +574,7 @@
                      GlStateManager.alphaFunc(516, 0.1F);
                      this.mc.mainWindow.setupOverlayRendering();
                      this.renderItemActivation(this.mc.mainWindow.getScaledWidth(), this.mc.mainWindow.getScaledHeight(), partialTicks);
-@@ -989,23 +1221,26 @@
+@@ -989,23 +1224,26 @@
                      {
                          Lagometer.showLagometer((int)this.mc.mainWindow.getGuiScaleFactor());
                      }
@@ -599,7 +602,7 @@
              {
                  GlStateManager.clear(256);
  
-@@ -1040,6 +1275,35 @@
+@@ -1040,6 +1278,35 @@
                  }
              }
          }
@@ -635,7 +638,7 @@
  
          this.frameFinish();
          this.waitForServerThread();
-@@ -1125,63 +1389,83 @@
+@@ -1125,63 +1392,83 @@
  
      private boolean isDrawBlockOutline()
      {
@@ -771,7 +774,7 @@
      }
  
      private void updateCameraAndRender(float partialTicks, long nanoTime)
-@@ -1197,15 +1481,16 @@
+@@ -1197,15 +1484,16 @@
          ParticleManager particlemanager = this.mc.effectRenderer;
          boolean flag1 = this.isDrawBlockOutline();
          GlStateManager.enableCull();
@@ -790,7 +793,7 @@
          }
  
          this.fogRenderer.updateFogColor(partialTicks);
-@@ -1216,9 +1501,18 @@
+@@ -1216,9 +1504,18 @@
              Shaders.clearRenderBuffer();
          }
  
@@ -809,7 +812,7 @@
          if (flag)
          {
              Shaders.setCamera(partialTicks);
-@@ -1257,9 +1551,14 @@
+@@ -1257,9 +1554,14 @@
              this.fogRenderer.setupFog(-1, partialTicks);
              this.mc.profiler.endStartSection("sky");
              GlStateManager.matrixMode(5889);
@@ -826,7 +829,7 @@
  
              if (flag)
              {
-@@ -1274,9 +1573,13 @@
+@@ -1274,9 +1576,13 @@
              }
  
              GlStateManager.matrixMode(5889);
@@ -842,7 +845,7 @@
          }
          else
          {
-@@ -1306,15 +1609,17 @@
+@@ -1306,15 +1612,17 @@
          {
              renderglobal.setupTerrain(entity, partialTicks, icamera, this.frameCount++, this.mc.player.isSpectator());
          }
@@ -869,7 +872,7 @@
          {
              this.mc.profiler.endStartSection("finish");
              GL11.glFinish();
-@@ -1381,6 +1686,7 @@
+@@ -1381,6 +1689,7 @@
          this.disableLightmap();
          GlStateManager.matrixMode(5888);
          GlStateManager.popMatrix();
@@ -877,14 +880,14 @@
  
          if (flag1 && this.mc.objectMouseOver != null)
          {
-@@ -1417,12 +1723,43 @@
+@@ -1417,12 +1726,46 @@
  
          GlStateManager.blendFuncSeparate(770, 771, 1, 0);
          GlStateManager.disableBlend();
 -        this.enableLightmap();
 +
 +        this.mc.profiler.endStartSection("VR");
-+        this.mc.profiler.startSection("hands");
++		this.mc.profiler.startSection("hands");
 +    	this.enableLightmap();
 +
 +        boolean forgeHands = false;
@@ -894,6 +897,9 @@
 +	    	RenderHelper.enableStandardItemLighting();
 +	    	itemRenderer.setLightmap();
 +	    	GlStateManager.enableRescaleNormal();
++	
++	    	//Render Physical Inventories
++			mc.physicalGuiManager.doRender(partialTicks);
 +
 +	    	if (KeyboardHandler.Showing && mc.vrSettings.physicalKeyboard) {
 +				renderMainMenuHands();
@@ -923,7 +929,7 @@
          }
  
          particlemanager.renderLitParticles(entity, partialTicks);
-@@ -1432,14 +1769,14 @@
+@@ -1432,14 +1775,14 @@
  
          if (flag)
          {
@@ -940,7 +946,7 @@
          }
  
          this.disableLightmap();
-@@ -1447,7 +1784,7 @@
+@@ -1447,7 +1790,7 @@
  
          if (Config.isShaders())
          {
@@ -949,7 +955,7 @@
          }
  
          GlStateManager.enableCull();
-@@ -1470,7 +1807,8 @@
+@@ -1470,7 +1813,8 @@
  
          if (flag)
          {
@@ -959,7 +965,7 @@
              Shaders.preWater();
          }
  
-@@ -1520,17 +1858,113 @@
+@@ -1520,17 +1864,114 @@
              this.renderCloudsCheck(renderglobal, partialTicks, d0, d1, d2);
          }
  
@@ -984,7 +990,8 @@
 +            GlStateManager.clear(GL11.GL_STENCIL_BUFFER_BIT);
 +            GL11.glStencilFunc(GL11.GL_ALWAYS, 0xFF, 0xFF);
 +        }
-+
++        
++        
 +        renderGuiLayer(partialTicks);
 +        if(KeyboardHandler.Showing) {
 +            if (mc.vrSettings.physicalKeyboard)
@@ -1074,7 +1081,7 @@
              {
                  ShadersRender.renderHand1(this, partialTicks);
                  Shaders.renderCompositeFinal();
-@@ -1547,11 +1981,16 @@
+@@ -1547,11 +1988,16 @@
                  this.renderHand(partialTicks);
              }
          }
@@ -1092,7 +1099,7 @@
      }
  
      private void renderCloudsCheck(RenderGlobal renderGlobalIn, float partialTicks, double viewEntityX, double viewEntityY, double viewEntityZ)
-@@ -1561,7 +2000,11 @@
+@@ -1561,7 +2007,11 @@
              this.mc.profiler.endStartSection("clouds");
              GlStateManager.matrixMode(5889);
              GlStateManager.loadIdentity();
@@ -1105,7 +1112,7 @@
              GlStateManager.matrixMode(5888);
              GlStateManager.pushMatrix();
              this.fogRenderer.setupFog(0, partialTicks);
-@@ -1570,7 +2013,11 @@
+@@ -1570,7 +2020,11 @@
              GlStateManager.popMatrix();
              GlStateManager.matrixMode(5889);
              GlStateManager.loadIdentity();
@@ -1118,7 +1125,7 @@
              GlStateManager.matrixMode(5888);
          }
      }
-@@ -2002,7 +2449,7 @@
+@@ -2002,7 +2456,7 @@
              this.updatedWorld = world;
          }
  
@@ -1127,7 +1134,7 @@
          {
              Shaders.configAntialiasingLevel = 0;
          }
-@@ -2242,36 +2689,29 @@
+@@ -2242,36 +2696,29 @@
      }
  
      private void renderItemActivation(int widthsp, int heightScaled, float partialTicks)
@@ -1187,7 +1194,7 @@
      }
  
      public Minecraft getMinecraft()
-@@ -2288,4 +2728,2222 @@
+@@ -2288,4 +2735,2235 @@
      {
          return this.farPlaneDistance;
      }
@@ -2027,6 +2034,10 @@
 +  	
 +  		        GlStateManager.enableRescaleNormal();
 +  		        ItemStack item = mc.player.getHeldItemOffhand();
++	  
++				ItemStack override=mc.physicalGuiManager.getOffhandOverride();
++				if(override!=null)
++					item=override;
 +  		        
 +  				if(mc.climbTracker.isClimbeyClimb() && (item==null || item.getItem() != Items.SHEARS)){
 +  					itemRenderer.renderItemInFirstPerson(mc.player, nano, 0, EnumHand.OFF_HAND, mc.player.getSwingProgress(nano), mc.player.getHeldItemMainhand(), 0);
@@ -2755,7 +2766,7 @@
 +  					//float yawOffset = (float) Math.toRadians( -mc.vrSettings.hudYawOffset );
 +  					//guiRotationPose = Matrix4f.multiply(guiRotationPose, OpenVRUtil.rotationXMatrix(yawOffset));
 +  					//guiRotationPose = Matrix4f.multiply(guiRotationPose, Matrix4f.rotationY(pitchOffset));
-+  					guirot.M[3][3] = 1.0f;
++  					//guirot.M[3][3] = 1.0f;
 +
 +  					scale = mc.vrSettings.hudScale;
 +
@@ -2768,7 +2779,8 @@
 +  					//guiRotationPose = mc.vrPlayer.getControllerMatrix_World(1);
 +  					guirot = de.fruitfly.ovr.structs.Matrix4f.multiply(MguiRotationPose, OpenVRUtil.rotationXMatrix((float) Math.PI * -0.2F));
 +  					guirot = de.fruitfly.ovr.structs.Matrix4f.multiply(guirot, de.fruitfly.ovr.structs.Matrix4f.rotationY((float) Math.PI * 0.1F * i));
-+  					guirot.M[3][3] = 1.7f;
++  					scale = 1/1.7f;
++  					//guirot.M[3][3] = 1.7f;
 +
 +  					guiLocal = new Vec3d(guiLocal.x, 0.5*mc.vrPlayer.vrdata_world_render.worldScale,guiLocal.z);
 +
@@ -3295,6 +3307,12 @@
 +  	
 +  	public static void drawText(FontRenderer fontRendererIn, String str, float x, float y, float z, float viewerYaw, float viewerPitch)
 +  	{
++		drawText(fontRendererIn,str,x,y,z,viewerYaw,viewerPitch,false);
++	}
++	
++	public static void drawText(FontRenderer fontRendererIn, String str, float x, float y, float z, float viewerYaw, float viewerPitch, boolean depth)
++	{
++		
 +  		GlStateManager.pushMatrix();
 +  		GlStateManager.translatef(x, y, z);
 +  		GlStateManager.normal3f(0.0F, 1.0F, 0.0F);
@@ -3303,9 +3321,11 @@
 +  		GlStateManager.scalef(-0.025F, -0.025F, 0.025F);
 +  		GlStateManager.disableLighting();
 +  		GlStateManager.depthMask(false);
-+
-+  		GlStateManager.disableDepthTest();
-+
++		
++		if(!depth) {
++			GlStateManager.disableDepthTest();
++		}
++		
 +  		GlStateManager.enableBlend();
 +  		GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 +  		int i = fontRendererIn.getStringWidth(str) / 2;

@@ -78,6 +78,7 @@ private Random r = new Random();
 				}
 
 				if(!eating[c]){
+					Minecraft.getMinecraft().physicalGuiManager.preClickAction();
 					if(	mc.playerController.processRightClick(player, player.world,c==0?EnumHand.MAIN_HAND:EnumHand.OFF_HAND)==EnumActionResult.SUCCESS){
 						mc.entityRenderer.itemRenderer.resetEquippedProgress(c==0?EnumHand.MAIN_HAND:EnumHand.OFF_HAND);
 						eating[c]=true;

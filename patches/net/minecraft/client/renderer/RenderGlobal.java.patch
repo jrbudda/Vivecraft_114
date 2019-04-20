@@ -16,7 +16,15 @@
  import javax.annotation.Nullable;
  import net.minecraft.block.Block;
  import net.minecraft.block.BlockAbstractSkull;
-@@ -61,7 +61,6 @@
+@@ -36,6 +36,7 @@
+ import net.minecraft.client.multiplayer.WorldClient;
+ import net.minecraft.client.particle.Particle;
+ import net.minecraft.client.renderer.block.model.ModelBakery;
++import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+ import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
+ import net.minecraft.client.renderer.chunk.CompiledChunk;
+ import net.minecraft.client.renderer.chunk.IRenderChunkFactory;
+@@ -61,7 +62,6 @@
  import net.minecraft.client.shader.ShaderLinkHelper;
  import net.minecraft.crash.CrashReport;
  import net.minecraft.crash.CrashReportCategory;
@@ -24,7 +32,7 @@
  import net.minecraft.crash.ReportedException;
  import net.minecraft.entity.Entity;
  import net.minecraft.entity.EntityLivingBase;
-@@ -104,7 +103,6 @@
+@@ -104,7 +104,6 @@
  import net.minecraft.world.chunk.IChunkProvider;
  import net.minecraft.world.dimension.Dimension;
  import net.minecraft.world.dimension.DimensionType;
@@ -32,7 +40,7 @@
  import net.optifine.CustomColors;
  import net.optifine.CustomSky;
  import net.optifine.DynamicLights;
-@@ -122,6 +120,9 @@
+@@ -122,6 +121,9 @@
  import net.optifine.util.RenderChunkUtils;
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
@@ -42,7 +50,30 @@
  
  public class RenderGlobal implements IWorldEventListener, AutoCloseable, IResourceManagerReloadListener
  {
-@@ -319,7 +320,8 @@
+@@ -143,7 +145,7 @@
+     private Set<RenderChunk> chunksToUpdate = new ObjectLinkedOpenHashSet<RenderChunk>();
+     private List<RenderGlobal.ContainerLocalRenderInformation> renderInfos = Lists.<RenderGlobal.ContainerLocalRenderInformation>newArrayListWithCapacity(69696);
+     private final Set<TileEntity> setTileEntities = Sets.<TileEntity>newHashSet();
+-    private ViewFrustum viewFrustum;
++    public ViewFrustum viewFrustum;
+ 
+     /** The star GL Call list */
+     private int starGLCallList = -1;
+@@ -281,7 +283,12 @@
+             this.entityOutlineShader.close();
+         }
+     }
+-
++	
++	public void renderCustomModel(ModelResourceLocation model){
++		mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
++		mc.getBlockRendererDispatcher().getBlockModelRenderer().renderModelBrightnessColor(mc.modelManager.getModel(model), 1.0F, 1.0F, 1.0F, 1.0F);
++	}
++    
+     public void onResourceManagerReload(IResourceManager resourceManager)
+     {
+         this.updateDestroyBlockIcons();
+@@ -319,7 +326,8 @@
              try
              {
                  this.entityOutlineShader = new ShaderGroup(this.mc.getTextureManager(), this.mc.getResourceManager(), this.mc.getFramebuffer(), resourcelocation);
@@ -52,7 +83,7 @@
                  this.entityOutlineFramebuffer = this.entityOutlineShader.getFramebufferRaw("final");
              }
              catch (IOException ioexception)
-@@ -348,7 +350,7 @@
+@@ -348,7 +356,7 @@
          {
              GlStateManager.enableBlend();
              GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
@@ -61,18 +92,19 @@
              GlStateManager.disableBlend();
          }
      }
-@@ -806,6 +808,10 @@
+@@ -806,6 +814,11 @@
                                  {
                                      boolean flag3 = this.mc.getRenderViewEntity() instanceof EntityLivingBase && ((EntityLivingBase)this.mc.getRenderViewEntity()).isPlayerSleeping();
  
 +                                    //Vivecraft
 +                                    flag3 = mc.currentPass == RenderPass.THIRD && mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_THIRD_PERSON;
++                                    flag3 |= mc.vrSettings.shouldRenderSelf || mc.vrSettings.tmpRenderSelf;
 +                                    //		
 +
                                      if ((entity2 != this.mc.getRenderViewEntity() || this.mc.gameSettings.thirdPersonView != 0 || flag3) && (entity2.posY < 0.0D || entity2.posY >= 256.0D || this.world.isBlockLoaded(blockpos$pooledmutableblockpos.setPos(entity2))))
                                      {
                                          ++this.countEntitiesRendered;
-@@ -816,9 +822,22 @@
+@@ -816,9 +829,22 @@
                                              Shaders.nextEntity(entity2);
                                          }
  
@@ -95,7 +127,7 @@
                                          if (this.isOutlineActive(entity2, entity, camera))
                                          {
                                              list.add(entity2);
-@@ -888,7 +907,8 @@
+@@ -888,7 +914,8 @@
                  {
                      GlStateManager.depthFunc(519);
                      GlStateManager.disableFog();
@@ -105,7 +137,7 @@
                      RenderHelper.disableStandardItemLighting();
                      this.renderManager.setRenderOutlines(true);
  
-@@ -921,7 +941,8 @@
+@@ -921,7 +948,8 @@
                      GlStateManager.enableAlphaTest();
                  }
  
@@ -115,7 +147,7 @@
              }
  
              if (!this.isRenderEntityOutlines() && (!list.isEmpty() || this.entityOutlinesRendered))
-@@ -1200,7 +1221,11 @@
+@@ -1200,7 +1228,11 @@
          new BlockPos(MathHelper.floor(d3 / 16.0D) * 16, MathHelper.floor(d4 / 16.0D) * 16, MathHelper.floor(d5 / 16.0D) * 16);
          float f = entityIn.getPitch(partialTicks);
          float f1 = entityIn.getYaw(partialTicks);
@@ -128,7 +160,7 @@
          this.lastViewEntityX = entityIn.posX;
          this.lastViewEntityY = entityIn.posY;
          this.lastViewEntityZ = entityIn.posZ;
-@@ -1431,6 +1456,7 @@
+@@ -1431,6 +1463,7 @@
                      {
                          this.chunksToUpdate.add(renderchunk5);
                      }
@@ -136,7 +168,7 @@
                      else if (!renderchunk5.isPlayerUpdate())
                      {
                          this.chunksToUpdateForced.add(renderchunk5);
-@@ -1537,13 +1563,16 @@
+@@ -1537,13 +1570,16 @@
                  this.prevRenderSortY = entityIn.posY;
                  this.prevRenderSortZ = entityIn.posZ;
                  int k = 0;
@@ -153,7 +185,7 @@
                      }
                  }
              }
-@@ -2336,6 +2365,7 @@
+@@ -2336,6 +2372,7 @@
          finishTimeNano = (long)((double)finishTimeNano + 1.0E8D);
          this.displayListEntitiesDirty |= this.renderDispatcher.runChunkUploads(finishTimeNano);
  
@@ -161,7 +193,7 @@
          if (this.chunksToUpdateForced.size() > 0)
          {
              Iterator iterator = this.chunksToUpdateForced.iterator();
-@@ -2373,7 +2403,7 @@
+@@ -2373,7 +2410,7 @@
  
          double d1 = 0.0D;
          int i = Config.getUpdatesPerFrame();
@@ -170,7 +202,7 @@
          if (!this.chunksToUpdate.isEmpty())
          {
              Iterator<RenderChunk> iterator1 = this.chunksToUpdate.iterator();
-@@ -2401,6 +2431,7 @@
+@@ -2401,6 +2438,7 @@
                  renderchunk1.clearNeedsUpdate();
                  iterator1.remove();
  
@@ -178,7 +210,7 @@
                  if (!flag1)
                  {
                      double d0 = 2.0D * RenderChunkUtils.getRelativeBufferSize(renderchunk1);
-@@ -3144,6 +3175,8 @@
+@@ -3144,6 +3182,8 @@
      {
          Random random = this.world.rand;
  
@@ -187,7 +219,7 @@
          switch (type)
          {
              case 1000:
-@@ -3199,18 +3232,26 @@
+@@ -3199,18 +3239,26 @@
                  break;
  
              case 1011:
@@ -214,7 +246,7 @@
                  this.world.playSound(blockPosIn, SoundEvents.BLOCK_FENCE_GATE_CLOSE, SoundCategory.BLOCKS, 1.0F, this.world.rand.nextFloat() * 0.1F + 0.9F, false);
                  break;
  
-@@ -3231,14 +3272,26 @@
+@@ -3231,14 +3279,26 @@
                  break;
  
              case 1019:
@@ -241,7 +273,7 @@
                  this.world.playSound(blockPosIn, SoundEvents.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, SoundCategory.HOSTILE, 2.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F, false);
                  break;
  
-@@ -3267,10 +3320,17 @@
+@@ -3267,10 +3327,17 @@
                  break;
  
              case 1030:
@@ -259,7 +291,7 @@
                  this.world.playSound(blockPosIn, SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.BLOCKS, 0.3F, this.world.rand.nextFloat() * 0.1F + 0.9F, false);
                  break;
  
-@@ -3291,6 +3351,9 @@
+@@ -3291,6 +3358,9 @@
                  break;
  
              case 1036:
@@ -269,7 +301,7 @@
                  this.world.playSound(blockPosIn, SoundEvents.BLOCK_IRON_TRAPDOOR_CLOSE, SoundCategory.BLOCKS, 1.0F, this.world.rand.nextFloat() * 0.1F + 0.9F, false);
                  break;
  
-@@ -3344,7 +3407,8 @@
+@@ -3344,7 +3414,8 @@
                      {
                          soundtype = (SoundType)Reflector.call(iblockstate.getBlock(), Reflector.ForgeBlock_getSoundType, Block.getStateById(data), this.world, blockPosIn, null);
                      }

@@ -6,6 +6,8 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import net.minecraft.client.renderer.block.model.ModelBakery;
+import net.minecraft.client.renderer.block.model.ModelManager;
 import org.vivecraft.asm.ObfNames;
 
 import net.minecraft.client.audio.SoundManager;
@@ -37,7 +39,10 @@ public class MCReflection {
 //	public static final ReflectionField EntityPlayer_spawnForced = new ReflectionField(EntityPlayer.class, "field_82248_d");
 //	public static final ReflectionMethod RenderGlobal_renderSky = new ReflectionMethod(RenderGlobal.class, "func_174968_a", BufferBuilder.class, float.class, boolean.class);
 //	public static final ReflectionMethod RenderGlobal_renderStars = new ReflectionMethod(RenderGlobal.class, "func_180444_a", BufferBuilder.class);
-
+	public static final ReflectionField ModelManager_texmap = new ReflectionField(ModelManager.class, "field_174956_b");
+	public static final ReflectionField ModelManager_modelRegistry = new ReflectionField(ModelManager.class, "field_174958_a");
+	public static final ReflectionField ModelManager_defaultModel = new ReflectionField(ModelManager.class, "field_174955_d");
+	
 	public static class ReflectionField {
 		private final Class<?> clazz;
 		private final String srgName;
@@ -48,7 +53,7 @@ public class MCReflection {
 			this.srgName = srgName;
 			reflect();
 		}
-
+		
 		public Object get(Object obj) {
 			try {
 				return field.get(obj);

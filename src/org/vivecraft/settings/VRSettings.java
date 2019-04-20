@@ -152,6 +152,7 @@ public class VRSettings
     public boolean realisticSwimEnabled=true;
     public boolean realisticRowEnabled=true;
     public boolean backpackSwitching = true;
+    public boolean physicalGuiEnabled = false;
     public float walkMultiplier=1;
     public boolean vrAllowCrawling = false; //unused
     public boolean vrShowBlueCircleBuddy = true;
@@ -168,6 +169,8 @@ public class VRSettings
     public boolean insideBlockSolidColor = false; //unused
     public float renderScaleFactor = 1.0f;
     public int displayMirrorMode = MIRROR_ON_DUAL;
+	public boolean shouldRenderSelf=false;
+	public boolean tmpRenderSelf;
     //
     
     //Mixed Reality
@@ -588,6 +591,9 @@ public class VRSettings
                     if(optionTokens[0].equals("realisticSneakEnabled")){
                         this.realisticSneakEnabled=optionTokens[1].equals("true");
                     }
+					if(optionTokens[0].equals("physicalGuiEnabled")){
+						this.physicalGuiEnabled=optionTokens[1].equals("true");
+					}
                     if(optionTokens[0].equals("seatedhmd")){
                         this.seatedUseHMD=optionTokens[1].equals("true");
                     }
@@ -782,6 +788,12 @@ public class VRSettings
                 		String functionId = optionTokens[0].substring(optionTokens[0].indexOf('_') + 1);
                     	VRButtonMapping vb = new VRButtonMapping(functionId);
 
+                    	//TODO Decide how to do this properly #buttons
+                    	if(functionId.equals("Interact VR Primary"))
+                    		vb.setPriority(5);
+						if(functionId.equals("Interact VR Primary"))
+							vb.setPriority(5);
+                    	
                     	if (!optionTokens[1].equals("none")) {
                     		String[] split = optionTokens[1].split(",");
                     		for (int i = 0; i < split.length; i++) {
@@ -1059,6 +1071,8 @@ public class VRSettings
                 return this.seatedHudAltMode ? var4 + "Crosshair" : var4 + "HMD";
             case REALISTIC_SNEAK:
                 return this.realisticSneakEnabled ? var4 + "ON" : var4 + "OFF";
+			case PHYSICAL_GUI:
+				return this.physicalGuiEnabled ? var4 + "ON" : var4 + "OFF";
             case REALISTIC_CLIMB:
                 return this.realisticClimbEnabled ? var4 + "ON" : var4 + "OFF";
             case REALISTIC_SWIM:
@@ -1376,6 +1390,9 @@ public class VRSettings
             case REALISTIC_SNEAK:
                 realisticSneakEnabled = !realisticSneakEnabled;
                 break;
+			case PHYSICAL_GUI:
+				physicalGuiEnabled = !physicalGuiEnabled;
+				break;
             case BACKPACK_SWITCH:
                 backpackSwitching = !backpackSwitching;
                 break;
@@ -1637,6 +1654,7 @@ public class VRSettings
             var5.println("realisticClimbEnabled:" + this.realisticClimbEnabled);
             var5.println("realisticRowEnabled:" + this.realisticRowEnabled);
             var5.println("realisticSneakEnabled:" + this.realisticSneakEnabled);
+			var5.println("physicalGuiEnabled:"+this.physicalGuiEnabled);
             var5.println("headToHmdLength:" + this.headToHmdLength);
             var5.println("walkMultiplier:" + this.walkMultiplier);
             var5.println("vrFreeMoveMode:" + this.vrFreeMoveMode);
@@ -2057,6 +2075,12 @@ public class VRSettings
         		"If turned on, once you duck in real life",
                 "Your player will also sneak"
         }),
+		PHYSICAL_GUI("Physical GUIs",false,true,new String[]{
+				"If turned on, GUIs will be replaced",
+				"with 3d interactable models",
+				"If Backpack tracking is enabled, reaching on your back",
+				"will bring out your inventory bag"
+		}),
         REALISTIC_CLIMB("Roomscale Climbing",false,true,new String[]{
                 "If turned on, allow climbing ladders and vines",
                 "by touching them. Also enables Climb Claws."
@@ -2548,6 +2572,9 @@ public class VRSettings
 		addButtons(out, GuiHandler.keyScrollUp, new ButtonTuple(ButtonType.OCULUS_STICK_UP, ControllerType.RIGHT));
 		addButtons(out, GuiHandler.keyScrollDown, new ButtonTuple(ButtonType.OCULUS_STICK_DOWN, ControllerType.RIGHT));
 
+		out.get("Interact VR Primary").setPriority(5);
+		out.get("Interact VR Secondary").setPriority(5);
+		
     	return out;
     }
 

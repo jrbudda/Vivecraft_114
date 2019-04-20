@@ -1,5 +1,6 @@
 package org.vivecraft.control;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -27,6 +28,8 @@ public class VRButtonMapping implements Comparable<VRButtonMapping> {
 	public int modifiers;
 	protected int unpress;
 	protected boolean pressed;
+	private int priority = 0;
+	private ArrayList<KeyListener> listeners=new ArrayList<>();
 	
 	public VRButtonMapping(String functionId, ButtonTuple... buttons) {
 		this.functionId = functionId;
@@ -64,13 +67,46 @@ public class VRButtonMapping implements Comparable<VRButtonMapping> {
 		}
 		return this.functionId;
 	}
-
+	
+	public int getPriority(){
+		int prio=priority;
+		if (isGUIBinding() || isKeyboardBinding())
+			prio+=50;
+		return prio;
+	}
+	
+	public void setPriority(int priority) {
+		this.priority = priority;
+	}
+	
+	public void registerListener(KeyListener listener){
+		listeners.add(listener);
+	}
+	
+	public void unregisterListener(KeyListener listener){
+		listeners.remove(listener);
+	}
+	
+	public boolean notifyListeners(boolean pressed){
+		boolean consume=false;
+		for(KeyListener listener: listeners){
+			if(pressed){
+				consume=consume || listener.onPressed();
+			}else{
+				listener.onUnpressed();
+			}
+		}
+		return consume;
+	}
+	
 	public boolean conflictsWith(VRButtonMapping other) {
 		if (this.functionId.equals(other.functionId))
 			return false;
 		if (this.isGUIBinding() != other.isGUIBinding())
 			return false;
 		if (this.modifiers != other.modifiers && !this.isModifierBinding() && !other.isModifierBinding())
+			return false;
+		if(this.getPriority() != other.getPriority())
 			return false;
 
 		for (ButtonTuple button : this.buttons) {
@@ -141,14 +177,25 @@ public class VRButtonMapping implements Comparable<VRButtonMapping> {
 	public boolean isPressed() {
 		return this.pressed;
 	}
-
-	public void press(){	
+	
+	
+	/**
+	 * Called when one of the buttons is pressed.
+	 * Returns true if the event was consumed or false if it can propagate to other mappings
+	 * */
+	public boolean press(){
 		this.unpress = 0;
-		if (this.pressed) return;
+		if (this.pressed) return false;
+		
+		boolean consume=false;
+		if(Minecraft.getMinecraft().currentScreen != null && (isGUIBinding() || isKeyboardBinding())){
+			consume=true;
+		}
 		if (keyBinding != null) {
 			pressKey(keyBinding);
 			this.pressed = true;
-			return;
+			consume=consume || notifyListeners(true);
+			return consume;
 		}
 		if (functionExt != -1){
 			if (functionDesc.contains("-hold")) {
@@ -158,8 +205,11 @@ public class VRButtonMapping implements Comparable<VRButtonMapping> {
 				InputSimulator.releaseKey(functionExt);
 			}
 			this.pressed = true;
-			return;
+			consume=consume || notifyListeners(true);
+			return consume;
 		}
+		
+		return false;
 	}
 	
 	public void scheduleUnpress(int unpressInTicks){
@@ -169,6 +219,7 @@ public class VRButtonMapping implements Comparable<VRButtonMapping> {
 	public void actuallyUnpress() {
 		if (!this.pressed) return;
 		this.pressed = false;
+		notifyListeners(false);
 		if (keyBinding != null) {
 			unpressKey(keyBinding);
 			return;
@@ -229,4 +280,9 @@ public class VRButtonMapping implements Comparable<VRButtonMapping> {
 		//System.out.println("unpressKey: " + kb.getKeyDescription() + ", input type: " + input.getType().name() + ", key code: " + input.getKeyCode());
 		MCReflection.KeyBinding_unpressKey.invoke(kb);
     }
+	
+	public interface KeyListener{
+		public boolean onPressed();
+		public void onUnpressed();
+	}
 }

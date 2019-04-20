@@ -25,21 +25,22 @@
      public ItemRenderer(TextureManager textureManagerIn, ModelManager modelManagerIn, ItemColors itemColorsIn)
      {
          this.textureManager = textureManagerIn;
-@@ -141,11 +152,42 @@
+@@ -141,11 +152,43 @@
          {
              GlStateManager.pushMatrix();
              GlStateManager.translatef(-0.5F, -0.5F, -0.5F);
 +            EntityPlayerSP p = Minecraft.getMinecraft().player;
 +            
 +            if(p!=null && isfphand){
-+              
-+            	fade= p.getCooledAttackStrength(0)*.75f + .25f;
++             
++            	if(fade == 1)
++            		fade= p.getCooledAttackStrength(0)*.75f + .25f;
 +        	
 +            	if(p.isSneaking()) 
 +                	fade =0.75f;
 +                
 +                if(p.isActiveItemStackBlocking() && p.getActiveItemStack() != stack) 
-+                	fade =0.75f;   
++                	fade =0.75f;
 +
 +                if(stack.getItem() == Items.SHIELD)
 +                	if(p.isActiveItemStackBlocking())
@@ -70,7 +71,7 @@
  
                  if (Reflector.ForgeItem_getTileEntityItemStackRenderer.exists())
                  {
-@@ -189,6 +231,10 @@
+@@ -189,9 +232,21 @@
                  }
              }
  
@@ -81,7 +82,18 @@
              GlStateManager.popMatrix();
          }
      }
-@@ -304,6 +350,20 @@
++	
++	public float getFade() {
++		return fade;
++	}
++	
++	public void setFade(float fade) {
++		this.fade = fade;
++	}
+ 
+     public static void renderEffect(TextureManager textureManagerIn, Runnable renderModelFunction, int scale)
+     {
+@@ -304,6 +359,20 @@
                      k = CustomColors.getColorFromItemStack(stack, bakedquad.getTintIndex(), k);
                  }
  
@@ -102,7 +114,7 @@
                  k = k | -16777216;
              }
  
-@@ -388,7 +448,7 @@
+@@ -388,7 +457,7 @@
              GlStateManager.enableRescaleNormal();
              GlStateManager.alphaFunc(516, 0.1F);
              GlStateManager.enableBlend();
@@ -111,7 +123,7 @@
              GlStateManager.pushMatrix();
  
              if (Config.isCustomItems())
-@@ -443,10 +503,15 @@
+@@ -443,10 +512,15 @@
          this.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
          this.textureManager.getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
          GlStateManager.enableRescaleNormal();
@@ -128,7 +140,7 @@
          GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
  
          if (Config.isCustomItems())
-@@ -466,7 +531,7 @@
+@@ -466,7 +540,7 @@
          }
  
          this.renderItem(stack, bakedmodel);
@@ -137,7 +149,7 @@
          GlStateManager.disableRescaleNormal();
          GlStateManager.disableLighting();
          GlStateManager.popMatrix();
-@@ -644,4 +709,9 @@
+@@ -644,4 +718,9 @@
      {
          this.itemModelMesher.rebuildCache();
      }

@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 
 import org.vivecraft.api.NetworkHelper;
 import org.vivecraft.api.NetworkHelper.PacketDiscriminators;
+import org.vivecraft.api.VRData;
 import org.vivecraft.gameplay.OpenVRPlayer;
 import org.vivecraft.provider.MCOpenVR;
 
@@ -110,10 +111,14 @@ public class BowTracker extends Tracker {
 
 	@Override
 	public void doProcess(EntityPlayerSP player){
+		VRData vrData = mc.vrPlayer.vrdata_world_render;
+		if (vrData==null)
+			vrData=mc.vrPlayer.vrdata_world_pre;
+		
 		OpenVRPlayer provider = mc.vrPlayer;
 
 		if(mc.vrSettings.seated){
-			aim = mc.vrPlayer.vrdata_world_render.getController(0).getCustomVector(new Vec3d(0,0,1));
+			aim = vrData.getController(0).getCustomVector(new Vec3d(0,0,1));
 			return;
 		}
 		
@@ -126,24 +131,24 @@ public class BowTracker extends Tracker {
 		maxDraw = mc.player.height * 0.22;
 
 		//these are wrong since this is called every frame but should be fine so long as they're only compared to each other.
-		Vec3d rightPos = provider.vrdata_world_render.getController(0).getPosition();
-		Vec3d leftPos = provider.vrdata_world_render.getController(1).getPosition();
+		Vec3d rightPos = vrData.getController(0).getPosition();
+		Vec3d leftPos = vrData.getController(1).getPosition();
 		//
 			
 		controllersDist = leftPos.distanceTo(rightPos);
 
 		Vec3d forward = new Vec3d(0,1,0);
 
-		Vec3d stringPos=provider.vrdata_world_render.getHand(1).getCustomVector(forward).scale(maxDraw*0.5).add(leftPos);
+		Vec3d stringPos=vrData.getHand(1).getCustomVector(forward).scale(maxDraw*0.5).add(leftPos);
 		double notchDist=rightPos.distanceTo(stringPos);
 
 		aim = rightPos.subtract(leftPos).normalize();
 
-		Vec3d rightaim3 = provider.vrdata_world_render.getHand(0).getCustomVector(new Vec3d(0,0,-1));
+		Vec3d rightaim3 = vrData.getHand(0).getCustomVector(new Vec3d(0,0,-1));
 		
 		Vector3f rightAim = new Vector3f((float)rightaim3.x, (float) rightaim3.y, (float) rightaim3.z);
-		leftHandAim = provider.vrdata_world_render.getHand(1).getCustomVector(new Vec3d(0, 0, -1));
-	 	Vec3d l4v3 = provider.vrdata_world_render.getHand(1).getCustomVector(new Vec3d(0, -1, 0));
+		leftHandAim = vrData.getHand(1).getCustomVector(new Vec3d(0, 0, -1));
+	 	Vec3d l4v3 = vrData.getHand(1).getCustomVector(new Vec3d(0, -1, 0));
 		 
 		Vector3f leftforeward = new Vector3f((float)l4v3.x, (float) l4v3.y, (float) l4v3.z);
 
@@ -151,7 +156,7 @@ public class BowTracker extends Tracker {
 
 		pressed = mc.gameSettings.keyBindAttack.isKeyDown();
 
-		float notchDistThreshold = (float) (0.3 * provider.vrdata_world_render.worldScale);
+		float notchDistThreshold = (float) (0.3 *vrData.worldScale);
 		
 		boolean main = this.isHoldingBow(player, EnumHand.MAIN_HAND);
 		
@@ -182,6 +187,7 @@ public class BowTracker extends Tracker {
 			if(!isDrawing){
 				player.setItemInUseClient(bow);
 				player.setItemInUseCountClient(bow.getUseDuration() - 1 );
+				Minecraft.getMinecraft().physicalGuiManager.preClickAction();
 				mc.playerController.processRightClick(player, player.world, hand);//server
 
 			}
@@ -194,6 +200,7 @@ public class BowTracker extends Tracker {
 		if (!isDrawing && canDraw  && pressed && !lastpressed) {
 			//draw     	    	
 			isDrawing = true;
+			Minecraft.getMinecraft().physicalGuiManager.preClickAction();
 			mc.playerController.processRightClick(player, player.world, hand);//server
 		}
 

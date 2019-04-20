@@ -377,7 +377,7 @@
 +    		float f = -0.4F * MathHelper.sin(MathHelper.sqrt(swingProgress) * (float)Math.PI);
 +    		float f1 = 0.2F * MathHelper.sin(MathHelper.sqrt(swingProgress) * ((float)Math.PI * 2F));
 +    		float f2 = -0.2F * MathHelper.sin(swingProgress * (float)Math.PI);
-+    		boolean vive = MCOpenVR.isVive();
++    		boolean vive = !MCOpenVR.isGunStyle();
 +    		boolean skipActualItem = false;
 +    		
 +    		{ //animations
@@ -682,7 +682,7 @@
 +    				}
 +    			}
 +
-+    			if(vive){
++    			if(vive || item instanceof ItemArrow){
 +    				GlStateManager.translatef(0f, -.025f, -0.1f);		
 +    				GlStateManager.scaled(0.6, 0.6, 0.6);	
 +

@@ -13,6 +13,8 @@ import net.minecraft.util.math.Vec3d;
 
 public class BackpackTracker extends Tracker {
 	public boolean[] wasIn = new boolean[2];
+	public boolean[] hystersis = new boolean[2];
+
 	public int previousSlot = 0;
 
 	public BackpackTracker(Minecraft mc) {
@@ -45,11 +47,16 @@ public class BackpackTracker extends Tracker {
 			Vec3d delta = hmdPos.subtract(controllerPos);
 			double dot = controllerDir.dotProduct(down);
 			double dotDelta = delta.dotProduct(hmddir);
-			boolean zone = ((Math.abs(hmdPos.y - controllerPos.y)) < 0.25) && //controller below hmd
-					(dotDelta > 0); // behind head
+			
+			boolean below  = ((Math.abs(hmdPos.y - controllerPos.y)) < 0.25);
+			boolean behind = (dotDelta > 0); 
+			boolean aimdown = (dot > .6);
+			
+			boolean zone = below && behind && aimdown;
+			
 			Minecraft mc = Minecraft.getMinecraft();
 			if (zone){
-				if(!wasIn[c] && (dot > .6)){
+				if(!wasIn[c]){
 					if(c==0){ //mainhand
 						if((mc.climbTracker.isGrabbingLadder() && 
 								mc.climbTracker.isClaws(mc.player.getHeldItemMainhand()))){}
@@ -65,14 +72,24 @@ public class BackpackTracker extends Tracker {
 					else { //offhand
 						if((mc.climbTracker.isGrabbingLadder() && 
 								mc.climbTracker.isClaws(mc.player.getHeldItemOffhand()))){}
-						else
-							player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.SWAP_HELD_ITEMS, BlockPos.ORIGIN, EnumFacing.DOWN));
+						else {
+							if (mc.vrSettings.physicalGuiEnabled) {
+								mc.physicalGuiManager.toggleInventoryBag();
+							} else
+								player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.SWAP_HELD_ITEMS, BlockPos.ORIGIN, EnumFacing.DOWN));
+						}
 					}
 					MCOpenVR.triggerHapticPulse(c, 1500);
 					wasIn[c] = true;
+					hystersis[c] = true;
 				}
 			} else {
-				wasIn[c] = false;
+				if(hystersis[c]) {
+					wasIn[c] = !behind && !aimdown;
+					hystersis[c] = wasIn[c];
+				} else {
+					wasIn[c] = false;
+				}
 			}
 		}
 }

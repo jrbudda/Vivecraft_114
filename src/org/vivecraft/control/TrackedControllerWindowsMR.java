@@ -18,23 +18,23 @@ public class TrackedControllerWindowsMR extends TrackedControllerVive {
 	public void processInput() {
 		// axis direction "buttons"
 		if (stickButtonsEnabled) {
-			if (state.rAxis[k_axisStick] != null && (state.rAxis[k_axisStick].x > 0.5F) != (lastState.rAxis[k_axisStick].x > 0.5F)) {
-				MCOpenVR.queueInputEvent(this, ButtonType.WMR_STICK_RIGHT, null, state.rAxis[k_axisStick].x > 0.5F, true, null);
+			if (state.rAxis(k_axisStick) != null && (state.rAxis(k_axisStick).x() > 0.5F) != (lastState.rAxis(k_axisStick).x() > 0.5F)) {
+				MCOpenVR.queueInputEvent(this, ButtonType.WMR_STICK_RIGHT, null, state.rAxis(k_axisStick).x() > 0.5F, true, null);
 			}
-			if (state.rAxis[k_axisStick] != null && (state.rAxis[k_axisStick].x < -0.5F) != (lastState.rAxis[k_axisStick].x < -0.5F)) {
-				MCOpenVR.queueInputEvent(this, ButtonType.WMR_STICK_LEFT, null, state.rAxis[k_axisStick].x < -0.5F, true, null);
+			if (state.rAxis(k_axisStick) != null && (state.rAxis(k_axisStick).x() < -0.5F) != (lastState.rAxis(k_axisStick).x() < -0.5F)) {
+				MCOpenVR.queueInputEvent(this, ButtonType.WMR_STICK_LEFT, null, state.rAxis(k_axisStick).x() < -0.5F, true, null);
 			}
-			if (state.rAxis[k_axisStick] != null && (state.rAxis[k_axisStick].y > 0.5F) != (lastState.rAxis[k_axisStick].y > 0.5F)) {
-				MCOpenVR.queueInputEvent(this, ButtonType.WMR_STICK_UP, null, state.rAxis[k_axisStick].y > 0.5F, true, null);
+			if (state.rAxis(k_axisStick) != null && (state.rAxis(k_axisStick).y() > 0.5F) != (lastState.rAxis(k_axisStick).y() > 0.5F)) {
+				MCOpenVR.queueInputEvent(this, ButtonType.WMR_STICK_UP, null, state.rAxis(k_axisStick).y() > 0.5F, true, null);
 			}
-			if (state.rAxis[k_axisStick] != null && (state.rAxis[k_axisStick].y < -0.5F) != (lastState.rAxis[k_axisStick].y < -0.5F)) {
-				MCOpenVR.queueInputEvent(this, ButtonType.WMR_STICK_DOWN, null, state.rAxis[k_axisStick].y < -0.5F, true, null);
+			if (state.rAxis(k_axisStick) != null && (state.rAxis(k_axisStick).y() < -0.5F) != (lastState.rAxis(k_axisStick).y() < -0.5F)) {
+				MCOpenVR.queueInputEvent(this, ButtonType.WMR_STICK_DOWN, null, state.rAxis(k_axisStick).y() < -0.5F, true, null);
 			}
 		}
 
 		// axis change
-		if (state.rAxis[k_axisStick] != null && (state.rAxis[k_axisStick].x != lastState.rAxis[k_axisStick].x || state.rAxis[k_axisStick].y != lastState.rAxis[k_axisStick].y)) {
-			Vector2 deltaVec = new Vector2(state.rAxis[k_axisStick].x - lastState.rAxis[k_axisStick].x, state.rAxis[k_axisStick].y - lastState.rAxis[k_axisStick].y);
+		if (state.rAxis(k_axisStick) != null && (state.rAxis(k_axisStick).x() != lastState.rAxis(k_axisStick).x() || state.rAxis(k_axisStick).y() != lastState.rAxis(k_axisStick).y())) {
+			Vector2 deltaVec = new Vector2(state.rAxis(k_axisStick).x() - lastState.rAxis(k_axisStick).x(), state.rAxis(k_axisStick).y() - lastState.rAxis(k_axisStick).y());
 			MCOpenVR.queueInputEvent(this, null, AxisType.WMR_STICK, false, false, deltaVec);
 		}
 
@@ -57,13 +57,13 @@ public class TrackedControllerWindowsMR extends TrackedControllerVive {
 	public boolean isButtonPressed(ButtonType button) {
 		switch (button) {
 			case WMR_STICK_RIGHT:
-				return state.rAxis[k_axisStick] != null && state.rAxis[k_axisStick].y > 0.5F;
+				return state.rAxis(k_axisStick) != null && state.rAxis(k_axisStick).y() > 0.5F;
 			case WMR_STICK_LEFT:
-				return state.rAxis[k_axisStick] != null && state.rAxis[k_axisStick].y < -0.5F;
+				return state.rAxis(k_axisStick) != null && state.rAxis(k_axisStick).y() < -0.5F;
 			case WMR_STICK_UP:
-				return state.rAxis[k_axisStick] != null && state.rAxis[k_axisStick].y > 0.5F;
+				return state.rAxis(k_axisStick) != null && state.rAxis(k_axisStick).y() > 0.5F;
 			case WMR_STICK_DOWN:
-				return state.rAxis[k_axisStick] != null && state.rAxis[k_axisStick].y < -0.5F;
+				return state.rAxis(k_axisStick) != null && state.rAxis(k_axisStick).y() < -0.5F;
 			default:
 				return super.isButtonPressed(button);
 		}
@@ -75,8 +75,8 @@ public class TrackedControllerWindowsMR extends TrackedControllerVive {
 	public Vector2 getAxis(AxisType axis) {
 		switch (axis) {
 			case WMR_STICK:
-				if (state.rAxis[k_axisStick] != null)
-					return new Vector2(state.rAxis[k_axisStick].x, state.rAxis[k_axisStick].y);
+				if (state.rAxis(k_axisStick) != null)
+					return new Vector2(state.rAxis(k_axisStick).x(), state.rAxis(k_axisStick).y());
 				return new Vector2();
 			default:
 				return super.getAxis(axis);

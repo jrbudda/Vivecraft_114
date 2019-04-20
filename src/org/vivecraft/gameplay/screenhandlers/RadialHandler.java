@@ -9,10 +9,10 @@ import org.vivecraft.control.VRButtonMapping;
 import org.vivecraft.control.VRInputEvent;
 import org.vivecraft.gui.GuiRadial;
 import org.vivecraft.provider.MCOpenVR;
+import org.vivecraft.utils.OpenVRUtil;
 
 import de.fruitfly.ovr.structs.Matrix4f;
 import de.fruitfly.ovr.structs.Vector3f;
-import jopenvr.OpenVRUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.main.Main;
 import net.minecraft.client.shader.Framebuffer;

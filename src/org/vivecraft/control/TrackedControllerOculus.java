@@ -3,30 +3,29 @@ package org.vivecraft.control;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lwjgl.openvr.VR;
 import org.vivecraft.provider.MCOpenVR;
 import org.vivecraft.utils.Vector2;
 import org.vivecraft.utils.Vector3;
 
 import de.fruitfly.ovr.structs.Vector3f;
-import jopenvr.JOpenCompositeLibrary;
-import jopenvr.JOpenVRLibrary;
 
 public class TrackedControllerOculus extends TrackedController {
 	private boolean stickButtonsEnabled = true;
 	private long extendedButtonState = 0;
 	private long lastExtendedButtonState = 0;
 	
-	private static final long k_buttonIndexTrigger = (1L << JOpenVRLibrary.EVRButtonId.EVRButtonId_k_EButton_SteamVR_Trigger);
-	private static final long k_buttonHandTrigger =  (1L << JOpenVRLibrary.EVRButtonId.EVRButtonId_k_EButton_Axis2);
-	private static final long k_buttonA =  (1L << JOpenVRLibrary.EVRButtonId.EVRButtonId_k_EButton_A);
-	private static final long k_buttonB = (1L << JOpenVRLibrary.EVRButtonId.EVRButtonId_k_EButton_ApplicationMenu);
-	private static final long k_buttonStick = (1L << JOpenVRLibrary.EVRButtonId.EVRButtonId_k_EButton_SteamVR_Touchpad);
+	private static final long k_buttonIndexTrigger = (1L << VR.EVRButtonId_k_EButton_SteamVR_Trigger);
+	private static final long k_buttonHandTrigger =  (1L << VR.EVRButtonId_k_EButton_Axis2);
+	private static final long k_buttonA =  (1L << VR.EVRButtonId_k_EButton_A);
+	private static final long k_buttonB = (1L << VR.EVRButtonId_k_EButton_ApplicationMenu);
+	private static final long k_buttonStick = (1L << VR.EVRButtonId_k_EButton_SteamVR_Touchpad);
 	private static final int k_axisStick = 0;
 	private static final int k_axisIndexTrigger = 1;
 	private static final int k_axisHandTrigger = 2;
 
 	// OpenComposite extended buttons
-	private static final long k_buttonMenu = (1L << JOpenCompositeLibrary.EVRExtendedButtonId.EVRExtendedButtonId_k_EButton_OVRMenu);
+	private static final long k_buttonMenu = (1L << 0);
 
 	public TrackedControllerOculus(ControllerType type) {
 		super(type);
@@ -51,33 +50,34 @@ public class TrackedControllerOculus extends TrackedController {
 	@Override
 	public void processInput() {
 		// axis direction "buttons"
-		if (stickButtonsEnabled) {
-			if (state.rAxis[k_axisStick] != null && (state.rAxis[k_axisStick].x > 0.5F) != (lastState.rAxis[k_axisStick].x > 0.5F)) {
-				MCOpenVR.queueInputEvent(this, ButtonType.OCULUS_STICK_RIGHT, null, state.rAxis[k_axisStick].x > 0.5F, true, null);
+		
+		if (stickButtonsEnabled && state.rAxis(k_axisStick) != null) {
+			if ((state.rAxis(k_axisStick).x() > 0.5F) != (lastState.rAxis(k_axisStick).x() > 0.5F)) {
+				MCOpenVR.queueInputEvent(this, ButtonType.OCULUS_STICK_RIGHT, null, state.rAxis(k_axisStick).x() > 0.5F, true, null);
 			}
-			if (state.rAxis[k_axisStick] != null && (state.rAxis[k_axisStick].x < -0.5F) != (lastState.rAxis[k_axisStick].x < -0.5F)) {
-				MCOpenVR.queueInputEvent(this, ButtonType.OCULUS_STICK_LEFT, null, state.rAxis[k_axisStick].x < -0.5F, true, null);
+			if ((state.rAxis(k_axisStick).x() < -0.5F) != (lastState.rAxis(k_axisStick).x() < -0.5F)) {
+				MCOpenVR.queueInputEvent(this, ButtonType.OCULUS_STICK_LEFT, null, state.rAxis(k_axisStick).x() < -0.5F, true, null);
 			}
-			if (state.rAxis[k_axisStick] != null && (state.rAxis[k_axisStick].y > 0.5F) != (lastState.rAxis[k_axisStick].y > 0.5F)) {
-				MCOpenVR.queueInputEvent(this, ButtonType.OCULUS_STICK_UP, null, state.rAxis[k_axisStick].y > 0.5F, true, null);
+			if ((state.rAxis(k_axisStick).y() > 0.5F) != (lastState.rAxis(k_axisStick).y() > 0.5F)) {
+				MCOpenVR.queueInputEvent(this, ButtonType.OCULUS_STICK_UP, null, state.rAxis(k_axisStick).y() > 0.5F, true, null);
 			}
-			if (state.rAxis[k_axisStick] != null && (state.rAxis[k_axisStick].y < -0.5F) != (lastState.rAxis[k_axisStick].y < -0.5F)) {
-				MCOpenVR.queueInputEvent(this, ButtonType.OCULUS_STICK_DOWN, null, state.rAxis[k_axisStick].y < -0.5F, true, null);
+			if ((state.rAxis(k_axisStick).y() < -0.5F) != (lastState.rAxis(k_axisStick).y() < -0.5F)) {
+				MCOpenVR.queueInputEvent(this, ButtonType.OCULUS_STICK_DOWN, null, state.rAxis(k_axisStick).y() < -0.5F, true, null);
 			}
 		}
 		
 
 		// axis change
-		if (state.rAxis[k_axisStick] != null && (state.rAxis[k_axisStick].x != lastState.rAxis[k_axisStick].x || state.rAxis[k_axisStick].y != lastState.rAxis[k_axisStick].y)) {
-			Vector2 deltaVec = new Vector2(state.rAxis[k_axisStick].x - lastState.rAxis[k_axisStick].x, state.rAxis[k_axisStick].y - lastState.rAxis[k_axisStick].y);
+		if (state.rAxis(k_axisStick) != null && (state.rAxis(k_axisStick).x() != lastState.rAxis(k_axisStick).x() || state.rAxis(k_axisStick).y() != lastState.rAxis(k_axisStick).y())) {
+			Vector2 deltaVec = new Vector2(state.rAxis(k_axisStick).x() - lastState.rAxis(k_axisStick).x(), state.rAxis(k_axisStick).y() - lastState.rAxis(k_axisStick).y());
 			MCOpenVR.queueInputEvent(this, null, AxisType.OCULUS_STICK, false, false, deltaVec);
 		}
-		if (state.rAxis[k_axisIndexTrigger] != null && state.rAxis[k_axisIndexTrigger].x != lastState.rAxis[k_axisIndexTrigger].x) {
-			Vector2 deltaVec = new Vector2(state.rAxis[k_axisIndexTrigger].x - lastState.rAxis[k_axisIndexTrigger].x, 0);
+		if (state.rAxis(k_axisIndexTrigger) != null && state.rAxis(k_axisIndexTrigger).x() != lastState.rAxis(k_axisIndexTrigger).x()) {
+			Vector2 deltaVec = new Vector2(state.rAxis(k_axisIndexTrigger).x() - lastState.rAxis(k_axisIndexTrigger).x(), 0);
 			MCOpenVR.queueInputEvent(this, null, AxisType.OCULUS_INDEX_TRIGGER, false, false, deltaVec);
 		}
-		if (state.rAxis[k_axisHandTrigger] != null && state.rAxis[k_axisHandTrigger].x != lastState.rAxis[k_axisHandTrigger].x) {
-			Vector2 deltaVec = new Vector2(state.rAxis[k_axisHandTrigger].x - lastState.rAxis[k_axisHandTrigger].x, 0);
+		if (state.rAxis(k_axisHandTrigger) != null && state.rAxis(k_axisHandTrigger).x() != lastState.rAxis(k_axisHandTrigger).x()) {
+			Vector2 deltaVec = new Vector2(state.rAxis(k_axisHandTrigger).x() - lastState.rAxis(k_axisHandTrigger).x(), 0);
 			MCOpenVR.queueInputEvent(this, null, AxisType.OCULUS_HAND_TRIGGER, false, false, deltaVec);
 		}
 
@@ -92,19 +92,19 @@ public class TrackedControllerOculus extends TrackedController {
 	@Override
 	public void processButtonEvent(int button, boolean state, boolean press) {
 		switch (button) {
-			case JOpenVRLibrary.EVRButtonId.EVRButtonId_k_EButton_SteamVR_Trigger:
+			case VR.EVRButtonId_k_EButton_SteamVR_Trigger:
 				MCOpenVR.queueInputEvent(this, ButtonType.OCULUS_INDEX_TRIGGER, null, state, press, null);
 				break;
-			case JOpenVRLibrary.EVRButtonId.EVRButtonId_k_EButton_Axis2:
+			case VR.EVRButtonId_k_EButton_Axis2:
 				MCOpenVR.queueInputEvent(this, ButtonType.OCULUS_HAND_TRIGGER, null, state, press, null);
 				break;
-			case JOpenVRLibrary.EVRButtonId.EVRButtonId_k_EButton_A:
+			case VR.EVRButtonId_k_EButton_A:
 				MCOpenVR.queueInputEvent(this, ButtonType.OCULUS_AX, null, state, press, null);
 				break;
-			case JOpenVRLibrary.EVRButtonId.EVRButtonId_k_EButton_ApplicationMenu:
+			case VR.EVRButtonId_k_EButton_ApplicationMenu:
 				MCOpenVR.queueInputEvent(this, ButtonType.OCULUS_BY, null, state, press, null);
 				break;
-			case JOpenVRLibrary.EVRButtonId.EVRButtonId_k_EButton_SteamVR_Touchpad:
+			case VR.EVRButtonId_k_EButton_SteamVR_Touchpad:
 				MCOpenVR.queueInputEvent(this, ButtonType.OCULUS_STICK, null, state, press, null);
 				break;
 		}
@@ -133,13 +133,13 @@ public class TrackedControllerOculus extends TrackedController {
 	public boolean isButtonTouched(ButtonType button) {
 		switch (button) {
 			case OCULUS_AX:
-				return (state.ulButtonTouched & k_buttonA) > 0;
+				return (state.ulButtonTouched() & k_buttonA) > 0;
 			case OCULUS_BY:
-				return (state.ulButtonTouched & k_buttonB) > 0;
+				return (state.ulButtonTouched() & k_buttonB) > 0;
 			case OCULUS_INDEX_TRIGGER:
-				return (state.ulButtonTouched & k_buttonIndexTrigger) > 0;
+				return (state.ulButtonTouched() & k_buttonIndexTrigger) > 0;
 			case OCULUS_STICK:
-				return (state.ulButtonTouched & k_buttonStick) > 0;
+				return (state.ulButtonTouched() & k_buttonStick) > 0;
 			default:
 				return false;
 		}
@@ -149,23 +149,23 @@ public class TrackedControllerOculus extends TrackedController {
 	public boolean isButtonPressed(ButtonType button) {
 		switch (button) {
 			case OCULUS_AX:
-				return (state.ulButtonPressed & k_buttonA) > 0;
+				return (state.ulButtonPressed() & k_buttonA) > 0;
 			case OCULUS_BY:
-				return (state.ulButtonPressed & k_buttonB) > 0;
+				return (state.ulButtonPressed() & k_buttonB) > 0;
 			case OCULUS_INDEX_TRIGGER:
-				return (state.ulButtonPressed & k_buttonIndexTrigger) > 0;
+				return (state.ulButtonPressed() & k_buttonIndexTrigger) > 0;
 			case OCULUS_HAND_TRIGGER:
-				return (state.ulButtonPressed & k_buttonHandTrigger) > 0;
+				return (state.ulButtonPressed() & k_buttonHandTrigger) > 0;
 			case OCULUS_STICK:
-				return (state.ulButtonPressed & k_buttonStick) > 0;
+				return (state.ulButtonPressed() & k_buttonStick) > 0;
 			case OCULUS_STICK_RIGHT:
-				return state.rAxis[k_axisStick] != null && state.rAxis[k_axisStick].y > 0.5F;
+				return state.rAxis(k_axisStick) != null && state.rAxis(k_axisStick).y() > 0.5F;
 			case OCULUS_STICK_LEFT:
-				return state.rAxis[k_axisStick] != null && state.rAxis[k_axisStick].y < -0.5F;
+				return state.rAxis(k_axisStick) != null && state.rAxis(k_axisStick).y() < -0.5F;
 			case OCULUS_STICK_UP:
-				return state.rAxis[k_axisStick] != null && state.rAxis[k_axisStick].y > 0.5F;
+				return state.rAxis(k_axisStick) != null && state.rAxis(k_axisStick).y() > 0.5F;
 			case OCULUS_STICK_DOWN:
-				return state.rAxis[k_axisStick] != null && state.rAxis[k_axisStick].y < -0.5F;
+				return state.rAxis(k_axisStick) != null && state.rAxis(k_axisStick).y() < -0.5F;
 		}
 
 		if (MCOpenVR.hasOpenComposite() && this.type == ControllerType.LEFT) {
@@ -195,16 +195,16 @@ public class TrackedControllerOculus extends TrackedController {
 	public Vector2 getAxis(AxisType axis) {
 		switch (axis) {
 			case OCULUS_STICK:
-				if (state.rAxis[k_axisStick] != null)
-					return new Vector2(state.rAxis[k_axisStick].x, state.rAxis[k_axisStick].y);
+				if (state.rAxis(k_axisStick) != null)
+					return new Vector2(state.rAxis(k_axisStick).x(), state.rAxis(k_axisStick).y());
 				return new Vector2();
 			case OCULUS_INDEX_TRIGGER:
-				if (state.rAxis[k_axisIndexTrigger] != null)
-					return new Vector2(state.rAxis[k_axisIndexTrigger].x, 0);
+				if (state.rAxis(k_axisIndexTrigger) != null)
+					return new Vector2(state.rAxis(k_axisIndexTrigger).x(), 0);
 				return new Vector2();
 			case OCULUS_HAND_TRIGGER:
-				if (state.rAxis[k_axisHandTrigger] != null)
-					return new Vector2(state.rAxis[k_axisHandTrigger].x, 0);
+				if (state.rAxis(k_axisHandTrigger) != null)
+					return new Vector2(state.rAxis(k_axisHandTrigger).x(), 0);
 				return new Vector2();
 			default:
 				return new Vector2();

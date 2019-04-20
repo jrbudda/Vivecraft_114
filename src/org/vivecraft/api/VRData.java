@@ -1,6 +1,7 @@
 package org.vivecraft.api;
 
 import org.vivecraft.provider.MCOpenVR;
+import org.vivecraft.render.PlayerModelController;
 import org.vivecraft.render.RenderPass;
 
 import de.fruitfly.ovr.structs.Matrix4f;
@@ -111,17 +112,11 @@ public class VRData{
 	}
 	
 	public float getBodyYaw(){
-		
-		if(Minecraft.getMinecraft().vrSettings.seated)
-			return hmd.getYaw();
-		
-		Vec3d v = (c1.getPosition().subtract(c0.getPosition())).normalize().rotateYaw((float) (-Math.PI/2));
+		return PlayerModelController.getBodyYaw(PlayerModelController.getMainPlayerRotInfo(this));
+	}
 	
-		if(Minecraft.getMinecraft().vrSettings.vrReverseHands)
-			return(float) Math.toDegrees(Math.atan2(v.x, -v.z)); 
-		else
-			return(float) Math.toDegrees(Math.atan2(-v.x, v.z)); 
-		
+	public float getFacingYaw(){
+		return PlayerModelController.getFacingYaw(PlayerModelController.getMainPlayerRotInfo(this));
 	}
 	
 	public Vec3d getHeadPivot() {

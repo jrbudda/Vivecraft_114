@@ -9,7 +9,7 @@ import net.minecraft.client.entity.EntityPlayerSP;
  * register in {@link OpenVRPlayer}
  * */
 public abstract class Tracker {
-	Minecraft mc;
+	public Minecraft mc;
 	public Tracker(Minecraft mc){
 		this.mc=mc;
 	}

@@ -9,7 +9,8 @@ public class VRShaders {
 	public static int _Lanczos_texelWidthOffsetUniform = -1;
 	public static int _Lanczos_texelHeightOffsetUniform = -1;
 	public static int _Lanczos_inputImageTextureUniform = -1;
-	
+	public static int _Lanczos_inputDepthTextureUniform = -1;
+
 	public static int _DepthMask_shaderProgramId = -1;
 	public static int _DepthMask_resolutionUniform = -1;
 	public static int _DepthMask_positionUniform = -1;
@@ -79,6 +80,8 @@ public class VRShaders {
 		_Lanczos_texelWidthOffsetUniform = ARBShaderObjects.glGetUniformLocationARB(_Lanczos_shaderProgramId, "texelWidthOffset");
 		_Lanczos_texelHeightOffsetUniform = ARBShaderObjects.glGetUniformLocationARB(_Lanczos_shaderProgramId, "texelHeightOffset");
 		_Lanczos_inputImageTextureUniform = ARBShaderObjects.glGetUniformLocationARB(_Lanczos_shaderProgramId, "inputImageTexture");
+		_Lanczos_inputDepthTextureUniform = ARBShaderObjects.glGetUniformLocationARB(_Lanczos_shaderProgramId, "inputDepthTexture");
+
 	}
 	
 	public static void setupFOVReduction() throws Exception {

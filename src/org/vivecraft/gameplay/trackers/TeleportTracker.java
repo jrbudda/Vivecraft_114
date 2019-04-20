@@ -5,12 +5,12 @@ import java.util.Random;
 import org.vivecraft.api.NetworkHelper;
 import org.vivecraft.gameplay.VRMovementStyle;
 import org.vivecraft.provider.MCOpenVR;
+import org.vivecraft.utils.OpenVRUtil;
 
 import de.fruitfly.ovr.structs.EulerOrient;
 import de.fruitfly.ovr.structs.Matrix4f;
 import de.fruitfly.ovr.structs.Quatf;
 import de.fruitfly.ovr.structs.Vector3f;
-import jopenvr.OpenVRUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLadder;
 import net.minecraft.block.BlockVine;

@@ -195,7 +195,8 @@ public class SwingTracker extends Tracker{
         					inAnEntity = true;
         				}
         				
-        				if(touchable && !tool && !lastWeaponSolid[c]){  
+        				if(touchable && !tool && !lastWeaponSolid[c]){
+							Minecraft.getMinecraft().physicalGuiManager.preClickAction();
         					mc.playerController.interactWithEntity(player, hitEntity, c==0?EnumHand.MAIN_HAND:EnumHand.OFF_HAND);
         					disableSwing = 3;
         					MCOpenVR.triggerHapticPulse(c, 250);
@@ -206,6 +207,7 @@ public class SwingTracker extends Tracker{
         			
         			if(!inAnEntity) {
         				if(canact){
+							Minecraft.getMinecraft().physicalGuiManager.preClickAction();
         					mc.playerController.attackEntity(player, hitEntity);
         					MCOpenVR.triggerHapticPulse(c, 1000);
         					lastWeaponSolid[c] = true;
@@ -246,7 +248,7 @@ public class SwingTracker extends Tracker{
         						//mc.playerController.onPlayerRightClick(player, player.world,is, col.blockX, col.blockY, col.blockZ, col.sideHit,col.hitVec);
         						this.shouldIlookatMyHand[c] = true;
         						if (IAmLookingAtMyHand[c]){
-
+									Minecraft.getMinecraft().physicalGuiManager.preClickAction();
         							if(	Minecraft.getMinecraft().playerController.processRightClick(player, player.world,c==0?EnumHand.MAIN_HAND:EnumHand.OFF_HAND)==EnumActionResult.SUCCESS){
         								mc.entityRenderer.itemRenderer.resetEquippedProgress(c==0?EnumHand.MAIN_HAND:EnumHand.OFF_HAND);					
         							}
@@ -256,6 +258,7 @@ public class SwingTracker extends Tracker{
         					if(canact && (!mc.vrSettings.realisticClimbEnabled || (!(block.getBlock() instanceof BlockLadder) && !(block.getBlock() instanceof BlockVine)))) { 
         						int p = 3;
         						if(item instanceof ItemHoe){
+									Minecraft.getMinecraft().physicalGuiManager.preClickAction();
         							Minecraft.getMinecraft().playerController.
         							processRightClickBlock(player, (WorldClient) player.world,bp,col.sideHit, col.hitVec, c==0?EnumHand.MAIN_HAND:EnumHand.OFF_HAND);
         						}else{
@@ -267,7 +270,8 @@ public class SwingTracker extends Tracker{
         								clearBlockHitDelay();			
         								boolean test = mc.climbTracker.isGrabbingLadder();
         								//all this comes from plaeyrControllerMP clickMouse and friends.
-
+								
+										Minecraft.getMinecraft().physicalGuiManager.preClickAction();
         								//all this does is sets the block you're currently hitting, has no effect in survival mode after that.
         								//but if in creaive mode will clickCreative on the block
         								mc.playerController.clickBlock(col.getBlockPos(), col.sideHit);

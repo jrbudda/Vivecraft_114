@@ -17,7 +17,8 @@ public class GuiRoomscaleSettings extends GuiVROptionsBase
 					VRSettings.VrOptions.REALISTIC_ROW,
 					VRSettings.VrOptions.REALISTIC_SWIM,
 					VRSettings.VrOptions.BOW_MODE,
-					VRSettings.VrOptions.BACKPACK_SWITCH
+					VRSettings.VrOptions.BACKPACK_SWITCH,
+					VRSettings.VrOptions.PHYSICAL_GUI
 			};
 
 	public GuiRoomscaleSettings(GuiScreen guiScreen) {
