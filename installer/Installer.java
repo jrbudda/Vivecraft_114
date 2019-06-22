@@ -157,8 +157,9 @@ public class Installer extends JPanel  implements PropertyChangeListener
 		}
 
 		version = "UNKNOWN";
+		
 		try {
-			InputStream ver = Installer.class.getResourceAsStream("version");
+			InputStream ver = Installer.class.getResourceAsStream("version");		
 			if( ver != null )
 			{
 				String[] tok = new BufferedReader(new InputStreamReader(ver)).readLine().split(":");
@@ -166,10 +167,16 @@ public class Installer extends JPanel  implements PropertyChangeListener
 				{
 					jar_id = tok[0];
 					version = tok[1];
-				}
+				} else {
+						   throw new Exception("token length is 0!");
+						}
+			} else {
+				throw new Exception("version stream is null!");
 			}
-		} catch (IOException e) { }
-
+		} catch (Exception e) { 
+						JOptionPane.showMessageDialog(null,
+							e.getMessage(),"",JOptionPane.WARNING_MESSAGE);
+		}
 		// Read release notes, save to file
 		String tmpFileName = System.getProperty("java.io.tmpdir") + releaseNotePathAddition + "Vivecraft" + version.toLowerCase() + "_release_notes.txt";
 		releaseNotes = new File(tmpFileName);
@@ -704,6 +711,9 @@ public class Installer extends JPanel  implements PropertyChangeListener
 				monitor.close();
 				return null;
 			}
+			
+			finalMessage = "Failed to setup HRTF.";
+
 			if(useHrtf.isSelected())
 			{
 				monitor.setProgress(85);
@@ -1134,7 +1144,7 @@ public class Installer extends JPanel  implements PropertyChangeListener
 				}
 
 				jar_id += mod;
-				InputStream version_jar =Installer.class.getResourceAsStream("version.jar");
+				InputStream version_jar = Installer.class.getResourceAsStream("version.jar");
 				if( version_jar != null && version_json != null )
 					try {
 						File ver_dir = null;
@@ -1179,7 +1189,7 @@ public class Installer extends JPanel  implements PropertyChangeListener
 							if(isMultiMC && useForge.isSelected()) {
 								JSONArray tw = (JSONArray) root.get("+tweakers");
 								tw = new JSONArray();
-								tw.put("com.mtbs3d.minecrift.tweaker.MinecriftForgeTweaker");
+								tw.put("org.vivecraft.tweaker.MinecriftForgeTweaker");
 								tw.put("net.minecraftforge.fml.common.launcher.FMLTweaker");
 								tw.put("optifine.OptiFineForgeTweaker");
 								root.put("+tweakers", tw);
@@ -1191,7 +1201,7 @@ public class Installer extends JPanel  implements PropertyChangeListener
 							fwJson.close();
 						}
 						catch (Exception e) {
-							e.printStackTrace();
+							finalMessage += " Error: " + e.getMessage();
 						}
 
 						// Extract new lib
@@ -1208,7 +1218,7 @@ public class Installer extends JPanel  implements PropertyChangeListener
 
 						return ver_json_file.exists() && ver_file.exists();
 					} catch (Exception e) {
-						finalMessage += " Error: "+e.getLocalizedMessage();
+						finalMessage += " Error: " + e.getMessage();
 					}
 
 			}

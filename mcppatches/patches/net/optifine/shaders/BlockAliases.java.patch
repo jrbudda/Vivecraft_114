@@ -1,15 +1,6 @@
 --- a/net/optifine/shaders/BlockAliases.java
 +++ b/net/optifine/shaders/BlockAliases.java
-@@ -5,6 +5,8 @@
- import java.util.ArrayList;
- import java.util.List;
- import java.util.Properties;
-+import java.util.Set;
-+
- import net.minecraft.block.Block;
- import net.minecraft.block.state.BlockState;
- import net.minecraft.block.state.IBlockState;
-@@ -157,7 +159,7 @@
+@@ -197,7 +197,7 @@
                  Config.dbg("[Shaders] Parsing block mappings: " + path);
                  ConnectedParser connectedparser = new ConnectedParser("Shaders");
  
@@ -18,3 +9,15 @@
                  {
                      String s1 = properties.getProperty(s);
  
+@@ -324,9 +324,9 @@
+                             String s2 = astring1[1];
+                             String s3 = astring1[2];
+                             String s4 = "{Name:'" + s3 + "'";
+-                            List<String> list2 = list1.stream().filter((s) ->
++                            List<String> list2 = list1.stream().filter((s32) ->
+                             {
+-                                return s.startsWith(s4);
++                                return s32.startsWith(s4);
+                             }).collect(Collectors.toList());
+ 
+                             if (list2.size() <= 0)

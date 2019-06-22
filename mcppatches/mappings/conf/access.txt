@@ -1,7 +1,0 @@
-PUBLIC net/minecraft/server/integrated/IntegratedServer func_71217_p ()V
-PUBLIC net/minecraft/server/integrated/IntegratedServer func_71247_a (Ljava/lang/String;Ljava/lang/String;JLnet/minecraft/world/WorldType;Lcom/google/gson/JsonElement;)V
-PUBLIC net/minecraft/server/integrated/IntegratedServer func_71228_a (Lnet/minecraft/crash/CrashReport;)V
-PUBLIC net/minecraft/server/integrated/IntegratedServer func_71197_b ()Z
-PUBLIC net/minecraft/server/dedicated/DedicatedServer func_71197_b ()Z
-PUBLIC net/minecraft/server/dedicated/DedicatedServer func_71240_o ()V
-PUBLIC net/minecraft/server/dedicated/DedicatedServer func_71190_q ()V

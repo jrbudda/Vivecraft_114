@@ -1,46 +1,13 @@
-diff -r -U 3 minecraft\net\minecraft\util\Util.java minecraft_patched\net\minecraft\util\Util.java
+﻿diff -r -U 3 minecraft\net\minecraft\util\Util.java minecraft_patched\net\minecraft\util\Util.java
 --- minecraft\net\minecraft\util\Util.java
 +++ minecraft_patched\net\minecraft\util\Util.java
-@@ -13,6 +13,7 @@
- import java.nio.file.Path;
- import java.nio.file.Paths;
- import java.security.AccessController;
-+import java.security.PrivilegedAction;
- import java.security.PrivilegedActionException;
- import java.security.PrivilegedExceptionAction;
- import java.time.Instant;
-@@ -184,7 +184,7 @@
+@@ -204,7 +204,7 @@
     }
  
-    public static <K> Strategy<K> func_501979_g() {
--      return Util.a.a;
-+      return (Strategy<K>)Util.a.a;
+    public static <K> Strategy<K> func_212443_g() {
+-      return Util.IdentityStrategy.INSTANCE;
++      return (Strategy<K>) Util.IdentityStrategy.INSTANCE;
     }
  
-    public static enum EnumOS {
-@@ -201,8 +202,15 @@
- 
-       public void func_195639_a(URL p_195639_1_) {
-          try {
--            Process process = (Process)AccessController.doPrivileged(() -> {
-+            Process process = (Process)AccessController.doPrivileged((PrivilegedAction<Process>)() -> {
-+             try
-+             {
-                return Runtime.getRuntime().exec(this.func_195643_b(p_195639_1_));
-+             }
-+             catch(IOException e)
-+             {
-+               throw new RuntimeException(e.getMessage(), e);
-+             }               
-             });
- 
-             for(String s : IOUtils.readLines(process.getErrorStream())) {
-@@ -212,7 +220,7 @@
-             process.getInputStream().close();
-             process.getErrorStream().close();
-             process.getOutputStream().close();
--         } catch (IOException | PrivilegedActionException privilegedactionexception) {
-+         } catch (Exception privilegedactionexception) {
-             Util.field_195650_a.error("Couldn't open url '{}'", p_195639_1_, privilegedactionexception);
-          }
- 
+    public static <V> CompletableFuture<List<V>> func_215079_b(List<? extends CompletableFuture<? extends V>> p_215079_0_) {
+

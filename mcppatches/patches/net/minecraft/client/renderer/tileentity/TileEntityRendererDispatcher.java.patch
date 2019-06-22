@@ -1,11 +1,11 @@
 --- a/net/minecraft/client/renderer/tileentity/TileEntityRendererDispatcher.java
 +++ b/net/minecraft/client/renderer/tileentity/TileEntityRendererDispatcher.java
-@@ -42,7 +42,7 @@
+@@ -45,7 +45,7 @@
  
  public class TileEntityRendererDispatcher
  {
--    public final Map < Class <? extends TileEntity > , TileEntityRenderer <? extends TileEntity >> renderers = Maps. < Class <? extends TileEntity > , TileEntityRenderer <? extends TileEntity >> newHashMap();
-+    public final Map < Class <? extends TileEntity > , TileEntityRenderer <? extends TileEntity >> renderers = Maps.newHashMap();
-     public static TileEntityRendererDispatcher instance = new TileEntityRendererDispatcher();
+-    public final Map < Class <? extends TileEntity > , TileEntityRenderer <? extends TileEntity >> renderers = Maps.newHashMap();
++    public final Map <Class, TileEntityRenderer > renderers = Maps.newHashMap();
+     public static final TileEntityRendererDispatcher instance = new TileEntityRendererDispatcher();
      public FontRenderer fontRenderer;
- 
+     public static double staticPlayerX;

@@ -1,32 +1,11 @@
 --- a/net/minecraft/client/particle/ParticleManager.java
 +++ b/net/minecraft/client/particle/ParticleManager.java
-@@ -5,6 +5,7 @@
- import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
- import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
- import java.util.ArrayDeque;
-+import java.util.Iterator;
- import java.util.List;
- import java.util.Queue;
- import java.util.Random;
-@@ -236,6 +237,21 @@
+@@ -193,7 +193,7 @@
+                     Stream stream = p_lambda$null$4_3_.stream();
+                     AtlasTexture atlastexture = this.atlas;
+                     this.atlas.getClass();
+-                    immutablelist = stream.map(atlastexture::getSprite).collect(ImmutableList.toImmutableList());
++                    immutablelist = (ImmutableList) ((Stream<ResourceLocation>)stream).map(atlastexture::getSprite).collect(ImmutableList.toImmutableList());
+                 }
  
-     private void tickParticleList(Queue<Particle> param1)
-     {
-+        if (!param1.isEmpty())
-+        {
-+            Iterator<Particle> iterator = param1.iterator();
-+
-+            while (iterator.hasNext())
-+            {
-+                Particle particle = iterator.next();
-+                this.tickParticle(particle);
-+
-+                if (!particle.isAlive())
-+                {
-+                    iterator.remove();
-+                }
-+            }
-+        }
-     }
- 
-     private void tickParticle(Particle particle)
+                 this.sprites.get(p_lambda$null$4_2_).func_217592_a(immutablelist);

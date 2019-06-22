@@ -1,0 +1,11 @@
+--- a/net/minecraft/util/concurrent/ITaskQueue.java
++++ b/net/minecraft/util/concurrent/ITaskQueue.java
+@@ -23,7 +23,7 @@
+ 
+         public Priority(int p_i3371_1_)
+         {
+-            this.queues = IntStream.range(0, p_i3371_1_).mapToObj((p_219948_0_) ->
++            this.queues = (List)IntStream.range(0, p_i3371_1_).mapToObj((p_219948_0_) ->
+             {
+                 return Queues.newConcurrentLinkedQueue();
+             }).collect(Collectors.toList());

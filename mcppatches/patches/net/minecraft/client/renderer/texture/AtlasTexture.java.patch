@@ -1,0 +1,38 @@
+--- a/net/minecraft/client/renderer/texture/AtlasTexture.java
++++ b/net/minecraft/client/renderer/texture/AtlasTexture.java
+@@ -202,7 +202,7 @@
+                 {
+                     GlStateManager.bindTexture(this.getMultiTexID().norm);
+ 
+-                    for (TextureAtlasSprite textureatlassprite2 : list)
++                    for (TextureAtlasSprite textureatlassprite2 : (List<TextureAtlasSprite>)list)
+                     {
+                         TextureAtlasSprite textureatlassprite4 = textureatlassprite2.spriteNormal;
+ 
+@@ -217,7 +217,7 @@
+                 {
+                     GlStateManager.bindTexture(this.getMultiTexID().spec);
+ 
+-                    for (TextureAtlasSprite textureatlassprite3 : list)
++                    for (TextureAtlasSprite textureatlassprite3 : (List<TextureAtlasSprite>)list)
+                     {
+                         TextureAtlasSprite textureatlassprite5 = textureatlassprite3.spriteSpecular;
+ 
+@@ -819,7 +819,7 @@
+ 
+     private int detectMinimumSpriteSize(Set<ResourceLocation> p_detectMinimumSpriteSize_1_, IResourceManager p_detectMinimumSpriteSize_2_, int p_detectMinimumSpriteSize_3_)
+     {
+-        Map map = new HashMap();
++        Map<Integer, Integer> map = new HashMap();
+ 
+         for (ResourceLocation resourcelocation : p_detectMinimumSpriteSize_1_)
+         {
+@@ -863,7 +863,7 @@
+ 
+         int l = 0;
+         Set set = map.keySet();
+-        Set set1 = new TreeSet(set);
++        Set<Integer> set1 = new TreeSet(set);
+ 
+         for (int j1 : set1)
+         {

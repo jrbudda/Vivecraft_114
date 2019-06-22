@@ -1,0 +1,11 @@
+--- a/net/minecraft/client/renderer/entity/EntityRendererManager.java
++++ b/net/minecraft/client/renderer/entity/EntityRendererManager.java
+@@ -132,7 +132,7 @@
+ 
+ public class EntityRendererManager
+ {
+-    private final Map < Class <? extends Entity > , EntityRenderer <? extends Entity >> entityRenderMap = Maps.newHashMap();
++    private final Map <Class, EntityRenderer> entityRenderMap = Maps.newHashMap();
+     private final Map<String, PlayerRenderer> skinMap = Maps.newHashMap();
+     private final PlayerRenderer playerRenderer;
+     private FontRenderer textRenderer;

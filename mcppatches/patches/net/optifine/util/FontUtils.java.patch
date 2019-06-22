@@ -5,12 +5,12 @@
  import java.io.InputStream;
  import java.util.Properties;
 +import java.util.Set;
- import net.minecraft.src.Config;
- import net.minecraft.util.ResourceLocation;
- 
-@@ -55,7 +56,7 @@
+ import java.util.concurrent.CompletableFuture;
+ import java.util.concurrent.Executor;
+ import net.minecraft.client.Minecraft;
+@@ -61,7 +62,7 @@
      {
-         Char2ObjectMap<Float> char2objectmap = new Char2ObjectOpenHashMap<Float>();
+         Char2ObjectMap<Float> char2objectmap = new Char2ObjectOpenHashMap<>();
  
 -        for (String s : props.keySet())
 +        for (String s : (Set<String>)(Set<?>)props.keySet())

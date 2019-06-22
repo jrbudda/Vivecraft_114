@@ -1,0 +1,11 @@
+--- a/net/optifine/RandomEntityProperties.java
++++ b/net/optifine/RandomEntityProperties.java
+@@ -102,7 +102,7 @@
+             }
+         }
+ 
+-        RandomEntityRule[] arandomentityrule = list.toArray(new RandomEntityRule[list.size()]);
++        RandomEntityRule[] arandomentityrule = (RandomEntityRule[]) list.toArray(new RandomEntityRule[list.size()]);
+         return arandomentityrule;
+     }
+ 

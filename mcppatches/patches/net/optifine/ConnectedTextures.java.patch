@@ -1,6 +1,15 @@
 --- a/net/optifine/ConnectedTextures.java
 +++ b/net/optifine/ConnectedTextures.java
-@@ -2320,13 +2320,13 @@
+@@ -2282,7 +2282,7 @@
+             }
+         }
+ 
+-        ConnectedProperties[] aconnectedproperties1 = list.toArray(new ConnectedProperties[list.size()]);
++        ConnectedProperties[] aconnectedproperties1 = (ConnectedProperties[]) list.toArray(new ConnectedProperties[list.size()]);
+         Set set1 = new HashSet();
+         Set set = new HashSet();
+ 
+@@ -2305,17 +2305,17 @@
          return !set1.isEmpty();
      }
  
@@ -18,7 +27,12 @@
  
              if (list != null)
              {
-@@ -2394,15 +2394,15 @@
+-                ConnectedProperties[] aconnectedproperties1 = list.toArray(new ConnectedProperties[list.size()]);
++                ConnectedProperties[] aconnectedproperties1 = (ConnectedProperties[]) list.toArray(new ConnectedProperties[list.size()]);
+                 aconnectedproperties[i] = aconnectedproperties1;
+             }
+         }
+@@ -2379,15 +2379,15 @@
              list.add((Object)null);
          }
  
@@ -39,3 +53,12 @@
      }
  
      private static String[] getDefaultCtmPaths()
+@@ -2430,7 +2430,7 @@
+             }
+         }
+ 
+-        String[] astring1 = list.toArray(new String[list.size()]);
++        String[] astring1 = (String[]) list.toArray(new String[list.size()]);
+         return astring1;
+     }
+ }

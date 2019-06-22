@@ -1,0 +1,11 @@
+--- a/net/minecraft/client/renderer/entity/layers/MooshroomMushroomLayer.java
++++ b/net/minecraft/client/renderer/entity/layers/MooshroomMushroomLayer.java
+@@ -24,7 +24,7 @@
+     private static boolean hasTextureMushroomRed = false;
+     private static boolean hasTextureMushroomBrown = false;
+ 
+-    public MooshroomMushroomLayer(IEntityRenderer<T, CowModel<T>> p_i43_1_)
++    public MooshroomMushroomLayer(IEntityRenderer p_i43_1_)
+     {
+         super(p_i43_1_);
+         MooshroomRenderer mooshroomrenderer = (MooshroomRenderer)p_i43_1_;

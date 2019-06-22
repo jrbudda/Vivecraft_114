@@ -1,0 +1,13 @@
+﻿diff -r -U 3 minecraft\net\minecraft\client\renderer\model\ModelBakery.java minecraft_patched\net\minecraft\client\renderer\model\ModelBakery.java
+--- minecraft\net\minecraft\client\renderer\model\ModelBakery.java
++++ minecraft_patched\net\minecraft\client\renderer\model\ModelBakery.java
+@@ -278,7 +278,7 @@
+                         break label179;
+                      }
+ 
+-                     for(Pair<String, BlockModelDefinition> pair : lvt_9_4_) {
++                     for(Pair<String, BlockModelDefinition> pair : (List<Pair>)lvt_9_4_) {
+                         BlockModelDefinition blockmodeldefinition = pair.getSecond();
+                         Map<BlockState, IUnbakedModel> map2 = Maps.newIdentityHashMap();
+                         IUnbakedModel iunbakedmodel;
+

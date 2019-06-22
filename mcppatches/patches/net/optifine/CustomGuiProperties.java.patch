@@ -6,26 +6,10 @@
  import java.util.Properties;
 +import java.util.Set;
 +
- import net.minecraft.block.BlockChest;
- import net.minecraft.block.state.IBlockState;
- import net.minecraft.client.gui.GuiEnchantment;
-@@ -197,12 +199,12 @@
-     private static Map<ResourceLocation, ResourceLocation> parseTextureLocations(Properties props, String property, CustomGuiProperties.EnumContainer container, String pathPrefix, String basePath)
-     {
-         Map<ResourceLocation, ResourceLocation> map = new HashMap<ResourceLocation, ResourceLocation>();
--        String s = props.getProperty(property);
-+        String propval = props.getProperty(property);
- 
--        if (s != null)
-+        if (propval != null)
-         {
-             ResourceLocation resourcelocation = getGuiTextureLocation(container);
--            ResourceLocation resourcelocation1 = parseTextureLocation(s, basePath);
-+            ResourceLocation resourcelocation1 = parseTextureLocation(propval, basePath);
- 
-             if (resourcelocation != null && resourcelocation1 != null)
-             {
-@@ -212,7 +214,7 @@
+ import net.minecraft.block.BlockState;
+ import net.minecraft.block.ChestBlock;
+ import net.minecraft.client.gui.screen.Screen;
+@@ -204,7 +206,7 @@
  
          String s5 = property + ".";
  

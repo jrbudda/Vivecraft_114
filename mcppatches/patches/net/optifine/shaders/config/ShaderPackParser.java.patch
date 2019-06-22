@@ -2,7 +2,7 @@
 +++ b/net/optifine/shaders/config/ShaderPackParser.java
 @@ -259,7 +259,7 @@
          String s = "profile.";
-         List<ShaderProfile> list = new ArrayList<ShaderProfile>();
+         List<ShaderProfile> list = new ArrayList<>();
  
 -        for (String s1 : props.keySet())
 +        for (String s1 : (Set<String>)(Set<?>)props.keySet())
@@ -11,7 +11,7 @@
              {
 @@ -292,7 +292,7 @@
          Pattern pattern = Pattern.compile("program\\.([^.]+)\\.enabled");
-         Map<String, IExpressionBool> map = new HashMap<String, IExpressionBool>();
+         Map<String, IExpressionBool> map = new HashMap<>();
  
 -        for (String s1 : props.keySet())
 +        for (String s1 : (Set<String>)(Set<?>)props.keySet())
@@ -19,8 +19,8 @@
              Matcher matcher = pattern.matcher(s1);
  
 @@ -747,7 +747,7 @@
-         Map<String, IExpression> map = new HashMap<String, IExpression>();
-         List<CustomUniform> list = new ArrayList<CustomUniform>();
+         Map<String, IExpression> map = new HashMap<>();
+         List<CustomUniform> list = new ArrayList<>();
  
 -        for (String s4 : props.keySet())
 +        for (String s4 : (Set<String>)(Set<?>)props.keySet())

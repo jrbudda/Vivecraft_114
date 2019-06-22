@@ -1,15 +1,6 @@
 --- a/net/optifine/CustomColors.java
 +++ b/net/optifine/CustomColors.java
-@@ -337,7 +337,7 @@
- 
-         if (ainteger.length <= 0)
-         {
--            return new ImmutablePair<LightMapPack[], Integer>((Object)null, 0);
-+            return new ImmutablePair<LightMapPack[], Integer>((LightMapPack[])null, 0);
-         }
-         else
-         {
-@@ -476,7 +476,7 @@
+@@ -468,7 +468,7 @@
          String s = "palette.block.";
          Map map = new HashMap();
  
@@ -18,7 +9,25 @@
          {
              String s2 = props.getProperty(s1);
  
-@@ -630,15 +630,15 @@
+@@ -478,7 +478,7 @@
+             }
+         }
+ 
+-        String[] astring = map.keySet().toArray(new String[map.size()]);
++        String[] astring = (String[]) map.keySet().toArray(new String[map.size()]);
+ 
+         for (int j = 0; j < astring.length; ++j)
+         {
+@@ -522,7 +522,7 @@
+         }
+         else
+         {
+-            CustomColormap[] acustomcolormap = list.toArray(new CustomColormap[list.size()]);
++            CustomColormap[] acustomcolormap = (CustomColormap[]) list.toArray(new CustomColormap[list.size()]);
+             return acustomcolormap;
+         }
+     }
+@@ -622,15 +622,15 @@
              list.add((Object)null);
          }
  
@@ -39,7 +48,7 @@
      }
  
      private static CustomColormap[][] blockListToArray(List list)
-@@ -647,11 +647,11 @@
+@@ -639,11 +639,11 @@
  
          for (int i = 0; i < list.size(); ++i)
          {
@@ -49,12 +58,12 @@
 -            if (list != null)
 +            if (sublist != null)
              {
--                CustomColormap[] acustomcolormap1 = (CustomColormap[])list.toArray(new CustomColormap[list.size()]);
-+                CustomColormap[] acustomcolormap1 = (CustomColormap[])sublist.toArray(new CustomColormap[sublist.size()]);
+-                CustomColormap[] acustomcolormap1 = list.toArray(new CustomColormap[list.size()]);
++                CustomColormap[] acustomcolormap1 = (CustomColormap[]) sublist.toArray(new CustomColormap[sublist.size()]);
                  acustomcolormap[i] = acustomcolormap1;
              }
          }
-@@ -1385,7 +1385,7 @@
+@@ -1377,7 +1377,7 @@
          Set set = props.keySet();
          int i = 0;
  
@@ -63,8 +72,8 @@
          {
              String s1 = props.getProperty(s);
  
-@@ -1529,7 +1529,7 @@
-         float[][] afloat1 = new float[aenumdyecolor.length][];
+@@ -1521,7 +1521,7 @@
+         float[][] afloat1 = new float[adyecolor.length][];
          int k = 0;
  
 -        for (String s : props.keySet())
@@ -72,7 +81,7 @@
          {
              String s1 = props.getProperty(s);
  
-@@ -1602,7 +1602,7 @@
+@@ -1594,7 +1594,7 @@
          Arrays.fill(aint, -1);
          int i = 0;
  
@@ -81,7 +90,7 @@
          {
              String s1 = props.getProperty(s);
  
-@@ -1658,7 +1658,7 @@
+@@ -1650,7 +1650,7 @@
          Arrays.fill(aint, -1);
          int i = 0;
  
@@ -90,7 +99,7 @@
          {
              String s1 = props.getProperty(s);
  
-@@ -1697,7 +1697,7 @@
+@@ -1689,7 +1689,7 @@
          Arrays.fill(aint, -1);
          int i = 0;
  

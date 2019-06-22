@@ -1,7 +1,7 @@
-diff -r -U 3 minecraft\net\minecraft\util\datafix\fixes\RedundantChanceTags.java minecraft_patched\net\minecraft\util\datafix\fixes\RedundantChanceTags.java
+﻿diff -r -U 3 minecraft\net\minecraft\util\datafix\fixes\RedundantChanceTags.java minecraft_patched\net\minecraft\util\datafix\fixes\RedundantChanceTags.java
 --- minecraft\net\minecraft\util\datafix\fixes\RedundantChanceTags.java
 +++ minecraft_patched\net\minecraft\util\datafix\fixes\RedundantChanceTags.java
-@@ -22,7 +22,7 @@
+@@ -20,7 +20,7 @@
           return p_210996_0_.update(DSL.remainderFinder(), (p_206334_0_) -> {
              Dynamic<?> dynamic = p_206334_0_;
              if (Objects.equals(p_206334_0_.get("HandDropChances"), Optional.of(p_206334_0_.createList(Stream.generate(() -> {
@@ -10,3 +10,4 @@ diff -r -U 3 minecraft\net\minecraft\util\datafix\fixes\RedundantChanceTags.java
              }).limit(2L))))) {
                 p_206334_0_ = p_206334_0_.remove("HandDropChances");
              }
+

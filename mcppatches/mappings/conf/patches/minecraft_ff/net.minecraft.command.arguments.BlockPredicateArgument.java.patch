@@ -1,7 +1,7 @@
-diff -r -U 3 minecraft\net\minecraft\command\arguments\BlockPredicateArgument.java minecraft_patched\net\minecraft\command\arguments\BlockPredicateArgument.java
+﻿diff -r -U 3 minecraft\net\minecraft\command\arguments\BlockPredicateArgument.java minecraft_patched\net\minecraft\command\arguments\BlockPredicateArgument.java
 --- minecraft\net\minecraft\command\arguments\BlockPredicateArgument.java
 +++ minecraft_patched\net\minecraft\command\arguments\BlockPredicateArgument.java
-@@ -141,7 +141,7 @@
+@@ -140,7 +140,7 @@
                    return false;
                 }
  
@@ -10,3 +10,4 @@ diff -r -U 3 minecraft\net\minecraft\command\arguments\BlockPredicateArgument.ja
                 if (comparable == null) {
                    return false;
                 }
+

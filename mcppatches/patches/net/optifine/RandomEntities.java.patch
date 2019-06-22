@@ -1,0 +1,11 @@
+--- a/net/optifine/RandomEntities.java
++++ b/net/optifine/RandomEntities.java
+@@ -445,7 +445,7 @@
+             }
+             else
+             {
+-                ResourceLocation[] aresourcelocation = list.toArray(new ResourceLocation[list.size()]);
++                ResourceLocation[] aresourcelocation = (ResourceLocation[]) list.toArray(new ResourceLocation[list.size()]);
+                 dbg(loc.getPath() + ", variants: " + aresourcelocation.length);
+                 return aresourcelocation;
+             }

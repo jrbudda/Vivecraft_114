@@ -1,0 +1,11 @@
+--- a/net/minecraft/client/renderer/chunk/ChunkRender.java
++++ b/net/minecraft/client/renderer/chunk/ChunkRender.java
+@@ -230,7 +230,7 @@
+                 Random random = new Random();
+                 BlockRendererDispatcher blockrendererdispatcher = Minecraft.getInstance().getBlockRendererDispatcher();
+ 
+-                for (BlockPosM blockposm : BlockPosM.getAllInBoxMutable(blockpos, blockpos1))
++                for (BlockPosM blockposm : (Iterable<BlockPosM>)BlockPosM.getAllInBoxMutable(blockpos, blockpos1))
+                 {
+                     BlockState blockstate = lvt_12_1_.getBlockState(blockposm);
+                     Block block = blockstate.getBlock();

@@ -1,7 +1,7 @@
-diff -r -U 3 minecraft\net\minecraft\world\gen\feature\structure\MineshaftPieces.java minecraft_patched\net\minecraft\world\gen\feature\structure\MineshaftPieces.java
+﻿diff -r -U 3 minecraft\net\minecraft\world\gen\feature\structure\MineshaftPieces.java minecraft_patched\net\minecraft\world\gen\feature\structure\MineshaftPieces.java
 --- minecraft\net\minecraft\world\gen\feature\structure\MineshaftPieces.java
 +++ minecraft_patched\net\minecraft\world\gen\feature\structure\MineshaftPieces.java
-@@ -548,7 +548,7 @@
+@@ -539,7 +539,7 @@
           }
  
           int k;
@@ -10,3 +10,4 @@ diff -r -U 3 minecraft\net\minecraft\world\gen\feature\structure\MineshaftPieces
              k = k + p_74861_3_.nextInt(this.field_74887_e.func_78883_b());
              if (k + 3 > this.field_74887_e.func_78883_b()) {
                 break;
+

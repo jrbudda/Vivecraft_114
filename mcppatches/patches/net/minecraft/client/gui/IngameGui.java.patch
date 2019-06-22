@@ -1,0 +1,34 @@
+--- a/net/minecraft/client/gui/IngameGui.java
++++ b/net/minecraft/client/gui/IngameGui.java
+@@ -570,15 +570,17 @@
+                     }
+ 
+                     TextureAtlasSprite textureatlassprite = potionspriteuploader.func_215288_a(effect);
+-
++                    final float ff = f;
++                    final int fk = k;
++                    final int fl = l;
+                     if (Reflector.ForgePotion_renderHUDEffect.exists())
+                     {
+                         if (effectinstance.isShowIcon())
+                         {
+                             list.add(() ->
+                             {
+-                                GlStateManager.color4f(1.0F, 1.0F, 1.0F, f);
+-                                blit(k + 3, l + 3, this.blitOffset, 18, 18, textureatlassprite);
++                                GlStateManager.color4f(1.0F, 1.0F, 1.0F, ff);
++                                blit(fk + 3, fl + 3, this.blitOffset, 18, 18, textureatlassprite);
+                             });
+                         }
+ 
+@@ -588,8 +590,8 @@
+                     {
+                         list.add(() ->
+                         {
+-                            GlStateManager.color4f(1.0F, 1.0F, 1.0F, f);
+-                            blit(k + 3, l + 3, this.blitOffset, 18, 18, textureatlassprite);
++                            GlStateManager.color4f(1.0F, 1.0F, 1.0F, ff);
++                            blit(fk + 3, fl + 3, this.blitOffset, 18, 18, textureatlassprite);
+                         });
+                     }
+                 }

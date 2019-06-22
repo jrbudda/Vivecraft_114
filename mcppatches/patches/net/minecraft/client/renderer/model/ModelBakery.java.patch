@@ -1,0 +1,11 @@
+--- a/net/minecraft/client/renderer/model/ModelBakery.java
++++ b/net/minecraft/client/renderer/model/ModelBakery.java
+@@ -376,7 +376,7 @@
+                                 break label275;
+                             }
+ 
+-                            for (Pair<String, BlockModelDefinition> pair : exception)
++                            for (Pair<String, BlockModelDefinition> pair : (List<Pair<String, BlockModelDefinition>>) exception)
+                             {
+                                 BlockModelDefinition blockmodeldefinition = pair.getSecond();
+                                 Map<BlockState, IUnbakedModel> map2 = Maps.newIdentityHashMap();

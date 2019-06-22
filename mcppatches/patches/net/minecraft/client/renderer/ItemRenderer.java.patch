@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/renderer/ItemRenderer.java
 +++ b/net/minecraft/client/renderer/ItemRenderer.java
-@@ -181,9 +181,10 @@
+@@ -183,9 +183,10 @@
  
                  if (stack.hasEffect() && (!Config.isCustomItems() || !CustomItems.renderCustomEffect(this, stack, model)))
                  {

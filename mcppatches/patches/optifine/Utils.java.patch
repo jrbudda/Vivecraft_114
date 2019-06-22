@@ -9,6 +9,15 @@
          {
              case 1:
              case 2:
+@@ -170,7 +170,7 @@
+             list.add(s);
+         }
+ 
+-        String[] astring = list.toArray(new String[list.size()]);
++        String[] astring = (String[]) list.toArray(new String[list.size()]);
+         return astring;
+     }
+ 
 @@ -362,7 +362,7 @@
  
                      if (object instanceof Object[])

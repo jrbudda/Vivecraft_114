@@ -1,0 +1,20 @@
+--- a/net/optifine/TextureAnimations.java
++++ b/net/optifine/TextureAnimations.java
+@@ -92,7 +92,7 @@
+             }
+         }
+ 
+-        TextureAnimation[] atextureanimation1 = list.toArray(new TextureAnimation[list.size()]);
++        TextureAnimation[] atextureanimation1 = (TextureAnimation[]) list.toArray(new TextureAnimation[list.size()]);
+         return atextureanimation1;
+     }
+ 
+@@ -145,7 +145,7 @@
+                 }
+             }
+ 
+-            TextureAnimation[] atextureanimation = list.toArray(new TextureAnimation[list.size()]);
++            TextureAnimation[] atextureanimation = (TextureAnimation[]) list.toArray(new TextureAnimation[list.size()]);
+             return atextureanimation;
+         }
+     }

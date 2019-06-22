@@ -1,5 +1,34 @@
 --- a/net/optifine/expr/ExpressionParser.java
 +++ b/net/optifine/expr/ExpressionParser.java
+@@ -59,7 +59,7 @@
+             }
+             else
+             {
+-                Deque<Token> deque = new ArrayDeque<>(Arrays.asList(atoken));
++                Deque<Token> deque = new ArrayDeque<Token>(Arrays.asList(atoken));
+                 return this.parseInfix(deque);
+             }
+         }
+@@ -77,8 +77,8 @@
+         }
+         else
+         {
+-            List<IExpression> list = new LinkedList<>();
+-            List<Token> list1 = new LinkedList<>();
++            List<IExpression> list = new LinkedList<IExpression>();
++            List<Token> list1 = new LinkedList<Token>();
+             IExpression iexpression = this.parseExpression(deque);
+             checkNull(iexpression, "Missing expression");
+             list.add(iexpression);
+@@ -107,7 +107,7 @@
+ 
+     private IExpression makeInfix(List<IExpression> listExpr, List<Token> listOper) throws ParseException
+     {
+-        List<FunctionType> list = new LinkedList<>();
++        List<FunctionType> list = new LinkedList<FunctionType>();
+ 
+         for (Token token : listOper)
+         {
 @@ -244,9 +244,9 @@
  
      private FunctionType getFunctionType(Token token, Deque<Token> deque) throws ParseException
@@ -26,7 +55,7 @@
  
              if (token == null || token.getType() != TokenType.BRACKET_OPEN)
              {
-@@ -283,20 +283,20 @@
+@@ -283,24 +283,24 @@
              }
          }
  
@@ -41,7 +70,8 @@
 -    private IExpression[] parseExpressions(Deque<Token> deque) throws ParseException
 +    private IExpression[] parseExpressions(Deque<Token> dequep) throws ParseException
      {
-         List<IExpression> list = new ArrayList<IExpression>();
+-        List<IExpression> list = new ArrayList<>();
++        List<IExpression> list = new ArrayList<IExpression>();
  
          while (true)
          {
@@ -52,7 +82,12 @@
  
              if (iexpression == null)
              {
-@@ -370,13 +370,13 @@
+-                IExpression[] aiexpression = list.toArray(new IExpression[list.size()]);
++                IExpression[] aiexpression = (IExpression[])list.toArray(new IExpression[list.size()]);
+                 return aiexpression;
+             }
+ 
+@@ -370,15 +370,15 @@
          }
      }
  
@@ -67,5 +102,8 @@
 -    private static Deque<Token> getGroup(Deque<Token> deque, TokenType tokenTypeEnd, boolean tokenEndRequired) throws ParseException
 +    private static Deque<Token> getGroup(Deque<Token> dequep, TokenType tokenTypeEnd, boolean tokenEndRequired) throws ParseException
      {
-         Deque<Token> deque = new ArrayDeque<Token>();
+-        Deque<Token> deque = new ArrayDeque<>();
++        Deque<Token> deque = new ArrayDeque<Token>();
          int i = 0;
+         Iterator iterator = deque.iterator();
+ 

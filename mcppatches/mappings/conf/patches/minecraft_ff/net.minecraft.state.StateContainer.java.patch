@@ -1,7 +1,7 @@
-diff -r -U 3 minecraft\net\minecraft\state\StateContainer.java minecraft_patched\net\minecraft\state\StateContainer.java
+﻿diff -r -U 3 minecraft\net\minecraft\state\StateContainer.java minecraft_patched\net\minecraft\state\StateContainer.java
 --- minecraft\net\minecraft\state\StateContainer.java
 +++ minecraft_patched\net\minecraft\state\StateContainer.java
-@@ -49,10 +49,10 @@
+@@ -47,10 +47,10 @@
        });
  
        for(A a : list) {
@@ -14,3 +14,4 @@ diff -r -U 3 minecraft\net\minecraft\state\StateContainer.java minecraft_patched
     }
  
     public ImmutableList<S> func_177619_a() {
+

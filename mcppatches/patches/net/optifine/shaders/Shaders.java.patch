@@ -1,6 +1,6 @@
 --- a/net/optifine/shaders/Shaders.java
 +++ b/net/optifine/shaders/Shaders.java
-@@ -105,6 +105,7 @@
+@@ -106,6 +106,7 @@
  import net.optifine.util.TimedEvent;
  import org.apache.commons.io.IOUtils;
  import org.lwjgl.BufferUtils;
@@ -8,24 +8,24 @@
  import org.lwjgl.opengl.ARBGeometryShader4;
  import org.lwjgl.opengl.ARBShaderObjects;
  import org.lwjgl.opengl.ARBVertexShader;
-@@ -797,6 +798,7 @@
+@@ -794,6 +795,7 @@
  
      public static void loadShaderPack()
      {
-+    	mc = Minecraft.getMinecraft();
++    	mc = Minecraft.getInstance();
          boolean flag = shaderPackLoaded;
          boolean flag1 = isOldLighting();
          shaderPackLoaded = false;
-@@ -1065,7 +1067,7 @@
+@@ -1062,7 +1064,7 @@
          Set set = props.keySet();
-         List<ICustomTexture> list = new ArrayList<ICustomTexture>();
+         List<ICustomTexture> list = new ArrayList<>();
  
 -        for (String s1 : set)
 +        for (String s1 : (Set<String>)(Set<?>)set)
          {
              if (s1.startsWith(s))
              {
-@@ -2297,11 +2299,11 @@
+@@ -2294,11 +2296,11 @@
  
      private static int getDrawBuffer(Program p, String str, int i)
      {
@@ -39,7 +39,35 @@
          }
          else
          {
-@@ -4164,10 +4166,10 @@
+@@ -2308,23 +2310,23 @@
+             {
+                 if (j >= 0 && j <= 1)
+                 {
+-                    i = j + 36064;
++                    d = j + 36064;
+                     usedShadowColorBuffers = Math.max(usedShadowColorBuffers, j);
+                 }
+ 
+-                return i;
++                return d;
+             }
+             else
+             {
+                 if (j >= 0 && j <= 7)
+                 {
+                     p.getToggleColorTextures()[j] = true;
+-                    i = j + 36064;
++                    d = j + 36064;
+                     usedColorAttachs = Math.max(usedColorAttachs, j);
+                     usedColorBuffers = Math.max(usedColorBuffers, j);
+                 }
+ 
+-                return i;
++                return d;
+             }
+         }
+     }
+@@ -4165,10 +4167,10 @@
      {
          if (currentWorld != world)
          {
@@ -52,7 +80,7 @@
              int j = getDimensionId(world);
  
              if (j != i)
-@@ -5571,7 +5573,7 @@
+@@ -5573,7 +5575,7 @@
                          Lang.loadLocaleData(inputstream, properties);
                          inputstream.close();
  

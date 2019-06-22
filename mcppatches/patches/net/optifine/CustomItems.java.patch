@@ -1,38 +1,38 @@
 --- a/net/optifine/CustomItems.java
 +++ b/net/optifine/CustomItems.java
-@@ -511,11 +511,11 @@
+@@ -514,11 +514,11 @@
  
          for (int i = 0; i < list.size(); ++i)
          {
 -            List list = (List)list.get(i);
-+            List sublist = (List)list.get(i);
++            List subList = (List)list.get(i);
  
 -            if (list != null)
-+            if (sublist != null)
++            if (subList != null)
              {
--                CustomItemProperties[] acustomitemproperties1 = (CustomItemProperties[])list.toArray(new CustomItemProperties[list.size()]);
-+                CustomItemProperties[] acustomitemproperties1 = (CustomItemProperties[])sublist.toArray(new CustomItemProperties[sublist.size()]);
+-                CustomItemProperties[] acustomitemproperties1 = list.toArray(new CustomItemProperties[list.size()]);
++                CustomItemProperties[] acustomitemproperties1 = (CustomItemProperties[]) subList.toArray(new CustomItemProperties[subList.size()]);
                  Arrays.sort(acustomitemproperties1, new CustomItemsComparator());
                  acustomitemproperties[i] = acustomitemproperties1;
              }
-@@ -587,15 +587,15 @@
+@@ -590,15 +590,15 @@
              list.add((List<CustomItemProperties>)null);
          }
  
 -        List<CustomItemProperties> list = list.get(id);
-+        List<CustomItemProperties> sublist = list.get(id);
++        List<CustomItemProperties> subList = list.get(id);
  
 -        if (list == null)
-+        if (sublist == null)
++        if (subList == null)
          {
--            list = new ArrayList<CustomItemProperties>();
+-            list = new ArrayList<>();
 -            list.set(id, list);
-+            sublist = new ArrayList<CustomItemProperties>();
-+            list.set(id, sublist);
++        	subList = new ArrayList<>();
++            list.set(id, subList);
          }
  
 -        list.add(cp);
-+        sublist.add(cp);
++        subList.add(cp);
      }
  
      public static IBakedModel getCustomItemModel(ItemStack itemStack, IBakedModel model, ResourceLocation modelLocation, boolean fullModel)
