@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/renderer/WorldRenderer.java
 +++ b/net/minecraft/client/renderer/WorldRenderer.java
-@@ -874,7 +874,7 @@
+@@ -883,7 +883,7 @@
              SignTileEntityRenderer.updateTextRenderDistance();
              label219:
  

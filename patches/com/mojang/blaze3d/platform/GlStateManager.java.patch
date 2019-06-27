@@ -1,0 +1,203 @@
+--- a/com/mojang/blaze3d/platform/GlStateManager.java
++++ b/com/mojang/blaze3d/platform/GlStateManager.java
+@@ -42,7 +42,7 @@
+         return new GlStateManager.BooleanState[p_199930_0_];
+     });
+     private static final GlStateManager.ColorMaterialState COLOR_MATERIAL = new GlStateManager.ColorMaterialState();
+-    private static final GlStateManager.BlendState BLEND = new GlStateManager.BlendState();
++    public static final GlStateManager.BlendState BLEND = new GlStateManager.BlendState();
+     private static final GlStateManager.DepthState DEPTH = new GlStateManager.DepthState();
+     private static final GlStateManager.FogState FOG = new GlStateManager.FogState();
+     private static final GlStateManager.CullState CULL = new GlStateManager.CullState();
+@@ -218,7 +218,7 @@
+         }
+         else
+         {
+-            BLEND.field_179213_a.func_179198_a();
++            BLEND.blend.func_179198_a();
+         }
+     }
+ 
+@@ -230,7 +230,7 @@
+         }
+         else
+         {
+-            BLEND.field_179213_a.func_179200_b();
++            BLEND.blend.func_179200_b();
+         }
+     }
+ 
+@@ -247,12 +247,12 @@
+         }
+         else
+         {
+-            if (p_blendFunc_0_ != BLEND.field_179211_b || p_blendFunc_1_ != BLEND.field_179212_c || p_blendFunc_0_ != BLEND.field_179209_d || p_blendFunc_1_ != BLEND.field_179210_e)
++            if (p_blendFunc_0_ != BLEND.srcFactor || p_blendFunc_1_ != BLEND.dstFactor || p_blendFunc_0_ != BLEND.srcFactorAlpha || p_blendFunc_1_ != BLEND.dstFactorAlpha)
+             {
+-                BLEND.field_179211_b = p_blendFunc_0_;
+-                BLEND.field_179212_c = p_blendFunc_1_;
+-                BLEND.field_179209_d = p_blendFunc_0_;
+-                BLEND.field_179210_e = p_blendFunc_1_;
++                BLEND.srcFactor = p_blendFunc_0_;
++                BLEND.dstFactor = p_blendFunc_1_;
++                BLEND.srcFactorAlpha = p_blendFunc_0_;
++                BLEND.dstFactorAlpha = p_blendFunc_1_;
+ 
+                 if (Config.isShaders())
+                 {
+@@ -277,12 +277,12 @@
+         }
+         else
+         {
+-            if (p_blendFuncSeparate_0_ != BLEND.field_179211_b || p_blendFuncSeparate_1_ != BLEND.field_179212_c || p_blendFuncSeparate_2_ != BLEND.field_179209_d || p_blendFuncSeparate_3_ != BLEND.field_179210_e)
++            if (p_blendFuncSeparate_0_ != BLEND.srcFactor || p_blendFuncSeparate_1_ != BLEND.dstFactor || p_blendFuncSeparate_2_ != BLEND.srcFactorAlpha || p_blendFuncSeparate_3_ != BLEND.dstFactorAlpha)
+             {
+-                BLEND.field_179211_b = p_blendFuncSeparate_0_;
+-                BLEND.field_179212_c = p_blendFuncSeparate_1_;
+-                BLEND.field_179209_d = p_blendFuncSeparate_2_;
+-                BLEND.field_179210_e = p_blendFuncSeparate_3_;
++                BLEND.srcFactor = p_blendFuncSeparate_0_;
++                BLEND.dstFactor = p_blendFuncSeparate_1_;
++                BLEND.srcFactorAlpha = p_blendFuncSeparate_2_;
++                BLEND.dstFactorAlpha = p_blendFuncSeparate_3_;
+ 
+                 if (Config.isShaders())
+                 {
+@@ -728,12 +728,12 @@
+ 
+     public static void clearColor(float p_clearColor_0_, float p_clearColor_1_, float p_clearColor_2_, float p_clearColor_3_)
+     {
+-        if (p_clearColor_0_ != CLEAR.field_179203_b.field_179195_a || p_clearColor_1_ != CLEAR.field_179203_b.field_179193_b || p_clearColor_2_ != CLEAR.field_179203_b.field_179194_c || p_clearColor_3_ != CLEAR.field_179203_b.field_179192_d)
++        if (p_clearColor_0_ != CLEAR.field_179203_b.red || p_clearColor_1_ != CLEAR.field_179203_b.green || p_clearColor_2_ != CLEAR.field_179203_b.blue || p_clearColor_3_ != CLEAR.field_179203_b.alpha)
+         {
+-            CLEAR.field_179203_b.field_179195_a = p_clearColor_0_;
+-            CLEAR.field_179203_b.field_179193_b = p_clearColor_1_;
+-            CLEAR.field_179203_b.field_179194_c = p_clearColor_2_;
+-            CLEAR.field_179203_b.field_179192_d = p_clearColor_3_;
++            CLEAR.field_179203_b.red = p_clearColor_0_;
++            CLEAR.field_179203_b.green = p_clearColor_1_;
++            CLEAR.field_179203_b.blue = p_clearColor_2_;
++            CLEAR.field_179203_b.alpha = p_clearColor_3_;
+             GL11.glClearColor(p_clearColor_0_, p_clearColor_1_, p_clearColor_2_, p_clearColor_3_);
+         }
+     }
+@@ -747,13 +747,13 @@
+         }
+     }
+ 
+-    public static void clear(int p_clear_0_, boolean p_clear_1_)
++    public static void clear(int p_clear_0_, boolean checkError)
+     {
+         if (clearEnabled)
+         {
+             GL11.glClear(p_clear_0_);
+ 
+-            if (p_clear_1_)
++            if (checkError)
+             {
+                 getError();
+             }
+@@ -844,12 +844,12 @@
+ 
+     public static void color4f(float p_color4f_0_, float p_color4f_1_, float p_color4f_2_, float p_color4f_3_)
+     {
+-        if (p_color4f_0_ != COLOR.field_179195_a || p_color4f_1_ != COLOR.field_179193_b || p_color4f_2_ != COLOR.field_179194_c || p_color4f_3_ != COLOR.field_179192_d)
++        if (p_color4f_0_ != COLOR.red || p_color4f_1_ != COLOR.green || p_color4f_2_ != COLOR.blue || p_color4f_3_ != COLOR.alpha)
+         {
+-            COLOR.field_179195_a = p_color4f_0_;
+-            COLOR.field_179193_b = p_color4f_1_;
+-            COLOR.field_179194_c = p_color4f_2_;
+-            COLOR.field_179192_d = p_color4f_3_;
++            COLOR.red = p_color4f_0_;
++            COLOR.green = p_color4f_1_;
++            COLOR.blue = p_color4f_2_;
++            COLOR.alpha = p_color4f_3_;
+             GL11.glColor4f(p_color4f_0_, p_color4f_1_, p_color4f_2_, p_color4f_3_);
+         }
+     }
+@@ -871,10 +871,10 @@
+ 
+     public static void clearCurrentColor()
+     {
+-        COLOR.field_179195_a = -1.0F;
+-        COLOR.field_179193_b = -1.0F;
+-        COLOR.field_179194_c = -1.0F;
+-        COLOR.field_179192_d = -1.0F;
++        COLOR.red = -1.0F;
++        COLOR.green = -1.0F;
++        COLOR.blue = -1.0F;
++        COLOR.alpha = -1.0F;
+     }
+ 
+     public static void normalPointer(int p_normalPointer_0_, int p_normalPointer_1_, int p_normalPointer_2_)
+@@ -1148,7 +1148,7 @@
+         }
+         else
+         {
+-            p_getBlendState_0_.setState(BLEND.field_179213_a.field_179201_b, BLEND.field_179211_b, BLEND.field_179212_c, BLEND.field_179209_d, BLEND.field_179210_e);
++            p_getBlendState_0_.setState(BLEND.blend.field_179201_b, BLEND.srcFactor, BLEND.dstFactor, BLEND.srcFactorAlpha, BLEND.dstFactorAlpha);
+         }
+     }
+ 
+@@ -1160,7 +1160,7 @@
+         }
+         else
+         {
+-            BLEND.field_179213_a.func_179199_a(p_setBlendState_0_.isEnabled());
++            BLEND.blend.func_179199_a(p_setBlendState_0_.isEnabled());
+ 
+             if (!p_setBlendState_0_.isSeparate())
+             {
+@@ -1199,13 +1199,13 @@
+         }
+     }
+ 
+-    static class BlendState
++    public static class BlendState
+     {
+-        public final GlStateManager.BooleanState field_179213_a = new GlStateManager.BooleanState(3042);
+-        public int field_179211_b = 1;
+-        public int field_179212_c = 0;
+-        public int field_179209_d = 1;
+-        public int field_179210_e = 0;
++        public final GlStateManager.BooleanState blend = new GlStateManager.BooleanState(3042);
++        public int srcFactor = 1;
++        public int dstFactor = 0;
++        public int srcFactorAlpha = 1;
++        public int dstFactorAlpha = 0;
+ 
+         private BlendState()
+         {
+@@ -1261,12 +1261,12 @@
+         }
+     }
+ 
+-    static class Color
++    public static class Color
+     {
+-        public float field_179195_a = 1.0F;
+-        public float field_179193_b = 1.0F;
+-        public float field_179194_c = 1.0F;
+-        public float field_179192_d = 1.0F;
++        public float red = 1.0F;
++        public float green = 1.0F;
++        public float blue = 1.0F;
++        public float alpha = 1.0F;
+ 
+         public Color()
+         {
+@@ -1275,10 +1275,10 @@
+ 
+         public Color(float p_i73_1_, float p_i73_2_, float p_i73_3_, float p_i73_4_)
+         {
+-            this.field_179195_a = p_i73_1_;
+-            this.field_179193_b = p_i73_2_;
+-            this.field_179194_c = p_i73_3_;
+-            this.field_179192_d = p_i73_4_;
++            this.red = p_i73_1_;
++            this.green = p_i73_2_;
++            this.blue = p_i73_3_;
++            this.alpha = p_i73_4_;
+         }
+     }
+ 

@@ -1,0 +1,13 @@
+--- a/net/minecraft/client/gui/overlay/DebugOverlayGui.java
++++ b/net/minecraft/client/gui/overlay/DebugOverlayGui.java
+@@ -97,8 +97,8 @@
+         this.mc.getProfiler().startSection("debug");
+         GlStateManager.pushMatrix();
+         Entity entity = this.mc.getRenderViewEntity();
+-        this.rayTraceBlock = entity.func_213324_a(20.0D, 0.0F, false);
+-        this.rayTraceFluid = entity.func_213324_a(20.0D, 0.0F, true);
++        this.rayTraceBlock = entity.rayTraceBlocksFromView(20.0D, 0.0F, false);
++        this.rayTraceFluid = entity.rayTraceBlocksFromView(20.0D, 0.0F, true);
+         this.renderDebugInfoLeft();
+         this.renderDebugInfoRight();
+         GlStateManager.popMatrix();

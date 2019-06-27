@@ -1,7 +1,7 @@
 ﻿diff -r -U 3 minecraft\net\minecraft\client\gui\fonts\FontResourceManager.java minecraft_patched\net\minecraft\client\gui\fonts\FontResourceManager.java
 --- minecraft\net\minecraft\client\gui\fonts\FontResourceManager.java
 +++ minecraft_patched\net\minecraft\client\gui\fonts\FontResourceManager.java
-@@ -125,7 +125,7 @@
+@@ -130,7 +130,7 @@
                 return new FontRenderer(FontResourceManager.this.field_211511_c, new Font(FontResourceManager.this.field_211511_c, p_215273_1_));
              }).func_211568_a(list);
           });

@@ -1,6 +1,6 @@
 --- a/net/optifine/NaturalTextures.java
 +++ b/net/optifine/NaturalTextures.java
-@@ -108,7 +108,7 @@
+@@ -107,7 +107,7 @@
                      }
                  }
  

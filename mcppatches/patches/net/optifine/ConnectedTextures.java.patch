@@ -1,6 +1,6 @@
 --- a/net/optifine/ConnectedTextures.java
 +++ b/net/optifine/ConnectedTextures.java
-@@ -2282,7 +2282,7 @@
+@@ -2281,7 +2281,7 @@
              }
          }
  
@@ -9,7 +9,7 @@
          Set set1 = new HashSet();
          Set set = new HashSet();
  
-@@ -2305,17 +2305,17 @@
+@@ -2304,17 +2304,17 @@
          return !set1.isEmpty();
      }
  
@@ -32,7 +32,7 @@
                  aconnectedproperties[i] = aconnectedproperties1;
              }
          }
-@@ -2379,15 +2379,15 @@
+@@ -2378,15 +2378,15 @@
              list.add((Object)null);
          }
  
@@ -53,7 +53,7 @@
      }
  
      private static String[] getDefaultCtmPaths()
-@@ -2430,7 +2430,7 @@
+@@ -2429,7 +2429,7 @@
              }
          }
  

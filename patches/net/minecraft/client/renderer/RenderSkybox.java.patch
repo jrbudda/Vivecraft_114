@@ -1,0 +1,10 @@
+--- a/net/minecraft/client/renderer/RenderSkybox.java
++++ b/net/minecraft/client/renderer/RenderSkybox.java
+@@ -19,6 +19,6 @@
+     {
+         this.time += p_217623_1_;
+         this.renderer.func_217616_a(this.mc, MathHelper.sin(this.time * 0.001F) * 5.0F + 25.0F, -this.time * 0.1F, p_217623_2_);
+-        this.mc.mainWindow.func_216522_a(Minecraft.IS_RUNNING_ON_MAC);
++        this.mc.mainWindow.setupOverlayRendering(Minecraft.IS_RUNNING_ON_MAC);
+     }
+ }

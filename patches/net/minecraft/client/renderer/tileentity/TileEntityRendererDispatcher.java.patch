@@ -1,0 +1,11 @@
+--- a/net/minecraft/client/renderer/tileentity/TileEntityRendererDispatcher.java
++++ b/net/minecraft/client/renderer/tileentity/TileEntityRendererDispatcher.java
+@@ -120,7 +120,7 @@
+ 
+     public void render(TileEntity tileentityIn, float partialTicks, int destroyStage)
+     {
+-        if (tileentityIn.getDistanceSq(this.renderInfo.getProjectedView().x, this.renderInfo.getProjectedView().y, this.renderInfo.getProjectedView().z) < tileentityIn.getMaxRenderDistanceSquared())
++        if (tileentityIn.getDistanceSq(this.renderInfo.getPosition().x, this.renderInfo.getPosition().y, this.renderInfo.getPosition().z) < tileentityIn.getMaxRenderDistanceSquared())
+         {
+             boolean flag = true;
+ 

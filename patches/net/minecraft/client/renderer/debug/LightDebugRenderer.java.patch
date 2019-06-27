@@ -1,0 +1,11 @@
+--- a/net/minecraft/client/renderer/debug/LightDebugRenderer.java
++++ b/net/minecraft/client/renderer/debug/LightDebugRenderer.java
+@@ -28,7 +28,7 @@
+         GlStateManager.enableBlend();
+         GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+         GlStateManager.disableTexture();
+-        BlockPos blockpos = new BlockPos(activerenderinfo.getProjectedView());
++        BlockPos blockpos = new BlockPos(activerenderinfo.getPosition());
+         LongSet longset = new LongOpenHashSet();
+ 
+         for (BlockPos blockpos1 : BlockPos.getAllInBoxMutable(blockpos.add(-10, -10, -10), blockpos.add(10, 10, 10)))

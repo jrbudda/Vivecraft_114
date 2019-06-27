@@ -1,6 +1,6 @@
 --- a/net/optifine/SmartLeaves.java
 +++ b/net/optifine/SmartLeaves.java
-@@ -163,7 +163,7 @@
+@@ -162,7 +162,7 @@
                          }
                          else
                          {

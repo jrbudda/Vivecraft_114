@@ -1,0 +1,24 @@
+--- a/net/optifine/reflect/Reflector.java
++++ b/net/optifine/reflect/Reflector.java
+@@ -135,9 +135,9 @@
+     public static ReflectorClass CrashReportExtender = new ReflectorClass("net.minecraftforge.fml.CrashReportExtender");
+     public static ReflectorMethod CrashReportExtender_enhanceCrashReport = new ReflectorMethod(CrashReportExtender, "enhanceCrashReport");
+     public static ReflectorMethod CrashReportExtender_addCrashReportHeader = new ReflectorMethod(CrashReportExtender, "addCrashReportHeader");
+-    public static ReflectorClass DrawScreenEvent_Pre = new ReflectorClass("net.minecraftforge.client.event.GuiScreenEvent$DrawScreenEvent$Pre");
++    public static ReflectorClass DrawScreenEvent_Pre = new ReflectorClass("net.minecraftforge.client.event.ScreenEvent$DrawScreenEvent$Pre");
+     public static ReflectorConstructor DrawScreenEvent_Pre_Constructor = new ReflectorConstructor(DrawScreenEvent_Pre, new Class[] {Screen.class, Integer.TYPE, Integer.TYPE, Float.TYPE});
+-    public static ReflectorClass DrawScreenEvent_Post = new ReflectorClass("net.minecraftforge.client.event.GuiScreenEvent$DrawScreenEvent$Post");
++    public static ReflectorClass DrawScreenEvent_Post = new ReflectorClass("net.minecraftforge.client.event.ScreenEvent$DrawScreenEvent$Post");
+     public static ReflectorConstructor DrawScreenEvent_Post_Constructor = new ReflectorConstructor(DrawScreenEvent_Post, new Class[] {Screen.class, Integer.TYPE, Integer.TYPE, Float.TYPE});
+     public static ReflectorClass EntityViewRenderEvent_CameraSetup = new ReflectorClass("net.minecraftforge.client.event.EntityViewRenderEvent$CameraSetup");
+     public static ReflectorConstructor EntityViewRenderEvent_CameraSetup_Constructor = new ReflectorConstructor(EntityViewRenderEvent_CameraSetup, new Class[] {GameRenderer.class, Entity.class, BlockState.class, IFluidState.class, Double.TYPE, Float.TYPE, Float.TYPE, Float.TYPE});
+@@ -1249,4 +1249,9 @@
+         Config.dbg(str);
+         return true;
+     }
++
++	public static boolean forgeExists() {
++		// TODO Auto-generated method stub
++		return false;
++	}
+ }

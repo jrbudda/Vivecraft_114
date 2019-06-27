@@ -1,0 +1,22 @@
+--- a/net/minecraft/client/renderer/debug/ChunkInfoDebugRenderer.java
++++ b/net/minecraft/client/renderer/debug/ChunkInfoDebugRenderer.java
+@@ -59,7 +59,7 @@
+             GlStateManager.disableTexture();
+             GlStateManager.depthMask(false);
+             Map<ChunkPos, String> map = this.field_217681_d.field_217722_c.getNow((Map<ChunkPos, String>)null);
+-            double d1 = this.client.gameRenderer.getActiveRenderInfo().getProjectedView().y * 0.85D;
++            double d1 = this.client.gameRenderer.getActiveRenderInfo().getPosition().y * 0.85D;
+ 
+             for (Map.Entry<ChunkPos, String> entry : this.field_217681_d.field_217721_b.entrySet())
+             {
+@@ -109,8 +109,8 @@
+             }
+ 
+             ActiveRenderInfo activerenderinfo = ChunkInfoDebugRenderer.this.client.gameRenderer.getActiveRenderInfo();
+-            int i = (int)activerenderinfo.getProjectedView().x >> 4;
+-            int j = (int)activerenderinfo.getProjectedView().z >> 4;
++            int i = (int)activerenderinfo.getPosition().x >> 4;
++            int j = (int)activerenderinfo.getPosition().z >> 4;
+             Builder<ChunkPos, String> builder = ImmutableMap.builder();
+             ClientChunkProvider clientchunkprovider = clientworld.getChunkProvider();
+ 

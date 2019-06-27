@@ -1,0 +1,63 @@
+--- a/net/minecraft/client/renderer/entity/EntityRendererManager.java
++++ b/net/minecraft/client/renderer/entity/EntityRendererManager.java
+@@ -6,6 +6,9 @@
+ import java.util.Collections;
+ import java.util.Map;
+ import javax.annotation.Nullable;
++
++import org.vivecraft.render.PlayerModelController;
++
+ import net.minecraft.client.GameSettings;
+ import net.minecraft.client.Minecraft;
+ import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
+@@ -135,6 +138,10 @@
+     private final Map <Class, EntityRenderer> renderers = Maps.newHashMap();
+     private final Map<String, PlayerRenderer> skinMap = Maps.newHashMap();
+     private final PlayerRenderer playerRenderer;
++	//VIVECRAFT
++	private final Map<String, VRPlayerRenderer> skinMapVR = Maps.<String, VRPlayerRenderer>newHashMap();
++	private VRPlayerRenderer playerRendererVR;
++	//
+     private FontRenderer textRenderer;
+     private double renderPosX;
+     private double renderPosY;
+@@ -298,7 +305,20 @@
+         {
+             String s = ((AbstractClientPlayerEntity)entityIn).getSkinType();
+             PlayerRenderer playerrenderer = this.skinMap.get(s);
+-            return (U)(playerrenderer != null ? playerrenderer : this.playerRenderer);
++			//VIVECRAFT
++			if(PlayerModelController.getInstance().isTracked(entityIn.getUniqueID()))
++			{
++				if (this.playerRendererVR == null) { // Needs to lazy load cause RenderGlobal
++					this.playerRendererVR = new VRPlayerRenderer(this);
++					this.skinMapVR.put("default", this.playerRendererVR);
++					this.skinMapVR.put("slim", new VRPlayerRenderer(this, true));
++				}
++				VRPlayerRenderer renderplayervr = this.skinMapVR.get(s);
++				
++				return (U) (renderplayervr != null ? renderplayervr : this.playerRendererVR);            	
++			}  else 
++				return (U) (playerrenderer != null ? playerrenderer : this.playerRenderer);
++			//
+         }
+         else
+         {
+@@ -314,7 +334,7 @@
+         this.pointedEntity = p_217781_4_;
+         this.textRenderer = p_217781_2_;
+ 
+-        if (p_217781_3_.func_216773_g() instanceof LivingEntity && ((LivingEntity)p_217781_3_.func_216773_g()).isSleeping())
++        if (false) //p_217781_3_.func_216773_g() instanceof LivingEntity && ((LivingEntity)p_217781_3_.func_216773_g()).isSleeping())
+         {
+             Direction direction = ((LivingEntity)p_217781_3_.func_216773_g()).func_213376_dz();
+ 
+@@ -555,7 +575,7 @@
+ 
+     public double getDistanceToCamera(double x, double y, double z)
+     {
+-        return this.info.getProjectedView().squareDistanceTo(x, y, z);
++        return this.info.getPosition().squareDistanceTo(x, y, z);
+     }
+ 
+     /**

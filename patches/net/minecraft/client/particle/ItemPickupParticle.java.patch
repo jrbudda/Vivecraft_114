@@ -1,0 +1,19 @@
+--- a/net/minecraft/client/particle/ItemPickupParticle.java
++++ b/net/minecraft/client/particle/ItemPickupParticle.java
+@@ -63,6 +63,16 @@
+         double d3 = MathHelper.lerp((double)partialTicks, this.target.lastTickPosX, this.target.posX);
+         double d4 = MathHelper.lerp((double)partialTicks, this.target.lastTickPosY, this.target.posY) + (double)this.yOffset;
+         double d5 = MathHelper.lerp((double)partialTicks, this.target.lastTickPosZ, this.target.posZ);
++    
++        //Vivecraft
++        Minecraft mc = Minecraft.getInstance();
++        if (target== mc.player) {
++        	Vec3d pos = mc.gameRenderer.getControllerRenderPos(0);
++        	d3 = pos.x;
++        	d4 = pos.y;
++        	d5 = pos.z;
++        }               
++        
+         double d6 = MathHelper.lerp((double)f, d0, d3);
+         double d7 = MathHelper.lerp((double)f, d1, d4);
+         double d8 = MathHelper.lerp((double)f, d2, d5);

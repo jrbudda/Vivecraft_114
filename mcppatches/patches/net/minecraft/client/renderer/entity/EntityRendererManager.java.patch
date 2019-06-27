@@ -4,8 +4,8 @@
  
  public class EntityRendererManager
  {
--    private final Map < Class <? extends Entity > , EntityRenderer <? extends Entity >> entityRenderMap = Maps.newHashMap();
-+    private final Map <Class, EntityRenderer> entityRenderMap = Maps.newHashMap();
+-    private final Map < Class <? extends Entity > , EntityRenderer <? extends Entity >> renderers = Maps.newHashMap();
++    private final Map <Class, EntityRenderer> renderers = Maps.newHashMap();
      private final Map<String, PlayerRenderer> skinMap = Maps.newHashMap();
      private final PlayerRenderer playerRenderer;
      private FontRenderer textRenderer;

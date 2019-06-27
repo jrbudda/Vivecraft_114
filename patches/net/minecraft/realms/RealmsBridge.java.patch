@@ -1,0 +1,42 @@
+--- a/net/minecraft/realms/RealmsBridge.java
++++ b/net/minecraft/realms/RealmsBridge.java
+@@ -18,11 +18,11 @@
+ public class RealmsBridge extends RealmsScreen
+ {
+     private static final Logger LOGGER = LogManager.getLogger();
+-    private Screen previousScreen;
++    private Screen previousGuiScreen;
+ 
+     public void switchToRealms(Screen p_switchToRealms_1_)
+     {
+-        this.previousScreen = p_switchToRealms_1_;
++        this.previousGuiScreen = p_switchToRealms_1_;
+         Optional<LoadedRealmsPlugin> optional = this.tryLoadRealms();
+ 
+         if (optional.isPresent())
+@@ -38,7 +38,7 @@
+     @Nullable
+     public RealmsScreenProxy getNotificationScreen(Screen p_getNotificationScreen_1_)
+     {
+-        this.previousScreen = p_getNotificationScreen_1_;
++        this.previousGuiScreen = p_getNotificationScreen_1_;
+         return this.tryLoadRealms().map((p_214461_1_) ->
+         {
+             return p_214461_1_.getNotificationsScreen(this).getProxy();
+@@ -79,14 +79,14 @@
+ 
+     public void init()
+     {
+-        Minecraft.getInstance().displayGuiScreen(this.previousScreen);
++        Minecraft.getInstance().displayGuiScreen(this.previousGuiScreen);
+     }
+ 
+     private void showMissingRealmsErrorScreen()
+     {
+         Minecraft.getInstance().displayGuiScreen(new AlertScreen(() ->
+         {
+-            Minecraft.getInstance().displayGuiScreen(this.previousScreen);
++            Minecraft.getInstance().displayGuiScreen(this.previousGuiScreen);
+         }, new StringTextComponent(""), new TranslationTextComponent(SharedConstants.getVersion().isStable() ? "realms.missing.module.error.text" : "realms.missing.snapshot.error.text")));
+     }
+ }

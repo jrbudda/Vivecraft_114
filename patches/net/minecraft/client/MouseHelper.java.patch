@@ -1,0 +1,65 @@
+--- a/net/minecraft/client/MouseHelper.java
++++ b/net/minecraft/client/MouseHelper.java
+@@ -39,7 +39,7 @@
+      *  
+      * @see GLFWMouseButtonCallbackI
+      */
+-    private void mouseButtonCallback(long handle, int button, int action, int mods)
++    public void mouseButtonCallback(long handle, int button, int action, int mods)
+     {
+         if (handle == this.minecraft.mainWindow.getHandle())
+         {
+@@ -153,7 +153,7 @@
+      *  
+      * @see GLFWScrollCallbackI
+      */
+-    private void scrollCallback(long handle, double xoffset, double yoffset)
++    public void scrollCallback(long handle, double xoffset, double yoffset)
+     {
+         if (handle == Minecraft.getInstance().mainWindow.getHandle())
+         {
+@@ -219,7 +219,7 @@
+      *  
+      * @see GLFWCursorPosCallbackI
+      */
+-    private void cursorPosCallback(long handle, double xpos, double ypos)
++    public void cursorPosCallback(long handle, double xpos, double ypos)
+     {
+         if (handle == Minecraft.getInstance().mainWindow.getHandle())
+         {
+@@ -269,6 +269,11 @@
+ 
+     public void updatePlayerLook()
+     {
++    	
++    	//Vivecraft
++    	if(true) return;
++    	//
++    	
+         double d0 = NativeUtil.func_216394_b();
+         double d1 = d0 - this.lastLookTime;
+         this.lastLookTime = d0;
+@@ -357,7 +362,11 @@
+      */
+     public void grabMouse()
+     {
+-        if (this.minecraft.isGameFocused())
++    	if (!this.minecraft.vrSettings.seated) {
++    		this.mouseGrabbed = true;
++    		return;
++    	}
++    	else if (this.minecraft.isGameFocused())
+         {
+             if (!this.mouseGrabbed)
+             {
+@@ -381,6 +390,10 @@
+      */
+     public void ungrabMouse()
+     {
++    	if (!this.minecraft.vrSettings.seated) {
++    		this.mouseGrabbed = false;
++    		return;
++    	}
+         if (this.mouseGrabbed)
+         {
+             this.mouseGrabbed = false;

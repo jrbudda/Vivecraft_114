@@ -1,6 +1,6 @@
-diff -r -U 3 minecraft_server\net\minecraft\util\EnumTypeAdapterFactory.java minecraft_server_patched\net\minecraft\util\EnumTypeAdapterFactory.java
---- minecraft_server\net\minecraft\util\EnumTypeAdapterFactory.java
-+++ minecraft_server_patched\net\minecraft\util\EnumTypeAdapterFactory.java
+﻿diff -r -U 3 minecraft\net\minecraft\util\EnumTypeAdapterFactory.java minecraft_patched\net\minecraft\util\EnumTypeAdapterFactory.java
+--- minecraft\net\minecraft\util\EnumTypeAdapterFactory.java
++++ minecraft_patched\net\minecraft\util\EnumTypeAdapterFactory.java
 @@ -16,7 +16,7 @@
  public class EnumTypeAdapterFactory implements TypeAdapterFactory {
     @Nullable
@@ -10,3 +10,4 @@ diff -r -U 3 minecraft_server\net\minecraft\util\EnumTypeAdapterFactory.java min
        if (!oclass.isEnum()) {
           return null;
        } else {
+

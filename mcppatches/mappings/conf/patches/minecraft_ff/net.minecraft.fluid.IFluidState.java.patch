@@ -1,7 +1,7 @@
 ﻿diff -r -U 3 minecraft\net\minecraft\fluid\IFluidState.java minecraft_patched\net\minecraft\fluid\IFluidState.java
 --- minecraft\net\minecraft\fluid\IFluidState.java
 +++ minecraft_patched\net\minecraft\fluid\IFluidState.java
-@@ -121,8 +121,8 @@
+@@ -125,8 +125,8 @@
  
     static <T> IFluidState func_215681_a(Dynamic<T> p_215681_0_) {
        DefaultedRegistry defaultedregistry = Registry.field_212619_h;

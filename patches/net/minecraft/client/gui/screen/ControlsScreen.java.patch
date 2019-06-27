@@ -1,0 +1,29 @@
+--- a/net/minecraft/client/gui/screen/ControlsScreen.java
++++ b/net/minecraft/client/gui/screen/ControlsScreen.java
+@@ -13,7 +13,7 @@
+ public class ControlsScreen extends Screen
+ {
+     private static final AbstractOption[] OPTIONS_ARR = new AbstractOption[] {AbstractOption.INVERT_MOUSE, AbstractOption.SENSITIVITY, AbstractOption.TOUCHSCREEN, AbstractOption.AUTO_JUMP};
+-    private final Screen parentScreen;
++    private final Screen parentGuiScreen;
+     private final GameSettings options;
+     public KeyBinding buttonId;
+     public long time;
+@@ -23,7 +23,7 @@
+     public ControlsScreen(Screen p_i1914_1_, GameSettings p_i1914_2_)
+     {
+         super(new TranslationTextComponent("controls.title"));
+-        this.parentScreen = p_i1914_1_;
++        this.parentGuiScreen = p_i1914_1_;
+         this.options = p_i1914_2_;
+     }
+ 
+@@ -47,7 +47,7 @@
+         }));
+         this.addButton(new Button(this.width / 2 - 155 + 160, this.height - 29, 150, 20, I18n.format("gui.done"), (p_213124_1_) ->
+         {
+-            this.minecraft.displayGuiScreen(this.parentScreen);
++            this.minecraft.displayGuiScreen(this.parentGuiScreen);
+         }));
+     }
+ 

@@ -1,0 +1,38 @@
+--- a/net/minecraft/client/gui/screen/MultiplayerScreen.java
++++ b/net/minecraft/client/gui/screen/MultiplayerScreen.java
+@@ -19,7 +19,7 @@
+ {
+     private static final Logger LOGGER = LogManager.getLogger();
+     private final ServerPinger oldServerPinger = new ServerPinger();
+-    private final Screen parentScreen;
++    private final Screen parentGuiScreen;
+     protected ServerSelectionList serverListSelector;
+     private ServerList savedServerList;
+     private Button btnEditServer;
+@@ -34,7 +34,7 @@
+     public MultiplayerScreen(Screen p_i1773_1_)
+     {
+         super(new TranslationTextComponent("multiplayer.title"));
+-        this.parentScreen = p_i1773_1_;
++        this.parentGuiScreen = p_i1773_1_;
+     }
+ 
+     protected void init()
+@@ -118,7 +118,7 @@
+         }));
+         this.addButton(new Button(this.width / 2 + 4 + 76, this.height - 28, 75, 20, I18n.format("gui.cancel"), (p_214289_1_) ->
+         {
+-            this.minecraft.displayGuiScreen(this.parentScreen);
++            this.minecraft.displayGuiScreen(this.parentGuiScreen);
+         }));
+         this.func_214295_b();
+     }
+@@ -152,7 +152,7 @@
+ 
+     private void refreshServerList()
+     {
+-        this.minecraft.displayGuiScreen(new MultiplayerScreen(this.parentScreen));
++        this.minecraft.displayGuiScreen(new MultiplayerScreen(this.parentGuiScreen));
+     }
+ 
+     private void func_214285_a(boolean p_214285_1_)

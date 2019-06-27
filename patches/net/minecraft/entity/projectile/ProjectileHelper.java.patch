@@ -1,0 +1,11 @@
+--- a/net/minecraft/entity/projectile/ProjectileHelper.java
++++ b/net/minecraft/entity/projectile/ProjectileHelper.java
+@@ -139,7 +139,7 @@
+     }
+ 
+     @Nullable
+-    public static EntityRayTraceResult func_221269_a(World p_221269_0_, Entity p_221269_1_, Vec3d p_221269_2_, Vec3d p_221269_3_, AxisAlignedBB p_221269_4_, Predicate<Entity> p_221269_5_, double p_221269_6_)
++    private static EntityRayTraceResult func_221269_a(World p_221269_0_, Entity p_221269_1_, Vec3d p_221269_2_, Vec3d p_221269_3_, AxisAlignedBB p_221269_4_, Predicate<Entity> p_221269_5_, double p_221269_6_)
+     {
+         double d0 = p_221269_6_;
+         Entity entity = null;

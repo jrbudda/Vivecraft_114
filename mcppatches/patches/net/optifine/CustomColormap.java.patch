@@ -1,6 +1,6 @@
 --- a/net/optifine/CustomColormap.java
 +++ b/net/optifine/CustomColormap.java
-@@ -559,7 +559,7 @@
+@@ -558,7 +558,7 @@
                  }
              }
  

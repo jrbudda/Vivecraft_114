@@ -1,0 +1,19 @@
+--- a/net/minecraft/client/renderer/entity/EntityRenderer.java
++++ b/net/minecraft/client/renderer/entity/EntityRenderer.java
+@@ -387,13 +387,13 @@
+      */
+     protected void renderLivingLabel(T entityIn, String str, double x, double y, double z, int maxDistance)
+     {
+-        double d0 = entityIn.getDistanceSq(this.renderManager.info.getProjectedView());
++        double d0 = entityIn.getDistanceSq(this.renderManager.info.getPosition());
+ 
+         if (d0 <= (double)(maxDistance * maxDistance))
+         {
+             boolean flag = entityIn.func_213287_bg();
+-            float f = this.renderManager.playerViewY;
+-            float f1 = this.renderManager.playerViewX;
++            float f = (float)Math.toDegrees(Math.atan2(-x, z));   
++            float f1 = -(float)Math.toDegrees(Math.asin(y/Math.sqrt(x*x+y*y+z*z))); 
+             float f2 = entityIn.getHeight() + 0.5F - (flag ? 0.25F : 0.0F);
+             int i = "deadmau5".equals(str) ? -10 : 0;
+             GameRenderer.drawNameplate(this.getFontRendererFromRenderManager(), str, (float)x, (float)y + f2, (float)z, i, f, f1, flag);

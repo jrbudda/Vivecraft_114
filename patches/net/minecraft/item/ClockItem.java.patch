@@ -1,0 +1,14 @@
+--- a/net/minecraft/item/ClockItem.java
++++ b/net/minecraft/item/ClockItem.java
+@@ -9,9 +9,9 @@
+ 
+ public class ClockItem extends Item
+ {
+-    public ClockItem(Item.Properties parentScreenIn)
++    public ClockItem(Item.Properties parentGuiScreenIn)
+     {
+-        super(parentScreenIn);
++        super(parentGuiScreenIn);
+         this.addPropertyOverride(new ResourceLocation("time"), new IItemPropertyGetter()
+         {
+             private double rotation;

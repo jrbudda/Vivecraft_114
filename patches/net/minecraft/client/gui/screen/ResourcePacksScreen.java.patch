@@ -1,0 +1,34 @@
+--- a/net/minecraft/client/gui/screen/ResourcePacksScreen.java
++++ b/net/minecraft/client/gui/screen/ResourcePacksScreen.java
+@@ -15,7 +15,7 @@
+ 
+ public class ResourcePacksScreen extends Screen
+ {
+-    private final Screen parentScreen;
++    private final Screen parentGuiScreen;
+     private AvailableResourcePackList availableResourcePacksList;
+     private SelectedResourcePackList selectedResourcePacksList;
+     private boolean changed;
+@@ -23,7 +23,7 @@
+     public ResourcePacksScreen(Screen p_i1270_1_)
+     {
+         super(new TranslationTextComponent("resourcePack.title"));
+-        this.parentScreen = p_i1270_1_;
++        this.parentGuiScreen = p_i1270_1_;
+     }
+ 
+     protected void init()
+@@ -62,11 +62,11 @@
+                 }
+ 
+                 this.minecraft.gameSettings.saveOptions();
+-                this.minecraft.displayGuiScreen(this.parentScreen);
++                this.minecraft.displayGuiScreen(this.parentGuiScreen);
+                 this.minecraft.func_213237_g();
+             }
+             else {
+-                this.minecraft.displayGuiScreen(this.parentScreen);
++                this.minecraft.displayGuiScreen(this.parentGuiScreen);
+             }
+         }));
+         AvailableResourcePackList availableresourcepacklist = this.availableResourcePacksList;

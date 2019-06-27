@@ -1,0 +1,171 @@
+--- a/net/minecraft/client/renderer/ItemRenderer.java
++++ b/net/minecraft/client/renderer/ItemRenderer.java
+@@ -7,6 +7,9 @@
+ import java.util.Random;
+ import java.util.Set;
+ import javax.annotation.Nullable;
++
++import org.lwjgl.opengl.GL14;
++
+ import net.minecraft.block.BlockState;
+ import net.minecraft.client.Minecraft;
+ import net.minecraft.client.entity.player.ClientPlayerEntity;
+@@ -47,6 +50,7 @@
+ import net.optifine.CustomItems;
+ import net.optifine.reflect.Reflector;
+ import net.optifine.reflect.ReflectorForge;
++import net.optifine.render.GlAlphaState;
+ import net.optifine.shaders.Shaders;
+ import net.optifine.shaders.ShadersRender;
+ 
+@@ -62,6 +66,13 @@
+     private boolean renderModelHasEmissive = false;
+     private boolean renderModelEmissive = false;
+     private static boolean renderItemGui = false;
++    
++    //Vivecraft
++    public static boolean ismainhand = false;
++    public static boolean isfphand = false;
++    float fade = 1, lastfade = 1;
++    private GlAlphaState alphaState = new GlAlphaState();
++    //
+ 
+     public ItemRenderer(TextureManager p_i122_1_, ModelManager p_i122_2_, ItemColors p_i122_3_)
+     {
+@@ -143,11 +154,47 @@
+         {
+             GlStateManager.pushMatrix();
+             GlStateManager.translatef(-0.5F, -0.5F, -0.5F);
++            ClientPlayerEntity p = Minecraft.getInstance().player;
++            
++            if(p!=null && isfphand){
++             
++            	if(fade == 1)
++            		fade= p.getCooledAttackStrength(0)*.75f + .25f;
++        	
++            	if(p.isSneaking()) 
++                	fade =0.75f;
++                
++                if(p.isActiveItemStackBlocking() && p.getActiveItemStack() != stack) 
++                	fade =0.75f;
++
++                if(stack.getItem() == Items.SHIELD)
++                	if(p.isActiveItemStackBlocking())
++                		fade = 1;
++                	else
++                		fade = 0.75f;
++
++                if(fade < 0.1) fade = 0.1f;
++                if(fade > 1) fade = 1f;
++                GlStateManager.enableBlend();
++                if (fade < 1) {
++                    GL14.glBlendColor(1.0F, 1.0F, 1.0F, fade);
++                    // Breaks translucent items, but there's no other way to do this as long as Minecraft uses fixed pipeline rendering.
++                    GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.CONSTANT_ALPHA, GlStateManager.DestFactor.ONE_MINUS_CONSTANT_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
++                } else {
++                    GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
++                }
++                lastfade = fade;
+ 
++            } else {
++            	fade = 1;
++            }
++            
+             if (model.isBuiltInRenderer())
+             {
+-                GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+-                GlStateManager.enableRescaleNormal();
++            	//VIVECRAFT - item partial transparency
++            	GlStateManager.color4f(1.0F, 1.0F, 1.0F, fade );
++            	//
++            	GlStateManager.enableRescaleNormal();
+ 
+                 if (Reflector.ForgeItem_getTileEntityItemStackRenderer.exists())
+                 {
+@@ -191,9 +238,20 @@
+                 }
+             }
+ 
++            GL14.glBlendColor(1, 1, 1, 1);
++            GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
++            GlStateManager.disableBlend();
+             GlStateManager.popMatrix();
+         }
+     }
++	
++	public float getFade() {
++		return lastfade;
++	}
++	
++	public void setFade(float fade) {
++		this.fade = fade;
++	}
+ 
+     public static void renderEffect(TextureManager textureManagerIn, Runnable renderModelFunction, int scale)
+     {
+@@ -306,6 +364,20 @@
+                     k = CustomColors.getColorFromItemStack(stack, bakedquad.getTintIndex(), k);
+                 }
+ 
++                //Vivecraft color overrides for custom items
++    			int b = Math.round(fade * 255);
++    			int rev = (255 - b) << 24;
++                k = (k & 0xFFFFFF) | rev; //apply fade to tinted color (doesn't work as renderQuad can't pass alpha values, but left here as an academic exercise)
++		
++		    	if (Minecraft.getInstance().jumpTracker.isBoots(stack))
++		    	{
++		    		k = makeColor(b, 0, 255, 0);
++		    	} else if (Minecraft.getInstance().climbTracker.isClaws(stack))
++		    	{
++		    		k = makeColor(b, 130, 0, 75);
++		    	}
++		    	//
++		    	
+                 k = k | -16777216;
+             }
+ 
+@@ -401,7 +473,7 @@
+             GlStateManager.enableRescaleNormal();
+             GlStateManager.alphaFunc(516, 0.1F);
+             GlStateManager.enableBlend();
+-            GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
++            GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
+             GlStateManager.pushMatrix();
+ 
+             if (Config.isCustomItems())
+@@ -456,10 +528,15 @@
+         this.textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
+         this.textureManager.getTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
+         GlStateManager.enableRescaleNormal();
++        // VIVECRAFT: Save/restore the alpha properly so things stop breaking
++        GlStateManager.getAlphaState(this.alphaState);
+         GlStateManager.enableAlphaTest();
+         GlStateManager.alphaFunc(516, 0.1F);
++        GlStateManager.enableCull();
+         GlStateManager.enableBlend();
+-        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
++        //GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
++        // VIVECRAFT: DestFactor of ONE is really what we want here, because math
++        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
+         GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+ 
+         if (Config.isCustomItems())
+@@ -479,7 +556,7 @@
+         }
+ 
+         this.renderItem(stack, bakedmodel);
+-        GlStateManager.disableAlphaTest();
++        GlStateManager.setAlphaState(this.alphaState);
+         GlStateManager.disableRescaleNormal();
+         GlStateManager.disableLighting();
+         GlStateManager.popMatrix();
+@@ -662,4 +739,9 @@
+     {
+         return VanillaResourceType.MODELS;
+     }
++    
++    //Vivecraft Additions
++    private int makeColor(int a, int r, int g, int b) {
++    	return  a << 24 | r << 16 | g << 8 | b;
++    }
+ }

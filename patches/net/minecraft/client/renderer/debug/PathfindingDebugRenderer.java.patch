@@ -1,0 +1,37 @@
+--- a/net/minecraft/client/renderer/debug/PathfindingDebugRenderer.java
++++ b/net/minecraft/client/renderer/debug/PathfindingDebugRenderer.java
+@@ -75,9 +75,9 @@
+     private static void func_222910_b(ActiveRenderInfo p_222910_0_, Path p_222910_1_, float p_222910_2_, boolean p_222910_3_, boolean p_222910_4_)
+     {
+         func_222912_a(p_222910_0_, p_222910_1_);
+-        double d0 = p_222910_0_.getProjectedView().x;
+-        double d1 = p_222910_0_.getProjectedView().y;
+-        double d2 = p_222910_0_.getProjectedView().z;
++        double d0 = p_222910_0_.getPosition().x;
++        double d1 = p_222910_0_.getPosition().y;
++        double d2 = p_222910_0_.getPosition().z;
+         PathPoint pathpoint = p_222910_1_.getTarget();
+ 
+         if (func_222913_a(p_222910_0_, pathpoint) <= 40.0F)
+@@ -137,9 +137,9 @@
+     {
+         Tessellator tessellator = Tessellator.getInstance();
+         BufferBuilder bufferbuilder = tessellator.getBuffer();
+-        double d0 = p_222912_0_.getProjectedView().x;
+-        double d1 = p_222912_0_.getProjectedView().y;
+-        double d2 = p_222912_0_.getProjectedView().z;
++        double d0 = p_222912_0_.getPosition().x;
++        double d1 = p_222912_0_.getPosition().y;
++        double d2 = p_222912_0_.getPosition().z;
+         bufferbuilder.begin(3, DefaultVertexFormats.POSITION_COLOR);
+ 
+         for (int i = 0; i < p_222912_1_.getCurrentPathLength(); ++i)
+@@ -162,7 +162,7 @@
+ 
+     private static float func_222913_a(ActiveRenderInfo p_222913_0_, PathPoint p_222913_1_)
+     {
+-        return (float)(Math.abs((double)p_222913_1_.x - p_222913_0_.getProjectedView().x) + Math.abs((double)p_222913_1_.y - p_222913_0_.getProjectedView().y) + Math.abs((double)p_222913_1_.z - p_222913_0_.getProjectedView().z));
++        return (float)(Math.abs((double)p_222913_1_.x - p_222913_0_.getPosition().x) + Math.abs((double)p_222913_1_.y - p_222913_0_.getPosition().y) + Math.abs((double)p_222913_1_.z - p_222913_0_.getPosition().z));
+     }
+ 
+     private ActiveRenderInfo func_222914_b()

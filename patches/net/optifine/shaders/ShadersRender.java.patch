@@ -1,0 +1,75 @@
+--- a/net/optifine/shaders/ShadersRender.java
++++ b/net/optifine/shaders/ShadersRender.java
+@@ -195,7 +195,7 @@
+         }
+     }
+ 
+-    public static void renderShadowMap(GameRenderer entityRenderer, ActiveRenderInfo activeRenderInfo, int pass, float partialTicks, long finishTimeNano)
++    public static void renderShadowMap(GameRenderer gameRenderer, ActiveRenderInfo activeRenderInfo, int pass, float partialTicks, long finishTimeNano)
+     {
+         if (Shaders.usedShadowDepthBuffers > 0 && --Shaders.shadowPassCounter <= 0)
+         {
+@@ -213,7 +213,13 @@
+             EXTFramebufferObject.glBindFramebufferEXT(36160, Shaders.sfb);
+             Shaders.checkGLError("shadow bind sfb");
+             minecraft.getProfiler().endStartSection("shadow camera");
+-            entityRenderer.setupCameraTransform(partialTicks);
++            gameRenderer.setupCameraTransform(partialTicks);
++
++             //vivecraft
++            // I don't think this actually has any effect...
++            gameRenderer.applyCameraDepth(false);
++            //  
++                      
+             updateActiveRenderInfo(activeRenderInfo, minecraft, partialTicks);
+             Shaders.setCameraShadow(activeRenderInfo, partialTicks);
+             Shaders.checkGLError("shadow camera");
+@@ -237,7 +243,7 @@
+             ClippingHelper clippinghelper = ClippingHelperShadow.getInstance();
+             minecraft.getProfiler().endStartSection("shadow culling");
+             Frustum frustum = new Frustum(clippinghelper);
+-            Vec3d vec3d = activeRenderInfo.getProjectedView();
++            Vec3d vec3d = activeRenderInfo.getPosition();
+             frustum.setPosition(vec3d.x, vec3d.y, vec3d.z);
+             GlStateManager.shadeModel(7425);
+             GlStateManager.enableDepthTest();
+@@ -249,8 +255,8 @@
+             minecraft.getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
+             minecraft.getProfiler().endStartSection("shadow setupterrain");
+             int i = 0;
+-            i = entityRenderer.frameCount;
+-            entityRenderer.frameCount = i + 1;
++            i = gameRenderer.frameCount;
++            gameRenderer.frameCount = i + 1;
+             worldrenderer.func_215320_a(activeRenderInfo, frustum, i, minecraft.player.isSpectator());
+             minecraft.getProfiler().endStartSection("shadow updatechunks");
+             minecraft.getProfiler().endStartSection("shadow terrain");
+@@ -260,6 +266,9 @@
+             worldrenderer.renderBlockLayer(BlockRenderLayer.SOLID, activeRenderInfo);
+             Shaders.checkGLError("shadow terrain solid");
+             GlStateManager.enableAlphaTest();
++            //Vivecraft
++            GlStateManager.alphaFunc(516, 0.1F);
++            //
+             worldrenderer.renderBlockLayer(BlockRenderLayer.CUTOUT_MIPPED, activeRenderInfo);
+             Shaders.checkGLError("shadow terrain cutoutmipped");
+             minecraft.getTextureManager().getTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
+@@ -327,7 +336,8 @@
+             GlStateManager.depthMask(true);
+             GlStateManager.enableCull();
+             GlStateManager.disableBlend();
+-            GL30.glFlush();
++            // VIVECRAFT: yeah still no 3.0
++            //GL30.glFlush();
+             Shaders.checkGLError("shadow flush");
+             Shaders.isShadowPass = false;
+             minecraft.getProfiler().endStartSection("shadow postprocess");
+@@ -394,7 +404,7 @@
+ 
+     public static void updateActiveRenderInfo(ActiveRenderInfo activeRenderInfo, Minecraft mc, float partialTicks)
+     {
+-        activeRenderInfo.func_216772_a(mc.world, (Entity)(mc.getRenderViewEntity() == null ? mc.player : mc.getRenderViewEntity()), mc.gameSettings.thirdPersonView > 0, mc.gameSettings.thirdPersonView == 2, partialTicks);
++        activeRenderInfo.update(mc.world, (Entity)(mc.getRenderViewEntity() == null ? mc.player : mc.getRenderViewEntity()), mc.gameSettings.thirdPersonView > 0, mc.gameSettings.thirdPersonView == 2, partialTicks);
+     }
+ 
+     public static void preRenderChunkLayer(BlockRenderLayer blockLayerIn)

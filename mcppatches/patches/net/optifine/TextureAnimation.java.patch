@@ -1,6 +1,6 @@
 --- a/net/optifine/TextureAnimation.java
 +++ b/net/optifine/TextureAnimation.java
-@@ -209,16 +209,16 @@
+@@ -208,16 +208,16 @@
  
          if (j + i <= this.imageData.limit())
          {

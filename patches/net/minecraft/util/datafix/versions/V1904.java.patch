@@ -1,0 +1,14 @@
+--- a/net/minecraft/util/datafix/versions/V1904.java
++++ b/net/minecraft/util/datafix/versions/V1904.java
+@@ -8,9 +8,9 @@
+ 
+ public class V1904 extends NamespacedSchema
+ {
+-    public V1904(int parentScreen, Schema p_i1040_2_)
++    public V1904(int parentGuiScreen, Schema p_i1040_2_)
+     {
+-        super(parentScreen, p_i1040_2_);
++        super(parentGuiScreen, p_i1040_2_);
+     }
+ 
+     protected static void func_219876_a(Schema p_219876_0_, Map<String, Supplier<TypeTemplate>> p_219876_1_, String p_219876_2_)

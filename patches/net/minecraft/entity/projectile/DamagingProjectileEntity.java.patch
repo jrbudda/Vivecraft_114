@@ -1,0 +1,32 @@
+--- a/net/minecraft/entity/projectile/DamagingProjectileEntity.java
++++ b/net/minecraft/entity/projectile/DamagingProjectileEntity.java
+@@ -1,5 +1,8 @@
+ package net.minecraft.entity.projectile;
+ 
++import org.vivecraft.api.NetworkHelper;
++import org.vivecraft.api.VivePlayer;
++
+ import net.minecraft.entity.Entity;
+ import net.minecraft.entity.EntityType;
+ import net.minecraft.entity.LivingEntity;
+@@ -46,6 +49,20 @@
+     {
+         this(p_i2224_1_, p_i2224_9_);
+         this.field_70235_a = p_i2224_2_;
++                 
++        //VIVE USE CONTROLLER
++        VivePlayer vp = NetworkHelper.vivePlayers.get(p_i2224_2_.getUniqueID());
++        if (vp !=null && vp.isVR())
++        {
++        	Vec3d aim = vp.getControllerDir(0);
++        	Vec3d aimSource = vp.getControllerPos(0);
++        	float pitch = (float)Math.toDegrees(Math.asin(aim.y/aim.length()));
++        	float yaw = (float)Math.toDegrees(Math.atan2(aim.x, -aim.z));   
++        	this.setLocationAndAngles(aimSource.x + aim.x*0.6f, aimSource.y+aim.y*0.6f, aimSource.z+aim.z*0.6f, yaw, pitch);
++        } else {
++            this.setLocationAndAngles(p_i2224_2_.posX, p_i2224_2_.posY, p_i2224_2_.posZ, p_i2224_2_.rotationYaw, p_i2224_2_.rotationPitch);
++        }
++
+         this.setLocationAndAngles(p_i2224_2_.posX, p_i2224_2_.posY, p_i2224_2_.posZ, p_i2224_2_.rotationYaw, p_i2224_2_.rotationPitch);
+         this.setPosition(this.posX, this.posY, this.posZ);
+         this.setMotion(Vec3d.ZERO);

@@ -18,7 +18,7 @@
                      {
                          TextureAtlasSprite textureatlassprite5 = textureatlassprite3.spriteSpecular;
  
-@@ -819,7 +819,7 @@
+@@ -823,7 +823,7 @@
  
      private int detectMinimumSpriteSize(Set<ResourceLocation> p_detectMinimumSpriteSize_1_, IResourceManager p_detectMinimumSpriteSize_2_, int p_detectMinimumSpriteSize_3_)
      {
@@ -27,7 +27,7 @@
  
          for (ResourceLocation resourcelocation : p_detectMinimumSpriteSize_1_)
          {
-@@ -863,7 +863,7 @@
+@@ -867,7 +867,7 @@
  
          int l = 0;
          Set set = map.keySet();

@@ -1,0 +1,14 @@
+--- a/net/minecraft/client/renderer/entity/layers/CatCollarLayer.java
++++ b/net/minecraft/client/renderer/entity/layers/CatCollarLayer.java
+@@ -11,9 +11,9 @@
+     private static final ResourceLocation field_215339_a = new ResourceLocation("textures/entity/cat/cat_collar.png");
+     private final CatModel<CatEntity> field_215340_b = new CatModel<>(0.01F);
+ 
+-    public CatCollarLayer(IEntityRenderer<CatEntity, CatModel<CatEntity>> parentScreenIn)
++    public CatCollarLayer(IEntityRenderer<CatEntity, CatModel<CatEntity>> parentGuiScreenIn)
+     {
+-        super(parentScreenIn);
++        super(parentGuiScreenIn);
+     }
+ 
+     public void render(CatEntity entityIn, float p_212842_2_, float p_212842_3_, float p_212842_4_, float p_212842_5_, float p_212842_6_, float p_212842_7_, float p_212842_8_)

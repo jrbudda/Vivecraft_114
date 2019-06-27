@@ -1,6 +1,6 @@
 --- a/net/minecraft/util/ScreenShotHelper.java
 +++ b/net/minecraft/util/ScreenShotHelper.java
-@@ -105,13 +105,13 @@
+@@ -113,13 +113,13 @@
  
              file2 = (File)Reflector.call(object, Reflector.ScreenshotEvent_getScreenshotFile);
          }

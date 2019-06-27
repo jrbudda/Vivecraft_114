@@ -1,4 +1,4 @@
-diff -r -U 3 minecraft\net\minecraft\util\EnumTypeAdapterFactory.java minecraft_patched\net\minecraft\util\EnumTypeAdapterFactory.java
+﻿diff -r -U 3 minecraft\net\minecraft\util\EnumTypeAdapterFactory.java minecraft_patched\net\minecraft\util\EnumTypeAdapterFactory.java
 --- minecraft\net\minecraft\util\EnumTypeAdapterFactory.java
 +++ minecraft_patched\net\minecraft\util\EnumTypeAdapterFactory.java
 @@ -16,7 +16,7 @@
@@ -10,3 +10,4 @@ diff -r -U 3 minecraft\net\minecraft\util\EnumTypeAdapterFactory.java minecraft_
        if (!oclass.isEnum()) {
           return null;
        } else {
+

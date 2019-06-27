@@ -1,7 +1,7 @@
 ﻿diff -r -U 3 minecraft\net\minecraft\network\datasync\EntityDataManager.java minecraft_patched\net\minecraft\network\datasync\EntityDataManager.java
 --- minecraft\net\minecraft\network\datasync\EntityDataManager.java
 +++ minecraft_patched\net\minecraft\network\datasync\EntityDataManager.java
-@@ -96,7 +96,7 @@
+@@ -97,7 +97,7 @@
  
        EntityDataManager.DataEntry<T> dataentry;
        try {

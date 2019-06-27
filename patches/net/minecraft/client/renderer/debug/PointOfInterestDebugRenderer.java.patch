@@ -1,0 +1,11 @@
+--- a/net/minecraft/client/renderer/debug/PointOfInterestDebugRenderer.java
++++ b/net/minecraft/client/renderer/debug/PointOfInterestDebugRenderer.java
+@@ -103,7 +103,7 @@
+ 
+     private void func_217708_b()
+     {
+-        BlockPos blockpos = this.func_217709_c().func_216780_d();
++        BlockPos blockpos = this.func_217709_c().getBlockPos();
+         this.field_217714_d.forEach((p_222924_1_) ->
+         {
+             if (blockpos.withinDistance(p_222924_1_.getCenter(), 60.0D))

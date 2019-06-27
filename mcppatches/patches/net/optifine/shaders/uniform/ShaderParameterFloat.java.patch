@@ -3,10 +3,10 @@
 @@ -0,0 +1,234 @@
 +package net.optifine.shaders.uniform;
 +
-+import net.minecraft.src.Config;
 +import net.minecraft.util.math.BlockPos;
 +import net.minecraft.util.registry.Registry;
 +import net.minecraft.world.biome.Biome;
++import net.optifine.Config;
 +import net.optifine.shaders.Shaders;
 +
 +public enum ShaderParameterFloat

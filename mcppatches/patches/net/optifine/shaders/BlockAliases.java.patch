@@ -1,6 +1,6 @@
 --- a/net/optifine/shaders/BlockAliases.java
 +++ b/net/optifine/shaders/BlockAliases.java
-@@ -197,7 +197,7 @@
+@@ -200,7 +200,7 @@
                  Config.dbg("[Shaders] Parsing block mappings: " + path);
                  ConnectedParser connectedparser = new ConnectedParser("Shaders");
  
@@ -9,7 +9,7 @@
                  {
                      String s1 = properties.getProperty(s);
  
-@@ -324,9 +324,9 @@
+@@ -327,9 +327,9 @@
                              String s2 = astring1[1];
                              String s3 = astring1[2];
                              String s4 = "{Name:'" + s3 + "'";

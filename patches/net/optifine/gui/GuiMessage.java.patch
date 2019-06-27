@@ -1,0 +1,32 @@
+--- a/net/optifine/gui/GuiMessage.java
++++ b/net/optifine/gui/GuiMessage.java
+@@ -11,17 +11,17 @@
+ 
+ public class GuiMessage extends GuiScreenOF
+ {
+-    private Screen parentScreen;
++    private Screen parentGuiScreen;
+     private String messageLine1;
+     private String messageLine2;
+     private final List listLines2 = Lists.newArrayList();
+     protected String confirmButtonText;
+     private int ticksUntilEnable;
+ 
+-    public GuiMessage(Screen parentScreen, String line1, String line2)
++    public GuiMessage(Screen parentGuiScreen, String line1, String line2)
+     {
+         super(new TranslationTextComponent("of.options.detailsTitle"));
+-        this.parentScreen = parentScreen;
++        this.parentGuiScreen = parentGuiScreen;
+         this.messageLine1 = line1;
+         this.messageLine2 = line2;
+         this.confirmButtonText = I18n.format("gui.done");
+@@ -36,7 +36,7 @@
+ 
+     protected void actionPerformed(Widget button)
+     {
+-        Config.getMinecraft().displayGuiScreen(this.parentScreen);
++        Config.getMinecraft().displayGuiScreen(this.parentGuiScreen);
+     }
+ 
+     public void render(int mouseX, int mouseY, float partialTicks)

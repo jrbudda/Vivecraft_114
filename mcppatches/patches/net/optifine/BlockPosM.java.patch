@@ -1,6 +1,6 @@
 --- a/net/optifine/BlockPosM.java
 +++ b/net/optifine/BlockPosM.java
-@@ -164,7 +164,7 @@
+@@ -185,7 +185,7 @@
                          }
                          else if (this.theBlockPosM.equals(blockpos1))
                          {

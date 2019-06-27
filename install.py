@@ -12,7 +12,7 @@ from shutil import move
 from tempfile import mkstemp
 from os import remove, close
 from minecriftversion import mc_version, of_file_name, of_json_name, minecrift_version_num, \
-    minecrift_build, of_file_extension, of_file_md5, mcp_version, mc_file_md5, \
+    minecrift_build, of_file_extension, of_file_md5, of_build_md5, mcp_version, mc_file_md5, \
     mcp_download_url, mcp_uses_generics
 from hashlib import md5  # pylint: disable-msg=E0611
 from optparse import OptionParser
@@ -202,6 +202,39 @@ def download_deps( mcp_dir, download_mc, forgedep=False ):
     optifine_dest_dir = os.path.join(jars,"libraries","optifine","OptiFine",of_json_name )
     mkdir_p( optifine_dest_dir )
 
+    print 'Checking Optifine...'
+    optifine_jar = "OptiFine-"+of_json_name+".jar"
+    optifine_dest_file = os.path.join( optifine_dest_dir, optifine_jar )
+ 
+    download_optifine = False
+    optifine_md5 = ''
+    if not is_non_zero_file( optifine_dest_file ):
+        print 'Checking Optifine...'
+        print 'Optifine not Found at' + optifine_dest_file
+        download_optifine = True
+    else:
+        optifine_md5 = get_md5( optifine_dest_file )
+        print 'Optifine md5: %s' % optifine_md5
+        if optifine_md5 != of_build_md5:
+            download_optifine = True
+            print 'Bad MD5!'
+        else:
+            print 'MD5 good!'
+    
+    if download_optifine: 
+        # Use optifine filename for URL
+        optifine_url = "http://vivecraft.org/jar/build/OptiFine-"+of_file_name+of_file_extension
+        print 'Downloading Optifine from ' + optifine_url
+        if not download_file( optifine_url, optifine_dest_file):
+            print 'FAILED to download Optifine!'
+            sys.exit(1)
+        else:
+            shutil.copy(optifine_dest_file,os.path.join(flat_lib_dir, os.path.basename(optifine_dest_file)))
+            
+    if of_build_md5 == "":
+        optifine_md5 = get_md5( optifine_dest_file )
+        print 'Optifine md5: %s' % optifine_md5
+        sys.exit(0)
    
     json_obj = []
     with open(source_json_file,"rb") as f:
@@ -279,7 +312,7 @@ def download_deps( mcp_dir, download_mc, forgedep=False ):
     if download_mc == True:
         repo = "https://s3.amazonaws.com/Minecraft.Download/"
         jar_file = os.path.join(versions,mc_version+".jar")
-        jar_url = "https://launcher.mojang.com/v1/objects/ca6c5a139045967229975c0c0b7f93e78b4314c2/client.jar"
+        jar_url = "https://launcher.mojang.com/v1/objects/af100b34ec7ef2b8b9cf7775b544d21d690dddec/client.jar"
         download_file( jar_url, jar_file, mc_file_md5 )
         shutil.copy(jar_file,os.path.join(flat_lib_dir, os.path.basename(jar_file))) 
         

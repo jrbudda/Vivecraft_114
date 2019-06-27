@@ -1,6 +1,6 @@
 --- a/net/optifine/RandomEntityProperties.java
 +++ b/net/optifine/RandomEntityProperties.java
-@@ -102,7 +102,7 @@
+@@ -101,7 +101,7 @@
              }
          }
  

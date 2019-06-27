@@ -1,0 +1,224 @@
+--- a/net/minecraft/client/shader/Framebuffer.java
++++ b/net/minecraft/client/shader/Framebuffer.java
+@@ -3,10 +3,17 @@
+ import com.mojang.blaze3d.platform.GLX;
+ import com.mojang.blaze3d.platform.GlStateManager;
+ import com.mojang.blaze3d.platform.TextureUtil;
++
++import java.nio.ByteBuffer;
+ import java.nio.IntBuffer;
++
++import org.lwjgl.opengl.GL11;
++import org.lwjgl.opengl.GL30;
++
+ import net.minecraft.client.renderer.BufferBuilder;
+ import net.minecraft.client.renderer.Tessellator;
+ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
++import net.optifine.Config;
+ 
+ public class Framebuffer
+ {
+@@ -20,7 +27,15 @@
+     public int depthBuffer;
+     public final float[] framebufferColor;
+     public int framebufferFilter;
+-
++     
++    //Vivecraft
++    private static final int NO_TEXTURE_ID = -1;
++ 	private boolean generatedFramebufferTexture;
++ 	private boolean genMipMaps;
++ 	private String name;
++ 	private boolean useTextureInsteadofRenderBuffer = false;
++ 	//
++     	
+     public Framebuffer(int p_i2522_1_, int p_i2522_2_, boolean p_i2522_3_, boolean p_i2522_4_)
+     {
+         this.useDepth = p_i2522_3_;
+@@ -32,10 +47,10 @@
+         this.framebufferColor[1] = 1.0F;
+         this.framebufferColor[2] = 1.0F;
+         this.framebufferColor[3] = 0.0F;
+-        this.func_216491_a(p_i2522_1_, p_i2522_2_, p_i2522_4_);
++        this.createBindFramebuffer(p_i2522_1_, p_i2522_2_, p_i2522_4_, -1);
+     }
+ 
+-    public void func_216491_a(int p_216491_1_, int p_216491_2_, boolean p_216491_3_)
++    public void createBindFramebuffer(int p_216491_1_, int p_216491_2_, boolean is_mac, int textureId)
+     {
+         if (!GLX.isUsingFBOs())
+         {
+@@ -51,7 +66,7 @@
+                 this.deleteFramebuffer();
+             }
+ 
+-            this.func_216492_b(p_216491_1_, p_216491_2_, p_216491_3_);
++            this.createFramebuffer(p_216491_1_, p_216491_2_, is_mac, textureId);
+             GLX.glBindFramebuffer(GLX.GL_FRAMEBUFFER, 0);
+         }
+     }
+@@ -84,7 +99,7 @@
+         }
+     }
+ 
+-    public void func_216492_b(int p_216492_1_, int p_216492_2_, boolean p_216492_3_)
++    public void createFramebuffer(int p_216492_1_, int p_216492_2_, boolean is_mac, int textureId)
+     {
+         this.framebufferWidth = p_216492_1_;
+         this.framebufferHeight = p_216492_2_;
+@@ -93,16 +108,30 @@
+ 
+         if (!GLX.isUsingFBOs())
+         {
+-            this.func_216493_b(p_216492_3_);
++            this.framebufferClear(is_mac);
+         }
+         else
+         {
+             this.framebufferObject = GLX.glGenFramebuffers();
+-            this.framebufferTexture = TextureUtil.generateTextureId();
++            //Vivecraft allow making framebuffer from provided texture
++            if (textureId == NO_TEXTURE_ID) {
++                // generate texture
++                this.framebufferTexture = TextureUtil.generateTextureId();
++                this.generatedFramebufferTexture = true;
++            }
++            else {
++                // Use supplied texture ID
++                this.framebufferTexture = textureId;
++                this.generatedFramebufferTexture = false;
++            }
++            //
+ 
+             if (this.useDepth)
+             {
+-                this.depthBuffer = GLX.glGenRenderbuffers();
++            	if (this.useTextureInsteadofRenderBuffer)
++            		this.depthBuffer = TextureUtil.generateTextureId();
++            	else
++            		this.depthBuffer = GLX.glGenRenderbuffers();
+             }
+ 
+             this.setFramebufferFilter(9728);
+@@ -113,13 +142,28 @@
+ 
+             if (this.useDepth)
+             {
+-                GLX.glBindRenderbuffer(GLX.GL_RENDERBUFFER, this.depthBuffer);
+-                GLX.glRenderbufferStorage(GLX.GL_RENDERBUFFER, 33190, this.framebufferTextureWidth, this.framebufferTextureHeight);
+-                GLX.glFramebufferRenderbuffer(GLX.GL_FRAMEBUFFER, GLX.GL_DEPTH_ATTACHMENT, GLX.GL_RENDERBUFFER, this.depthBuffer);
++            	if (this.useTextureInsteadofRenderBuffer) {
++            	//Vivecraft TODO: Re-evaluate this block.
++	            	GL11.glBindTexture((int)3553, this.depthBuffer );
++	            	GL11.glTexParameteri((int)3553, (int)10242, (int)10496);
++	            	GL11.glTexParameteri((int)3553, (int)10243, (int)10496);
++	            	GL11.glTexParameteri((int)3553, (int)10241, (int)9728);
++	            	GL11.glTexParameteri((int)3553, (int)10240, (int)9728);
++	            	GL11.glTexParameteri((int)3553, (int)34891, (int)6409);
++	            	GL11.glTexImage2D(GL11.GL_TEXTURE_2D, (int)0, GL30.GL_DEPTH24_STENCIL8, framebufferWidth, framebufferHeight, (int)0, GL30.GL_DEPTH_STENCIL,  GL30.GL_UNSIGNED_INT_24_8, (ByteBuffer)null);
++	            	GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH_STENCIL_ATTACHMENT, GL11.GL_TEXTURE_2D, depthBuffer, (int)0);
++            	//
++            	} else {
++	                GLX.glBindRenderbuffer(GLX.GL_RENDERBUFFER, this.depthBuffer);
++	                GLX.glRenderbufferStorage(GLX.GL_RENDERBUFFER, 33190, this.framebufferTextureWidth, this.framebufferTextureHeight);
++	                GLX.glFramebufferRenderbuffer(GLX.GL_FRAMEBUFFER, GLX.GL_DEPTH_ATTACHMENT, GLX.GL_RENDERBUFFER, this.depthBuffer);            
++            	}
++            	
++            Config.checkGlError("Create FBO");	
+             }
+ 
+             this.checkFramebufferComplete();
+-            this.func_216493_b(p_216492_3_);
++            this.framebufferClear(is_mac);
+             this.unbindFramebufferTexture();
+         }
+     }
+@@ -217,7 +261,7 @@
+         this.framebufferRenderExt(width, height, true);
+     }
+ 
+-    public void framebufferRenderExt(int width, int height, boolean p_178038_3_)
++    public void framebufferRenderExt(int left, int width, int height, int top, boolean disableBlend)
+     {
+         if (GLX.isUsingFBOs())
+         {
+@@ -235,7 +279,7 @@
+             GlStateManager.disableLighting();
+             GlStateManager.disableAlphaTest();
+ 
+-            if (p_178038_3_)
++            if (disableBlend)
+             {
+                 GlStateManager.disableBlend();
+                 GlStateManager.enableColorMaterial();
+@@ -261,7 +305,7 @@
+         }
+     }
+ 
+-    public void func_216493_b(boolean p_216493_1_)
++    public void framebufferClear(boolean is_mac)
+     {
+         this.bindFramebuffer(true);
+         GlStateManager.clearColor(this.framebufferColor[0], this.framebufferColor[1], this.framebufferColor[2], this.framebufferColor[3]);
+@@ -273,7 +317,60 @@
+             i |= 256;
+         }
+ 
+-        GlStateManager.clear(i, p_216493_1_);
++        GlStateManager.clear(i, is_mac);
+         this.unbindFramebuffer();
+     }
++    //Vivecraft Additions
++    public Framebuffer(String name, int width, int height, boolean useDepth, boolean generateMipMaps)
++    {
++        this(name, width, height, useDepth, generateMipMaps, false, 0,-1, true);
++    }
++    
++    public Framebuffer(String name, int width, int height, boolean useDepth, boolean generateMipMaps, boolean multisample, int multisamplecount, int textureID, boolean textureDepth)
++    {
++    	this.name = name;
++        this.useDepth = useDepth;
++        this.framebufferObject = -1;       
++        this.framebufferTexture = NO_TEXTURE_ID;
++        this.generatedFramebufferTexture = true;
++        this.depthBuffer = -1;
++        this.framebufferColor = new float[4];
++        this.framebufferColor[0] = 1.0F;
++        this.framebufferColor[1] = 1.0F;
++        this.framebufferColor[2] = 1.0F;
++        this.framebufferColor[3] = 0.0F;
++        this.genMipMaps = generateMipMaps;
++        this.useTextureInsteadofRenderBuffer = textureDepth;
++//        this.multiSample = multisample;
++//        if (this.multiSample) {
++//            this.multiSampleCount = multisamplecount;
++//            this.textureType = GL32.GL_TEXTURE_2D_MULTISAMPLE;
++//        }
++
++        this.createBindFramebuffer(width, height, false, textureID);
++    }
++    public void genMipMaps()
++    {
++        GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);    // TODO: Minecrift - Check GLContext capabilities
++    }
++    public void createBindFramebuffer(int width, int height, boolean is_mac){
++    	this.createBindFramebuffer(width, height, is_mac, NO_TEXTURE_ID);
++    }
++    
++    public void framebufferRenderExt(int width, int height, boolean noblend)
++    {
++        this.framebufferRenderExt(0,width, height,0, noblend);
++    }
++    
++    public String toString()
++    {
++        StringBuilder sb = new StringBuilder();
++        sb.append("\n");
++        if (name != null) sb.append("Name:   " + name).append("\n");
++        sb.append("Size:   " + framebufferWidth + " x " + framebufferHeight).append("\n");
++        sb.append("FB ID:  " + framebufferObject).append("\n");
++        sb.append("Tex ID: " + framebufferTexture).append("\n");
++        return sb.toString();
++    }
++    
+ }

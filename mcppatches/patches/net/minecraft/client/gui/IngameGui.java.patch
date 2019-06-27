@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/gui/IngameGui.java
 +++ b/net/minecraft/client/gui/IngameGui.java
-@@ -570,15 +570,17 @@
+@@ -573,15 +573,17 @@
                      }
  
                      TextureAtlasSprite textureatlassprite = potionspriteuploader.func_215288_a(effect);
@@ -21,7 +21,7 @@
                              });
                          }
  
-@@ -588,8 +590,8 @@
+@@ -591,8 +593,8 @@
                      {
                          list.add(() ->
                          {

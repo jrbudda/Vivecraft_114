@@ -1,0 +1,40 @@
+--- a/net/minecraft/client/renderer/LightTexture.java
++++ b/net/minecraft/client/renderer/LightTexture.java
+@@ -22,13 +22,13 @@
+     private boolean needsUpdate;
+     private float torchFlickerX;
+     private float torchFlickerDX;
+-    private final GameRenderer entityRenderer;
++    private final GameRenderer gameRenderer;
+     private final Minecraft client;
+ 
+     public LightTexture(GameRenderer p_i118_1_)
+     {
+-        this.entityRenderer = p_i118_1_;
+-        this.client = p_i118_1_.getMinecraft();
++        this.gameRenderer = p_i118_1_;
++        this.client = p_i118_1_.getInstance();
+         this.dynamicTexture = new DynamicTexture(16, 16, false);
+         this.resourceLocation = this.client.getTextureManager().getDynamicTextureLocation("light_map", this.dynamicTexture);
+         this.nativeImage = this.dynamicTexture.getTextureData();
+@@ -102,7 +102,7 @@
+ 
+                 if (this.client.player.isPotionActive(Effects.NIGHT_VISION))
+                 {
+-                    f2 = this.entityRenderer.getNightVisionBrightness(this.client.player, partialTicks);
++                    f2 = this.gameRenderer.getNightVisionBrightness(this.client.player, partialTicks);
+                 }
+                 else if (f1 > 0.0F && this.client.player.isPotionActive(Effects.CONDUIT_POWER))
+                 {
+@@ -136,9 +136,9 @@
+                         f10 = f10 * 0.96F + 0.03F;
+                         f11 = f11 * 0.96F + 0.03F;
+ 
+-                        if (this.entityRenderer.getBossColorModifier(partialTicks) > 0.0F)
++                        if (this.gameRenderer.getBossColorModifier(partialTicks) > 0.0F)
+                         {
+-                            float f12 = this.entityRenderer.getBossColorModifier(partialTicks);
++                            float f12 = this.gameRenderer.getBossColorModifier(partialTicks);
+                             f9 = f9 * (1.0F - f12) + f9 * 0.7F * f12;
+                             f10 = f10 * (1.0F - f12) + f10 * 0.6F * f12;
+                             f11 = f11 * (1.0F - f12) + f11 * 0.6F * f12;

@@ -1,16 +1,19 @@
 --- a/net/minecraft/resources/AsyncReloader.java
 +++ b/net/minecraft/resources/AsyncReloader.java
-@@ -38,11 +38,12 @@
-         this.asyncScheduled.incrementAndGet();
-         p_i1267_6_.thenRun(this.asyncCompleted::incrementAndGet);
-         List<CompletableFuture<S>> list = new ArrayList<>();
--        final CompletableFuture<?> completablefuture = p_i1267_6_;
-+        CompletableFuture<?> completablefuture = p_i1267_6_;
-         this.taskSet = Sets.newHashSet(p_i1267_4_);
+@@ -56,7 +56,7 @@
+                             AsyncReloader.this.allAsyncCompleted.complete(Unit.INSTANCE);
+                         }
+                     });
+-                    return AsyncReloader.this.allAsyncCompleted.thenCombine(completablefuture_f, (p_216874_1_, p_216874_2_) ->
++                    return AsyncReloader.this.allAsyncCompleted.thenCombine(completablefuture, (p_216874_1_, p_216874_2_) ->
+                     {
+                         return backgroundResult;
+                     });
+@@ -77,7 +77,6 @@
+                 });
+             });
+             list.add(completablefuture1);
+-            completablefuture = completablefuture1;
+         }
  
-         for (final IFutureReloadListener ifuturereloadlistener : p_i1267_4_)
-         {
-+        	CompletableFuture<?> completablefuture_f = completablefuture;
-             CompletableFuture<S> completablefuture1 = p_i1267_5_.create(new IFutureReloadListener.IStage()
-             {
-                 public <T> CompletableFuture<T> markCompleteAwaitingOthers(T backgroundResult)
+         this.resultListFuture = Util.gather(list);

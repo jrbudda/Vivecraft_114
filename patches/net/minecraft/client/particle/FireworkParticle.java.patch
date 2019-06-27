@@ -1,0 +1,11 @@
+--- a/net/minecraft/client/particle/FireworkParticle.java
++++ b/net/minecraft/client/particle/FireworkParticle.java
+@@ -288,7 +288,7 @@
+         private boolean isFarFromCamera()
+         {
+             Minecraft minecraft = Minecraft.getInstance();
+-            return minecraft.gameRenderer.getActiveRenderInfo().getProjectedView().squareDistanceTo(this.posX, this.posY, this.posZ) >= 256.0D;
++            return minecraft.gameRenderer.getActiveRenderInfo().getPosition().squareDistanceTo(this.posX, this.posY, this.posZ) >= 256.0D;
+         }
+ 
+         private void createParticle(double p_92034_1_, double p_92034_3_, double p_92034_5_, double p_92034_7_, double p_92034_9_, double p_92034_11_, int[] p_92034_13_, int[] p_92034_14_, boolean p_92034_15_, boolean p_92034_16_)

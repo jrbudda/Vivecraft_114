@@ -1,0 +1,21 @@
+--- a/net/minecraft/client/renderer/debug/CaveDebugRenderer.java
++++ b/net/minecraft/client/renderer/debug/CaveDebugRenderer.java
+@@ -40,14 +40,14 @@
+     public void render(long p_217676_1_)
+     {
+         ActiveRenderInfo activerenderinfo = this.minecraft.gameRenderer.getActiveRenderInfo();
+-        double d0 = activerenderinfo.getProjectedView().x;
+-        double d1 = activerenderinfo.getProjectedView().y;
+-        double d2 = activerenderinfo.getProjectedView().z;
++        double d0 = activerenderinfo.getPosition().x;
++        double d1 = activerenderinfo.getPosition().y;
++        double d2 = activerenderinfo.getPosition().z;
+         GlStateManager.pushMatrix();
+         GlStateManager.enableBlend();
+         GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+         GlStateManager.disableTexture();
+-        BlockPos blockpos = new BlockPos(activerenderinfo.getProjectedView().x, 0.0D, activerenderinfo.getProjectedView().z);
++        BlockPos blockpos = new BlockPos(activerenderinfo.getPosition().x, 0.0D, activerenderinfo.getPosition().z);
+         Tessellator tessellator = Tessellator.getInstance();
+         BufferBuilder bufferbuilder = tessellator.getBuffer();
+         bufferbuilder.begin(5, DefaultVertexFormats.POSITION_COLOR);

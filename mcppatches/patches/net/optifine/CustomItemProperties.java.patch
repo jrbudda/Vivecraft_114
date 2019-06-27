@@ -8,7 +8,7 @@
  import java.util.LinkedHashMap;
  import java.util.List;
  import java.util.Map;
-@@ -237,7 +238,7 @@
+@@ -236,7 +237,7 @@
                  }
              }
  
@@ -17,7 +17,7 @@
              int[] aint = new int[ainteger.length];
  
              for (int k = 0; k < aint.length; ++k)
-@@ -345,11 +346,12 @@
+@@ -344,11 +345,12 @@
              Set set = map.keySet();
              Map map1 = new LinkedHashMap();
  
@@ -33,7 +33,7 @@
              }
  
              return map1;
-@@ -426,7 +428,7 @@
+@@ -425,7 +427,7 @@
              Set set = map.keySet();
              Map map1 = new LinkedHashMap();
  
@@ -42,7 +42,7 @@
              {
                  String s2 = (String)map.get(s1);
                  s2 = fixModelName(s2, basePath);
-@@ -649,7 +651,7 @@
+@@ -648,7 +650,7 @@
          {
              List list = new ArrayList();
  
@@ -51,7 +51,7 @@
              {
                  String s2 = (String)map.get(s1);
                  String s3 = s1.substring(s.length());
-@@ -657,7 +659,7 @@
+@@ -656,7 +658,7 @@
                  list.add(nbttagvalue);
              }
  
@@ -60,7 +60,7 @@
              return anbttagvalue;
          }
      }
-@@ -666,7 +668,7 @@
+@@ -665,7 +667,7 @@
      {
          Map map = new LinkedHashMap();
  
