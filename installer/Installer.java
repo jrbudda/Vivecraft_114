@@ -54,13 +54,13 @@ public class Installer extends JPanel  implements PropertyChangeListener
 	public static String winredist2010_32url = "http://download.microsoft.com/download/C/6/D/C6D0FD4E-9E53-4897-9B91-836EBA2AACD3/vcredist_x86.exe";
 
 	/* DO NOT RENAME THESE STRING CONSTS - THEY ARE USED IN (AND THE VALUES UPDATED BY) THE AUTOMATED BUILD SCRIPTS */
-    private static final String MINECRAFT_VERSION = "1.13.2";
-    private static final String MC_VERSION        = "1.13.2";
-    private static final String MC_MD5            = "0d20673fc03f9c6a60279146ee1b1a14";
+    private static final String MINECRAFT_VERSION = "1.14.3";
+    private static final String MC_VERSION        = "1.14.3";
+    private static final String MC_MD5            = "43648a75fe4364c4c83b19bfe64f00f0";
 	private static final String OF_LIB_PATH       = "libraries/optifine/OptiFine/";
-    private static final String OF_FILE_NAME      = "1.13.2_HD_U_E7";
-    private static final String OF_JSON_NAME      = "1.13.2_HD_U_E7";
-    private static final String OF_MD5            = "CBC08AA8A74D246C11B1E993DE18E266";
+    private static final String OF_FILE_NAME      = "1.14.3_HD_U_F1";
+    private static final String OF_JSON_NAME      = "1.14.3_HD_U_F1";
+    private static final String OF_MD5            = "1BAD956911F5E8F057FF2B76BFACA797";
     private static final String OF_VERSION_EXT    = ".jar";
     private static String FORGE_VERSION     = "14.25.0.110";
 	/* END OF DO NOT RENAME */

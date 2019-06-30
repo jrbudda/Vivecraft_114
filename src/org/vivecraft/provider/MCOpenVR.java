@@ -28,12 +28,17 @@ import org.vivecraft.gui.settings.GuiVRControls;
 import org.vivecraft.render.RenderPass;
 import org.vivecraft.settings.VRHotkeys;
 import org.vivecraft.settings.VRSettings;
+import org.vivecraft.utils.Angle;
 import org.vivecraft.utils.HardwareType;
 import org.vivecraft.utils.InputSimulator;
 import org.vivecraft.utils.MCReflection;
+import org.vivecraft.utils.Matrix4f;
 import org.vivecraft.utils.MenuWorldExporter;
+import org.vivecraft.utils.OpenVRUtil;
+import org.vivecraft.utils.Quaternion;
 import org.vivecraft.utils.Utils;
 import org.vivecraft.utils.Vector2;
+import org.vivecraft.utils.Vector3;
 import org.vivecraft.utils.jkatvr;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -44,15 +49,10 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.FloatByReference;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
-import de.fruitfly.ovr.structs.EulerOrient;
-import de.fruitfly.ovr.structs.Matrix4f;
-import de.fruitfly.ovr.structs.Quatf;
-import de.fruitfly.ovr.structs.Vector3f;
 import jopenvr.HmdMatrix34_t;
 import jopenvr.HmdVector2_t;
 import jopenvr.JOpenVRLibrary;
 import jopenvr.JOpenVRLibrary.EVREventType;
-import jopenvr.OpenVRUtil;
 import jopenvr.RenderModel_ComponentState_t;
 import jopenvr.RenderModel_ControllerMode_State_t;
 import jopenvr.Texture_t;
@@ -149,7 +149,7 @@ public class MCOpenVR
 
 	static Vec3d[] aimSource = new Vec3d[3];
 
-	public static Vector3f offset=new Vector3f(0,0,0);
+	public static Vector3 offset=new Vector3(0,0,0);
 
 	static boolean[] controllerTracking = new boolean[3];
 	public static TrackedController[] controllers = new TrackedController[2];
@@ -666,15 +666,15 @@ public class MCOpenVR
 						Matrix4f tip = getControllerComponentTransform(0,"tip");
 						Matrix4f hand = getControllerComponentTransform(0,"base");
 
-						Vector3f tipvec = tip.transform(forward);
-						Vector3f handvec = hand.transform(forward);
+						Vector3 tipvec = tip.transform(forward);
+						Vector3 handvec = hand.transform(forward);
 
-						double dot = Math.abs(tipvec.normalised().dot(handvec.normalised()));
+						double dot = Math.abs(tipvec.normalized().dot(handvec.normalized()));
 						
 						double anglerad = Math.acos(dot);
 						double angledeg = Math.toDegrees(anglerad);
 
-						double angletestrad = Math.acos(tipvec.normalised().dot(forward.normalised()));
+						double angletestrad = Math.acos(tipvec.normalized().dot(forward.normalized()));
 						double angletestdeg = Math.toDegrees(angletestrad);
 
 					//	System.out.println("gun angle " + angledeg + " default angle " + angletestdeg);
@@ -802,8 +802,10 @@ public class MCOpenVR
 
 	public static void poll(long frameIndex)
 	{
-		boolean sleeping = (mc.world !=null && mc.player != null && mc.player.isSleeping());
+		if (!initialized) return;
 
+		boolean sleeping = (mc.world !=null && mc.player != null && mc.player.isSleeping());
+		
 		paused = vrsystem.ShouldApplicationPause.apply() != 0;
 
 		mc.getProfiler().startSection("events");
@@ -853,8 +855,8 @@ public class MCOpenVR
 
 	private static int quickTorchPreviousSlot;
 
-	private static Vec3d vecFromVector(Vector3f in){
-		return new Vec3d(in.x, in.y, in.z);
+	private static Vec3d vecFromVector(Vector3 in){
+		return new Vec3d(in.getX(), in.getY(), in.getZ());
 	}
 	private static void processHotbar() {
 
@@ -873,11 +875,11 @@ public class MCOpenVR
 		if(mc.vrSettings.vrReverseHands) i = -1;
 
 		if (mc.vrSettings.vrHudLockMode == VRSettings.HUD_LOCK_WRIST){
-			barStartos = vecFromVector( getAimRotation(1).transform(new Vector3f(i*0.02f,0.05f,0.26f)));
-			barEndos = vecFromVector( getAimRotation(1).transform(new Vector3f(i*0.02f,0.05f,0.01f)));
+			barStartos = vecFromVector( getAimRotation(1).transform(new Vector3(i*0.02f,0.05f,0.26f)));
+			barEndos = vecFromVector( getAimRotation(1).transform(new Vector3(i*0.02f,0.05f,0.01f)));
 		} else if (mc.vrSettings.vrHudLockMode == VRSettings.HUD_LOCK_HAND){
-			barStartos = vecFromVector( getAimRotation(1).transform(new Vector3f(i*-.18f,0.08f,-0.01f)));
-			barEndos = vecFromVector( getAimRotation(1).transform(new Vector3f(i*0.19f,0.04f,-0.08f)));
+			barStartos = vecFromVector( getAimRotation(1).transform(new Vector3(i*-.18f,0.08f,-0.01f)));
+			barEndos = vecFromVector( getAimRotation(1).transform(new Vector3(i*0.19f,0.04f,-0.08f)));
 		} else return; //how did u get here
 
 
@@ -1454,9 +1456,10 @@ public class MCOpenVR
 
 
 	public static void postProcessBindings() {
+		if(!initialized) return;
 		outer: for (VRButtonMapping mapping : mc.vrSettings.buttonMappings.values()) {
 			if (mapping.keyBinding != null) {
-				
+
 				for (ButtonTuple button : mapping.buttons) {
 					if (button.isTouch && button.controller.getController().isButtonTouched(button.button))
 						continue outer;
@@ -1682,7 +1685,7 @@ public class MCOpenVR
 			hmdTrackedDevicePoses[nDevice].read();
 			if ( hmdTrackedDevicePoses[nDevice].bPoseIsValid != 0 )
 			{
-				jopenvr.OpenVRUtil.convertSteamVRMatrix3ToMatrix4f(hmdTrackedDevicePoses[nDevice].mDeviceToAbsoluteTracking, poseMatrices[nDevice]);
+				org.vivecraft.utils.OpenVRUtil.convertSteamVRMatrix3ToMatrix4f(hmdTrackedDevicePoses[nDevice].mDeviceToAbsoluteTracking, poseMatrices[nDevice]);
 				deviceVelocity[nDevice] = new Vec3d(hmdTrackedDevicePoses[nDevice].vVelocity.v[0],hmdTrackedDevicePoses[nDevice].vVelocity.v[1],hmdTrackedDevicePoses[nDevice].vVelocity.v[2]);
 				if(mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_MIXED_REALITY || mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_THIRD_PERSON){
 					if(controllerDeviceIndex[0]!= -1 && controllerDeviceIndex[1] != -1 ){
@@ -1734,10 +1737,10 @@ public class MCOpenVR
 	 */
 
 	public static Vec3d getCenterEyePosition() {
-		Vector3f pos = OpenVRUtil.convertMatrix4ftoTranslationVector(hmdPose);
+		Vector3 pos = OpenVRUtil.convertMatrix4ftoTranslationVector(hmdPose);
 		if (mc.vrSettings.seated || mc.vrSettings.allowStandingOriginOffset)
 			pos=pos.add(offset);
-		return new Vec3d(pos.x, pos.y, pos.z);
+		return new Vec3d(pos.getX(), pos.getY(), pos.getZ());
 	}
 
 	/**
@@ -1759,16 +1762,16 @@ public class MCOpenVR
 
 		if(hmdToEye == null){
 			Matrix4f pose = hmdPose;
-			Vector3f pos = OpenVRUtil.convertMatrix4ftoTranslationVector(pose);
+			Vector3 pos = OpenVRUtil.convertMatrix4ftoTranslationVector(pose);
 			if (mc.vrSettings.seated || mc.vrSettings.allowStandingOriginOffset)
 				pos=pos.add(offset);
-			return new Vec3d(pos.x, pos.y, pos.z);
+			return new Vec3d(pos.getX(), pos.getY(), pos.getZ());
 		} else {
 			Matrix4f pose = Matrix4f.multiply( hmdPose, hmdToEye );
-			Vector3f pos = OpenVRUtil.convertMatrix4ftoTranslationVector(pose);
+			Vector3 pos = OpenVRUtil.convertMatrix4ftoTranslationVector(pose);
 			if (mc.vrSettings.seated || mc.vrSettings.allowStandingOriginOffset)
 				pos=pos.add(offset);
-			return new Vec3d(pos.x, pos.y, pos.z);
+			return new Vec3d(pos.getX(), pos.getY(), pos.getZ());
 		}
 	}
 
@@ -1791,10 +1794,10 @@ public class MCOpenVR
 	 * @return quaternion w, x, y & z components
 	 */
 
-	static EulerOrient getOrientationEuler()
+	static Angle getOrientationEuler()
 	{
-		Quatf orient = OpenVRUtil.convertMatrix4ftoRotationQuat(hmdPose);
-		return OpenVRUtil.getEulerAnglesDegYXZ(orient);
+		Quaternion orient = OpenVRUtil.convertMatrix4ftoRotationQuat(hmdPose);
+		return orient.toEuler();
 	}
 
 	final String k_pch_SteamVR_Section = "steamvr";
@@ -1810,22 +1813,21 @@ public class MCOpenVR
 	}
 
 	public static Vec3d getAimVector( int controller ) {
-		Vector3f v = controllerRotation[controller].transform(forward);
-		return new Vec3d(v.x, v.y, v.z);
+		Vector3 v = controllerRotation[controller].transform(forward);
+		return v.toVec3d();
 
 	}
 
 	public static Vec3d getHmdVector() {
-		Vector3f v = hmdRotation.transform(forward);
-		return new Vec3d(v.x, v.y, v.z);
+		Vector3 v = hmdRotation.transform(forward);
+		return v.toVec3d();
 	}
 
 	public static Vec3d getHandVector( int controller ) {
-		Vector3f forward = new Vector3f(0,0,-1);
+		Vector3 forward = new Vector3(0,0,-1);
 		Matrix4f aimRotation = handRotation[controller];
-		Vector3f controllerDirection = aimRotation.transform(forward);
-		Vec3d out = new Vec3d(controllerDirection.x, controllerDirection.y,controllerDirection.z);
-		return out;
+		Vector3 controllerDirection = aimRotation.transform(forward);
+		return controllerDirection.toVec3d();
 	}
 
 	public static Matrix4f getAimRotation( int controller ) {
@@ -1846,7 +1848,7 @@ public class MCOpenVR
 	public static Vec3d getAimSource( int controller ) {
 		Vec3d out = new Vec3d(aimSource[controller].x, aimSource[controller].y, aimSource[controller].z);
 		if(!mc.vrSettings.seated && mc.vrSettings.allowStandingOriginOffset)
-			out = out.add(offset.x, offset.y, offset.z);
+			out = out.add(offset.getX(), offset.getY(), offset.getZ());
 		return out;
 	}
 
@@ -1863,7 +1865,7 @@ public class MCOpenVR
 
 	public static float seatedRot;
 
-	public static Vector3f forward = new Vector3f(0,0,-1);
+	public static Vector3 forward = new Vector3(0,0,-1);
 	static double aimPitch = 0; //needed for seated mode.
 
 
@@ -1892,8 +1894,8 @@ public class MCOpenVR
 
 			Vec3d eye = getCenterEyePosition();
 			hmdHistory.add(eye);
-			Vector3f v3 = MCOpenVR.hmdRotation.transform(new Vector3f(0,-.1f, .1f));
-			hmdPivotHistory.add(new Vec3d(v3.x+eye.x, v3.y+eye.y, v3.z+eye.z));
+			Vector3 v3 = MCOpenVR.hmdRotation.transform(new Vector3(0,-.1f, .1f));
+			hmdPivotHistory.add(new Vec3d(v3.getX()+eye.x, v3.getY()+eye.y, v3.getZ()+eye.z));
 
 		}
 
@@ -1922,11 +1924,8 @@ public class MCOpenVR
 				controllerPose[0] = Matrix4f.multiply(controllerPose[0], getControllerComponentTransform(0,"tip"));
 
 			// grab controller position in tracker space, scaled to minecraft units
-			Vector3f controllerPos = OpenVRUtil.convertMatrix4ftoTranslationVector(controllerPose[0]);
-			aimSource[0] = new Vec3d(
-					controllerPos.x,
-					controllerPos.y,
-					controllerPos.z);
+			Vector3 controllerPos = OpenVRUtil.convertMatrix4ftoTranslationVector(controllerPose[0]);
+			aimSource[0] = controllerPos.toVec3d();
 
 			controllerHistory[0].add(aimSource[0]);
 
@@ -1977,7 +1976,7 @@ public class MCOpenVR
 					
 					if(h < -rotStart){
 						seatedRot += rotSpeed * rotMul * mc.getFrameDelta();
-						seatedRot %= 360; // Prevent stupidly large values
+  						seatedRot %= 360; // Prevent stupidly large values
 						hmdForwardYaw = (float)Math.toDegrees(Math.atan2(hdir.x, hdir.z));   
 						xpos = leftedge;
 						h=-rotStart;
@@ -2041,11 +2040,8 @@ public class MCOpenVR
 			if(!mc.vrSettings.seated) 
 				controllerPose[1] = Matrix4f.multiply(controllerPose[1], getControllerComponentTransform(1,"tip"));
 
-			Vector3f leftControllerPos = OpenVRUtil.convertMatrix4ftoTranslationVector(controllerPose[1]);
-			aimSource[1] = new Vec3d(
-					leftControllerPos.x,
-					leftControllerPos.y,
-					leftControllerPos.z);
+			Vector3 leftControllerPos = OpenVRUtil.convertMatrix4ftoTranslationVector(controllerPose[1]);
+			aimSource[1] = leftControllerPos.toVec3d();
 			controllerHistory[1].add(aimSource[1]);
 
 			// build matrix describing controller rotation
@@ -2096,11 +2092,8 @@ public class MCOpenVR
 
 		if(controllerDeviceIndex[THIRD_CONTROLLER]!=-1 && (mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_MIXED_REALITY || mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_THIRD_PERSON )|| debugThirdController) {
 			mrMovingCamActive = true;
-			Vector3f thirdControllerPos = OpenVRUtil.convertMatrix4ftoTranslationVector(controllerPose[2]);
-			aimSource[2] = new Vec3d(
-					thirdControllerPos.x,
-					thirdControllerPos.y,
-					thirdControllerPos.z);
+			Vector3 thirdControllerPos = OpenVRUtil.convertMatrix4ftoTranslationVector(controllerPose[2]);
+			aimSource[2] = thirdControllerPos.toVec3d();
 		} else {
 			mrMovingCamActive = false;
 			aimSource[2] = new Vec3d(
@@ -2142,12 +2135,12 @@ public class MCOpenVR
 	}
 
 	public static void resetPosition() {
-		Vec3d pos= getCenterEyePosition().scale(-1).add(offset.x,offset.y,offset.z);
-		offset=new Vector3f((float) pos.x,(float)pos.y+1.62f,(float)pos.z);
+		Vec3d pos= getCenterEyePosition().scale(-1).add(offset.getX(),offset.getY(),offset.getZ());
+		offset=new Vector3((float) pos.x,(float)pos.y+1.62f,(float)pos.z);
 	}
 
 	public static void clearOffset() {
-		offset=new Vector3f(0,0,0);
+		offset=new Vector3(0,0,0);
 	}
 
 	public static boolean isVivecraftBinding(KeyBinding kb) {

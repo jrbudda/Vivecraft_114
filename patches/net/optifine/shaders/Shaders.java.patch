@@ -257,7 +257,7 @@
 @@ -4346,7 +4370,7 @@
      public static void setCamera(ActiveRenderInfo activeRenderInfo, float partialTicks)
      {
-         Entity entity = activeRenderInfo.func_216773_g();
+         Entity entity = activeRenderInfo.getRenderViewEntity();
 -        Vec3d vec3d = activeRenderInfo.getProjectedView();
 +        Vec3d vec3d = activeRenderInfo.getPosition();
          double d0 = vec3d.x;
@@ -266,7 +266,7 @@
 @@ -4395,7 +4419,7 @@
      public static void setCameraShadow(ActiveRenderInfo activeRenderInfo, float partialTicks)
      {
-         Entity entity = activeRenderInfo.func_216773_g();
+         Entity entity = activeRenderInfo.getRenderViewEntity();
 -        Vec3d vec3d = activeRenderInfo.getProjectedView();
 +        Vec3d vec3d = activeRenderInfo.getPosition();
          double d0 = vec3d.x;

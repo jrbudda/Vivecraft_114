@@ -1,13 +1,18 @@
 package org.vivecraft.render;
 
+import java.io.InputStream;
 import java.nio.FloatBuffer;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 import org.vivecraft.utils.FakeBlockAccess;
 import org.vivecraft.utils.MCReflection;
+import org.vivecraft.utils.MenuWorldDownloader;
+import org.vivecraft.utils.MenuWorldExporter;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -23,6 +28,7 @@ import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.model.ModelBakery;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.ITextureObject;
@@ -32,10 +38,15 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
+import net.minecraft.client.resources.ReloadListener;
 import net.minecraft.client.settings.AmbientOcclusionStatus;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.fluid.IFluidState;
+import net.minecraft.profiler.IProfiler;
+import net.minecraft.resources.IFutureReloadListener;
+import net.minecraft.resources.IResourceManager;
+import net.minecraft.resources.IResourceManagerReloadListener;
 import net.minecraft.state.IProperty;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.Tag;
@@ -57,7 +68,7 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.NVFogDistance;
 
-public class MenuWorldRenderer {
+public class MenuWorldRenderer implements IResourceManagerReloadListener {
 	private static final ResourceLocation MOON_PHASES_TEXTURES = new ResourceLocation("textures/environment/moon_phases.png");
 	private static final ResourceLocation SUN_TEXTURES = new ResourceLocation("textures/environment/sun.png");
 	private static final ResourceLocation CLOUDS_TEXTURES = new ResourceLocation("textures/environment/clouds.png");
@@ -101,6 +112,34 @@ public class MenuWorldRenderer {
 		this.rand.nextInt(); // toss some bits in the bin
 	}
 
+	public void init() {
+		try {
+			Minecraft mc = Minecraft.getInstance();
+			InputStream inputStream = MenuWorldDownloader.getRandomWorld();
+			if (inputStream != null) {
+				System.out.println("Initializing main menu world renderer...");				
+				System.out.println("Loading world data...");
+				setWorld(MenuWorldExporter.loadWorld(inputStream));
+				System.out.println("Building geometry...");
+				loadRenderers();
+				prepare();
+				mc.gameRenderer.menuWorldFastTime = new Random().nextInt(10) == 0;
+			} else {
+				System.out.println("Failed to load any main menu world, falling back to old menu room");
+			}
+		}
+		catch (Exception e) {
+			System.out.println("Exception thrown when loading main menu world, falling back to old menu room");
+			e.printStackTrace();
+			setWorld(null);
+		}
+		catch (OutOfMemoryError e) { // Only effective way of preventing crash on poop computers with low heap size
+			System.out.println("OutOfMemoryError while loading main menu world. Low heap size or 32-bit Java?");
+			setWorld(null);
+		}
+	}
+
+	
 	public void render() {
 		prepare();
 		GlStateManager.shadeModel(GL11.GL_SMOOTH); // holy shit make AO work
@@ -174,11 +213,12 @@ public class MenuWorldRenderer {
 			int ground = rand.nextInt(1000) == 0 ? blockAccess.getGround() + 100 : blockAccess.getGround(); // lol
 			for (int i = 0; i < vertexBuffers.length; i++) {
 				BlockRenderLayer layer = BlockRenderLayer.values()[i];
-				BufferBuilder vertBuffer = new BufferBuilder(2097152);
+				System.out.println("Layer : " + layer.toString());
+				BufferBuilder vertBuffer = new BufferBuilder(20*2097152);
 				vertBuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
 				vertBuffer.setTranslation(-blockAccess.getXSize() / 2, -ground, -blockAccess.getZSize() / 2);
 				vertBuffer.setBlockLayer(layer);
-
+				int c = 0;
 				for (int x = 0; x < blockAccess.getXSize(); x++) {
 					for (int y = 0; y < blockAccess.getYSize(); y++) {
 						for (int z = 0; z < blockAccess.getZSize(); z++) {
@@ -186,17 +226,20 @@ public class MenuWorldRenderer {
 							BlockState state = blockAccess.getBlockState(pos);
 							if (state != null) {
                                 IFluidState fluidState = state.getFluidState();
-								if (!fluidState.isEmpty() && fluidState.getRenderLayer() == layer)
-									   blockRenderer.renderFluid(pos, blockAccess, vertBuffer, fluidState);
-									//blockRenderer.renderFluid(pos, blockAccess, vertBuffer, new FluidStateWrapper(fluidState));
-
-								if (state.getRenderType() != BlockRenderType.INVISIBLE && state.getBlock().getRenderLayer() == layer)
+								if (!fluidState.isEmpty() && fluidState.getRenderLayer() == layer) {
+									   blockRenderer.renderFluid(pos, blockAccess, vertBuffer, new FluidStateWrapper(fluidState));
+									   c++;
+								}
+								if (state.getRenderType() != BlockRenderType.INVISIBLE && state.getBlock().getRenderLayer() == layer) {
 									blockRenderer.func_215330_a(state, pos, blockAccess, vertBuffer, random);
-									//blockRenderer.renderBlock(state, pos, blockAccess, vertBuffer, random);
+									c++;
+								}
 							}
 						}
 					}
 				}
+				
+				System.out.println("Built " + c + " blocks.");
 
 				vertBuffer.setTranslation(0, 0, 0);
 				if (layer == BlockRenderLayer.TRANSLUCENT)
@@ -1853,5 +1896,11 @@ public class MenuWorldRenderer {
 		public ImmutableMap<IProperty<?>, Comparable<?>> getValues() {
 			return fluidState.getValues();
 		}
+	}
+
+
+	@Override
+	public void onResourceManagerReload(IResourceManager resourceManager) {
+		init();
 	}
 }

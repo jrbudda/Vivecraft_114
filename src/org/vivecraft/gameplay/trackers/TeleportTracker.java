@@ -5,12 +5,11 @@ import java.util.Random;
 import org.vivecraft.api.NetworkHelper;
 import org.vivecraft.gameplay.VRMovementStyle;
 import org.vivecraft.provider.MCOpenVR;
-
-import de.fruitfly.ovr.structs.EulerOrient;
-import de.fruitfly.ovr.structs.Matrix4f;
-import de.fruitfly.ovr.structs.Quatf;
-import de.fruitfly.ovr.structs.Vector3f;
-import jopenvr.OpenVRUtil;
+import org.vivecraft.utils.OpenVRUtil;
+import org.vivecraft.utils.Quaternion;
+import org.vivecraft.utils.Vector3;
+import org.vivecraft.utils.Angle;
+import org.vivecraft.utils.Matrix4f;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -251,7 +250,7 @@ public class TeleportTracker extends Tracker{
             	mc.player.sendChatMessage(tp);
             } else {          
             	if(NetworkHelper.serverSupportsDirectTeleport)	player.teleported = true;
-            	player.setPositionAndUpdate(dest.x, dest.y, dest.z);
+            	player.setLocationAndAngles(dest.x, dest.y, dest.z, player.rotationYaw, player.rotationPitch);
             }
 
             doTeleportCallback();
@@ -332,8 +331,8 @@ public class TeleportTracker extends Tracker{
         handRotation = Matrix4f.multiply(rot, handRotation);
         
         // extract hand roll
-        Quatf handQuat = OpenVRUtil.convertMatrix4ftoRotationQuat(handRotation);
-        EulerOrient euler = OpenVRUtil.getEulerAnglesDegYXZ(handQuat);
+        Quaternion handQuat = OpenVRUtil.convertMatrix4ftoRotationQuat(handRotation);
+        Angle euler = handQuat.toEuler();
         //TODO: use vrdata for this
         
         int maxSteps = 50;
@@ -346,13 +345,13 @@ public class TeleportTracker extends Tracker{
 
         // calculate gravity vector for arc
         float gravityAcceleration = 0.098f;
-        Matrix4f rollCounter = OpenVRUtil.rotationZMatrix((float)Math.toRadians(-euler.roll));
+        Matrix4f rollCounter = OpenVRUtil.rotationZMatrix((float)Math.toRadians(-euler.getRoll()));
         Matrix4f gravityTilt = OpenVRUtil.rotationXMatrix((float)Math.PI * -.8f);
         Matrix4f gravityRotation = Matrix4f.multiply(handRotation, rollCounter);
         
-        Vector3f forward = new Vector3f(0,1,0);
-        Vector3f gravityDirection = gravityRotation.transform(forward);
-        Vec3d gravity = new Vec3d(-gravityDirection.x, -gravityDirection.y, -gravityDirection.z);
+        Vector3 forward = new Vector3(0,1,0);
+        Vector3 gravityDirection = gravityRotation.transform(forward);
+        Vec3d gravity = gravityDirection.negate().toVec3d();
         
         gravity = gravity.scale(gravityAcceleration);
 

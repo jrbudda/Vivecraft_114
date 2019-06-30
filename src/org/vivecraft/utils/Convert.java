@@ -1,6 +1,6 @@
 package org.vivecraft.utils;
 
-//import de.fruitfly.ovr.structs.Matrix4f;
+//import org.vivecraft.utils.Matrix4f;
 //import javax.vecmath.Matrix4f;
 //import net.minecraft.client.renderer.Matrix4f;
 
@@ -112,16 +112,16 @@ public class Convert {
 		}
 		
 		
-		public de.fruitfly.ovr.structs.Matrix4f toOVRMatrix4f() {
+		public org.vivecraft.utils.Matrix4f toOVRMatrix4f() {
 			needFloats();
 			if (dimension == 3) {
-				return new de.fruitfly.ovr.structs.Matrix4f(
+				return new org.vivecraft.utils.Matrix4f(
 						floatArray[0], floatArray[1], floatArray[2],
 						floatArray[3], floatArray[4], floatArray[5],
 						floatArray[6], floatArray[7], floatArray[8]);
 				
 			} else if (dimension == 4) {
-				return new de.fruitfly.ovr.structs.Matrix4f(
+				return new org.vivecraft.utils.Matrix4f(
 						floatArray[0], floatArray[1], floatArray[2], floatArray[3],
 						floatArray[4], floatArray[5], floatArray[6], floatArray[7],
 						floatArray[8], floatArray[9], floatArray[10], floatArray[11],

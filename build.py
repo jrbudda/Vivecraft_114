@@ -82,8 +82,9 @@ def create_install(mcp_dir):
     with zipfile.ZipFile( in_mem_zip,'w', zipfile.ZIP_DEFLATED) as zipout:
         vanilla = parse_srg_classnames(os.path.join(mcp_dir, "conf", "joined.srg"))
         for abs_path, _, filelist in os.walk(reobf, followlinks=True):
-            arc_path = os.path.relpath( abs_path, reobf ).replace('\\','/').replace('.','')+'/'
+            arc_path = os.path.relpath( abs_path, reobf ).replace('\\','/').replace('.','') + '/'
             for cur_file in fnmatch.filter(filelist, '*.class'):
+                print arc_path + cur_file
                 flg = False
                 #if cur_file in {'MinecriftVanillaTweaker.class','MinecriftClassTransformer.class','MinecriftForgeTweaker.class','MinecriftClassTransformer$Stage.class','MinecriftClassTransformer$1.class','MinecriftClassTransformer$2.class','MinecriftClassTransformer$3.class','MinecriftClassTransformer$4.class'}:
                 #if cur_file in {'brl.class', 'brl$1.class', 'brl$2.class', 'brl$3.class', 'brl$4.class', 'brl$5.class', 'brl$a.class'}: #skip facebakery
@@ -94,11 +95,10 @@ def create_install(mcp_dir):
                 #    continue
                 #if cur_file in {'Matrix4f.class'}: #why
                 #    continue
-                #if cur_file in vanilla: #these misbehave when loaded in this jar, do some magic.
-                #    flg = True
-                # Just don't ask about this nonsense because I don't have any idea
-                #if cur_file in {'brd.class'}: #skip bakedquad
-                #    continue
+                if cur_file in vanilla: #these misbehave when loaded in this jar, do some magic.
+                    flg = True
+                if "blaze3d" in arc_path:
+                    flg = True
                 #if cur_file in {'bsz.class', 'bsz$1.class', 'bsz$2.class', 'bsz$3.class', 'bsz$a.class'}: #skip chunkrenderdispatcher
                 #    continue
                 #if cur_file in {'atm.class', 'atm$1.class', 'atm$a.class', 'atm$Builder.class'}: #skip blockstatecontainer
@@ -112,8 +112,8 @@ def create_install(mcp_dir):
                 in_file= os.path.join(abs_path,cur_file)
                 arcname =  arc_path + cur_file
                 if flg:
-                    arcname =  arc_path + cur_file.replace('.class', '.clazz')
-                zipout.write(in_file, arcname)
+                    arcname =  arc_path.replace('/','.') + cur_file.replace('.class', '.clazz')
+                zipout.write(in_file, arcname.strip('.'))
         print "Checking Resources..."
         for a, b, c in os.walk(resources):
             print a
@@ -173,7 +173,7 @@ def create_install(mcp_dir):
             
         # Add json files
         install_out.writestr("version.json", process_json("", version,minecrift_version_num,"",of_file_name ))
-        install_out.writestr("version-forge.json", process_json("-forge", version,minecrift_version_num,forge_version,of_file_name ))
+        #install_out.writestr("version-forge.json", process_json("-forge", version,minecrift_version_num,forge_version,of_file_name ))
         install_out.writestr("version-multimc.json", process_json("-multimc", version,minecrift_version_num,"",of_file_name ))
         
         # Add release notes

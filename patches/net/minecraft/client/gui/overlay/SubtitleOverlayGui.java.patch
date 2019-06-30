@@ -1,0 +1,12 @@
+--- a/net/minecraft/client/gui/overlay/SubtitleOverlayGui.java
++++ b/net/minecraft/client/gui/overlay/SubtitleOverlayGui.java
+@@ -41,7 +41,8 @@
+         {
+             GlStateManager.pushMatrix();
+             GlStateManager.enableBlend();
+-            GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
++            // VIVECRAFT: DestFactor of ONE is really what we want here, because math
++            GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
+             Vec3d vec3d = new Vec3d(this.client.player.posX, this.client.player.posY + (double)this.client.player.getEyeHeight(), this.client.player.posZ);
+             Vec3d vec3d1 = (new Vec3d(0.0D, 0.0D, -1.0D)).rotatePitch(-this.client.player.rotationPitch * ((float)Math.PI / 180F)).rotateYaw(-this.client.player.rotationYaw * ((float)Math.PI / 180F));
+             Vec3d vec3d2 = (new Vec3d(0.0D, 1.0D, 0.0D)).rotatePitch(-this.client.player.rotationPitch * ((float)Math.PI / 180F)).rotateYaw(-this.client.player.rotationYaw * ((float)Math.PI / 180F));

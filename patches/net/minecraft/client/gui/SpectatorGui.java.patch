@@ -1,0 +1,22 @@
+--- a/net/minecraft/client/gui/SpectatorGui.java
++++ b/net/minecraft/client/gui/SpectatorGui.java
+@@ -71,7 +71,8 @@
+     {
+         GlStateManager.enableRescaleNormal();
+         GlStateManager.enableBlend();
+-        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
++        // VIVECRAFT: DestFactor of ONE is really what we want here, because math
++        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
+         GlStateManager.color4f(1.0F, 1.0F, 1.0F, p_214456_1_);
+         this.mc.getTextureManager().bindTexture(WIDGETS);
+         this.blit(p_214456_2_ - 91, p_214456_3_, 0, 0, 182, 22);
+@@ -130,7 +131,8 @@
+                 int k = this.mc.mainWindow.getScaledHeight() - 35;
+                 GlStateManager.pushMatrix();
+                 GlStateManager.enableBlend();
+-                GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
++                // VIVECRAFT: DestFactor of ONE is really what we want here, because math
++                GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
+                 this.mc.fontRenderer.drawStringWithShadow(s, (float)j, (float)k, 16777215 + (i << 24));
+                 GlStateManager.disableBlend();
+                 GlStateManager.popMatrix();

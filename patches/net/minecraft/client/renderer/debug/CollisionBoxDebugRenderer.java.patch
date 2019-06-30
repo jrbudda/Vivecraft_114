@@ -1,7 +1,7 @@
 --- a/net/minecraft/client/renderer/debug/CollisionBoxDebugRenderer.java
 +++ b/net/minecraft/client/renderer/debug/CollisionBoxDebugRenderer.java
 @@ -32,9 +32,9 @@
-             this.collisionData = activerenderinfo.func_216773_g().world.getCollisionShapes(activerenderinfo.func_216773_g(), activerenderinfo.func_216773_g().getBoundingBox().grow(6.0D), Collections.emptySet()).collect(Collectors.toList());
+             this.collisionData = activerenderinfo.getRenderViewEntity().world.getCollisionShapes(activerenderinfo.getRenderViewEntity(), activerenderinfo.getRenderViewEntity().getBoundingBox().grow(6.0D), Collections.emptySet()).collect(Collectors.toList());
          }
  
 -        double d1 = activerenderinfo.getProjectedView().x;

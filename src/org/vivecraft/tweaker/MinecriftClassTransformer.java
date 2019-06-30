@@ -24,7 +24,7 @@ import net.minecraft.launchwrapper.IClassTransformer;
 
 public class MinecriftClassTransformer implements IClassTransformer
 {
-	private static final boolean DEBUG = Boolean.parseBoolean(System.getProperty("legacy.debugClassLoading", "false"));
+	private static final boolean DEBUG = true;//Boolean.parseBoolean(System.getProperty("legacy.debugClassLoading", "false"));
 	
     private ZipFile mcZipFile = null;
     private static URL mcZipURL = null;
@@ -69,7 +69,7 @@ public class MinecriftClassTransformer implements IClassTransformer
             File file = new File(uri);
             ZipFile zipFile = new ZipFile(file);
 
-            if (zipFile.getEntry("org/vivecraft/provider/MCOculus.class") == null)
+            if (zipFile.getEntry("org/vivecraft/provider/MCOpenVR.class") == null)
             {
                 zipFile.close();
                 return null;
@@ -124,7 +124,7 @@ public class MinecriftClassTransformer implements IClassTransformer
 		
 		    	if (minecriftClass == null) {
 		    		if (DEBUG) debug(String.format("Vivecraft: Passthrough %s %s", name, transformedName));
-		    		if (DEBUG) writeToFile("original", transformedName , "", bytes);
+		    		//if (DEBUG) writeToFile("original", transformedName , "", bytes);
 		    	}
 		    	else {
 		    		myClasses.add(name);
@@ -136,7 +136,7 @@ public class MinecriftClassTransformer implements IClassTransformer
 		    			debug(String.format("Vivecraft: Overwrite %s %s (%d != %d)", name, transformedName, bytes.length, minecriftClass.length));
 		    			myClasses.add(transformedName);
 		    		}
-		    		if (DEBUG) writeToFile("original", transformedName, "", bytes);
+		    		//if (DEBUG) writeToFile("original", transformedName, "", bytes);
 		    		//if (DEBUG) writeToFile("transformed", transformedName, name, minecriftClass);
 		    	}
 		    	

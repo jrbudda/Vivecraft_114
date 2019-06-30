@@ -1,0 +1,17 @@
+--- a/net/minecraft/world/dimension/EndDimension.java
++++ b/net/minecraft/world/dimension/EndDimension.java
+@@ -24,8 +24,12 @@
+     public EndDimension(World p_i2604_1_, DimensionType p_i2604_2_)
+     {
+         super(p_i2604_1_, p_i2604_2_);
+-        CompoundNBT compoundnbt = p_i2604_1_.getWorldInfo().getDimensionData(DimensionType.THE_END);
+-        this.dragonFightManager = p_i2604_1_ instanceof ServerWorld ? new DragonFightManager((ServerWorld)p_i2604_1_, compoundnbt.getCompound("DragonFight")) : null;
++        if(p_i2604_1_!=null) {
++        	CompoundNBT compoundnbt = p_i2604_1_.getWorldInfo().getDimensionData(DimensionType.THE_END);
++        	this.dragonFightManager = p_i2604_1_ instanceof ServerWorld ? new DragonFightManager((ServerWorld)p_i2604_1_, compoundnbt.getCompound("DragonFight")) : null;
++        } else {
++        	dragonFightManager = null;
++        }
+     }
+ 
+     public ChunkGenerator<?> createChunkGenerator()

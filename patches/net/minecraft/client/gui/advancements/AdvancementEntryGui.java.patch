@@ -1,0 +1,14 @@
+--- a/net/minecraft/client/gui/advancements/AdvancementEntryGui.java
++++ b/net/minecraft/client/gui/advancements/AdvancementEntryGui.java
+@@ -180,7 +180,11 @@
+             this.minecraft.getTextureManager().bindTexture(WIDGETS);
+             GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+             GlStateManager.enableBlend();
++            //VIVECRAFT Prevent invisible background - test if needed in 1.13
++            GlStateManager.colorMask(true, true, true, false);
+             this.blit(p_191817_1_ + this.x + 3, p_191817_2_ + this.y, this.displayInfo.getFrame().getIcon(), 128 + advancementstate.getId() * 26, 26, 26);
++            GlStateManager.colorMask(true, true, true, true);
++            //
+             RenderHelper.enableGUIStandardItemLighting();
+             this.minecraft.getItemRenderer().renderItemAndEffectIntoGUI((LivingEntity)null, this.displayInfo.getIcon(), p_191817_1_ + this.x + 8, p_191817_2_ + this.y + 5);
+         }

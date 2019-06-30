@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/renderer/LightTexture.java
 +++ b/net/minecraft/client/renderer/LightTexture.java
-@@ -22,13 +22,13 @@
+@@ -22,12 +22,12 @@
      private boolean needsUpdate;
      private float torchFlickerX;
      private float torchFlickerDX;
@@ -11,12 +11,10 @@
      public LightTexture(GameRenderer p_i118_1_)
      {
 -        this.entityRenderer = p_i118_1_;
--        this.client = p_i118_1_.getMinecraft();
 +        this.gameRenderer = p_i118_1_;
-+        this.client = p_i118_1_.getInstance();
+         this.client = p_i118_1_.getMinecraft();
          this.dynamicTexture = new DynamicTexture(16, 16, false);
          this.resourceLocation = this.client.getTextureManager().getDynamicTextureLocation("light_map", this.dynamicTexture);
-         this.nativeImage = this.dynamicTexture.getTextureData();
 @@ -102,7 +102,7 @@
  
                  if (this.client.player.isPotionActive(Effects.NIGHT_VISION))

@@ -8,15 +8,17 @@
  import net.minecraft.client.renderer.texture.AtlasTexture;
  import net.minecraft.client.renderer.texture.TextureAtlasSprite;
  import net.minecraft.client.renderer.texture.TextureManager;
-@@ -126,6 +127,7 @@
+@@ -126,6 +127,9 @@
  import net.optifine.util.RenderChunkUtils;
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
 +import org.vivecraft.provider.MCOpenVR;
++import org.vivecraft.render.RenderPass;
++import org.vivecraft.settings.VRSettings;
  
  public class WorldRenderer implements AutoCloseable, IResourceManagerReloadListener
  {
-@@ -143,7 +145,7 @@
+@@ -143,7 +147,7 @@
      private Set<ChunkRender> chunksToUpdate = new ObjectLinkedOpenHashSet<>();
      private List<WorldRenderer.LocalRenderInformationContainer> renderInfos = Lists.newArrayListWithCapacity(69696);
      private final Set<TileEntity> setTileEntities = Sets.newHashSet();
@@ -25,7 +27,7 @@
      private int starGLCallList = -1;
      private int glSkyList = -1;
      private int glSkyList2 = -1;
-@@ -298,7 +300,8 @@
+@@ -298,7 +302,8 @@
              try
              {
                  this.entityOutlineShader = new ShaderGroup(this.mc.getTextureManager(), this.mc.getResourceManager(), this.mc.getFramebuffer(), resourcelocation);
@@ -35,7 +37,16 @@
                  this.entityOutlineFramebuffer = this.entityOutlineShader.getFramebufferRaw("final");
              }
              catch (IOException ioexception)
-@@ -688,9 +691,9 @@
+@@ -327,7 +332,7 @@
+         {
+             GlStateManager.enableBlend();
+             GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
+-            this.entityOutlineFramebuffer.framebufferRenderExt(this.mc.mainWindow.getFramebufferWidth(), this.mc.mainWindow.getFramebufferHeight(), false);
++            this.entityOutlineFramebuffer.framebufferRenderExt(this.mc.getFramebuffer().framebufferWidth, this.mc.getFramebuffer().framebufferHeight, false);
+             GlStateManager.disableBlend();
+         }
+     }
+@@ -688,9 +693,9 @@
          }
          else
          {
@@ -48,7 +59,7 @@
              this.world.getProfiler().startSection("prepare");
              TileEntityRendererDispatcher.instance.func_217665_a(this.world, this.mc.getTextureManager(), this.mc.fontRenderer, p_215326_1_, this.mc.objectMouseOver);
              this.renderManager.func_217781_a(this.world, this.mc.fontRenderer, p_215326_1_, this.mc.pointedEntity, this.mc.gameSettings);
-@@ -703,9 +706,9 @@
+@@ -703,9 +708,9 @@
                  this.countTileEntitiesRendered = 0;
              }
  
@@ -61,7 +72,27 @@
              TileEntityRendererDispatcher.staticPlayerX = d3;
              TileEntityRendererDispatcher.staticPlayerY = d4;
              TileEntityRendererDispatcher.staticPlayerZ = d5;
-@@ -744,11 +747,21 @@
+@@ -735,7 +740,18 @@
+ 
+             for (Entity entity : this.world.func_217416_b())
+             {
+-                if ((!flag || Reflector.callBoolean(entity, Reflector.ForgeEntity_shouldRenderInPass, i)) && (this.renderManager.shouldRender(entity, p_215326_2_, d0, d1, d2) || entity.isRidingOrBeingRiddenBy(this.mc.player)) && (entity != p_215326_1_.getRenderViewEntity() || Shaders.isShadowPass || p_215326_1_.isThirdPerson() || p_215326_1_.getRenderViewEntity() instanceof LivingEntity && ((LivingEntity)p_215326_1_.getRenderViewEntity()).isSleeping()))
++            	
++            	//Vivecraft
++            	boolean selfRender = mc.currentPass == RenderPass.THIRD && mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_THIRD_PERSON;
++            	selfRender |= mc.vrSettings.shouldRenderSelf || mc.vrSettings.tmpRenderSelf;
++            	//		
++            	
++                if ((!flag || Reflector.callBoolean(entity, Reflector.ForgeEntity_shouldRenderInPass, i)) 
++                		&& (this.renderManager.shouldRender(entity, p_215326_2_, d0, d1, d2) || 
++                				entity.isRidingOrBeingRiddenBy(this.mc.player)) && (entity != p_215326_1_.getRenderViewEntity() ||
++                				Shaders.isShadowPass ||
++                				p_215326_1_.isThirdPerson() ||
++                				p_215326_1_.getRenderViewEntity() instanceof LivingEntity && ((LivingEntity)p_215326_1_.getRenderViewEntity()).isSleeping()))
+                 {
+                     ++this.countEntitiesRendered;
+                     this.renderedEntity = entity;
+@@ -744,10 +760,21 @@
                      {
                          Shaders.nextEntity(entity);
                      }
@@ -74,17 +105,17 @@
                      this.renderManager.renderEntityStatic(entity, p_215326_3_, false);
                      this.renderedEntity = null;
  
-                     if (entity.isGlowing() || entity instanceof PlayerEntity && this.mc.player.isSpectator() && this.mc.gameSettings.keyBindSpectatorOutlines.isKeyDown())
 +                    //Vivecraft
 +                    if(entity == this.mc.getRenderViewEntity()) {
 +                    	mc.gameRenderer.cacheRVEPos((LivingEntity) entity);
 +                    	mc.gameRenderer.setupRVE();
 +                    }
 +                    //
++
+                     if (entity.isGlowing() || entity instanceof PlayerEntity && this.mc.player.isSpectator() && this.mc.gameSettings.keyBindSpectatorOutlines.isKeyDown())
                      {
                          list.add(entity);
-                     }
-@@ -782,14 +795,15 @@
+@@ -782,14 +809,15 @@
              if (i == 0 && this.isRenderEntityOutlines() && (!list.isEmpty() || this.entityOutlinesRendered))
              {
                  this.world.getProfiler().endStartSection("entityOutlines");
@@ -102,7 +133,7 @@
                      RenderHelper.disableStandardItemLighting();
                      this.renderManager.setRenderOutlines(true);
  
-@@ -825,7 +839,8 @@
+@@ -825,7 +853,8 @@
                      GlStateManager.enableAlphaTest();
                  }
  
@@ -112,7 +143,7 @@
              }
  
              if (!this.isRenderEntityOutlines() && (!list.isEmpty() || this.entityOutlinesRendered))
-@@ -1060,8 +1075,8 @@
+@@ -1060,8 +1089,8 @@
          }
  
          this.world.getProfiler().endStartSection("renderlistcamera");
@@ -123,7 +154,7 @@
          this.world.getProfiler().endStartSection("cull");
  
          if (this.debugFixedClippingHelper != null)
-@@ -1072,15 +1087,17 @@
+@@ -1072,15 +1101,17 @@
          }
  
          this.mc.getProfiler().endStartSection("culling");
@@ -147,7 +178,7 @@
          this.lastViewEntityPitch = (double)f;
          this.lastViewEntityYaw = (double)f1;
          boolean flag = this.debugFixedClippingHelper != null;
-@@ -1276,7 +1293,7 @@
+@@ -1276,7 +1307,7 @@
  
          if (this.debugFixTerrainFrustum)
          {
@@ -156,7 +187,7 @@
              this.debugFixTerrainFrustum = false;
          }
  
-@@ -1388,15 +1405,15 @@
+@@ -1388,15 +1419,15 @@
          if (p_215323_1_ == BlockRenderLayer.TRANSLUCENT && !Shaders.isShadowPass)
          {
              this.mc.getProfiler().startSection("translucent_sort");
@@ -178,7 +209,7 @@
                  int k = 0;
                  this.chunksToResortTransparency.clear();
  
-@@ -1452,7 +1469,7 @@
+@@ -1452,7 +1483,7 @@
          }
      }
  
@@ -187,7 +218,7 @@
      {
          this.mc.gameRenderer.enableLightmap();
  
-@@ -1629,10 +1646,10 @@
+@@ -1629,10 +1660,10 @@
  
              if (flag)
              {
@@ -200,7 +231,7 @@
              vec3d = CustomColors.getSkyColor(vec3d, this.mc.world, this.mc.getRenderViewEntity().posX, this.mc.getRenderViewEntity().posY + 1.0D, this.mc.getRenderViewEntity().posZ);
  
              if (flag)
-@@ -1697,7 +1714,7 @@
+@@ -1697,7 +1728,7 @@
  
                  if (flag)
                  {
@@ -209,7 +240,7 @@
                  }
  
                  GlStateManager.shadeModel(7425);
-@@ -1729,7 +1746,7 @@
+@@ -1729,7 +1760,7 @@
  
              if (flag)
              {
@@ -218,7 +249,7 @@
              }
  
              GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-@@ -1788,7 +1805,7 @@
+@@ -1788,7 +1819,7 @@
  
              if (flag)
              {
@@ -227,7 +258,7 @@
              }
  
              float f12 = this.world.getStarBrightness(partialTicks) * f10;
-@@ -1827,7 +1844,7 @@
+@@ -1827,7 +1858,7 @@
  
              if (flag)
              {
@@ -236,7 +267,7 @@
              }
  
              GlStateManager.color3f(0.0F, 0.0F, 0.0F);
-@@ -1876,7 +1893,7 @@
+@@ -1876,7 +1907,7 @@
  
              if (flag)
              {
@@ -245,7 +276,7 @@
              }
  
              GlStateManager.depthMask(true);
-@@ -2248,13 +2265,13 @@
+@@ -2248,13 +2279,13 @@
          WorldBorder worldborder = this.world.getWorldBorder();
          double d0 = (double)(this.mc.gameSettings.renderDistanceChunks * 16);
  
@@ -264,7 +295,7 @@
              GlStateManager.enableBlend();
              GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
              this.textureManager.bindTexture(FORCEFIELD_TEXTURES);
-@@ -2394,9 +2411,9 @@
+@@ -2394,9 +2425,9 @@
  
      public void func_215318_a(Tessellator p_215318_1_, BufferBuilder p_215318_2_, ActiveRenderInfo p_215318_3_)
      {
@@ -277,7 +308,7 @@
  
          if (!this.damagedBlocks.isEmpty())
          {
-@@ -2482,16 +2499,16 @@
+@@ -2482,16 +2513,16 @@
  
                  if (Config.isShaders())
                  {
@@ -295,10 +326,10 @@
 +                double d0 = p_215325_1_.getPosition().x;
 +                double d1 = p_215325_1_.getPosition().y;
 +                double d2 = p_215325_1_.getPosition().z;
-                 drawShape(blockstate.getShape(this.world, blockpos, ISelectionContext.forEntity(p_215325_1_.func_216773_g())), (double)blockpos.getX() - d0, (double)blockpos.getY() - d1, (double)blockpos.getZ() - d2, 0.0F, 0.0F, 0.0F, 0.4F);
+                 drawShape(blockstate.getShape(this.world, blockpos, ISelectionContext.forEntity(p_215325_1_.getRenderViewEntity())), (double)blockpos.getX() - d0, (double)blockpos.getY() - d1, (double)blockpos.getZ() - d2, 0.0F, 0.0F, 0.0F, 0.4F);
                  GlStateManager.popMatrix();
                  GlStateManager.matrixMode(5888);
-@@ -2500,7 +2517,7 @@
+@@ -2500,7 +2531,7 @@
  
                  if (Config.isShaders())
                  {
@@ -307,7 +338,7 @@
                  }
  
                  GlStateManager.disableBlend();
-@@ -2746,7 +2763,7 @@
+@@ -2746,7 +2777,7 @@
      {
          ActiveRenderInfo activerenderinfo = this.mc.gameRenderer.getActiveRenderInfo();
  
@@ -316,7 +347,7 @@
          {
              ParticleStatus particlestatus = this.func_215327_a(minimizeLevel);
  
-@@ -2829,7 +2846,7 @@
+@@ -2829,7 +2860,7 @@
                          d0 = 38416.0D;
                      }
  
@@ -325,7 +356,7 @@
                      {
                          return null;
                      }
-@@ -2914,15 +2931,15 @@
+@@ -2914,15 +2945,15 @@
              case 1038:
                  ActiveRenderInfo activerenderinfo = this.mc.gameRenderer.getActiveRenderInfo();
  
@@ -348,7 +379,7 @@
  
                      if (d3 > 0.0D)
                      {
-@@ -2953,6 +2970,8 @@
+@@ -2953,6 +2984,8 @@
      {
          Random random = this.world.rand;
  
@@ -357,7 +388,7 @@
          switch (type)
          {
              case 1000:
-@@ -3008,18 +3027,26 @@
+@@ -3008,18 +3041,26 @@
                  break;
  
              case 1011:
@@ -384,7 +415,7 @@
                  this.world.playSound(blockPosIn, SoundEvents.BLOCK_FENCE_GATE_CLOSE, SoundCategory.BLOCKS, 1.0F, this.world.rand.nextFloat() * 0.1F + 0.9F, false);
                  break;
  
-@@ -3040,14 +3067,26 @@
+@@ -3040,14 +3081,26 @@
                  break;
  
              case 1019:
@@ -411,7 +442,7 @@
                  this.world.playSound(blockPosIn, SoundEvents.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, SoundCategory.HOSTILE, 2.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F, false);
                  break;
  
-@@ -3076,10 +3115,17 @@
+@@ -3076,10 +3129,17 @@
                  break;
  
              case 1030:
@@ -429,7 +460,7 @@
                  this.world.playSound(blockPosIn, SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.BLOCKS, 0.3F, this.world.rand.nextFloat() * 0.1F + 0.9F, false);
                  break;
  
-@@ -3100,6 +3146,9 @@
+@@ -3100,6 +3160,9 @@
                  break;
  
              case 1036:
@@ -439,7 +470,7 @@
                  this.world.playSound(blockPosIn, SoundEvents.BLOCK_IRON_TRAPDOOR_CLOSE, SoundCategory.BLOCKS, 1.0F, this.world.rand.nextFloat() * 0.1F + 0.9F, false);
                  break;
  
-@@ -3462,4 +3511,11 @@
+@@ -3462,4 +3525,11 @@
              this.setFacing = p_initialize_2_;
          }
      }

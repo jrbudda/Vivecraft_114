@@ -8,7 +8,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
 public class MenuWorldDownloader {
-	private static final String baseUrl = "https://cache.techjargaming.com/vivecraft/113/";
+	private static final String baseUrl = "https://cache.techjargaming.com/vivecraft/114/";
 	private static boolean init;
 	private static int worldCount;
 	private static Random rand;
@@ -28,12 +28,15 @@ public class MenuWorldDownloader {
 	public static InputStream getRandomWorld() throws IOException, NoSuchAlgorithmException {
 		init();
 		InputStream customWorld = getCustomWorld();
-		if (customWorld != null) return customWorld;
+		if (customWorld != null) {
+			System.out.println("Loading Menu World " + customWorld);
+			return customWorld;
+		}
 		if (worldCount == 0) {
 			return getRandomWorldFallback();
 		}
 		try {
-			String path = "menuworlds/world" + rand.nextInt(worldCount) + ".mmw";
+			String path = "menuworlds/world" + rand.nextInt(worldCount) + ".114.mmw";
 			File file = new File(path);
 			file.getParentFile().mkdirs();
 			if (file.exists()) {
@@ -62,9 +65,9 @@ public class MenuWorldDownloader {
 				return new FileInputStream(file);
 			}
 		}
-		File customFile = new File("menuworlds/worldcustom.mmw");
+		File customFile = new File("menuworlds/worldcustom.114.mmw");
 		if (customFile.exists()) {
-			System.out.println("Using custom world menuworlds/worldcustom.mmw");
+			System.out.println("Using custom world menuworlds/worldcustom.114.mmw");
 			return new FileInputStream(customFile);
 		}
 		return null;
@@ -84,7 +87,7 @@ public class MenuWorldDownloader {
 	}
 
 	private static File getRandomFileInDirectory(File dir) {
-		File[] files = dir.listFiles(file -> file.isFile() && file.getName().toLowerCase().endsWith(".mmw"));
+		File[] files = dir.listFiles(file -> file.isFile() && file.getName().toLowerCase().endsWith(".114.mmw"));
 		if (files.length > 0)
 			return files[rand.nextInt(files.length)];
 		return null;

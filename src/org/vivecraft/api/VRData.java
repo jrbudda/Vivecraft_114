@@ -3,9 +3,9 @@ package org.vivecraft.api;
 import org.vivecraft.provider.MCOpenVR;
 import org.vivecraft.render.PlayerModelController;
 import org.vivecraft.render.RenderPass;
+import org.vivecraft.utils.Matrix4f;
+import org.vivecraft.utils.Vector3;
 
-import de.fruitfly.ovr.structs.Matrix4f;
-import de.fruitfly.ovr.structs.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.Vec3d;
 
@@ -36,8 +36,8 @@ public class VRData{
 		}
 		
 		public Vec3d getCustomVector(Vec3d axis) {
-			Vector3f v3 = matrix.transform(new Vector3f((float)axis.x, (float)axis.y,(float) axis.z));
-			Vec3d out =  new Vec3d(v3.x, v3.y, v3.z).rotateYaw(data.rotation_radians);
+			Vector3 v3 = matrix.transform(new Vector3((float)axis.x, (float)axis.y,(float) axis.z));
+			Vec3d out =  v3.toVec3d().rotateYaw(data.rotation_radians);
 			return out;
 		}
 		
@@ -121,14 +121,14 @@ public class VRData{
 	
 	public Vec3d getHeadPivot() {
 		Vec3d eye = hmd.getPosition();
-		Vector3f v3 = hmd.getMatrix().transform(new Vector3f(0,-.1f, .1f));
-		return (new Vec3d(v3.x+eye.x, v3.y+eye.y, v3.z+eye.z));
+		Vector3 v3 = hmd.getMatrix().transform(new Vector3(0,-.1f, .1f));
+		return (new Vec3d(v3.getX()+eye.x, v3.getY()+eye.y, v3.getZ()+eye.z));
 	}
 	
 	public Vec3d getHeadRear() {
 		Vec3d eye = hmd.getPosition();
-		Vector3f v3 = hmd.getMatrix().transform(new Vector3f(0,-.2f, .2f));
-		return (new Vec3d(v3.x+eye.x, v3.y+eye.y, v3.z+eye.z));
+		Vector3 v3 = hmd.getMatrix().transform(new Vector3(0,-.2f, .2f));
+		return (new Vec3d(v3.getX()+eye.x, v3.getY()+eye.y, v3.getZ()+eye.z));
 	}
 	
 	public VRDevicePose getEye(RenderPass pass){

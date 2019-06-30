@@ -13,8 +13,7 @@ import org.vivecraft.utils.Utils;
 import org.vivecraft.utils.Vector3;
 
 import com.google.common.util.concurrent.Runnables;
-import de.fruitfly.ovr.structs.Matrix4f;
-import de.fruitfly.ovr.structs.Vector3f;
+import org.vivecraft.utils.Matrix4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.WinGameScreen;
 import net.minecraft.client.util.InputMappings;
@@ -319,12 +318,12 @@ public class VRHotkeys {
 			Vec3d deltaPos = controllerPose.getPosition().subtract(startPos);
 
 			Matrix4f deltaMatrix = Matrix4f.multiply(controllerPose.getMatrix(), startControllerPose.getMatrix().inverted());
-			Vector3f offset = new Vector3f(startCamposX - (float)startPos.x, startCamposY - (float)startPos.y, startCamposZ - (float)startPos.z);
-			Vector3f offsetRotated = deltaMatrix.transform(offset);
+			Vector3 offset = new Vector3(startCamposX - (float)startPos.x, startCamposY - (float)startPos.y, startCamposZ - (float)startPos.z);
+			Vector3 offsetRotated = deltaMatrix.transform(offset);
 
-			mc.vrSettings.vrFixedCamposX = startCamposX + (float)deltaPos.x + (offsetRotated.x - offset.x);
-			mc.vrSettings.vrFixedCamposY = startCamposY + (float)deltaPos.y + (offsetRotated.y - offset.y);
-			mc.vrSettings.vrFixedCamposZ = startCamposZ + (float)deltaPos.z + (offsetRotated.z - offset.z);
+			mc.vrSettings.vrFixedCamposX = startCamposX + (float)deltaPos.x + (offsetRotated.getX() - offset.getX());
+			mc.vrSettings.vrFixedCamposY = startCamposY + (float)deltaPos.y + (offsetRotated.getY() - offset.getY());
+			mc.vrSettings.vrFixedCamposZ = startCamposZ + (float)deltaPos.z + (offsetRotated.getZ() - offset.getZ());
 			mc.vrSettings.vrFixedCamrotQuat.set(startCamrotQuat.multiply(new Quaternion(Utils.convertOVRMatrix(deltaMatrix))));
 		}
 	}

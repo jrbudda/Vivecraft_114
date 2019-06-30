@@ -43,15 +43,6 @@
          }
          else
          {
-@@ -314,7 +334,7 @@
-         this.pointedEntity = p_217781_4_;
-         this.textRenderer = p_217781_2_;
- 
--        if (p_217781_3_.func_216773_g() instanceof LivingEntity && ((LivingEntity)p_217781_3_.func_216773_g()).isSleeping())
-+        if (false) //p_217781_3_.func_216773_g() instanceof LivingEntity && ((LivingEntity)p_217781_3_.func_216773_g()).isSleeping())
-         {
-             Direction direction = ((LivingEntity)p_217781_3_.func_216773_g()).func_213376_dz();
- 
 @@ -555,7 +575,7 @@
  
      public double getDistanceToCamera(double x, double y, double z)

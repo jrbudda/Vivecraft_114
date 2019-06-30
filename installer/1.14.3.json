@@ -479,11 +479,12 @@
 			},
 			"name": "org.lwjgl:lwjgl-stb:3.2.2"							 
 		},
-				{
-			"name": "org.ow2.asm:asm-all:5.0.3"
+		{
+			"name": "org.ow2.asm:asm-all:5.2",
+			"url": "http://files.minecraftforge.net/maven/"
 		},
 		{
-			"url": "http://central.maven.org/maven2/",
+			"url": "http://vivecraft.org/jar/",
 			"name": "org.json:json:20140107"
 		},
 		{

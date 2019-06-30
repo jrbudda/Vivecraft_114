@@ -142,7 +142,13 @@
      {
          if (GLX.isUsingFBOs())
          {
-@@ -235,7 +279,7 @@
+@@ -230,12 +274,12 @@
+             GlStateManager.matrixMode(5888);
+             GlStateManager.loadIdentity();
+             GlStateManager.translatef(0.0F, 0.0F, -2000.0F);
+-            GlStateManager.viewport(0, 0, width, height);
++            GlStateManager.viewport(left, top, width, height);
+             GlStateManager.enableTexture();
              GlStateManager.disableLighting();
              GlStateManager.disableAlphaTest();
  

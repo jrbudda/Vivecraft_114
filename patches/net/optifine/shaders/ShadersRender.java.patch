@@ -1,5 +1,22 @@
 --- a/net/optifine/shaders/ShadersRender.java
 +++ b/net/optifine/shaders/ShadersRender.java
+@@ -146,14 +146,14 @@
+         if (renderTranslucent)
+         {
+             GlStateManager.depthFunc(519);
+-            GL11.glPushMatrix();
++            GlStateManager.pushMatrix();
+             IntBuffer intbuffer = Shaders.activeDrawBuffers;
+             Shaders.setDrawBuffers(Shaders.drawBuffersNone);
+             Shaders.renderItemKeepDepthMask = true;
+             itemRenderer.renderItemInFirstPerson(par1);
+             Shaders.renderItemKeepDepthMask = false;
+             Shaders.setDrawBuffers(intbuffer);
+-            GL11.glPopMatrix();
++            GlStateManager.popMatrix();
+         }
+ 
+         GlStateManager.depthFunc(515);
 @@ -195,7 +195,7 @@
          }
      }
@@ -9,7 +26,16 @@
      {
          if (Shaders.usedShadowDepthBuffers > 0 && --Shaders.shadowPassCounter <= 0)
          {
-@@ -213,7 +213,13 @@
+@@ -206,14 +206,20 @@
+             Shaders.shadowPassCounter = Shaders.shadowPassInterval;
+             Shaders.checkGLError("pre shadow");
+             GL30.glMatrixMode(5889);
+-            GL11.glPushMatrix();
++            GlStateManager.pushMatrix();
+             GL30.glMatrixMode(5888);
+-            GL11.glPushMatrix();
++            GlStateManager.pushMatrix();
+             minecraft.getProfiler().endStartSection("shadow clear");
              EXTFramebufferObject.glBindFramebufferEXT(36160, Shaders.sfb);
              Shaders.checkGLError("shadow bind sfb");
              minecraft.getProfiler().endStartSection("shadow camera");
@@ -64,12 +90,15 @@
              Shaders.checkGLError("shadow flush");
              Shaders.isShadowPass = false;
              minecraft.getProfiler().endStartSection("shadow postprocess");
-@@ -394,7 +404,7 @@
- 
-     public static void updateActiveRenderInfo(ActiveRenderInfo activeRenderInfo, Minecraft mc, float partialTicks)
-     {
--        activeRenderInfo.func_216772_a(mc.world, (Entity)(mc.getRenderViewEntity() == null ? mc.player : mc.getRenderViewEntity()), mc.gameSettings.thirdPersonView > 0, mc.gameSettings.thirdPersonView == 2, partialTicks);
-+        activeRenderInfo.update(mc.world, (Entity)(mc.getRenderViewEntity() == null ? mc.player : mc.getRenderViewEntity()), mc.gameSettings.thirdPersonView > 0, mc.gameSettings.thirdPersonView == 2, partialTicks);
-     }
- 
-     public static void preRenderChunkLayer(BlockRenderLayer blockLayerIn)
+@@ -384,9 +394,9 @@
+             minecraft.getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
+             Shaders.useProgram(Shaders.ProgramTerrain);
+             GL30.glMatrixMode(5888);
+-            GL11.glPopMatrix();
++            GlStateManager.popMatrix();
+             GL30.glMatrixMode(5889);
+-            GL11.glPopMatrix();
++            GlStateManager.popMatrix();
+             GL30.glMatrixMode(5888);
+             Shaders.checkGLError("shadow end");
+         }

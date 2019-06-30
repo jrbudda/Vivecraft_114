@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/renderer/FogRenderer.java
 +++ b/net/minecraft/client/renderer/FogRenderer.java
-@@ -37,13 +37,13 @@
+@@ -37,12 +37,12 @@
      private int lastWaterFogColor = -1;
      private int waterFogColor = -1;
      private long waterFogUpdateTime = -1L;
@@ -11,12 +11,10 @@
      public FogRenderer(GameRenderer p_i115_1_)
      {
 -        this.entityRenderer = p_i115_1_;
--        this.mc = p_i115_1_.getMinecraft();
 +        this.gameRenderer = p_i115_1_;
-+        this.mc = p_i115_1_.getInstance();
+         this.mc = p_i115_1_.getMinecraft();
          this.blackBuffer.put(0.0F).put(0.0F).put(0.0F).put(1.0F).flip();
      }
- 
 @@ -69,7 +69,7 @@
              this.waterFogUpdateTime = -1L;
          }
@@ -24,7 +22,7 @@
 -        double d0 = p_217619_1_.getProjectedView().y * world.dimension.getVoidFogYFactor();
 +        double d0 = p_217619_1_.getPosition().y * world.dimension.getVoidFogYFactor();
  
-         if (p_217619_1_.func_216773_g() instanceof LivingEntity && ((LivingEntity)p_217619_1_.func_216773_g()).isPotionActive(Effects.BLINDNESS))
+         if (p_217619_1_.getRenderViewEntity() instanceof LivingEntity && ((LivingEntity)p_217619_1_.getRenderViewEntity()).isPotionActive(Effects.BLINDNESS))
          {
 @@ -98,9 +98,9 @@
              this.blue = (float)((double)this.blue * d0);
@@ -40,16 +38,16 @@
              this.blue = this.blue * (1.0F - f) + this.blue * 0.6F * f;
 @@ -139,7 +139,7 @@
          }
-         else if (p_217619_1_.func_216773_g() instanceof LivingEntity && ((LivingEntity)p_217619_1_.func_216773_g()).isPotionActive(Effects.NIGHT_VISION))
+         else if (p_217619_1_.getRenderViewEntity() instanceof LivingEntity && ((LivingEntity)p_217619_1_.getRenderViewEntity()).isPotionActive(Effects.NIGHT_VISION))
          {
--            float f2 = this.entityRenderer.getNightVisionBrightness((LivingEntity)p_217619_1_.func_216773_g(), p_217619_2_);
-+            float f2 = this.gameRenderer.getNightVisionBrightness((LivingEntity)p_217619_1_.func_216773_g(), p_217619_2_);
+-            float f2 = this.entityRenderer.getNightVisionBrightness((LivingEntity)p_217619_1_.getRenderViewEntity(), p_217619_2_);
++            float f2 = this.gameRenderer.getNightVisionBrightness((LivingEntity)p_217619_1_.getRenderViewEntity(), p_217619_2_);
              float f4 = 1.0F / this.red;
  
              if (f4 > 1.0F / this.green)
 @@ -189,7 +189,7 @@
          {
-             Entity entity = p_217619_1_.func_216773_g();
+             Entity entity = p_217619_1_.getRenderViewEntity();
              BlockState blockstate = p_217619_1_.getBlockState();
 -            Object object = Reflector.newInstance(Reflector.EntityViewRenderEvent_FogColors_Constructor, this, this.entityRenderer, entity, blockstate, ifluidstate, p_217619_2_, this.red, this.green, this.blue);
 +            Object object = Reflector.newInstance(Reflector.EntityViewRenderEvent_FogColors_Constructor, this, this.gameRenderer, entity, blockstate, ifluidstate, p_217619_2_, this.red, this.green, this.blue);
@@ -125,8 +123,8 @@
  
              if (Reflector.ForgeHooksClient_onFogRender.exists())
              {
--                Reflector.callVoid(Reflector.ForgeHooksClient_onFogRender, this, this.entityRenderer, p_217618_1_.func_216773_g(), blockstate, ifluidstate, 0, p_217618_2_, f2);
-+                Reflector.callVoid(Reflector.ForgeHooksClient_onFogRender, this, this.gameRenderer, p_217618_1_.func_216773_g(), blockstate, ifluidstate, 0, p_217618_2_, f2);
+-                Reflector.callVoid(Reflector.ForgeHooksClient_onFogRender, this, this.entityRenderer, p_217618_1_.getRenderViewEntity(), blockstate, ifluidstate, 0, p_217618_2_, f2);
++                Reflector.callVoid(Reflector.ForgeHooksClient_onFogRender, this, this.gameRenderer, p_217618_1_.getRenderViewEntity(), blockstate, ifluidstate, 0, p_217618_2_, f2);
              }
          }
  

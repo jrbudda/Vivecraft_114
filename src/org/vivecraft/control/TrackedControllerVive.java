@@ -8,7 +8,6 @@ import org.vivecraft.utils.Vector2;
 import org.vivecraft.utils.Vector3;
 import org.vivecraft.utils.lwjgl.Vector2f;
 
-import de.fruitfly.ovr.structs.Vector3f;
 import jopenvr.JOpenVRLibrary;
 
 public class TrackedControllerVive extends TrackedController {
@@ -511,8 +510,8 @@ public class TrackedControllerVive extends TrackedController {
 			default:
 				break;
 		}
-		de.fruitfly.ovr.structs.Matrix4f mat = MCOpenVR.getControllerComponentTransformFromButton(i, butt);
-		Vector3f v = mat.transform(MCOpenVR.forward);
-		return new Vector3(v.x, v.y, v.z);
+		org.vivecraft.utils.Matrix4f mat = MCOpenVR.getControllerComponentTransformFromButton(i, butt);
+		Vector3 v = mat.transform(MCOpenVR.forward);
+		return v;
 	}
 }

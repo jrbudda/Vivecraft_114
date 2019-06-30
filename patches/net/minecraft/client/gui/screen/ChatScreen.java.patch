@@ -1,0 +1,13 @@
+--- a/net/minecraft/client/gui/screen/ChatScreen.java
++++ b/net/minecraft/client/gui/screen/ChatScreen.java
+@@ -71,6 +71,10 @@
+         this.children.add(this.inputField);
+         this.updateSuggestion();
+         this.func_212928_a(this.inputField);
++
++        //Vivecraft
++        this.inputField.setCanLoseFocus(false);
++
+     }
+ 
+     public void resize(Minecraft p_resize_1_, int p_resize_2_, int p_resize_3_)

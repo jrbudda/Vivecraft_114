@@ -18,8 +18,8 @@
          {
 -            Vec3d vec3d = p_217920_1_.getProjectedView();
 +            Vec3d vec3d = p_217920_1_.getPosition();
-             Vec3d vec3d1 = p_217920_1_.func_216787_l();
-             Vec3d vec3d2 = p_217920_1_.func_216788_m();
+             Vec3d vec3d1 = p_217920_1_.getLookDirection();
+             Vec3d vec3d2 = p_217920_1_.getUpDirection();
              this.executor.execute(() ->
 @@ -485,6 +485,18 @@
              });

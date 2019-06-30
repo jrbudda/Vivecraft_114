@@ -24,7 +24,7 @@
                  this.minecraft.gameSettings.saveOptions();
 -                this.minecraft.displayGuiScreen(this.parentScreen);
 +                this.minecraft.displayGuiScreen(this.parentGuiScreen);
-                 this.minecraft.func_213237_g();
+                 this.minecraft.reloadResources();
              }
              else {
 -                this.minecraft.displayGuiScreen(this.parentScreen);

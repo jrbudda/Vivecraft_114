@@ -54,7 +54,7 @@ public class FakeBlockAccess implements IWorldReader {
 		this.ground = ground;
 		this.dimensionType = dimensionType;
 		this.worldType = worldType;
-		this.dimension = dimensionType.create(null); //TEST that null is ok here.
+		this.dimension = dimensionType.create(null); 
 	}
 	
 	private int encodeCoords(int x, int z) {

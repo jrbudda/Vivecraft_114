@@ -1,209 +1,49 @@
 --- a/net/minecraft/client/renderer/ActiveRenderInfo.java
 +++ b/net/minecraft/client/renderer/ActiveRenderInfo.java
-@@ -17,45 +17,45 @@
- 
+@@ -18,15 +18,15 @@
  public class ActiveRenderInfo
  {
--    private boolean field_216789_a;
--    private IBlockReader field_216790_b;
+     private boolean valid;
+-    private IBlockReader world;
 -    private Entity field_216791_c;
--    private Vec3d field_216792_d = Vec3d.ZERO;
--    private final BlockPos.MutableBlockPos field_216793_e = new BlockPos.MutableBlockPos();
-+    private boolean isValid;
-+    private IBlockReader world;
-+    private Entity entity;
-+    private Vec3d pos = Vec3d.ZERO;
-+    private final BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos();
-     private Vec3d field_216794_f;
-     private Vec3d field_216795_g;
-     private Vec3d field_216796_h;
-     private float pitch;
-     private float yaw;
--    private boolean field_216799_k;
--    private boolean field_216800_l;
-+    private boolean thirdPerson;
-+    private boolean thirdPersonReverse;
-     private float field_216801_m;
-     private float field_216802_n;
- 
--    public void func_216772_a(IBlockReader p_216772_1_, Entity p_216772_2_, boolean p_216772_3_, boolean p_216772_4_, float p_216772_5_)
-+    public void update(IBlockReader world, Entity rve, boolean thirdPErson, boolean thirdPersonReverse, float partialTicks)
-     {
--        this.field_216789_a = true;
--        this.field_216790_b = p_216772_1_;
--        this.field_216791_c = p_216772_2_;
--        this.field_216799_k = p_216772_3_;
--        this.field_216800_l = p_216772_4_;
--        this.func_216776_a(p_216772_2_.getYaw(p_216772_5_), p_216772_2_.getPitch(p_216772_5_));
--        this.func_216775_b(MathHelper.lerp((double)p_216772_5_, p_216772_2_.prevPosX, p_216772_2_.posX), MathHelper.lerp((double)p_216772_5_, p_216772_2_.prevPosY, p_216772_2_.posY) + (double)MathHelper.lerp(p_216772_5_, this.field_216802_n, this.field_216801_m), MathHelper.lerp((double)p_216772_5_, p_216772_2_.prevPosZ, p_216772_2_.posZ));
-+        this.isValid = true;
-+        this.world = world;
-+        this.entity = rve;
-+        this.thirdPerson = thirdPErson;
-+        this.thirdPersonReverse = thirdPersonReverse;
-+        this.func_216776_a(rve.getYaw(partialTicks), rve.getPitch(partialTicks));
-+        this.func_216775_b(MathHelper.lerp((double)partialTicks, rve.prevPosX, rve.posX), MathHelper.lerp((double)partialTicks, rve.prevPosY, rve.posY) + (double)MathHelper.lerp(partialTicks, this.field_216802_n, this.field_216801_m), MathHelper.lerp((double)partialTicks, rve.prevPosZ, rve.posZ));
- 
--        if (p_216772_3_)
-+        if (thirdPErson)
-         {
--            if (p_216772_4_)
-+            if (thirdPersonReverse)
-             {
-                 this.yaw += 180.0F;
-                 this.pitch += -this.pitch * 2.0F;
--                this.func_216784_b();
-+                this.updateLook();
-             }
- 
-             this.func_216782_a(-this.func_216779_a(4.0D), 0.0D, 0.0D);
-         }
--        else if (p_216772_2_ instanceof LivingEntity && ((LivingEntity)p_216772_2_).isSleeping())
-+        else if (rve instanceof LivingEntity && ((LivingEntity)rve).isSleeping())
-         {
--            Direction direction = ((LivingEntity)p_216772_2_).func_213376_dz();
-+            Direction direction = ((LivingEntity)rve).func_213376_dz();
-             this.func_216776_a(direction != null ? direction.getHorizontalAngle() - 180.0F : 0.0F, 0.0F);
-             this.func_216782_a(0.0D, 0.3D, 0.0D);
-         }
-@@ -70,10 +70,10 @@
- 
-     public void func_216783_a()
-     {
--        if (this.field_216791_c != null)
-+        if (this.entity != null)
-         {
-             this.field_216802_n = this.field_216801_m;
--            this.field_216801_m += (this.field_216791_c.getEyeHeight() - this.field_216801_m) * 0.5F;
-+            this.field_216801_m += (this.entity.getEyeHeight() - this.field_216801_m) * 0.5F;
-         }
-     }
- 
-@@ -87,13 +87,13 @@
-             f = f * 0.1F;
-             f1 = f1 * 0.1F;
-             f2 = f2 * 0.1F;
--            Vec3d vec3d = this.field_216792_d.add((double)f, (double)f1, (double)f2);
--            Vec3d vec3d1 = new Vec3d(this.field_216792_d.x - this.field_216794_f.x * p_216779_1_ + (double)f + (double)f2, this.field_216792_d.y - this.field_216794_f.y * p_216779_1_ + (double)f1, this.field_216792_d.z - this.field_216794_f.z * p_216779_1_ + (double)f2);
--            RayTraceResult raytraceresult = this.field_216790_b.rayTraceBlocks(new RayTraceContext(vec3d, vec3d1, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, this.field_216791_c));
-+            Vec3d vec3d = this.pos.add((double)f, (double)f1, (double)f2);
-+            Vec3d vec3d1 = new Vec3d(this.pos.x - this.field_216794_f.x * p_216779_1_ + (double)f + (double)f2, this.pos.y - this.field_216794_f.y * p_216779_1_ + (double)f1, this.pos.z - this.field_216794_f.z * p_216779_1_ + (double)f2);
-+            RayTraceResult raytraceresult = this.world.rayTraceBlocks(new RayTraceContext(vec3d, vec3d1, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, this.entity));
- 
-             if (raytraceresult.getType() != RayTraceResult.Type.MISS)
-             {
--                double d0 = raytraceresult.getHitVec().distanceTo(this.field_216792_d);
-+                double d0 = raytraceresult.getHitVec().distanceTo(this.pos);
- 
-                 if (d0 < p_216779_1_)
-                 {
-@@ -110,10 +110,10 @@
-         double d0 = this.field_216794_f.x * p_216782_1_ + this.field_216795_g.x * p_216782_3_ + this.field_216796_h.x * p_216782_5_;
-         double d1 = this.field_216794_f.y * p_216782_1_ + this.field_216795_g.y * p_216782_3_ + this.field_216796_h.y * p_216782_5_;
-         double d2 = this.field_216794_f.z * p_216782_1_ + this.field_216795_g.z * p_216782_3_ + this.field_216796_h.z * p_216782_5_;
--        this.func_216774_a(new Vec3d(this.field_216792_d.x + d0, this.field_216792_d.y + d1, this.field_216792_d.z + d2));
-+        this.func_216774_a(new Vec3d(this.pos.x + d0, this.pos.y + d1, this.pos.z + d2));
-     }
- 
--    protected void func_216784_b()
-+    protected void updateLook()
-     {
-         float f = MathHelper.cos((this.yaw + 90.0F) * ((float)Math.PI / 180F));
-         float f1 = MathHelper.sin((this.yaw + 90.0F) * ((float)Math.PI / 180F));
-@@ -130,7 +130,7 @@
-     {
-         this.pitch = p_216776_2_;
-         this.yaw = p_216776_1_;
--        this.func_216784_b();
-+        this.updateLook();
-     }
- 
-     protected void func_216775_b(double p_216775_1_, double p_216775_3_, double p_216775_5_)
-@@ -140,18 +140,18 @@
- 
-     protected void func_216774_a(Vec3d p_216774_1_)
-     {
--        this.field_216792_d = p_216774_1_;
--        this.field_216793_e.setPos(p_216774_1_.x, p_216774_1_.y, p_216774_1_.z);
-+        this.pos = p_216774_1_;
-+        this.blockPos.setPos(p_216774_1_.x, p_216774_1_.y, p_216774_1_.z);
++    protected IBlockReader world;
++    protected Entity field_216791_c;
+     private Vec3d pos = Vec3d.ZERO;
+     private final BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos();
+-    private Vec3d look;
+-    private Vec3d up;
+-    private Vec3d field_216796_h;
+-    private float pitch;
+-    private float yaw;
++    protected Vec3d look;
++    protected Vec3d up;
++    protected Vec3d field_216796_h;
++    protected float pitch;
++    protected float yaw;
+     private boolean thirdPerson;
+     private boolean thirdPersonReverse;
+     private float height;
+@@ -156,12 +156,12 @@
+         this.blockPos.setPos(p_216774_1_.x, p_216774_1_.y, p_216774_1_.z);
      }
  
 -    public Vec3d getProjectedView()
 +    public Vec3d getPosition()
      {
--        return this.field_216792_d;
-+        return this.pos;
+         return this.pos;
      }
  
 -    public BlockPos func_216780_d()
 +    public BlockPos getBlockPos()
      {
--        return this.field_216793_e;
-+        return this.blockPos;
+         return this.blockPos;
      }
- 
-     public float getPitch()
-@@ -166,41 +166,41 @@
- 
-     public Entity func_216773_g()
-     {
--        return this.field_216791_c;
-+        return this.entity;
+@@ -181,7 +181,7 @@
+         return this.field_216791_c;
      }
  
 -    public boolean func_216786_h()
 +    public boolean isValid()
      {
--        return this.field_216789_a;
-+        return this.isValid;
+         return this.valid;
      }
- 
-     public boolean func_216770_i()
-     {
--        return this.field_216799_k;
-+        return this.thirdPerson;
-     }
- 
-     public IFluidState func_216771_k()
-     {
--        if (!this.field_216789_a)
-+        if (!this.isValid)
-         {
-             return Fluids.EMPTY.getDefaultState();
-         }
-         else
-         {
--            IFluidState ifluidstate = this.field_216790_b.getFluidState(this.field_216793_e);
--            return !ifluidstate.isEmpty() && this.field_216792_d.y >= (double)((float)this.field_216793_e.getY() + ifluidstate.func_215679_a(this.field_216790_b, this.field_216793_e)) ? Fluids.EMPTY.getDefaultState() : ifluidstate;
-+            IFluidState ifluidstate = this.world.getFluidState(this.blockPos);
-+            return !ifluidstate.isEmpty() && this.pos.y >= (double)((float)this.blockPos.getY() + ifluidstate.func_215679_a(this.world, this.blockPos)) ? Fluids.EMPTY.getDefaultState() : ifluidstate;
-         }
-     }
- 
-     public BlockState getBlockState()
-     {
--        if (!this.field_216789_a)
-+        if (!this.isValid)
-         {
-             return Blocks.AIR.getDefaultState();
-         }
-         else
-         {
--            BlockState blockstate = this.field_216790_b.getBlockState(this.field_216793_e);
-+            BlockState blockstate = this.world.getBlockState(this.blockPos);
-             return blockstate;
-         }
-     }
-@@ -217,8 +217,8 @@
- 
-     public void func_216781_o()
-     {
--        this.field_216790_b = null;
--        this.field_216791_c = null;
--        this.field_216789_a = false;
-+        this.world = null;
-+        this.entity = null;
-+        this.isValid = false;
-     }
- }

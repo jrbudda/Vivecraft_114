@@ -9,13 +9,13 @@ import org.vivecraft.provider.MCOpenVR;
 import org.vivecraft.render.RenderPass;
 import org.vivecraft.settings.VRSettings;
 import org.vivecraft.utils.InputSimulator;
+import org.vivecraft.utils.OpenVRUtil;
+import org.vivecraft.utils.Quaternion;
+import org.vivecraft.utils.Vector3;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 
-import de.fruitfly.ovr.structs.Matrix4f;
-import de.fruitfly.ovr.structs.Quatf;
-import de.fruitfly.ovr.structs.Vector3f;
-import jopenvr.OpenVRUtil;
+import org.vivecraft.utils.Matrix4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.LoadingGui;
 import net.minecraft.client.gui.screen.ChatScreen;
@@ -138,19 +138,17 @@ public class GuiHandler {
 	}
 
 	public static Vec2f getTexCoordsForCursor(Vec3d guiPos_room, Matrix4f guiRotation_room, Screen screen, float guiScale, VRDevicePose controller) {
-		Vector3f controllerPos = new Vector3f();
+	
 		Vec3d con = controller.getPosition();
-		controllerPos.x	= (float) con.x;
-		controllerPos.y	= (float) con.y;
-		controllerPos.z	= (float) con.z;
+		Vector3 controllerPos = new Vector3(con);
 
 		Vec3d controllerdir = controller.getDirection();
-		Vector3f cdir = new Vector3f((float)controllerdir.x,(float) controllerdir.y,(float) controllerdir.z);
-		Vector3f forward = new Vector3f(0,0,1);
+		Vector3 cdir = new Vector3((float)controllerdir.x,(float) controllerdir.y,(float) controllerdir.z);
+		Vector3 forward = new Vector3(0,0,1);
 
-		Vector3f guiNormal = guiRotation_room.transform(forward);
-		Vector3f guiRight = guiRotation_room.transform(new Vector3f(1,0,0));
-		Vector3f guiUp = guiRotation_room.transform(new Vector3f(0,1,0));
+		Vector3 guiNormal = guiRotation_room.transform(forward);
+		Vector3 guiRight = guiRotation_room.transform(new Vector3(1,0,0));
+		Vector3 guiUp = guiRotation_room.transform(new Vector3(0,1,0));
 		float guiNormalDotControllerDirection = guiNormal.dot(cdir);
 		if (Math.abs(guiNormalDotControllerDirection) > 0.00001f)
 		{//pointed normal to the GUI
@@ -159,19 +157,19 @@ public class GuiHandler {
 			float guiHeight = 1.0f;	
 			float guiHalfHeight = guiHeight * 0.5f;
 
-			Vector3f gp = new Vector3f();
+			Vector3 gp = new Vector3();
 
-			gp.x = (float) (guiPos_room.x);// + interPolatedRoomOrigin.x ) ;
-			gp.y = (float) (guiPos_room.y);// + interPolatedRoomOrigin.y ) ;
-			gp.z = (float) (guiPos_room.z);// + interPolatedRoomOrigin.z ) ;
+			gp.setX((float) (guiPos_room.x));// + interPolatedRoomOrigin.x ) ;
+			gp.setY((float) (guiPos_room.y));// + interPolatedRoomOrigin.y ) ;
+			gp.setZ((float) (guiPos_room.z));// + interPolatedRoomOrigin.z ) ;
 
-			Vector3f guiTopLeft = gp.subtract(guiUp.divide(1.0f / guiHalfHeight)).subtract(guiRight.divide(1.0f/guiHalfWidth));
+			Vector3 guiTopLeft = gp.subtract(guiUp.divide(1.0f / guiHalfHeight)).subtract(guiRight.divide(1.0f/guiHalfWidth));
 
 			float intersectDist = -guiNormal.dot(controllerPos.subtract(guiTopLeft)) / guiNormalDotControllerDirection;
 			if (intersectDist > 0) {
-				Vector3f pointOnPlane = controllerPos.add(cdir.divide(1.0f / intersectDist));
+				Vector3 pointOnPlane = controllerPos.add(cdir.divide(1.0f / intersectDist));
 
-				Vector3f relativePoint = pointOnPlane.subtract(guiTopLeft);
+				Vector3 relativePoint = pointOnPlane.subtract(guiTopLeft);
 				float u = relativePoint.dot(guiRight.divide(1.0f / guiWidth));
 				float v = relativePoint.dot(guiUp.divide(1.0f / guiWidth));
 
@@ -439,7 +437,7 @@ public class GuiHandler {
 
 		if((previousGuiScreen==null && newScreen != null) || (newScreen instanceof ChatScreen || newScreen instanceof EditBookScreen || newScreen instanceof EditSignScreen))		
 		{
-			Quatf controllerOrientationQuat;
+			Quaternion controllerOrientationQuat;
 			boolean appearOverBlock = (newScreen instanceof CraftingScreen)
 					|| (newScreen instanceof ChestScreen)
 					|| (newScreen instanceof ShulkerBoxScreen)
@@ -470,13 +468,13 @@ public class GuiHandler {
 
 				guiPos_room = mc.vrPlayer.world_to_room_pos(guiPosWorld, mc.vrPlayer.vrdata_world_pre);	
 
-				Vector3f look = new Vector3f();
-				look.x = (float) (guiPos_room.x - pos.x);
-				look.y = (float) (guiPos_room.y - pos.y);
-				look.z = (float) (guiPos_room.z - pos.z);
+				Vector3 look = new Vector3();
+				look.setX((float) (guiPos_room.x - pos.x));
+				look.setY((float) (guiPos_room.y - pos.y));
+				look.setZ((float) (guiPos_room.z - pos.z));
 
-				float pitch = (float) Math.asin(look.y/look.length());
-				float yaw = (float) ((float) Math.PI + Math.atan2(look.x, look.z));    
+				float pitch = (float) Math.asin(look.getY()/look.length());
+				float yaw = (float) ((float) Math.PI + Math.atan2(look.getX(), look.getZ()));    
 				guiRotation_room = Matrix4f.rotationY((float) yaw);
 				Matrix4f tilt = OpenVRUtil.rotationXMatrix(pitch);	
 				guiRotation_room = Matrix4f.multiply(guiRotation_room,tilt);		
@@ -499,13 +497,13 @@ public class GuiHandler {
 						(e.z / 2 + v.z));
 
 				Vec3d pos = mc.vrPlayer.vrdata_room_pre.hmd.getPosition();
-				Vector3f look = new Vector3f();
-				look.x = (float) (guiPos_room.x - pos.x);
-				look.y = (float) (guiPos_room.y - pos.y);
-				look.z = (float) (guiPos_room.z - pos.z);
+				Vector3 look = new Vector3();
+				look.setX((float) (guiPos_room.x - pos.x));
+				look.setY((float) (guiPos_room.y - pos.y));
+				look.setZ((float) (guiPos_room.z - pos.z));
 
-				float pitch = (float) Math.asin(look.y/look.length());
-				float yaw = (float) ((float) Math.PI + Math.atan2(look.x, look.z));    
+				float pitch = (float) Math.asin(look.getY()/look.length());
+				float yaw = (float) ((float) Math.PI + Math.atan2(look.getX(), look.getZ()));    
 				guiRotation_room = Matrix4f.rotationY((float) yaw);
 				Matrix4f tilt = OpenVRUtil.rotationXMatrix(pitch);	
 				guiRotation_room = Matrix4f.multiply(guiRotation_room,tilt);		
@@ -565,7 +563,7 @@ public class GuiHandler {
   							(v.z + d.z*mc.vrPlayer.vrdata_world_render.worldScale*mc.vrSettings.hudDistance));
 
 
-  					Quatf orientationQuat = OpenVRUtil.convertMatrix4ftoRotationQuat(max);
+  					Quaternion orientationQuat = OpenVRUtil.convertMatrix4ftoRotationQuat(max);
 
   					guirot = new Matrix4f(orientationQuat);
 
@@ -608,17 +606,17 @@ public class GuiHandler {
 
                     guipos = mc.gameRenderer.getControllerRenderPos(1);
 
-  					/*Vector3f forward = new Vector3f(0,0,1);
-  					Vector3f guiNormal = guirot.transform(forward);
+  					/*Vector3 forward = new Vector3(0,0,1);
+  					Vector3 guiNormal = guirot.transform(forward);
 
   					Vec3d facev = mc.vrPlayer.vrdata_world_render.hmd.getDirection();
-  					Vector3f face = new Vector3f((float)facev.x, (float)facev.y, (float)facev.z);
+  					Vector3 face = new Vector3((float)facev.x, (float)facev.y, (float)facev.z);
 
                     float dot = face.dot(guiNormal);
 
   					Vec3d head = mc.vrPlayer.vrdata_world_render.hmd.getPosition();
 
-  					Vector3f headv = new Vector3f((float)guipos.x, (float)guipos.y, (float)guipos.z).subtract(new Vector3f((float)head.x, (float)head.y, (float)head.z)).normalised();
+  					Vector3 headv = new Vector3((float)guipos.x, (float)guipos.y, (float)guipos.z).subtract(new Vector3((float)head.x, (float)head.y, (float)head.z)).normalised();
   					if(headv == null) return guipos;
   					float dot2 = (float) headv.dot(guiNormal);
 

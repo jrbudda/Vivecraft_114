@@ -37,7 +37,7 @@ import java.nio.FloatBuffer;
 /**
  * Holds a 4x4 float matrix.
  *
- * @author foo
+ * @author JRift
  */
 public class Matrix4f extends Matrix implements Serializable {
 	private static final long serialVersionUID = 1L;

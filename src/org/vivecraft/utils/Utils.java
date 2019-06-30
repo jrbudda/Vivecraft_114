@@ -46,19 +46,16 @@ import org.apache.commons.io.IOUtils;
 
 public class Utils
 {
-  	public static Vector3f convertVector(de.fruitfly.ovr.structs.Vector3f vector) {
-		return new Vector3f(vector.x, vector.y, vector.z);
+
+	public static org.vivecraft.utils.Vector3 convertToOVRVector(Vector3f vector) {
+		return new Vector3(vector.x, vector.y, vector.z);
 	}
 
-	public static de.fruitfly.ovr.structs.Vector3f convertToOVRVector(Vector3f vector) {
-		return new de.fruitfly.ovr.structs.Vector3f(vector.x, vector.y, vector.z);
-	}
-
-	public static de.fruitfly.ovr.structs.Vector3f convertToOVRVector(Vec3d vector) {
-		return new de.fruitfly.ovr.structs.Vector3f((float)vector.x, (float)vector.y, (float)vector.z);
+	public static org.vivecraft.utils.Vector3 convertToOVRVector(Vec3d vector) {
+		return new Vector3((float)vector.x, (float)vector.y, (float)vector.z);
 	}
 	
-	public static Matrix4f convertOVRMatrix(de.fruitfly.ovr.structs.Matrix4f matrix) {
+	public static Matrix4f convertOVRMatrix(org.vivecraft.utils.Matrix4f matrix) {
 		Matrix4f mat = new Matrix4f();
 		mat.m00 = matrix.M[0][0];
 		mat.m01 = matrix.M[0][1];
@@ -80,10 +77,10 @@ public class Utils
 		return mat;
 	}
 	
-	public static de.fruitfly.ovr.structs.Matrix4f convertToOVRMatrix(Matrix4f matrixIn) {
+	public static org.vivecraft.utils.Matrix4f convertToOVRMatrix(Matrix4f matrixIn) {
 		Matrix4f matrix = new Matrix4f();
 		matrixIn.transpose(matrix);
-		de.fruitfly.ovr.structs.Matrix4f mat = new de.fruitfly.ovr.structs.Matrix4f();
+		org.vivecraft.utils.Matrix4f mat = new org.vivecraft.utils.Matrix4f();
 		mat.M[0][0] = matrix.m00;
 		mat.M[0][1] = matrix.m01;
 		mat.M[0][2] = matrix.m02;

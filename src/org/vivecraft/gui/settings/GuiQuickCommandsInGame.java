@@ -9,7 +9,7 @@ import net.minecraft.util.text.StringTextComponent;
 
 public class GuiQuickCommandsInGame extends Screen
 {
-    protected GuiQuickCommandsInGame() {
+    public GuiQuickCommandsInGame() {
 		super(new StringTextComponent(""));
 	}
 

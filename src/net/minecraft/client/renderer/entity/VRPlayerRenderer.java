@@ -57,7 +57,7 @@ public class VRPlayerRenderer extends LivingRenderer<AbstractClientPlayerEntity,
 
     public void doRender(AbstractClientPlayerEntity entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
-        if (!entity.isUser() || this.renderManager.info.func_216773_g() == entity)
+        if (!entity.isUser() || this.renderManager.info.getRenderViewEntity() == entity)
         {
             double d0 = y;
 

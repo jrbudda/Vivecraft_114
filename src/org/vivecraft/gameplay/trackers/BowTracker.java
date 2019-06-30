@@ -7,8 +7,8 @@ import org.vivecraft.api.NetworkHelper.PacketDiscriminators;
 import org.vivecraft.api.VRData;
 import org.vivecraft.gameplay.OpenVRPlayer;
 import org.vivecraft.provider.MCOpenVR;
+import org.vivecraft.utils.Vector3;
 
-import de.fruitfly.ovr.structs.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -147,11 +147,11 @@ public class BowTracker extends Tracker {
 
 		Vec3d rightaim3 = vrData.getHand(0).getCustomVector(new Vec3d(0,0,-1));
 		
-		Vector3f rightAim = new Vector3f((float)rightaim3.x, (float) rightaim3.y, (float) rightaim3.z);
+		Vector3 rightAim = new Vector3((float)rightaim3.x, (float) rightaim3.y, (float) rightaim3.z);
 		leftHandAim = vrData.getHand(1).getCustomVector(new Vec3d(0, 0, -1));
 	 	Vec3d l4v3 = vrData.getHand(1).getCustomVector(new Vec3d(0, -1, 0));
 		 
-		Vector3f leftforeward = new Vector3f((float)l4v3.x, (float) l4v3.y, (float) l4v3.z);
+		Vector3 leftforeward = new Vector3((float)l4v3.x, (float) l4v3.y, (float) l4v3.z);
 
 		controllersDot = 180 / Math.PI * Math.acos(leftforeward.dot(rightAim));
 

@@ -1,0 +1,10 @@
+--- a/com/mojang/blaze3d/platform/TextureUtil.java
++++ b/com/mojang/blaze3d/platform/TextureUtil.java
+@@ -22,6 +22,7 @@
+     public static final int MIN_MIPMAP_LEVEL = 0;
+     private static final int DEFAULT_IMAGE_BUFFER_SIZE = 8192;
+     private static String dummy = "DUMMY";
++    public int intentionallModifyThisClassCauseItWontLoadProperlyFromOptifine = 69;
+ 
+     public static int generateTextureId()
+     {

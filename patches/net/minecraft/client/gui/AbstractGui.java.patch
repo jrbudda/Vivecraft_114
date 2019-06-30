@@ -1,0 +1,39 @@
+--- a/net/minecraft/client/gui/AbstractGui.java
++++ b/net/minecraft/client/gui/AbstractGui.java
+@@ -62,7 +62,8 @@
+         BufferBuilder bufferbuilder = tessellator.getBuffer();
+         GlStateManager.enableBlend();
+         GlStateManager.disableTexture();
+-        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
++        // VIVECRAFT: DestFactor of ONE is really what we want here, because math
++        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
+         GlStateManager.color4f(f, f1, f2, f3);
+         bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
+         bufferbuilder.pos((double)p_fill_0_, (double)p_fill_3_, 0.0D).endVertex();
+@@ -86,6 +87,8 @@
+         float f7 = (float)(p_fillGradient_6_ & 255) / 255.0F;
+         GlStateManager.disableTexture();
+         GlStateManager.enableBlend();
++        // VIVECRAFT: DestFactor of ONE is really what we want here, because math
++        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
+         GlStateManager.disableAlphaTest();
+         GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+         GlStateManager.shadeModel(7425);
+@@ -150,6 +153,10 @@
+ 
+     protected static void innerBlit(int p_innerBlit_0_, int p_innerBlit_1_, int p_innerBlit_2_, int p_innerBlit_3_, int p_innerBlit_4_, float p_innerBlit_5_, float p_innerBlit_6_, float p_innerBlit_7_, float p_innerBlit_8_)
+     {
++        // VIVECRAFT: DestFactor of ONE is really what we want here, because math
++        // Also this blending wasn't here before but it fixes stuff so yeah
++        GlStateManager.enableBlend();
++        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
+         Tessellator tessellator = Tessellator.getInstance();
+         BufferBuilder bufferbuilder = tessellator.getBuffer();
+         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
+@@ -158,5 +165,6 @@
+         bufferbuilder.pos((double)p_innerBlit_1_, (double)p_innerBlit_2_, (double)p_innerBlit_4_).tex((double)p_innerBlit_6_, (double)p_innerBlit_7_).endVertex();
+         bufferbuilder.pos((double)p_innerBlit_0_, (double)p_innerBlit_2_, (double)p_innerBlit_4_).tex((double)p_innerBlit_5_, (double)p_innerBlit_7_).endVertex();
+         tessellator.draw();
++        GlStateManager.disableBlend();
+     }
+ }

@@ -25,8 +25,8 @@ import org.vivecraft.settings.profile.ProfileManager;
 import org.vivecraft.settings.profile.ProfileReader;
 import org.vivecraft.settings.profile.ProfileWriter;
 import org.vivecraft.utils.Quaternion;
+import org.vivecraft.utils.Vector3;
 
-import de.fruitfly.ovr.structs.Vector3f;
 import net.minecraft.client.GameSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
@@ -720,7 +720,7 @@ public class VRSettings
 
 					if(optionTokens[0].equals("originOffset")){
                         String[] split = optionTokens[1].split(",");
-					    MCOpenVR.offset = new Vector3f(Float.parseFloat(split[0]), Float.parseFloat(split[1]), Float.parseFloat(split[2]));
+					    MCOpenVR.offset = new Vector3(Float.parseFloat(split[0]), Float.parseFloat(split[1]), Float.parseFloat(split[2]));
                     }
 
 					if(optionTokens[0].equals("allowStandingOriginOffset")){
@@ -1680,7 +1680,7 @@ public class VRSettings
             var5.println("keyboardKeysShift:" + this.keyboardKeysShift);
             var5.println("radialModeHold:" + this.radialModeHold);
             var5.println("physicalKeyboard:" + this.physicalKeyboard);
-            var5.println("originOffset:" + MCOpenVR.offset.x + "," + MCOpenVR.offset.y + "," + MCOpenVR.offset.z);
+            var5.println("originOffset:" + MCOpenVR.offset.getX() + "," + MCOpenVR.offset.getY() + "," + MCOpenVR.offset.getZ());
             var5.println("allowStandingOriginOffset:" + this.allowStandingOriginOffset);
             var5.println("firstRun:" + this.firstRun);
             

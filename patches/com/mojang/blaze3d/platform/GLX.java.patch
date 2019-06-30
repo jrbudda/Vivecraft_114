@@ -1,0 +1,12 @@
+--- a/com/mojang/blaze3d/platform/GLX.java
++++ b/com/mojang/blaze3d/platform/GLX.java
+@@ -106,6 +106,9 @@
+     private static boolean useVboArb;
+     public static int GL_ARRAY_BUFFER;
+     public static int GL_STATIC_DRAW;
++    
++    public int intentionallModifyThisClassCauseItWontLoadProperlyFromOptifine = 69;
++    
+     private static final Map<Integer, String> LOOKUP_MAP = make(Maps.newHashMap(), (p_lambda$static$0_0_) ->
+     {
+         p_lambda$static$0_0_.put(0, "No error");

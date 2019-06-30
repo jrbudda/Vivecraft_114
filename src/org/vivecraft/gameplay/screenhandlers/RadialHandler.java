@@ -9,10 +9,9 @@ import org.vivecraft.control.VRButtonMapping;
 import org.vivecraft.control.VRInputEvent;
 import org.vivecraft.gui.GuiRadial;
 import org.vivecraft.provider.MCOpenVR;
-
-import de.fruitfly.ovr.structs.Matrix4f;
-import de.fruitfly.ovr.structs.Vector3f;
-import jopenvr.OpenVRUtil;
+import org.vivecraft.utils.OpenVRUtil;
+import org.vivecraft.utils.Vector3;
+import org.vivecraft.utils.Matrix4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.main.Main;
 import net.minecraft.client.shader.Framebuffer;
@@ -147,13 +146,13 @@ public class RadialHandler {
 				(e.y / 2 + v.y),
 				(e.z / 2 + v.z));
 
-		Vector3f look = new Vector3f();
-		look.x = (float) (Pos_room.x - v.x);
-		look.y = (float) (Pos_room.y - v.y);
-		look.z = (float) (Pos_room.z - v.z);
+		Vector3 look = new Vector3();
+		look.setX((float) (Pos_room.x - v.x));
+		look.setY((float) (Pos_room.y - v.y));
+		look.setZ((float) (Pos_room.z - v.z));
 
-		float pitch = (float) Math.asin(look.y/look.length());
-		float yaw = (float) ((float) Math.PI + Math.atan2(look.x, look.z));    
+		float pitch = (float) Math.asin(look.getY()/look.length());
+		float yaw = (float) ((float) Math.PI + Math.atan2(look.getX(), look.getZ()));    
 		Rotation_room = Matrix4f.rotationY((float) yaw);
 		Matrix4f tilt = OpenVRUtil.rotationXMatrix(pitch);	
 		Rotation_room = Matrix4f.multiply(Rotation_room, tilt);	

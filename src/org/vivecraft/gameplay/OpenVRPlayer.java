@@ -142,10 +142,9 @@ public class OpenVRPlayer
 
 		if(mc.vrSettings.seated && !mc.gameRenderer.isInMenuRoom())
 			mc.vrSettings.vrWorldRotation = MCOpenVR.seatedRot;
-	
-		//Vivecraft - setup the player entity with the correct view for the logic tick.
+
+		//setup the player entity with the correct view for the logic tick.
 		doLookOverride(vrdata_world_pre);
-		////
 
 	}
 
