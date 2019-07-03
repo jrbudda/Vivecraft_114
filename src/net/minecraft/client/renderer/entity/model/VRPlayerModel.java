@@ -3,6 +3,8 @@ package net.minecraft.client.renderer.entity.model;
 import org.vivecraft.render.PlayerModelController;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+
+import net.minecraft.client.renderer.entity.layers.VRBipedArmorLayer;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -29,6 +31,7 @@ public class VRPlayerModel<T extends LivingEntity> extends BipedModel<T>
     ResourceLocation DIAMOND_HMD = new ResourceLocation("vivecraft:textures/diamond_hmd.png");
     ResourceLocation GOLD_HMD = new ResourceLocation("vivecraft:textures/gold_hmd.png");
     ResourceLocation BLACK_HMD = new ResourceLocation("vivecraft:textures/black_hmd.png");
+    public VRBipedArmorLayer armor = null;
     //VIVE END
     
     public VRPlayerModel(float p_i63_1_, boolean p_i63_2_)
@@ -197,10 +200,10 @@ public class VRPlayerModel<T extends LivingEntity> extends BipedModel<T>
     		//        		this.bipedRightArm.rotateAngleY = (float) (ltor);
     		//        		this.bipedLeftArm.rotateAngleY = (float) (ltor);
 
-    	//	ModelArmorVR armor = this.armor.getModelFromSlot(EquipmentSlotType.HEAD);
-
-    	//	armor.bipedHead.rotateAngleY = (float) (this.bipedHead.rotateAngleY);  				
-    	//	armor.bipedHead.rotateAngleX = this.bipedHead.rotateAngleX;
+    		BipedModel a = this.armor.func_215337_a(EquipmentSlotType.HEAD);
+    		a.bipedHead.rotateAngleY = (float) (this.bipedHead.rotateAngleY);  				
+    		a.bipedHead.rotateAngleX = this.bipedHead.rotateAngleX;
+    		
     		//        		
     		//        		this.armor.getModelFromSlot(EntityEquipmentSlot.CHEST).bipedBody.rotateAngleY = this.bipedBody.rotateAngleY;
     		//        		this.armor.getModelFromSlot(EntityEquipmentSlot.CHEST).bipedBody.rotateAngleX = this.bipedBody.rotateAngleX;

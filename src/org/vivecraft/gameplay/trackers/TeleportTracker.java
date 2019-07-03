@@ -64,7 +64,6 @@ public class TeleportTracker extends Tracker{
 		if(p == null) return false;
 		if(!p.isAlive()) return false;
 		if(p.isSleeping()) return false;
-		if (Minecraft.getInstance().vrPlayer.getFreeMove()) return false;
 		return true;
 	}
 

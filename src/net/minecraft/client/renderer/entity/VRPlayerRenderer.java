@@ -44,7 +44,9 @@ public class VRPlayerRenderer extends LivingRenderer<AbstractClientPlayerEntity,
     public VRPlayerRenderer(EntityRendererManager p_i3453_1_, boolean p_i3453_2_)
     {
         super(p_i3453_1_, new VRPlayerModel<>(0.0F, p_i3453_2_), 0.5F);
-        this.addLayer(new VRBipedArmorLayer<>(this, new BipedModel(0.5F), new BipedModel(1.0F)));
+        VRBipedArmorLayer layer = new VRBipedArmorLayer<>(this, new BipedModel(0.5F), new BipedModel(1.0F));
+        this.addLayer(layer);
+        ((VRPlayerModel)this.field_77045_g).armor = layer;
         this.addLayer(new HeldItemLayer<>(this));
         this.addLayer(new ArrowLayer<>(this));
        // this.addLayer(new Deadmau5HeadLayer(this));

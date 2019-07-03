@@ -205,6 +205,7 @@ public class VRSettings
 	public int forceHardwareDetection = 0; // 0 = off, 1 = vive, 2 = oculus
 	public boolean radialModeHold = true;
 	public boolean physicalKeyboard = true;
+	public boolean allowAdvancedBindings = false;
     //
      	
     private Minecraft mc;
@@ -706,9 +707,12 @@ public class VRSettings
                     	this.forceStandingFreeMove = optionTokens[1].equals("true");
                     }
 
-                    	
+                    if(optionTokens[0].equals("allowAdvancedBindings")){
+                    	this.allowAdvancedBindings = optionTokens[1].equals("true");
+                    }
+
                     if(optionTokens[0].equals("firstRun")){
-                        this.firstRun = optionTokens[1].equals("true");
+                    	this.firstRun = optionTokens[1].equals("true");
                     }
                     
                     
@@ -1045,9 +1049,10 @@ public class VRSettings
             case SEATED_FREE_MOVE:
                 return this.seatedFreeMove ? var4 + "Free Move" : var4 + "Teleport";
             case FORCE_STANDING_FREE_MOVE:
-            	return mc.vrSettings.forceStandingFreeMove ? var4 + "YES" : var4 + "NO";
- 	        default:
-	        	return "";
+            	return this.forceStandingFreeMove ? var4 + "YES" : var4 + "NO";
+            case ALLOW_ADVANCED_BINDINGS:
+            	return this.allowAdvancedBindings ? var4 + "YES" : var4 + "NO"; 	        default:
+            		return "";
         }
     }
 
@@ -1353,6 +1358,9 @@ public class VRSettings
             case FORCE_STANDING_FREE_MOVE:
             	this.forceStandingFreeMove = !this.forceStandingFreeMove;
             	break;
+            case ALLOW_ADVANCED_BINDINGS:
+            	this.allowAdvancedBindings = !this.allowAdvancedBindings;
+            	break;
             default:
             	break;
     	}
@@ -1582,6 +1590,7 @@ public class VRSettings
             var5.println("allowStandingOriginOffset:" + this.allowStandingOriginOffset);
             var5.println("seatedFreeMove:" + this.seatedFreeMove);
             var5.println("forceStandingFreeMove:" + this.forceStandingFreeMove);
+            var5.println("allowAdvancedBindings:" + this.allowAdvancedBindings);
             var5.println("firstRun:" + this.firstRun);
             
             if (vrQuickCommands == null) vrQuickCommands = getQuickCommandsDefaults(); //defaults
@@ -2077,8 +2086,13 @@ public class VRSettings
         		"options, edit the SteamVR controller bindings.",
         		"",
         		"Note that this disables the teleport binding."
-        });
-    	
+        }),
+        ALLOW_ADVANCED_BINDINGS("Show Advanced Bindings", false, true, new String[] {
+        		"Unhides additional SteamVR bindings for climbey,",
+        		"keyboard and mixed reality.",
+        		"",
+        		"Requires a restart to take effect."
+        });    	
 //        ANISOTROPIC_FILTERING("options.anisotropicFiltering", true, false, 1.0F, 16.0F, 0.0F)
 //                {
 //                    private static final String __OBFID = "CL_00000654";

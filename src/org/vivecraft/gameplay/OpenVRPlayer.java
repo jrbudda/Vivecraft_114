@@ -85,8 +85,8 @@ public class OpenVRPlayer
 	public int teleportWarningTimer = -1;
 
 	public Vec3d roomOrigin = new Vec3d(0,0,0);
-	private boolean isFreeMoveCurrent = true; // true when connected to another server that doesn't have this mod
-
+	private boolean isFreeMoveCurrent = true; // based on a heuristic of which locomotion type was last used
+	
 	//for overriding the world scale settings with wonder foods.
 	public double wfMode = 0;
 	public int wfCount = 0;
@@ -543,7 +543,12 @@ public class OpenVRPlayer
 			isFreeMoveCurrent = true;
 			updateTeleportKeys();
 	}
-
+	
+	/**
+	 * Again with the weird logic, see {@link #isTeleportEnabled()}
+	 *
+	 * @return
+	 */
 	public boolean getFreeMove() {
 		if (mc.vrSettings.seated)
 			return mc.vrSettings.seatedFreeMove || !isTeleportEnabled();
@@ -699,8 +704,19 @@ public class OpenVRPlayer
 		return teleportOverride;
 	}
 
+	/**
+	 * The logic here is a bit weird, because teleport is actually still enabled even in
+	 * seated free move mode. You could use it by simply binding it in the vanilla controls.
+	 * However, when free move is forced in standing mode, teleport is outright disabled.
+	 *
+	 * @return
+	 */
 	public boolean isTeleportEnabled() {
-		return !noTeleportClient || teleportOverride;
+		boolean enabled = !noTeleportClient || teleportOverride;
+		if (!mc.vrSettings.seated)
+			return enabled && !mc.vrSettings.forceStandingFreeMove;
+		else
+			return enabled;
 	}
 
 	public void setTeleportSupported(boolean supported) {

@@ -147,7 +147,7 @@ public class ClimbTracker extends Tracker{
 	public void doProcess(ClientPlayerEntity player){
 
 		boolean[] button = new boolean[2];
-		boolean[] inblock = new boolean[2];
+
 		boolean[] allowed = new boolean [2];
 
 		Vec3d[] cpos = new Vec3d[2];

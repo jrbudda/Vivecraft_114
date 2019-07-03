@@ -392,7 +392,9 @@ public class GuiHandler {
 					mapping.actuallyUnpress();
 			}
 		}*/
-
+		if (unpressKeys)
+			MCOpenVR.unpressBindingsNextFrame = true;
+						
 		if(newScreen == null) {
 			//just insurance
 			guiPos_room = null;

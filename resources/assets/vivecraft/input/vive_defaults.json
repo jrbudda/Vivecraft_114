@@ -135,6 +135,9 @@
                      "output" : "/actions/gui/in/vivecraft.key.guiscrollaxis"
                   }
                },
+               "parameters": {
+                  "discrete_scroll_trackpad_slideandhold_enabled": "false"
+               },
                "mode" : "scroll",
                "path" : "/user/hand/right/input/trackpad"
             }

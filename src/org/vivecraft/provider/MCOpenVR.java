@@ -1,9 +1,11 @@
 package org.vivecraft.provider;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -102,7 +104,7 @@ public class MCOpenVR
 	private static boolean inputInitialized;
 
 	static Minecraft mc;
-	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
 	public static VR_IVRSystem_FnTable vrsystem;
 	static VR_IVRCompositor_FnTable vrCompositor;
@@ -190,7 +192,8 @@ public class MCOpenVR
 	private static ControllerType freeRotateController;
 	private static float walkaboutYawStart;
 	private static float hmdForwardYaw;
-
+	public static boolean unpressBindingsNextFrame = false;
+	
 	private static Map<String, VRInputAction> inputActions = new HashMap<>();
 	private static Map<String, VRInputAction> inputActionsByKeyBinding = new HashMap<>();
 	private static Map<VRInputActionSet, Long> actionSetHandles = new EnumMap<>(VRInputActionSet.class);
@@ -537,7 +540,7 @@ public class MCOpenVR
 		addActionParams(map, mc.gameSettings.keyBindChat, "optional", "boolean", true);
 		addActionParams(map, MCOpenVR.keyHotbarScroll, "optional", "vector2", false);
 		addActionParams(map, MCOpenVR.keyMenuButton, "mandatory", "boolean", true);
-		addActionParams(map, MCOpenVR.keyTeleportFallback, "optional", "vector1", false);
+		addActionParams(map, MCOpenVR.keyTeleportFallback, "suggested", "vector1", false);
 		addActionParams(map, MCOpenVR.keyFreeMoveRotate, "optional", "vector2", false);
 		addActionParams(map, MCOpenVR.keyFreeMoveStrafe, "optional", "vector2", false);
 		addActionParams(map, MCOpenVR.keyRotateLeft, "optional", "vector1", false);
@@ -576,8 +579,10 @@ public class MCOpenVR
 
 		List<Map<String, Object>> actionSets = new ArrayList<>();
 		for (VRInputActionSet actionSet : VRInputActionSet.values()) {
-			actionSets.add(ImmutableMap.<String, Object>builder().put("name", actionSet.name).put("usage", actionSet.usage).build());
-		}
+			String usage = actionSet.usage;
+			if (actionSet.advanced && !mc.vrSettings.allowAdvancedBindings)
+				usage = "hidden";
+			actionSets.add(ImmutableMap.<String, Object>builder().put("name", actionSet.name).put("usage", usage).build());		}
 		jsonMap.put("action_sets", actionSets);
 
 		// Sort the bindings so they're easy to look through in SteamVR
@@ -620,12 +625,13 @@ public class MCOpenVR
 		defaultBindings.add(ImmutableMap.<String, Object>builder().put("controller_type", "vive_tracker_camera").put("binding_url", "tracker_defaults.json").build());
 		jsonMap.put("default_bindings", defaultBindings);
 
-		try {
+		try {			
 			new File("openvr/input").mkdirs();
-			try (FileWriter writer = new FileWriter("openvr/input/action_manifest.json")) {
-				GSON.toJson(jsonMap, writer);
-			}
-		} catch (IOException e) {
+			FileOutputStream fileStream = new FileOutputStream(new File("openvr/input/action_manifest.json"));
+			OutputStreamWriter writer = new OutputStreamWriter(fileStream, StandardCharsets.UTF_8);
+			GSON.toJson(jsonMap, writer);	
+			writer.close();
+		} catch (Exception e) {
 			throw new RuntimeException("Failed to write action manifest", e);
 		}
 
@@ -1239,7 +1245,7 @@ public class MCOpenVR
 	}
 
 	private static void processInputAction(VRInputAction action) {
-		if (!action.isActive() || !action.isEnabled()) {
+		if (!action.isActive() || !action.isEnabled() || unpressBindingsNextFrame) {
 			action.unpressBinding();
 		} else {
 			if (action.isButtonChanged()) {
@@ -1247,8 +1253,8 @@ public class MCOpenVR
 					action.pressBinding();
 				else
 					action.unpressBinding();
-					}
-				}
+			}
+		}
 	}
 
 	public static void processInputs() {
@@ -1260,14 +1266,17 @@ public class MCOpenVR
 				for (ControllerType hand : ControllerType.values()) {
 					action.setCurrentHand(hand);
 					processInputAction(action);
-						}
-					} else {
+				}
+			} else {
 				processInputAction(action);
-							}
-						}
+			}
+		}
 
 		processScrollInput(GuiHandler.keyScrollAxis, () -> InputSimulator.scrollMouse(0, 1), () -> InputSimulator.scrollMouse(0, -1));
 		processScrollInput(keyHotbarScroll, () -> changeHotbar(-1), () -> changeHotbar(1));
+
+		// Reset this flag
+		unpressBindingsNextFrame = false;
 	}
 
 	public static void processBindings() {

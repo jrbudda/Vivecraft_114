@@ -753,7 +753,7 @@
  
              GlStateManager.popMatrix();
          }
-@@ -586,38 +829,46 @@
+@@ -586,49 +829,59 @@
       */
      public void renderOverlays(float partialTicks)
      {
@@ -829,7 +829,21 @@
          }
  
          if (!this.mc.player.isSpectator())
-@@ -710,13 +961,13 @@
+         {
+             if (this.mc.player.areEyesInFluid(FluidTags.WATER) && !Reflector.callBoolean(Reflector.ForgeEventFactory_renderWaterOverlay, this.mc.player, partialTicks))
+             {
+-                this.renderWaterOverlayTexture(partialTicks);
++            	mc.gameRenderer.inwater = true;
++                //this.renderWaterOverlayTexture(partialTicks);
+             }
+ 
+             if (this.mc.player.isBurning() && !Reflector.callBoolean(Reflector.ForgeEventFactory_renderFireOverlay, this.mc.player, partialTicks))
+             {
++            	mc.gameRenderer.onfire = true;
+                 this.renderFireInFirstPerson();
+             }
+         }
+@@ -710,13 +963,13 @@
          Tessellator tessellator = Tessellator.getInstance();
          BufferBuilder bufferbuilder = tessellator.getBuffer();
          GlStateManager.color4f(1.0F, 1.0F, 1.0F, 0.9F);
@@ -846,7 +860,7 @@
          {
              GlStateManager.pushMatrix();
              TextureAtlasSprite textureatlassprite = this.mc.getTextureMap().getSprite(ModelBakery.LOCATION_FIRE_1);
-@@ -725,19 +976,20 @@
+@@ -725,19 +978,20 @@
              float f2 = textureatlassprite.getMaxU();
              float f3 = textureatlassprite.getMinV();
              float f4 = textureatlassprite.getMaxV();
@@ -878,7 +892,7 @@
              tessellator.draw();
              GlStateManager.popMatrix();
          }
-@@ -822,4 +1074,130 @@
+@@ -822,4 +1076,130 @@
              this.equippedProgressOffHand = 0.0F;
          }
      }
