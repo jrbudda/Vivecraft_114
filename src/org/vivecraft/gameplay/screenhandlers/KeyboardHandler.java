@@ -2,11 +2,7 @@ package org.vivecraft.gameplay.screenhandlers;
 
 import java.util.function.Predicate;
 
-import org.vivecraft.control.ButtonTuple;
-import org.vivecraft.control.ButtonType;
 import org.vivecraft.control.ControllerType;
-import org.vivecraft.control.VRButtonMapping;
-import org.vivecraft.control.VRInputEvent;
 import org.vivecraft.gui.GuiKeyboard;
 import org.vivecraft.gui.PhysicalKeyboard;
 import org.vivecraft.provider.MCOpenVR;
@@ -31,6 +27,7 @@ public class KeyboardHandler {
 	private static boolean lpl, lps, PointedL, PointedR;
 	public static boolean keyboardForGui;
 	public static Framebuffer Framebuffer = null;
+	private static boolean lastPressedClickL, lastPressedClickR, lastPressedShift;
 
 	public static boolean setOverlayShowing(boolean showingState) {
 		if (Main.kiosk) return false;
@@ -177,25 +174,12 @@ public class KeyboardHandler {
 		}
 	}
 	
-	public static boolean handleInputEvent(VRInputEvent event) {
-		if (!MCOpenVR.isBindingBound(MCOpenVR.keyToggleKeyboard) || mc.world == null) {
-			if (event.getButtonState() && event.isButtonPressEvent() && event.getController().getType() == ControllerType.LEFT && (event.getButton() == ButtonType.VIVE_APPMENU || event.getButton() == ButtonType.OCULUS_BY)) {
-				if (MCOpenVR.controllers[MCOpenVR.LEFT_CONTROLLER].isButtonPressed(ButtonType.VIVE_GRIP) || MCOpenVR.controllers[MCOpenVR.LEFT_CONTROLLER].isButtonPressed(ButtonType.OCULUS_HAND_TRIGGER)) {
-					setOverlayShowing(!Showing);
-					return true;
-				}
+	public static void processBindings() {
+		if (Showing) {
+			if (mc.vrSettings.physicalKeyboard) {
+				physicalKeyboard.processBindings();
+				return;
 			}
-		}
-
-		if(Showing) { // Left click, right click and shift bindings will work on keyboard, ignoring left/right controller designation.
-			if (mc.vrSettings.physicalKeyboard)
-				return physicalKeyboard.handleInputEvent(event); // Pass the input on to physical keyboard, skipping all this stuff
-
-			VRButtonMapping leftClick = mc.vrSettings.buttonMappings.get(GuiHandler.keyLeftClick.getKeyDescription());
-			VRButtonMapping rightClick = mc.vrSettings.buttonMappings.get(GuiHandler.keyRightClick.getKeyDescription());
-			VRButtonMapping shift = mc.vrSettings.buttonMappings.get(GuiHandler.keyShift.getKeyDescription());
-			Predicate<ButtonTuple> predicate = b -> b.button == event.getButton() && b.isTouch == event.isButtonTouchEvent();
-			boolean isClick = leftClick.buttons.stream().anyMatch(predicate) || rightClick.buttons.stream().anyMatch(predicate);
 
 			double d0 = Math.min(Math.max((int) UI.cursorX1, 0), mc.mainWindow.getWidth())
 					 * (double)mc.mainWindow.getScaledWidth() / (double)mc.mainWindow.getWidth();
@@ -203,13 +187,13 @@ public class KeyboardHandler {
 					 * (double)mc.mainWindow.getScaledHeight() / (double)mc.mainWindow.getHeight();
 			
 			
-			if(PointedL && event.getController().getType() == ControllerType.LEFT && isClick) {
-				if(event.getButtonState()) {
+			if (PointedL && GuiHandler.keyKeyboardClick.isPressed(ControllerType.LEFT)) {
 					UI.mouseClicked((int)d0, (int)d1, 0);
-				} else {
+				lastPressedClickL = true;
+			}
+			if (!GuiHandler.keyKeyboardClick.isKeyDown(ControllerType.LEFT) && lastPressedClickL) {
 					UI.mouseReleased((int)d0, (int)d1, 0);
-				}
-				return true;
+				lastPressedClickL = false;
 			}
 
 			d0 = Math.min(Math.max((int) UI.cursorX2, 0), mc.mainWindow.getWidth())
@@ -217,24 +201,30 @@ public class KeyboardHandler {
 			d1 = Math.min(Math.max((int) UI.cursorY2, 0), mc.mainWindow.getWidth())
 					 * (double)mc.mainWindow.getScaledHeight() / (double)mc.mainWindow.getHeight();
 			
-			if(PointedR && event.getController().getType() == ControllerType.RIGHT && isClick) {
-				if(event.getButtonState()) {
+			if (PointedR && GuiHandler.keyKeyboardClick.isPressed(ControllerType.RIGHT)) {
 					UI.mouseClicked((int)d0, (int)d1, 0);
-				} else  {
-					UI.mouseReleased((int)d0, (int)d1, 0);
-				}
-				return true;
+				lastPressedClickR = true;
 			}
-			
-			if((PointedL || PointedR) && shift.buttons.stream().anyMatch(predicate)) {
-				UI.setShift(event.getButtonState());
-				// Only block if this isn't a controller where shift is bound, so text can be selected
-				return shift.buttons.stream().noneMatch(b -> b.controller == event.getController().getType());
+			if (!GuiHandler.keyKeyboardClick.isKeyDown(ControllerType.RIGHT) && lastPressedClickR) {
+					UI.mouseReleased((int)d0, (int)d1, 0);
+				lastPressedClickR = false;
+			}
+
+			if (GuiHandler.keyKeyboardShift.isPressed()) {
+				UI.setShift(true);
+				lastPressedShift = true;
+				}
+			if (!GuiHandler.keyKeyboardShift.isKeyDown() && lastPressedShift) {
+				UI.setShift(false);
+				lastPressedShift = false;
+			}
 			}
 		}
 
-		return false;
+	public static boolean isUsingController(ControllerType type) {
+		if (type == ControllerType.LEFT)
+			return PointedL;
+		else
+			return PointedR;
 	}
-
-	
 }

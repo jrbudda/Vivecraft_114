@@ -1,12 +1,6 @@
 --- a/net/minecraft/client/renderer/entity/EntityRenderer.java
 +++ b/net/minecraft/client/renderer/entity/EntityRenderer.java
-@@ -387,13 +387,13 @@
-      */
-     protected void renderLivingLabel(T entityIn, String str, double x, double y, double z, int maxDistance)
-     {
--        double d0 = entityIn.getDistanceSq(this.renderManager.info.getProjectedView());
-+        double d0 = entityIn.getDistanceSq(this.renderManager.info.getPosition());
- 
+@@ -392,8 +392,8 @@
          if (d0 <= (double)(maxDistance * maxDistance))
          {
              boolean flag = entityIn.func_213287_bg();

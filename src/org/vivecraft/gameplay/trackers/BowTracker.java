@@ -187,10 +187,9 @@ public class BowTracker extends Tracker {
 			
 			if(!isDrawing){
 				player.setItemInUseClient(bow);
-				player.setItemInUseCountClient(bow.getUseDuration() - 1 );
+				player.setItemInUseCountClient(bow.getUseDuration() - 1);
 				Minecraft.getInstance().physicalGuiManager.preClickAction();
 				mc.playerController.processRightClick(player, player.world, hand);//server
-
 			}
 
 		} else if((Util.milliTime() - tsNotch) > 500) {
@@ -273,10 +272,7 @@ public class BowTracker extends Tracker {
 			hapcounter = 0;
 			lasthapStep=0;
 		}
-
-
 	}
-	
 	
     public ItemStack findAmmoItemStack(PlayerEntity player){
         boolean flag = player.abilities.isCreativeMode || 

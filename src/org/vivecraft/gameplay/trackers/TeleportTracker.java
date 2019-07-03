@@ -86,7 +86,10 @@ public class TeleportTracker extends Tracker{
         boolean doTeleport = false;
         Vec3d dest = null;
 
-        if ((player.movementInput.moveForward != 0 || player.movementInput.moveStrafe != 0) && !player.isPassenger()) //holding down Ltrigger
+        boolean bindingTeleport = MCOpenVR.keyTeleport.isKeyDown() && mc.vrPlayer.isTeleportEnabled();
+        boolean seatedTeleport = mc.vrSettings.seated && !mc.vrPlayer.getFreeMove() && (player.movementInput.moveForward != 0 || player.movementInput.moveStrafe != 0);
+
+        if ((bindingTeleport || seatedTeleport) && !player.isPassenger())
         {
             dest = movementTeleportDestination;
 
@@ -245,7 +248,7 @@ public class TeleportTracker extends Tracker{
 //            }
 
      	   //execute teleport               
-            if(mc.vrPlayer.noTeleportClient){
+            if(!mc.vrPlayer.isTeleportSupported()){
             	String tp = "/tp " + dest.x + " " +dest.y + " " + dest.z;      
             	mc.player.sendChatMessage(tp);
             } else {          
@@ -463,7 +466,7 @@ public class TeleportTracker extends Tracker{
         if(mc.vrSettings.vrLimitedSurvivalTeleport){
           mc.player.addExhaustion((float) (movementTeleportDistance / 16 * 1.2f));    
           
-          if (!mc.vrPlayer.getFreeMove() && mc.playerController.isNotCreative() && vrMovementStyle.arcAiming){
+          if (mc.playerController.isNotCreative() && vrMovementStyle.arcAiming){
           	teleportEnergy -= movementTeleportDistance * 4;	
           }       
         }

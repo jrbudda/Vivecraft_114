@@ -6,7 +6,6 @@ import java.util.Random;
 import org.vivecraft.api.NetworkHelper;
 import org.vivecraft.api.NetworkHelper.PacketDiscriminators;
 import org.vivecraft.api.VRData;
-import org.vivecraft.control.VRButtonMapping;
 import org.vivecraft.gameplay.screenhandlers.GuiHandler;
 import org.vivecraft.gameplay.screenhandlers.KeyboardHandler;
 import org.vivecraft.gameplay.screenhandlers.RadialHandler;
@@ -26,6 +25,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraft.entity.passive.horse.HorseEntity;
+import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.EggItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.PotionItem;
@@ -80,7 +80,9 @@ public class OpenVRPlayer
 	}
 
 	public float worldScale =  Minecraft.getInstance().vrSettings.vrWorldScale;
-	public boolean noTeleportClient = true;
+	private boolean noTeleportClient = true;
+	private boolean teleportOverride = false;
+	public int teleportWarningTimer = -1;
 
 	public Vec3d roomOrigin = new Vec3d(0,0,0);
 	private boolean isFreeMoveCurrent = true; // true when connected to another server that doesn't have this mod
@@ -202,6 +204,7 @@ public class OpenVRPlayer
 		//handle special items
 		for (Tracker tracker : trackers) {
 			if (tracker.getEntryPoint() == Tracker.EntryPoint.SPECIAL_ITEMS) {
+				tracker.idleTick(mc.player);
 				if (tracker.isActive(mc.player)){
 					tracker.doProcess(mc.player);
 				}else{
@@ -317,6 +320,7 @@ public class OpenVRPlayer
 
 		for (Tracker tracker : trackers) {
 			if (tracker.getEntryPoint() == Tracker.EntryPoint.LIVING_UPDATE) {
+				tracker.idleTick(mc.player);
 				if (tracker.isActive(mc.player)){
 					tracker.doProcess(mc.player);
 				}else{
@@ -386,7 +390,8 @@ public class OpenVRPlayer
 		//if(Math.abs(player.motionX) > 0.01) return;
 		//if(Math.abs(player.motionZ) > 0.01) return;
 
-		float playerHalfWidth = player.getSize(player.getPose()).width / 2.0F;
+		float playerHalfWidth = player.getWidth() / 2;
+		float playerHeight = player.getHeight();
 
 		// move player's X/Z coords as the HMD moves around the room
 
@@ -404,13 +409,11 @@ public class OpenVRPlayer
 				y,
 				z - (double) playerHalfWidth,
 				x + (double) playerHalfWidth,
-				y + (double) player.getHeight(),
+				y + (double) playerHeight,
 				z + (double) playerHalfWidth);
 
 		Vec3d torso = null;
 
-
-		
 		// valid place to move player to?
 		float var27 = 0.0625F;
 		boolean emptySpot = mc.world.isCollisionBoxesEmpty(player, bb);
@@ -424,7 +427,7 @@ public class OpenVRPlayer
 			}
 			player.posZ = z;
 
-			player.setBoundingBox(new AxisAlignedBB(bb.minX, bb.minY, bb.minZ, bb.maxX, bb.minY + player.getSize(player.getPose()).width, bb.maxZ));
+			player.setBoundingBox(new AxisAlignedBB(bb.minX, bb.minY, bb.minZ, bb.maxX, bb.minY + playerHeight, bb.maxZ));
 			player.fallDistance = 0.0F;
 
 			torso = getEstimatedTorsoPosition(x, y, z);
@@ -533,33 +536,19 @@ public class OpenVRPlayer
 		}
 	}
 
+	public void updateFreeMove() {
+		if (mc.teleportTracker.isAiming())
+			isFreeMoveCurrent = false;
+		if (mc.player.movementInput.moveForward != 0 || mc.player.movementInput.moveStrafe != 0)
+			isFreeMoveCurrent = true;
+			updateTeleportKeys();
+	}
 
-
-	public boolean getFreeMove() { return isFreeMoveCurrent; }
-
-	public void setFreeMove(boolean free) { 
-		boolean was = isFreeMoveCurrent;
-		isFreeMoveCurrent = free;
-
-		if(free != was){
-			CCustomPayloadPacket pack =	NetworkHelper.getVivecraftClientPacket(PacketDiscriminators.MOVEMODE, isFreeMoveCurrent ?  new byte[]{1} : new byte[]{0});
-
-			if(Minecraft.getInstance().getConnection() !=null)
-				Minecraft.getInstance().getConnection().sendPacket(pack);
-
-			if(Minecraft.getInstance().vrSettings.seated){
-				Minecraft.getInstance().printChatMessage("Movement mode set to: " + (free ? "Free Move: WASD": "Teleport: W"));
-
-			} else {
-				Minecraft.getInstance().printChatMessage("Movement mode set to: " + (free ? Minecraft.getInstance().vrSettings.getButtonDisplayString(VRSettings.VrOptions.FREEMOVE_MODE): "Teleport"));
-
-			}
-
-			if(noTeleportClient && !free){
-				Minecraft.getInstance().printChatMessage("Warning: This server may not allow teleporting.");
-			}
-
-		}
+	public boolean getFreeMove() {
+		if (mc.vrSettings.seated)
+			return mc.vrSettings.seatedFreeMove || !isTeleportEnabled();
+		else
+			return isFreeMoveCurrent || mc.vrSettings.forceStandingFreeMove;
 	}
 
 
@@ -656,7 +645,8 @@ public class OpenVRPlayer
 		} else if(i.getItem() instanceof SnowballItem ||
 				i.getItem() instanceof EggItem ||
 				i.getItem() instanceof SpawnEggItem ||
-				i.getItem() instanceof PotionItem
+				i.getItem() instanceof PotionItem ||
+				(i.getItem() instanceof CrossbowItem && ((CrossbowItem)i.getItem()).isCharged(i))
 				) { //TODO: Check for others?
 			//use r_hand aim
 			entity.rotationYawHead = entity.rotationYaw =  data.getController(0).getYaw();
@@ -701,5 +691,31 @@ public class OpenVRPlayer
         Vec3d vec3d2 = AimedPointAtDistance(source, controller, blockReachDistance);
         return mc.world.rayTraceBlocks(new RayTraceContext(vec3d, vec3d2, RayTraceContext.BlockMode.OUTLINE, p_174822_4_ ? RayTraceContext.FluidMode.ANY : RayTraceContext.FluidMode.NONE, mc.player));
     }
+    	public boolean isTeleportSupported() {
+		return !noTeleportClient;
+	}
+
+	public boolean isTeleportOverridden() {
+		return teleportOverride;
+	}
+
+	public boolean isTeleportEnabled() {
+		return !noTeleportClient || teleportOverride;
+	}
+
+	public void setTeleportSupported(boolean supported) {
+		noTeleportClient = !supported;
+		updateTeleportKeys();
+	}
+
+	public void setTeleportOverride(boolean override) {
+		teleportOverride = override;
+		updateTeleportKeys();
+	}
+
+    private void updateTeleportKeys() {
+		MCOpenVR.getInputAction(MCOpenVR.keyTeleport).setEnabled(isTeleportEnabled());
+		MCOpenVR.getInputAction(MCOpenVR.keyTeleportFallback).setEnabled(!isTeleportEnabled());
+	}
 }
 

@@ -23,13 +23,7 @@
      private boolean thirdPerson;
      private boolean thirdPersonReverse;
      private float height;
-@@ -156,12 +156,12 @@
-         this.blockPos.setPos(p_216774_1_.x, p_216774_1_.y, p_216774_1_.z);
-     }
- 
--    public Vec3d getProjectedView()
-+    public Vec3d getPosition()
-     {
+@@ -161,7 +161,7 @@
          return this.pos;
      }
  

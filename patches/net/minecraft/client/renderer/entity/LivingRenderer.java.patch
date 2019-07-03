@@ -61,12 +61,3 @@
                  this.applyRotations(entity, f8, f, partialTicks);
                  float f4 = this.prepareScale(entity, partialTicks);
                  float f5 = 0.0F;
-@@ -642,7 +669,7 @@
-         {
-             if (this.canRenderName(entity))
-             {
--                double d0 = entity.getDistanceSq(this.renderManager.info.getProjectedView());
-+                double d0 = entity.getDistanceSq(this.renderManager.info.getPosition());
-                 float f = entity.func_213287_bg() ? 32.0F : 64.0F;
- 
-                 if (Reflector.ForgeEntityLivingBase_NAMETAG_DISTANCE.exists())

@@ -13,13 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 
-import org.vivecraft.control.ButtonTuple;
-import org.vivecraft.control.ButtonType;
-import org.vivecraft.control.ControllerType;
-import org.vivecraft.control.LegacyButton;
-import org.vivecraft.control.TrackedControllerVive.TouchpadMode;
-import org.vivecraft.control.VRButtonMapping;
-import org.vivecraft.gameplay.screenhandlers.GuiHandler;
 import org.vivecraft.provider.MCOpenVR;
 import org.vivecraft.settings.profile.ProfileManager;
 import org.vivecraft.settings.profile.ProfileReader;
@@ -82,6 +75,7 @@ public class VRSettings
     public static final int FREEMOVE_CONTROLLER= 1;
     public static final int FREEMOVE_HMD= 2;
     public static final int FREEMOVE_RUNINPLACE= 3;
+    @Deprecated
     public static final int FREEMOVE_JOYPAD = 4;
     
     public static final int NO_SHADER = -1;
@@ -104,11 +98,6 @@ public class VRSettings
     //Control
     public boolean vrReverseHands = false;
     public boolean vrReverseShootingEye = false;
-    public Map<String, VRButtonMapping> buttonMappings = new HashMap();
-	public TouchpadMode leftTouchpadMode = TouchpadMode.SPLIT_UD;
-	public TouchpadMode rightTouchpadMode = TouchpadMode.SINGLE;
-	public boolean freemoveWMRStick = true;
-	public float analogDeadzone = 0.05F;
     public float vrWorldScale = 1.0f;
     public float vrWorldRotation = 0f;
 	public float vrWorldRotationCached;
@@ -133,9 +122,7 @@ public class VRSettings
     public boolean simulateFalling = true;  // VIVE if HMD is over empty space, fall
     public boolean weaponCollision = true;  // VIVE weapon hand collides with blocks/enemies
     public float movementSpeedMultiplier = 1.0f;   // VIVE - use full speed by default
-    public boolean vrFreeMove = false;
     public int vrFreeMoveMode = this.FREEMOVE_CONTROLLER;
-    public boolean vrAllowLocoModeSwotch = true;
     public boolean vrLimitedSurvivalTeleport = true;
    
     public int vrTeleportUpLimit = 1;
@@ -159,9 +146,13 @@ public class VRSettings
     public boolean vehicleRotation = true; 
     public boolean animaltouching = true;
     public boolean analogMovement = true;
+    public boolean autoSprint = true;
+    public float autoSprintThreshold = 0.9f;
     public boolean allowStandingOriginOffset = false;
+    public boolean seatedFreeMove = false;
+    public boolean forceStandingFreeMove = false;
     //
-    
+ 
     //Rendering
     public boolean useFsaa = true;   // default to off
     public boolean useFOVReduction = false;   // default to off
@@ -479,14 +470,6 @@ public class VRSettings
                     {
                         this.vrAllowCrawling = optionTokens[1].equals("true");
                     }
-                    if (optionTokens[0].equals("allowModeSwitch"))
-                    {
-                        this.vrAllowLocoModeSwotch = optionTokens[1].equals("true");
-                    }
-                    if (optionTokens[0].equals("freeMoveDefault"))
-                    {
-                        this.vrFreeMove = optionTokens[1].equals("true");
-                    }
                     if (optionTokens[0].equals("limitedTeleport"))
                     {
                         this.vrLimitedSurvivalTeleport = optionTokens[1].equals("true");
@@ -593,6 +576,8 @@ public class VRSettings
                     }
 					if(optionTokens[0].equals("physicalGuiEnabled")){
 						this.physicalGuiEnabled=optionTokens[1].equals("true");
+						//TEMP
+						this.physicalGuiEnabled=false;
 					}
                     if(optionTokens[0].equals("seatedhmd")){
                         this.seatedUseHMD=optionTokens[1].equals("true");
@@ -624,6 +609,8 @@ public class VRSettings
                     if (optionTokens[0].equals("vrFreeMoveMode"))
                     {
                         this.vrFreeMoveMode =  Integer.parseInt(optionTokens[1]);
+                        if (this.vrFreeMoveMode == FREEMOVE_JOYPAD)
+                            this.vrFreeMoveMode = FREEMOVE_CONTROLLER;
                     }
 
                     if(optionTokens[0].equals("xSensitivity")){
@@ -670,22 +657,6 @@ public class VRSettings
                         this.backpackSwitching=optionTokens[1].equals("true");
                     }
                     
-                    if(optionTokens[0].equals("leftTouchpadMode")){
-                        this.leftTouchpadMode = Enum.valueOf(TouchpadMode.class, optionTokens[1]);
-                    }
-                    
-                    if(optionTokens[0].equals("rightTouchpadMode")){
-                        this.rightTouchpadMode = Enum.valueOf(TouchpadMode.class, optionTokens[1]);
-                    }
-                    
-                    if(optionTokens[0].equals("freemoveWMRStick")){
-                        this.freemoveWMRStick=optionTokens[1].equals("true");
-                    }
-                    
-                    if(optionTokens[0].equals("analogDeadzone")){
-                        this.analogDeadzone=parseFloat(optionTokens[1]);
-                    }
-                    
                     if(optionTokens[0].equals("analogMovement")){
                         this.analogMovement = optionTokens[1].equals("true");
                     }
@@ -727,6 +698,15 @@ public class VRSettings
 					    this.allowStandingOriginOffset = optionTokens[1].equals("true");
                     }
 
+                    if(optionTokens[0].equals("seatedFreeMove")){
+                        this.seatedFreeMove = optionTokens[1].equals("true");
+                    }
+                    
+                    if(optionTokens[0].equals("forceStandingFreeMove")){
+                    	this.forceStandingFreeMove = optionTokens[1].equals("true");
+                    }
+
+                    	
                     if(optionTokens[0].equals("firstRun")){
                         this.firstRun = optionTokens[1].equals("true");
                     }
@@ -766,51 +746,6 @@ public class VRSettings
 //						}
 //                        
                        
-                    }
-
-                    if (optionTokens[0].startsWith("BUTTON_") || optionTokens[0].startsWith("OCULUS_"))
-                    {
-                    	try { // conversion of old bindings
-                    		LegacyButton legacyButton = Enum.valueOf(LegacyButton.class, optionTokens[0]);
-                    		if (legacyButton.button != null && !optionTokens[1].equals("none")) {
-		                    	VRButtonMapping vb = new VRButtonMapping(optionTokens[1], new ButtonTuple(legacyButton.button, legacyButton.controller, legacyButton.isTouch));
-		                        this.buttonMappings.put(optionTokens[1], vb);
-                    		} else {
-                    			System.out.println("Skipping legacy binding: " + optionTokens[0]);
-                    		}
-                    	} catch (IllegalArgumentException ex) {
-                    		System.out.println("Ignoring invalid legacy binding: " + optionTokens[0]);
-                    	}
-                    }
-
-                    if (optionTokens[0].startsWith("vrmapping_"))
-                    {
-                		String functionId = optionTokens[0].substring(optionTokens[0].indexOf('_') + 1);
-                    	VRButtonMapping vb = new VRButtonMapping(functionId);
-
-                    	//TODO Decide how to do this properly #buttons
-                    	if(functionId.equals("Interact VR Primary"))
-                    		vb.setPriority(5);
-						if(functionId.equals("Interact VR Primary"))
-							vb.setPriority(5);
-                    	
-                    	if (!optionTokens[1].equals("none")) {
-                    		String[] split = optionTokens[1].split(",");
-                    		for (int i = 0; i < split.length; i++) {
-                    			try {
-                                    if (split[i].startsWith("mods_")) {
-                                        vb.modifiers = Integer.parseInt(split[i].substring(split[i].indexOf('_') + 1));
-                                        continue;
-                                    }
-
-                    				vb.buttons.add(ButtonTuple.parse(split[i]));
-                            	} catch (IllegalArgumentException ex) {
-                            		System.out.println("Ignoring invalid button: " + split[i]);
-                            	}
-                    		}
-                    	}
-
-                        this.buttonMappings.put(functionId, vb);
                     }
 
                     if(optionTokens[0].startsWith("QUICKCOMMAND_")){
@@ -857,28 +792,6 @@ public class VRSettings
             var8.printStackTrace();
         }
     }
-
-	public void processBindings() {
-		//process button mappings    
-		Map<String, VRButtonMapping> defaults = getBindingsDefaults(); 
-		for (final KeyBinding keyBinding : mc.gameSettings.keyBindings) {
-			VRButtonMapping vb = buttonMappings.get(keyBinding.getKeyDescription());
-	
-			if(vb == null) { //shouldn't
-				vb = defaults.get(keyBinding.getKeyDescription());
-				// TODO: Future code to replace the above line
-				//if (this.firstRun) vb = defaults.get(keyBinding.getKeyDescription());
-				//else vb = new VRButtonMapping(keyBinding.getKeyDescription());
-				buttonMappings.put(keyBinding.getKeyDescription(), vb);
-			}
-			
-			vb.keyBinding = keyBinding;
-		}
-		for (VRButtonMapping mapping : buttonMappings.values()) {
-			if (mapping.keyBinding == null && !mapping.isKeyboardBinding())
-				System.out.println("Unknown key binding: " + mapping.functionDesc);
-		}
-	}
 
     public void resetSettings()
     {
@@ -1036,12 +949,6 @@ public class VRSettings
                 return this.animaltouching ? var4 + "ON" : var4 + "OFF";
                 // VIVE END - new options
                 //JRBUDDA
-            case ALLOW_MODE_SWITCH:
-                return this.vrAllowLocoModeSwotch ? var4 + "ON" : var4 + "OFF";     
-            case MOVE_MODE:
-            	if(this.vrFreeMove == false){
-            		return var4 + "Teleport";
-            	} else return var4+ "Free Move";
             case ALLOW_CRAWLING:
                 return this.vrAllowCrawling ? var4 + "ON" : var4 + "OFF"; 
             case LIMIT_TELEPORT:
@@ -1102,13 +1009,7 @@ public class VRSettings
                 	return var4 + "HMD";
                 case FREEMOVE_RUNINPLACE:
                 	return var4 + "RunInPlace";
-                case FREEMOVE_JOYPAD:
-                	return var4 + "Joy/Pad";
                 }
-            case FREEMOVE_WMR_STICK:
-            	return this.freemoveWMRStick ? var4 + "Stick" : var4 + "Touchpad";
-            case ANALOG_DEADZONE:
-            	return var4 + String.format("%.2f", this.analogDeadzone);
             case FOV_REDUCTION:
                 return this.useFOVReduction ? var4 + "ON" : var4 + "OFF";
             case AUTO_OPEN_KEYBOARD:
@@ -1117,6 +1018,10 @@ public class VRSettings
                 return this.backpackSwitching ? var4 + "ON" : var4 + "OFF";
             case ANALOG_MOVEMENT:
                 return this.analogMovement ? var4 + "ON" : var4 + "OFF";
+            case AUTO_SPRINT:
+                return this.autoSprint ? var4 + "ON" : var4 + "OFF";
+            case AUTO_SPRINT_THRESHOLD:
+                return var4 + String.format("%.2f", autoSprintThreshold);
             case RADIAL_MODE_HOLD:
                 return this.radialModeHold ? var4 + "HOLD" : var4 + "PRESS";
             case PHYSICAL_KEYBOARD:
@@ -1137,7 +1042,10 @@ public class VRSettings
 	            return var4 +  (this.vrTeleportHorizLimit > 0 ? this.vrTeleportHorizLimit+ " Blocks" :" OFF");
             case ALLOW_STANDING_ORIGIN_OFFSET:
                 return this.allowStandingOriginOffset ? var4 + "YES" : var4 + "NO";
-
+            case SEATED_FREE_MOVE:
+                return this.seatedFreeMove ? var4 + "Free Move" : var4 + "Teleport";
+            case FORCE_STANDING_FREE_MOVE:
+            	return mc.vrSettings.forceStandingFreeMove ? var4 + "YES" : var4 + "NO";
  	        default:
 	        	return "";
         }
@@ -1170,6 +1078,8 @@ public class VRSettings
                 return this.ySensitivity;
             case KEYHOLE:
                 return this.keyholeX;
+            case AUTO_SPRINT_THRESHOLD:
+                return this.autoSprintThreshold;
             // VIVE START - new options
             case WORLD_SCALE:          	
             	if(vrWorldScale ==  0.1f) return 0;
@@ -1204,8 +1114,6 @@ public class VRSettings
 				return this.mixedRealityFov;
             case RENDER_SCALEFACTOR:
             	return this.renderScaleFactor;
-            case ANALOG_DEADZONE:
-            	return this.analogDeadzone;
             case BOW_MODE:
             	return this.bowMode;
             case TELEPORT_UP_LIMIT:          	
@@ -1340,13 +1248,6 @@ public class VRSettings
                 break;
             // VIVE END - new options
                 //JRBUDDA
-            case ALLOW_MODE_SWITCH:
-                this.vrAllowLocoModeSwotch = !this.vrAllowLocoModeSwotch;
-                break;
-            case MOVE_MODE:
-                this.vrFreeMove = !this.vrFreeMove;
-                Minecraft.getInstance().vrPlayer.setFreeMove(vrFreeMove);
-                break;
             case ALLOW_CRAWLING:
                 this.vrAllowCrawling = !this.vrAllowCrawling;
                 break;
@@ -1414,15 +1315,10 @@ public class VRSettings
                    	this.vrFreeMoveMode = FREEMOVE_RUNINPLACE;
                 	break;
                 case FREEMOVE_RUNINPLACE:
-                   	this.vrFreeMoveMode = FREEMOVE_JOYPAD;
-                	break;
-                case FREEMOVE_JOYPAD:
                    	this.vrFreeMoveMode = FREEMOVE_CONTROLLER;
                 	break;
                 }
                 break;
-            case FREEMOVE_WMR_STICK:
-            	freemoveWMRStick = !freemoveWMRStick;
             case FOV_REDUCTION:
             	useFOVReduction = !useFOVReduction;
             	break;     
@@ -1435,6 +1331,9 @@ public class VRSettings
             case ANALOG_MOVEMENT:
             	analogMovement = !analogMovement;
             	break;
+            case AUTO_SPRINT:
+                autoSprint = !autoSprint;
+                break;
             case BOW_MODE:
             	this.bowMode++;
             	if(this.bowMode>2) this.bowMode = 0;
@@ -1448,6 +1347,12 @@ public class VRSettings
             case ALLOW_STANDING_ORIGIN_OFFSET:
                 this.allowStandingOriginOffset = !this.allowStandingOriginOffset;
                 break;
+            case SEATED_FREE_MOVE:
+                this.seatedFreeMove = !this.seatedFreeMove;
+                break;
+            case FORCE_STANDING_FREE_MOVE:
+            	this.forceStandingFreeMove = !this.forceStandingFreeMove;
+            	break;
             default:
             	break;
     	}
@@ -1535,9 +1440,6 @@ public class VRSettings
             case RENDER_SCALEFACTOR:
             	this.renderScaleFactor = par2;
             	break;
-            case ANALOG_DEADZONE:
-            	this.analogDeadzone = par2;
-            	break;
             case TELEPORT_DOWN_LIMIT:
             	this.vrTeleportDownLimit = (int) par2;
             	break;
@@ -1547,6 +1449,8 @@ public class VRSettings
             case TELEPORT_HORIZ_LIMIT:
             	this.vrTeleportHorizLimit = (int) par2;
             	break;
+            case AUTO_SPRINT_THRESHOLD:
+                this.autoSprintThreshold = par2;
             	// VIVE END - new options
             default:
             	break;
@@ -1620,8 +1524,6 @@ public class VRSettings
             
             //JRBUDDA
             var5.println("allowCrawling:" + this.vrAllowCrawling);
-            var5.println("allowModeSwitch:" + this.vrAllowLocoModeSwotch);   
-            var5.println("freeMoveDefault:" + this.vrFreeMove);
             var5.println("limitedTeleport:" + this.vrLimitedSurvivalTeleport);
             var5.println("reverseHands:" + this.vrReverseHands);
             var5.println("stencilOn:" + this.vrUseStencil);
@@ -1641,7 +1543,7 @@ public class VRSettings
             var5.println("mrMovingCamOffsetZ:" + this.mrMovingCamOffsetZ);
             var5.println("mrMovingCamOffsetRotW:" + this.mrMovingCamOffsetRotQuat.w);
             var5.println("mrMovingCamOffsetRotX:" + this.mrMovingCamOffsetRotQuat.x);
-            var5.println("mrMovingCamOffsetrotY:" + this.mrMovingCamOffsetRotQuat.y);
+            var5.println("mrMovingCamOffsetRotY:" + this.mrMovingCamOffsetRotQuat.y);
             var5.println("mrMovingCamOffsetRotZ:" + this.mrMovingCamOffsetRotQuat.z);
             var5.println("vrTouchHotbar:" + this.vrTouchHotbar);
             var5.println("seatedhmd:" + this.seatedUseHMD);
@@ -1669,10 +1571,6 @@ public class VRSettings
             var5.println("autoOpenKeyboard:" + this.autoOpenKeyboard);
             var5.println("forceHardwareDetection:" + this.forceHardwareDetection);
             var5.println("backpackSwitching:" + this.backpackSwitching);
-            var5.println("leftTouchpadMode:" + this.leftTouchpadMode);
-            var5.println("rightTouchpadMode:" + this.rightTouchpadMode);
-            var5.println("freemoveWMRStick:" + this.freemoveWMRStick);
-            var5.println("analogDeadzone:" + this.analogDeadzone);
             var5.println("analogMovement:" + this.analogMovement);
             var5.println("hideGUI:" + this.mc.gameSettings.hideGUI);
             var5.println("bowMode:" + this.bowMode);
@@ -1682,6 +1580,8 @@ public class VRSettings
             var5.println("physicalKeyboard:" + this.physicalKeyboard);
             var5.println("originOffset:" + MCOpenVR.offset.getX() + "," + MCOpenVR.offset.getY() + "," + MCOpenVR.offset.getZ());
             var5.println("allowStandingOriginOffset:" + this.allowStandingOriginOffset);
+            var5.println("seatedFreeMove:" + this.seatedFreeMove);
+            var5.println("forceStandingFreeMove:" + this.forceStandingFreeMove);
             var5.println("firstRun:" + this.firstRun);
             
             if (vrQuickCommands == null) vrQuickCommands = getQuickCommandsDefaults(); //defaults
@@ -1702,13 +1602,6 @@ public class VRSettings
             	var5.println("RADIALALT_" + i + ":" + vrRadialItemsAlt[i]);
             }
 
-            // TODO: This needs to change when we do proper first run defaults thing
-            if (buttonMappings == null) resetBindings(); //defaults
-              
-            for (VRButtonMapping vb : buttonMappings.values()) {
-            	var5.println(vb.toString());
-			}
-            
             //END JRBUDDA
             var5.close();
         }
@@ -1719,11 +1612,6 @@ public class VRSettings
         }
     }
 
-    public void resetBindings(){
-    	buttonMappings = getBindingsDefaults();
-    	processBindings();
-    }
-    
   
     public void setMinecraftPlayerEyeHeight(float eyeHeight)
     {
@@ -2006,14 +1894,7 @@ public class VRSettings
         ALLOW_CRAWLING("Allow crawling",false, true,new String[] {
                 "If enabled the player will be able to duck under block"
         }),
-        ALLOW_MODE_SWITCH("Allow Mode Switch",false, true,new String[] {
-                "Allows the use of the Pick Block button to switch between",
-                "Teleport and Free Move mode."
-        }),
-        MOVE_MODE("Move Mode",false, true,new String[] {
-                "Change between Free Move and Teleport"
-        }),
-        LIMIT_TELEPORT("Limit TP in Survival",false, true,new String[] {
+        LIMIT_TELEPORT("Limit in Survival",false, true,new String[] {
                 "If enabled the arc teleporter will be have restrictions",
                 "in survival mode. It will not be able to jump up the side", 
                 "of blocks, it will consume food, and it will have an energy",
@@ -2103,15 +1984,7 @@ public class VRSettings
                 "Controller: Offhand controller pointing direction",
                 "HMD: Headset look direction",
                 "Run In Place:",
-                "    Direction is based on how controllers are swinging.",
-                "Joy/Pad: ",
-                "    Uses the offhand touchpad or joystick for all motion.",
-        }),
-        FREEMOVE_WMR_STICK("Freemove Control", false, true,null),
-        ANALOG_DEADZONE("Analog Deadzone", true, false, 0, 0.5f, 0.01f, new String[] {
-    			"How far an axis must be pushed before movement is",
-    			"registered for Joy/Pad or Analog movement. Adjust this",
-    			"if you are drifting while not touching the axis."
+                "    Direction is based on how controllers are swinging."
     	}),
         VEHICLE_ROTATION("Vehicle Rotation",false,true,new String[] {
                 "Riding in a vehicle will rotate the world",
@@ -2163,7 +2036,14 @@ public class VRSettings
         ANALOG_MOVEMENT("Analog Movement",false,true,new String[] {
                 "Walking speed will be determined by the controller button",
                 "axis, if the bound button has a variable axis."    ,"",
-                "For full analog control it is better to use 'Joy/Pad mode"                      
+                "For full analog control it is better to use 'Move/Strafe'", "or 'Move/Rotate'."
+        }),
+        AUTO_SPRINT("Auto-sprint", false, true, new String[] {
+                "While using freemove, sprint will automatically activate",
+                "when the axis reaches the configured threshold."
+        }),
+        AUTO_SPRINT_THRESHOLD("Auto-sprint Threshold", true, false, 0.5f, 1f, 0.01f, new String[] {
+                "The axis threshold at which auto-sprint activates."
         }), 
         BOW_MODE("Roomscale Bow Mode", false, true,new String[]{
                 "Sets when to use Roomscale Archery",
@@ -2171,19 +2051,32 @@ public class VRSettings
                 "Vanilla: Only for the vanilla bow, no mod items",
                 "ON: Always for any item that uses the 'bow' action"                        
         }),
-        TELEPORT_DOWN_LIMIT("Teleport Down Limit", true, false, 0, 16, 1, new String[] {
+        TELEPORT_DOWN_LIMIT("Down Limit", true, false, 0, 16, 1, new String[] {
                 "Limit the number of blocks you can teleport below you"
         }),
-        TELEPORT_UP_LIMIT("Teleport Up Limit", true, false, 0, 4, 1,  new String[] {
+        TELEPORT_UP_LIMIT("Up Limit", true, false, 0, 4, 1,  new String[] {
                 "Limit the number of blocks you can teleport above you"
         }),
-        TELEPORT_HORIZ_LIMIT("Teleport Distance Limit", true, false, 0, 32, 1, new String[] {
+        TELEPORT_HORIZ_LIMIT("Distance Limit", true, false, 0, 32, 1, new String[] {
                 "Limit the number of blocks you can teleport sideways you"
         }),
         ALLOW_STANDING_ORIGIN_OFFSET("Allow Origin Offset", false, true, new String[] {
                 "Allows the \"Reset Origin\" button to be used in",
                 "standing mode, for those that wish to play physically",
                 "seated while using tracked controllers."
+        }),
+        SEATED_FREE_MOVE("Movement Type", false, true, new String[] {
+        		"Which locomotion mode to use in seated mode.",
+        		"",
+        		"Teleport: Press any direction to activate.",
+        		"Free Move: WASD movement like vanilla Minecraft."
+        }),
+        FORCE_STANDING_FREE_MOVE("Force Free Move", false, true, new String[] {
+        		"Forces the use of the fallback walk forwards",
+        		"binding (left trigger by default). For more movement",
+        		"options, edit the SteamVR controller bindings.",
+        		"",
+        		"Note that this disables the teleport binding."
         });
     	
 //        ANISOTROPIC_FILTERING("options.anisotropicFiltering", true, false, 1.0F, 16.0F, 0.0F)
@@ -2477,115 +2370,14 @@ public class VRSettings
     	String[] out = new String[8];
     	out[0] = "key.drop";
     	out[1] = "key.chat";
-    	out[2] = "Rotate Right";
-    	out[3] = "";
+    	out[2] = "vivecraft.key.rotateRight";
+    	out[3] = "key.pickItem";
     	out[4] = "";
     	out[5] = "";
-    	out[6] = "Rotate Left";
-    	out[7] = "Quick Torch";
+    	out[6] = "vivecraft.key.rotateLeft";
+    	out[7] = "vivecraft.key.quickTorch";
 
     	return out;   	
-    }
-
-    public Map<String, VRButtonMapping> getBindingsDefaults() {
-    	Map<String, VRButtonMapping> out = new HashMap<>();
-
-    	// fill in with unbound
-    	for (KeyBinding keyBinding : mc.gameSettings.keyBindings) {	
-    		out.put(keyBinding.getKeyDescription(), new VRButtonMapping(keyBinding.getKeyDescription()));
-    	}
-
-		// touchpad buttons for less duplication
-		ButtonTuple[] rightTouchpadButtons;
-		{
-			List<ButtonTuple> buttons = new ArrayList<>();
-			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD, ControllerType.RIGHT));
-			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_C, ControllerType.RIGHT));
-			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_U, ControllerType.RIGHT));
-			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_D, ControllerType.RIGHT));
-			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_L, ControllerType.RIGHT));
-			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_R, ControllerType.RIGHT));
-			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_UL, ControllerType.RIGHT));
-			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_UR, ControllerType.RIGHT));
-			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_LL, ControllerType.RIGHT));
-			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_LR, ControllerType.RIGHT));
-			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_S1, ControllerType.RIGHT));
-			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_S2, ControllerType.RIGHT));
-			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_S3, ControllerType.RIGHT));
-			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_S4, ControllerType.RIGHT));
-			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_S5, ControllerType.RIGHT));
-			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_S6, ControllerType.RIGHT));
-			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_S7, ControllerType.RIGHT));
-			buttons.add(new ButtonTuple(ButtonType.VIVE_TOUCHPAD_S8, ControllerType.RIGHT));
-			rightTouchpadButtons = buttons.toArray(new ButtonTuple[0]);
-		}
-
-		// vive
-		addButtons(out, mc.gameSettings.keyBindAttack, new ButtonTuple(ButtonType.VIVE_TRIGGER, ControllerType.RIGHT));
-        addButtons(out, mc.gameSettings.keyBindPickBlock, new ButtonTuple(ButtonType.VIVE_GRIP, ControllerType.RIGHT));
-        addButtons(out, mc.gameSettings.keyBindDrop, new ButtonTuple(ButtonType.VIVE_APPMENU, ControllerType.RIGHT));
-        addButtons(out, mc.gameSettings.keyBindUseItem, rightTouchpadButtons);
-        addButtons(out, MCOpenVR.keyHotbarPrev, new ButtonTuple(ButtonType.VIVE_TOUCHPAD_SWIPE_LEFT, ControllerType.RIGHT));
-        addButtons(out, MCOpenVR.keyHotbarNext, new ButtonTuple(ButtonType.VIVE_TOUCHPAD_SWIPE_RIGHT, ControllerType.RIGHT));
-        addButtons(out, mc.gameSettings.keyBindForward, new ButtonTuple(ButtonType.VIVE_TRIGGER, ControllerType.LEFT));
-        addButtons(out, mc.gameSettings.keyBindSprint, new ButtonTuple(ButtonType.VIVE_TRIGGER_CLICK, ControllerType.LEFT));
-        addButtons(out, mc.gameSettings.keyBindSneak, new ButtonTuple(ButtonType.VIVE_GRIP, ControllerType.LEFT));
-        addButtons(out, mc.gameSettings.keyBindInventory, new ButtonTuple(ButtonType.VIVE_TOUCHPAD_UL, ControllerType.LEFT));
-        addButtons(out, mc.gameSettings.keyBindInventory, new ButtonTuple(ButtonType.VIVE_TOUCHPAD_UR, ControllerType.LEFT));
-        addButtons(out, mc.gameSettings.keyBindInventory, new ButtonTuple(ButtonType.VIVE_TOUCHPAD_U, ControllerType.LEFT));
-        addButtons(out, mc.gameSettings.keyBindJump, new ButtonTuple(ButtonType.VIVE_TOUCHPAD_LL, ControllerType.LEFT));
-        addButtons(out, mc.gameSettings.keyBindJump, new ButtonTuple(ButtonType.VIVE_TOUCHPAD_LR, ControllerType.LEFT));
-        addButtons(out, mc.gameSettings.keyBindJump, new ButtonTuple(ButtonType.VIVE_TOUCHPAD_D, ControllerType.LEFT));
-        addButtons(out, MCOpenVR.keyHotbarPrev, new ButtonTuple(ButtonType.VIVE_TOUCHPAD_SWIPE_LEFT, ControllerType.LEFT));
-        addButtons(out, MCOpenVR.keyHotbarNext, new ButtonTuple(ButtonType.VIVE_TOUCHPAD_SWIPE_RIGHT, ControllerType.LEFT));
-        addButtons(out, MCOpenVR.keyMenuButton, new ButtonTuple(ButtonType.VIVE_APPMENU, ControllerType.LEFT));
-        addButtons(out, GuiHandler.keyMenuButton, new ButtonTuple(ButtonType.VIVE_APPMENU, ControllerType.LEFT));
-        addButtons(out, GuiHandler.keyLeftClick, new ButtonTuple(ButtonType.VIVE_TRIGGER, ControllerType.RIGHT));
-        addButtons(out, GuiHandler.keyRightClick, rightTouchpadButtons);
-        addButtons(out, GuiHandler.keyMiddleClick, new ButtonTuple(ButtonType.VIVE_GRIP, ControllerType.RIGHT));
-        addButtons(out, GuiHandler.keyShift, new ButtonTuple(ButtonType.VIVE_GRIP, ControllerType.LEFT));
-        addButtons(out, GuiHandler.keyScrollUp, new ButtonTuple(ButtonType.VIVE_TOUCHPAD_SWIPE_UP, ControllerType.RIGHT));
-        addButtons(out, GuiHandler.keyScrollDown, new ButtonTuple(ButtonType.VIVE_TOUCHPAD_SWIPE_DOWN, ControllerType.RIGHT));
-
-		// touch
-        addButtons(out, mc.gameSettings.keyBindAttack, new ButtonTuple(ButtonType.OCULUS_INDEX_TRIGGER, ControllerType.RIGHT));
-        addButtons(out, mc.gameSettings.keyBindUseItem, new ButtonTuple(ButtonType.OCULUS_AX, ControllerType.RIGHT));
-        addButtons(out, mc.gameSettings.keyBindDrop, new ButtonTuple(ButtonType.OCULUS_BY, ControllerType.RIGHT));
-		addButtons(out, mc.gameSettings.keyBindPickBlock, new ButtonTuple(ButtonType.OCULUS_HAND_TRIGGER, ControllerType.RIGHT));
-		addButtons(out, mc.gameSettings.keyBindInventory, new ButtonTuple(ButtonType.OCULUS_STICK, ControllerType.RIGHT));
-		addButtons(out, MCOpenVR.keyHotbarPrev, new ButtonTuple(ButtonType.OCULUS_STICK_LEFT, ControllerType.RIGHT));
-		addButtons(out, MCOpenVR.keyHotbarNext, new ButtonTuple(ButtonType.OCULUS_STICK_RIGHT, ControllerType.RIGHT));
-		addButtons(out, mc.gameSettings.keyBindForward, new ButtonTuple(ButtonType.OCULUS_INDEX_TRIGGER, ControllerType.LEFT));
-		addButtons(out, mc.gameSettings.keyBindChat, new ButtonTuple(ButtonType.OCULUS_AX, ControllerType.LEFT));
-		addButtons(out, mc.gameSettings.keyBindPlayerList, new ButtonTuple(ButtonType.OCULUS_HAND_TRIGGER, ControllerType.LEFT));
-		addButtons(out, mc.gameSettings.keyBindForward, new ButtonTuple(ButtonType.OCULUS_STICK, ControllerType.LEFT));
-		addButtons(out, MCOpenVR.keyRotateLeft, new ButtonTuple(ButtonType.OCULUS_STICK_LEFT, ControllerType.LEFT));
-		addButtons(out, MCOpenVR.keyRotateRight, new ButtonTuple(ButtonType.OCULUS_STICK_RIGHT, ControllerType.LEFT));
-		addButtons(out, mc.gameSettings.keyBindJump, new ButtonTuple(ButtonType.OCULUS_STICK_UP, ControllerType.LEFT));
-		addButtons(out, mc.gameSettings.keyBindSneak, new ButtonTuple(ButtonType.OCULUS_STICK_DOWN, ControllerType.LEFT));
-		addButtons(out, MCOpenVR.keyMenuButton, new ButtonTuple(ButtonType.OCULUS_BY, ControllerType.LEFT));
-		addButtons(out, GuiHandler.keyMenuButton, new ButtonTuple(ButtonType.OCULUS_BY, ControllerType.LEFT));
-		addButtons(out, GuiHandler.keyLeftClick, new ButtonTuple(ButtonType.OCULUS_INDEX_TRIGGER, ControllerType.RIGHT));
-		addButtons(out, GuiHandler.keyRightClick, new ButtonTuple(ButtonType.OCULUS_AX, ControllerType.RIGHT));
-		addButtons(out, GuiHandler.keyMiddleClick, new ButtonTuple(ButtonType.OCULUS_HAND_TRIGGER, ControllerType.RIGHT));
-		addButtons(out, GuiHandler.keyShift, new ButtonTuple(ButtonType.OCULUS_HAND_TRIGGER, ControllerType.LEFT));
-		addButtons(out, GuiHandler.keyScrollUp, new ButtonTuple(ButtonType.OCULUS_STICK_UP, ControllerType.RIGHT));
-		addButtons(out, GuiHandler.keyScrollDown, new ButtonTuple(ButtonType.OCULUS_STICK_DOWN, ControllerType.RIGHT));
-
-		out.get("Interact VR Primary").setPriority(5);
-		out.get("Interact VR Secondary").setPriority(5);
-		
-    	return out;
-    }
-
-    // Helper for getBindingsDefaults
-    private void addButtons(Map<String, VRButtonMapping> map, KeyBinding keyBinding, ButtonTuple... buttons) {
-        VRButtonMapping mapping = map.get(keyBinding.getKeyDescription());
-        if (mapping != null) {
-            mapping.buttons.addAll(Arrays.asList(buttons));
-        } else {
-            System.out.println("Missing default binding: " + keyBinding.getKeyDescription());
-        }
     }
 
 	public double normalizeValue(float optionFloatValue) {

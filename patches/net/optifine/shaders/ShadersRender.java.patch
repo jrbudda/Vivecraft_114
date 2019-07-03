@@ -50,15 +50,6 @@
              updateActiveRenderInfo(activeRenderInfo, minecraft, partialTicks);
              Shaders.setCameraShadow(activeRenderInfo, partialTicks);
              Shaders.checkGLError("shadow camera");
-@@ -237,7 +243,7 @@
-             ClippingHelper clippinghelper = ClippingHelperShadow.getInstance();
-             minecraft.getProfiler().endStartSection("shadow culling");
-             Frustum frustum = new Frustum(clippinghelper);
--            Vec3d vec3d = activeRenderInfo.getProjectedView();
-+            Vec3d vec3d = activeRenderInfo.getPosition();
-             frustum.setPosition(vec3d.x, vec3d.y, vec3d.z);
-             GlStateManager.shadeModel(7425);
-             GlStateManager.enableDepthTest();
 @@ -249,8 +255,8 @@
              minecraft.getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
              minecraft.getProfiler().endStartSection("shadow setupterrain");

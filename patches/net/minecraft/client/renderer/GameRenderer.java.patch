@@ -37,10 +37,11 @@
  import net.minecraft.client.particle.ParticleManager;
  import net.minecraft.client.renderer.chunk.ChunkRender;
  import net.minecraft.client.renderer.culling.ClippingHelper;
-@@ -29,11 +42,13 @@
+@@ -29,11 +42,14 @@
  import net.minecraft.client.renderer.model.ItemCameraTransforms;
  import net.minecraft.client.renderer.texture.AtlasTexture;
  import net.minecraft.client.renderer.texture.NativeImage;
++import net.minecraft.client.renderer.texture.PotionSpriteUploader;
 +import net.minecraft.client.renderer.texture.TextureAtlasSprite;
  import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
  import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -51,15 +52,18 @@
  import net.minecraft.client.shader.ShaderGroup;
  import net.minecraft.client.shader.ShaderLinkHelper;
  import net.minecraft.crash.CrashReport;
-@@ -49,6 +64,7 @@
+@@ -49,7 +65,10 @@
  import net.minecraft.entity.projectile.ProjectileHelper;
  import net.minecraft.fluid.IFluidState;
  import net.minecraft.item.ItemStack;
 +import net.minecraft.item.Items;
  import net.minecraft.particles.ParticleTypes;
++import net.minecraft.potion.Effect;
++import net.minecraft.potion.EffectInstance;
  import net.minecraft.potion.Effects;
  import net.minecraft.resources.IResourceManager;
-@@ -59,6 +75,7 @@
+ import net.minecraft.resources.IResourceManagerReloadListener;
+@@ -59,6 +78,7 @@
  import net.minecraft.util.BlockRenderLayer;
  import net.minecraft.util.CachedBlockInfo;
  import net.minecraft.util.Direction;
@@ -67,7 +71,7 @@
  import net.minecraft.util.ResourceLocation;
  import net.minecraft.util.ScreenShotHelper;
  import net.minecraft.util.SoundCategory;
-@@ -69,8 +86,11 @@
+@@ -69,8 +89,11 @@
  import net.minecraft.util.math.BlockRayTraceResult;
  import net.minecraft.util.math.EntityRayTraceResult;
  import net.minecraft.util.math.MathHelper;
@@ -79,7 +83,7 @@
  import net.minecraft.util.math.shapes.VoxelShape;
  import net.minecraft.util.text.StringTextComponent;
  import net.minecraft.util.text.Style;
-@@ -90,12 +110,30 @@
+@@ -90,12 +113,30 @@
  import net.optifine.gui.GuiChatOF;
  import net.optifine.reflect.Reflector;
  import net.optifine.reflect.ReflectorForge;
@@ -110,7 +114,7 @@
  
  public class GameRenderer implements AutoCloseable, IResourceManagerReloadListener
  {
-@@ -140,7 +178,7 @@
+@@ -140,7 +181,7 @@
      private boolean initialized = false;
      private World updatedWorld = null;
      public boolean fogStandard = false;
@@ -119,7 +123,7 @@
      private long lastServerTime = 0L;
      private int lastServerTicks = 0;
      private int serverWaitTime = 0;
-@@ -151,15 +189,45 @@
+@@ -151,15 +192,45 @@
      public int loadVisibleChunksCounter = -1;
      public static final int loadVisibleChunksMessageId = 201435902;
      private boolean guiLoadingVisible = false;
@@ -171,7 +175,7 @@
          this.lightmapTexture = new LightTexture(this);
          this.fogRenderer = new FogRenderer(this);
          this.shaderGroup = null;
-@@ -175,6 +243,14 @@
+@@ -175,6 +246,14 @@
                  this.rainYCoords[i << 5 | j] = f / f2;
              }
          }
@@ -186,7 +190,7 @@
      }
  
      public void close()
-@@ -250,7 +326,8 @@
+@@ -250,7 +329,8 @@
              try
              {
                  this.shaderGroup = new ShaderGroup(this.mc.getTextureManager(), this.resourceManager, this.mc.getFramebuffer(), resourceLocationIn);
@@ -196,7 +200,7 @@
                  this.useShader = true;
              }
              catch (IOException ioexception)
-@@ -358,16 +435,24 @@
+@@ -358,16 +438,24 @@
       * Gets the block or object that is being moused over.
       */
      public void getMouseOver(float partialTicks)
@@ -226,7 +230,7 @@
              boolean flag = false;
              int i = 3;
              double d1 = d0;
-@@ -388,8 +473,9 @@
+@@ -388,8 +476,9 @@
              {
                  d1 = this.mc.objectMouseOver.getHitVec().squareDistanceTo(vec3d);
              }
@@ -238,7 +242,7 @@
              Vec3d vec3d2 = vec3d.add(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0);
              float f = 1.0F;
              AxisAlignedBB axisalignedbb = entity.getBoundingBox().expand(vec3d1.scale(d0)).grow(1.0D, 1.0D, 1.0D);
-@@ -568,8 +654,9 @@
+@@ -568,8 +657,9 @@
          }
      }
  
@@ -249,7 +253,7 @@
          this.farPlaneDistance = (float)(this.mc.gameSettings.renderDistanceChunks * 16);
  
          if (Config.isFogFancy())
-@@ -596,17 +683,47 @@
+@@ -596,17 +686,47 @@
              GlStateManager.translatef((float)this.cameraYaw, (float)(-this.cameraPitch), 0.0F);
              GlStateManager.scaled(this.cameraZoom, this.cameraZoom, 1.0D);
          }
@@ -300,7 +304,7 @@
          float f = MathHelper.lerp(partialTicks, this.mc.player.prevTimeInPortal, this.mc.player.timeInPortal);
  
          if (f > 0.0F)
-@@ -624,12 +741,108 @@
+@@ -624,12 +744,108 @@
              GlStateManager.scalef(1.0F / f1, 1.0F, 1.0F);
              GlStateManager.rotatef(-((float)this.rendererUpdateCount + partialTicks) * (float)i, 0.0F, 1.0F, 1.0F);
          }
@@ -410,7 +414,7 @@
  
      public void renderHand(ActiveRenderInfo p_renderHand_1_, float p_renderHand_2_, boolean p_renderHand_3_, boolean p_renderHand_4_, boolean p_renderHand_5_)
      {
-@@ -726,12 +939,14 @@
+@@ -726,12 +942,14 @@
          return i > 200 ? 1.0F : 0.7F + MathHelper.sin(((float)i - partialTicks) * (float)Math.PI * 0.2F) * 0.3F;
      }
  
@@ -428,7 +432,7 @@
              if (Util.milliTime() - this.prevFrameTime > 500L)
              {
                  this.mc.displayInGameMenu(false);
-@@ -741,6 +956,7 @@
+@@ -741,6 +959,7 @@
          {
              this.prevFrameTime = Util.milliTime();
          }
@@ -436,7 +440,7 @@
  
          if (!this.mc.skipRenderWorld)
          {
-@@ -751,11 +967,13 @@
+@@ -751,11 +970,13 @@
              if (renderWorldIn && this.mc.world != null && !Config.isReloadingResources())
              {
                  this.mc.getProfiler().startSection("level");
@@ -451,7 +455,7 @@
  
                  if (this.mc.isSingleplayer() && this.timeWorldIcon < Util.milliTime() - 1000L)
                  {
-@@ -787,6 +1005,7 @@
+@@ -787,6 +1008,7 @@
  
                  if (!this.mc.gameSettings.hideGUI || this.mc.currentScreen != null)
                  {
@@ -459,7 +463,7 @@
                      GlStateManager.alphaFunc(516, 0.1F);
                      this.mc.mainWindow.loadGUIRenderMatrix(Minecraft.IS_RUNNING_ON_MAC);
                      this.renderItemActivation(this.mc.mainWindow.getScaledWidth(), this.mc.mainWindow.getScaledHeight(), partialTicks);
-@@ -801,22 +1020,25 @@
+@@ -801,22 +1023,25 @@
                      {
                          Lagometer.showLagometer((int)this.mc.mainWindow.getGuiScaleFactor());
                      }
@@ -487,7 +491,7 @@
              if (this.guiLoadingVisible != (this.mc.loadingGui != null))
              {
                  if (this.mc.loadingGui != null)
-@@ -886,8 +1108,38 @@
+@@ -886,8 +1111,38 @@
                      throw new ReportedException(crashreport1);
                  }
              }
@@ -526,7 +530,7 @@
          this.frameFinish();
          this.waitForServerThread();
          Lagometer.updateLagometer();
-@@ -938,7 +1190,10 @@
+@@ -938,7 +1193,10 @@
  
      private boolean isDrawBlockOutline()
      {
@@ -538,7 +542,7 @@
          {
              return false;
          }
-@@ -975,14 +1230,30 @@
+@@ -975,14 +1233,28 @@
  
      public void renderWorld(float partialTicks, long finishTimeNano)
      {
@@ -561,16 +565,14 @@
          this.getMouseOver(partialTicks);
 +    		if(mc.currentScreen == null ){
 +    			// VIVE START - teleport movement
-+    			if (!mc.vrPlayer.getFreeMove()) { 
-+    				mc.teleportTracker.updateTeleportDestinations(this, mc, mc.getRenderViewEntity());
-+    			}
++    			mc.teleportTracker.updateTeleportDestinations(this, mc, mc.getRenderViewEntity());
 +    			// VIVE END - teleport movement
 +    		}	
 +     	}
  
          if (Config.isShaders())
          {
-@@ -1010,21 +1281,25 @@
+@@ -1010,21 +1282,25 @@
          ParticleManager particlemanager = this.mc.particles;
          boolean flag1 = this.isDrawBlockOutline();
          GlStateManager.enableCull();
@@ -599,7 +601,7 @@
  
          this.fogRenderer.func_217619_a(activerenderinfo, partialTicks);
          GlStateManager.clear(16640, Minecraft.IS_RUNNING_ON_MAC);
-@@ -1034,6 +1309,11 @@
+@@ -1034,6 +1310,11 @@
              Shaders.clearRenderBuffer();
          }
  
@@ -611,20 +613,7 @@
          if (flag)
          {
              Shaders.setCamera(activerenderinfo, partialTicks);
-@@ -1042,9 +1322,9 @@
-         clippinghelper.disabled = Config.isShaders() && !Shaders.isFrustumCulling();
-         this.mc.getProfiler().endStartSection("culling");
-         ICamera icamera = new Frustum(clippinghelper);
--        double d0 = activerenderinfo.getProjectedView().x;
--        double d1 = activerenderinfo.getProjectedView().y;
--        double d2 = activerenderinfo.getProjectedView().z;
-+        double d0 = activerenderinfo.getPosition().x;
-+        double d1 = activerenderinfo.getPosition().y;
-+        double d2 = activerenderinfo.getPosition().z;
- 
-         if (flag)
-         {
-@@ -1060,9 +1340,14 @@
+@@ -1060,9 +1341,14 @@
              this.fogRenderer.func_217618_a(activerenderinfo, -1);
              this.mc.getProfiler().endStartSection("sky");
              GlStateManager.matrixMode(5889);
@@ -641,7 +630,7 @@
  
              if (flag)
              {
-@@ -1077,19 +1362,24 @@
+@@ -1077,15 +1363,20 @@
              }
  
              GlStateManager.matrixMode(5889);
@@ -665,12 +654,7 @@
          this.fogRenderer.func_217618_a(activerenderinfo, 0);
          GlStateManager.shadeModel(7425);
  
--        if (activerenderinfo.getProjectedView().y < 128.0D + this.mc.gameSettings.ofCloudsHeight * 128.0D)
-+        if (activerenderinfo.getPosition().y < 128.0D + this.mc.gameSettings.ofCloudsHeight * 128.0D)
-         {
-             this.func_215313_a(activerenderinfo, worldrenderer, partialTicks, d0, d1, d2);
-         }
-@@ -1111,14 +1401,16 @@
+@@ -1111,14 +1402,16 @@
              worldrenderer.func_215320_a(activerenderinfo, icamera, this.frameCount++, this.mc.player.isSpectator());
          }
  
@@ -689,7 +673,7 @@
          {
              this.mc.getProfiler().endStartSection("finish");
              GL11.glFinish();
-@@ -1185,6 +1477,7 @@
+@@ -1185,6 +1478,7 @@
          this.disableLightmap();
          GlStateManager.matrixMode(5888);
          GlStateManager.popMatrix();
@@ -697,7 +681,7 @@
  
          if (flag1 && this.mc.objectMouseOver != null)
          {
-@@ -1220,6 +1513,12 @@
+@@ -1220,6 +1514,12 @@
  
          GlStateManager.blendFuncSeparate(770, 771, 1, 0);
          GlStateManager.disableBlend();
@@ -710,7 +694,7 @@
          this.enableLightmap();
          this.fogRenderer.func_217618_a(activerenderinfo, 0);
          this.mc.getProfiler().endStartSection("particles");
-@@ -1261,10 +1560,29 @@
+@@ -1261,10 +1561,29 @@
  
          GlStateManager.depthMask(true);
          worldrenderer.func_215322_a(activerenderinfo, partialTicks);
@@ -741,14 +725,7 @@
              Shaders.preWater();
          }
  
-@@ -1297,18 +1615,56 @@
-         GlStateManager.disableBlend();
-         GlStateManager.disableFog();
- 
--        if (activerenderinfo.getProjectedView().y >= 128.0D + this.mc.gameSettings.ofCloudsHeight * 128.0D)
-+        if (activerenderinfo.getPosition().y >= 128.0D + this.mc.gameSettings.ofCloudsHeight * 128.0D)
-         {
-             this.mc.getProfiler().endStartSection("aboveClouds");
+@@ -1303,12 +1622,50 @@
              this.func_215313_a(activerenderinfo, worldrenderer, partialTicks, d0, d1, d2);
          }
  
@@ -799,7 +776,7 @@
          this.mc.getProfiler().endStartSection("hand");
  
          if (this.renderHand && !Shaders.isShadowPass)
-@@ -1330,11 +1686,15 @@
+@@ -1330,11 +1687,15 @@
                  this.func_215308_a(activerenderinfo, partialTicks);
              }
          }
@@ -815,7 +792,7 @@
      }
  
      private void func_215313_a(ActiveRenderInfo p_215313_1_, WorldRenderer p_215313_2_, float p_215313_3_, double p_215313_4_, double p_215313_6_, double p_215313_8_)
-@@ -1344,7 +1704,11 @@
+@@ -1344,7 +1705,11 @@
              this.mc.getProfiler().endStartSection("clouds");
              GlStateManager.matrixMode(5889);
              GlStateManager.loadIdentity();
@@ -828,7 +805,7 @@
              GlStateManager.matrixMode(5888);
              GlStateManager.pushMatrix();
              this.fogRenderer.func_217618_a(p_215313_1_, 0);
-@@ -1353,7 +1717,11 @@
+@@ -1353,7 +1718,11 @@
              GlStateManager.popMatrix();
              GlStateManager.matrixMode(5889);
              GlStateManager.loadIdentity();
@@ -841,64 +818,7 @@
              GlStateManager.matrixMode(5888);
          }
      }
-@@ -1371,7 +1739,7 @@
-         {
-             this.random.setSeed((long)this.rendererUpdateCount * 312987231L);
-             IWorldReader iworldreader = this.mc.world;
--            BlockPos blockpos = new BlockPos(this.activeRender.getProjectedView());
-+            BlockPos blockpos = new BlockPos(this.activeRender.getPosition());
-             int i = 10;
-             double d0 = 0.0D;
-             double d1 = 0.0D;
-@@ -1484,9 +1852,9 @@
- 
-             this.enableLightmap();
-             World world = this.mc.world;
--            int i = MathHelper.floor(this.activeRender.getProjectedView().x);
--            int j = MathHelper.floor(this.activeRender.getProjectedView().y);
--            int k = MathHelper.floor(this.activeRender.getProjectedView().z);
-+            int i = MathHelper.floor(this.activeRender.getPosition().x);
-+            int j = MathHelper.floor(this.activeRender.getPosition().y);
-+            int k = MathHelper.floor(this.activeRender.getPosition().z);
-             Tessellator tessellator = Tessellator.getInstance();
-             BufferBuilder bufferbuilder = tessellator.getBuffer();
-             GlStateManager.disableCull();
-@@ -1494,9 +1862,9 @@
-             GlStateManager.enableBlend();
-             GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-             GlStateManager.alphaFunc(516, 0.1F);
--            double d0 = this.activeRender.getProjectedView().x;
--            double d1 = this.activeRender.getProjectedView().y;
--            double d2 = this.activeRender.getProjectedView().z;
-+            double d0 = this.activeRender.getPosition().x;
-+            double d1 = this.activeRender.getPosition().y;
-+            double d2 = this.activeRender.getPosition().z;
-             int l = MathHelper.floor(d1);
-             int i1 = 5;
- 
-@@ -1565,8 +1933,8 @@
-                                 }
- 
-                                 double d5 = -((double)(this.rendererUpdateCount + l1 * l1 * 3121 + l1 * 45238971 + k1 * k1 * 418711 + k1 * 13761 & 31) + (double)partialTicks) / 32.0D * (3.0D + this.random.nextDouble());
--                                double d6 = (double)((float)l1 + 0.5F) - this.activeRender.getProjectedView().x;
--                                double d7 = (double)((float)k1 + 0.5F) - this.activeRender.getProjectedView().z;
-+                                double d6 = (double)((float)l1 + 0.5F) - this.activeRender.getPosition().x;
-+                                double d7 = (double)((float)k1 + 0.5F) - this.activeRender.getPosition().z;
-                                 float f2 = MathHelper.sqrt(d6 * d6 + d7 * d7) / (float)i1;
-                                 float f3 = ((1.0F - f2 * f2) * 0.5F + 0.5F) * f5;
-                                 blockpos$mutableblockpos.setPos(l1, i3, k1);
-@@ -1595,8 +1963,8 @@
-                                 double d8 = (double)(-((float)(this.rendererUpdateCount & 511) + partialTicks) / 512.0F);
-                                 double d9 = this.random.nextDouble() + (double)f * 0.01D * (double)((float)this.random.nextGaussian());
-                                 double d10 = this.random.nextDouble() + (double)(f * (float)this.random.nextGaussian()) * 0.001D;
--                                double d11 = (double)((float)l1 + 0.5F) - this.activeRender.getProjectedView().x;
--                                double d12 = (double)((float)k1 + 0.5F) - this.activeRender.getProjectedView().z;
-+                                double d11 = (double)((float)l1 + 0.5F) - this.activeRender.getPosition().x;
-+                                double d12 = (double)((float)k1 + 0.5F) - this.activeRender.getPosition().z;
-                                 float f6 = MathHelper.sqrt(d11 * d11 + d12 * d12) / (float)i1;
-                                 float f4 = ((1.0F - f6 * f6) * 0.3F + 0.5F) * f5;
-                                 blockpos$mutableblockpos.setPos(l1, i3, k1);
-@@ -2028,35 +2396,28 @@
+@@ -2028,35 +2397,28 @@
      }
  
      private void renderItemActivation(int widthsp, int heightScaled, float partialTicks)
@@ -946,7 +866,7 @@
          }
      }
  
-@@ -2079,4 +2440,2111 @@
+@@ -2079,4 +2441,2115 @@
      {
          return this.activeRender;
      }
@@ -1801,7 +1721,7 @@
 +  					GlStateManager.popMatrix();
 +  				}
 +
-+  				if(!mc.vrPlayer.getFreeMove()){ //actually rendered from the head, not hand.
++  				if(mc.teleportTracker.isAiming()){ //actually rendered from the head, not hand.
 +  					GlStateManager.pushMatrix();
 +  					GlStateManager.enableDepthTest();
 +  						if(mc.teleportTracker.vrMovementStyle.arcAiming) {
@@ -1865,7 +1785,8 @@
 +  				//OK SO when world == null the origin is at your face.
 +
 +                // Shaders goes crazy without this
-+                mc.getTextureManager().bindTexture(new ResourceLocation("vivecraft:textures/white.png"));
++  				if (mc.loadingGui == null)
++  					mc.getTextureManager().bindTexture(new ResourceLocation("vivecraft:textures/white.png"));
 +  							
 +  				Tessellator tes = Tessellator.getInstance();
 +  		
@@ -2753,26 +2674,29 @@
 +        	  FontRenderer fontrenderer = mc.ingameGUI.getFontRenderer();
 +        	  this.mc.mainWindow.loadGUIRenderMatrix(false);
 +        	  PlayerEntity entityplayer = (PlayerEntity)this.mc.getRenderViewEntity();
-+        	  int iconp = 0;
-+        	  if(entityplayer.isSprinting()) iconp = 10;
-+        	  if(entityplayer.isSneaking()) iconp = 13;
++        	  int iconp = 0;    	  
++        	
++        	  Effect e = null;
++        	  if(entityplayer.isSprinting()) e = Effects.SPEED;      	  
++        	  if(entityplayer.isSneaking()) e = Effects.BLINDNESS;
++        	  
 +        	  if(entityplayer.isElytraFlying()) iconp = -1;
-+        	  if(iconp!=0){
-+        		  GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-+
-+        		  if(iconp ==-1){
-+        			  int w = this.mc.mainWindow.getScaledWidth() / 2 - 109;
-+        			  int h = this.mc.mainWindow.getScaledHeight() -39;
-+        			  TextureAtlasSprite textureatlassprite = this.mc.getTextureMap().getAtlasSprite("minecraft:item/elytra");
-+        			  this.mc.getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
-+        			  AbstractGui.blit(w,h,0,16,16,textureatlassprite);
-+        		  }else{
-+        			  this.mc.getTextureManager().bindTexture(Screen.BACKGROUND_LOCATION);
-+        			  int w = this.mc.mainWindow.getScaledWidth() / 2 - 109;
-+        			  int h = this.mc.mainWindow.getScaledHeight() -39;      			  
-+        			  mc.ingameGUI.blit(w, h, 0 + iconp % 8 * 18, 198 + iconp / 8 * 18, 18, 18);        			
-+        		  }
-+        	  }
++        	  
++        	  if(iconp == -1){
++            	  GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
++        		  int w = this.mc.mainWindow.getScaledWidth() / 2 - 109;
++        		  int h = this.mc.mainWindow.getScaledHeight() -39;
++        		  TextureAtlasSprite textureatlassprite = this.mc.getTextureMap().getAtlasSprite("minecraft:item/elytra");
++        		  this.mc.getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
++        		  AbstractGui.blit(w,h,0,16,16,textureatlassprite);
++        	  } 
++        	  else if (e!=null) {
++            	  GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
++        		  this.mc.getTextureManager().bindTexture(AtlasTexture.LOCATION_EFFECTS_TEXTURE);
++        		  int w = this.mc.mainWindow.getScaledWidth() / 2 - 109;
++        		  int h = this.mc.mainWindow.getScaledHeight() -39;      			  
++        		  AbstractGui.blit(w, h, 0, 18, 18, mc.getPotionSpriteUploader().func_215288_a(e));        			
++        	  }       	  
 +          }
 +          //
 +  	}

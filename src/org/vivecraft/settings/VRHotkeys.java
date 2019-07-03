@@ -140,17 +140,16 @@ public class VRHotkeys {
 		{
 			// for testing restricted client mode
 
-			if (mc.vrPlayer.getFreeMove()) {
-				mc.vrPlayer.setFreeMove(false);
-							mc.printChatMessage("Restricted movement disabled (teleporting allowed)");
-				} else {
-				mc.vrPlayer.setFreeMove(true);
+			if (mc.vrPlayer.isTeleportOverridden()) {
+				mc.vrPlayer.setTeleportOverride(false);
 				mc.printChatMessage("Restricted movement enabled (no teleporting)");
+			} else {
+				mc.vrPlayer.setTeleportOverride(true);
+							mc.printChatMessage("Restricted movement disabled (teleporting allowed)");
 			}
 			
 			gotKey = true;
 		}
-		
 		
 		if (action == GLFW.GLFW_PRESS && key == GLFW.GLFW_KEY_HOME && InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL))
 		{

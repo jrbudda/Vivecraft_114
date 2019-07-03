@@ -371,8 +371,9 @@ public class Utils
 	public static void unpackNatives(String directory) {
 		try {
 			new File("openvr/" + directory).mkdirs();
-			if (new File("openvr/" + directory + "/opencomposite.ini").exists())
-				return;
+			// TODO: Uncomment this when OpenComposite supports SteamVR Input
+			//if (new File("openvr/" + directory + "/opencomposite.ini").exists())
+			//	return;
 				
 			// dev environment
 			try {

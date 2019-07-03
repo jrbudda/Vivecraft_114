@@ -116,15 +116,17 @@ public class VRPlayerRenderer extends LivingRenderer<AbstractClientPlayerEntity,
                 playermodel.leftArmPose = bipedmodel$armpose;
             }
         }
-		if(clientPlayer.isUser()){
-			playermodel.bipedHead.showModel=false;
-			playermodel.vrHMD.showModel=false;
-			playermodel.bipedLeftArm.showModel=false;
-			playermodel.bipedRightArm.showModel=false;
-			playermodel.bipedLeftArmwear.showModel=false;
-			playermodel.bipedRightArmwear.showModel=false;
-			playermodel.bipedHeadwear.showModel=false;
-		}
+        
+//		if(clientPlayer.isUser()){
+//			playermodel.bipedHead.showModel=false;
+//			playermodel.vrHMD.showModel=false;
+//			playermodel.bipedLeftArm.showModel=false;
+//			playermodel.bipedRightArm.showModel=false;
+//			playermodel.bipedLeftArmwear.showModel=false;
+//			playermodel.bipedRightArmwear.showModel=false;
+//			playermodel.bipedHeadwear.showModel=false;
+//		}
+		
     }
 
     private BipedModel.ArmPose func_217766_a(AbstractClientPlayerEntity p_217766_1_, ItemStack p_217766_2_, ItemStack p_217766_3_, Hand p_217766_4_)

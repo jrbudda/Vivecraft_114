@@ -1,37 +1,33 @@
 --- a/net/minecraft/util/MovementInputFromOptions.java
 +++ b/net/minecraft/util/MovementInputFromOptions.java
-@@ -1,6 +1,18 @@
+@@ -1,6 +1,19 @@
  package net.minecraft.util;
  
-+import org.vivecraft.control.ButtonTuple;
 +import org.vivecraft.control.ControllerType;
 +import org.vivecraft.control.TrackedController;
-+import org.vivecraft.control.VRButtonMapping;
++import org.vivecraft.control.VRInputAction;
 +import org.vivecraft.gameplay.screenhandlers.KeyboardHandler;
 +import org.vivecraft.gameplay.screenhandlers.RadialHandler;
 +import org.vivecraft.provider.MCOpenVR;
 +import org.vivecraft.settings.VRSettings;
++import org.vivecraft.utils.Vector2;
 +import org.vivecraft.utils.jkatvr;
 +
  import net.minecraft.client.GameSettings;
 +import net.minecraft.client.Minecraft;
 +import net.minecraft.client.main.Main;
++import net.minecraft.client.settings.KeyBinding;
  
  public class MovementInputFromOptions extends MovementInput
  {
-@@ -10,22 +22,132 @@
-     {
+@@ -11,21 +24,126 @@
          this.gameSettings = p_i1444_1_;
      }
--
+ 
 -    public void func_217607_a(boolean p_217607_1_, boolean p_217607_2_)
-+	public static float getMovementAxisValue(ButtonTuple button) {
-+		TrackedController controller = button.controller.getController();
-+		if (button.isTouch) return controller.isButtonTouched(button.button) ? 1 : 0;
-+		float out = controller.getButtonAxisValue(button.button);
-+		if(out <= Minecraft.getInstance().vrSettings.analogDeadzone)
-+			return 0;
-+		return out;
++	public static float getMovementAxisValue(KeyBinding keyBinding) {
++		VRInputAction action = MCOpenVR.getInputAction(keyBinding);
++		return action.isEnabled() ? Math.abs(action.getAxis1D(false)) : 0;
 +	}
 +    public void func_217607_a(boolean sneaking, boolean spectator)
      {
@@ -51,7 +47,7 @@
 +		if (mc.climbTracker.isClimbeyClimb() && !mc.player.isInWater() && (mc.climbTracker.isGrabbingLadder()))
 +			flag = true;
 +
-+		if (!flag && this.gameSettings.keyBindForward.isKeyDown()) {
++		if (!flag && (this.gameSettings.keyBindForward.isKeyDown() || MCOpenVR.keyTeleportFallback.isKeyDown())) {
 +            ++this.moveForward;
 +            this.forwardKeyDown = true;
 +		} else {
@@ -79,68 +75,66 @@
 +			this.rightKeyDown = false;
 +		}
 +
-+		if (!flag && mc.vrPlayer.getFreeMove() && !mc.vrSettings.seated && mc.currentScreen == null && !KeyboardHandler.Showing){
++		if (!flag && !mc.vrSettings.seated && mc.currentScreen == null && !KeyboardHandler.Showing){
 +			boolean set = false;
 +			// override everything
 +
-+			if (mc.vrSettings.vrFreeMoveMode == mc.vrSettings.FREEMOVE_JOYPAD) {
-+				if (!RadialHandler.isUsingController(ControllerType.LEFT)) {
-+					this.moveForward = MCOpenVR.joyPadZ;
-+					this.moveStrafe = MCOpenVR.joyPadX;
++			VRInputAction strafeAction = MCOpenVR.getInputAction(MCOpenVR.keyFreeMoveStrafe);
++			VRInputAction rotateAction = MCOpenVR.getInputAction(MCOpenVR.keyFreeMoveRotate);
++			Vector2 strafeAxis = strafeAction.isEnabled() ? strafeAction.getAxis2D(false) : new Vector2();
++			Vector2 rotateAxis = rotateAction.isEnabled() ? rotateAction.getAxis2D(false) : new Vector2();
++
++			if (strafeAxis.getX() != 0 || strafeAxis.getY() != 0) {
 +					set = true;
-+				}
++				this.moveForward = strafeAxis.getY();
++				this.moveStrafe = -strafeAxis.getX();
++			} else if (rotateAxis.getY() != 0) {
++				set = true;
++				this.moveForward = rotateAxis.getY();
++				this.moveStrafe = 0;
+ 
+-        if (!p_217607_2_ && (this.sneak || p_217607_1_))
++				this.moveStrafe -= getMovementAxisValue(this.gameSettings.keyBindRight);
++				this.moveStrafe += getMovementAxisValue(this.gameSettings.keyBindLeft);
 +			} else 	if (mc.vrSettings.analogMovement) {
 +				set = true;
 +				this.moveForward = 0;
 +				this.moveStrafe = 0;
- 
--        if (!p_217607_2_ && (this.sneak || p_217607_1_))
-+				ButtonTuple button = MCOpenVR.findAnyBindingButton(this.gameSettings.keyBindForward);
-+				if (button != null && !RadialHandler.isUsingController(button.controller)) {
-+					this.moveForward += getMovementAxisValue(button);
-+				}
 +
-+				button = MCOpenVR.findAnyBindingButton(this.gameSettings.keyBindBack);
-+				if (button != null && !RadialHandler.isUsingController(button.controller)) {
-+					this.moveForward -= getMovementAxisValue(button);
-+				}
++				float forward = getMovementAxisValue(this.gameSettings.keyBindForward);
++				if (forward == 0) forward = getMovementAxisValue(MCOpenVR.keyTeleportFallback);
 +
-+				button = MCOpenVR.findAnyBindingButton(this.gameSettings.keyBindRight);
-+				if (button != null && !RadialHandler.isUsingController(button.controller)) {
-+					this.moveStrafe -= getMovementAxisValue(button);
++				this.moveForward += forward;
++				this.moveForward -= getMovementAxisValue(this.gameSettings.keyBindBack);
++				this.moveStrafe -= getMovementAxisValue(this.gameSettings.keyBindRight);
++				this.moveStrafe += getMovementAxisValue(this.gameSettings.keyBindLeft);
 +				}
-+
-+				button = MCOpenVR.findAnyBindingButton(this.gameSettings.keyBindLeft);
-+				if (button != null && !RadialHandler.isUsingController(button.controller)) {
-+					this.moveStrafe += getMovementAxisValue(button);
-+        		}
-+        	}
 +
 +			if(set) {
 +				// just assuming all this below is needed for compatibility.
-+				this.forwardKeyDown = this.moveForward > mc.vrSettings.analogDeadzone;
-+				this.backKeyDown = this.moveForward < -mc.vrSettings.analogDeadzone;
-+				this.leftKeyDown = this.moveStrafe > mc.vrSettings.analogDeadzone;
-+				this.rightKeyDown = this.moveStrafe < -mc.vrSettings.analogDeadzone;
-+				VRButtonMapping.setKeyBindState(this.gameSettings.keyBindForward, this.forwardKeyDown);
-+				VRButtonMapping.setKeyBindState(this.gameSettings.keyBindBack, this.backKeyDown);
-+				VRButtonMapping.setKeyBindState(this.gameSettings.keyBindLeft, this.leftKeyDown);
-+				VRButtonMapping.setKeyBindState(this.gameSettings.keyBindRight, this.rightKeyDown);
++				this.forwardKeyDown = this.moveForward > 0;
++				this.backKeyDown = this.moveForward < 0;
++				this.leftKeyDown = this.moveStrafe > 0;
++				this.rightKeyDown = this.moveStrafe < 0;
++				VRInputAction.setKeyBindState(this.gameSettings.keyBindForward, this.forwardKeyDown);
++				VRInputAction.setKeyBindState(this.gameSettings.keyBindBack, this.backKeyDown);
++				VRInputAction.setKeyBindState(this.gameSettings.keyBindLeft, this.leftKeyDown);
++				VRInputAction.setKeyBindState(this.gameSettings.keyBindRight, this.rightKeyDown);
++
++				// Sprint only works for walk forwards obviously
++				if (mc.vrSettings.autoSprint && this.moveForward >= mc.vrSettings.autoSprintThreshold) {
++					mc.player.setSprinting(true);
++					this.moveForward = 1;
++        		}
++        	}
++
 +			}
 +			
-+		}
-+		
-+		boolean ok = mc.currentScreen == null && (mc.vrPlayer.getFreeMove() || mc.vrSettings.simulateFalling);
++		boolean ok = mc.currentScreen == null && (mc.vrPlayer.getFreeMove() || mc.vrSettings.simulateFalling) && !flag;
 +
 +		// VIVECRAFT DO ok.
 +		this.jump = this.gameSettings.keyBindJump.isKeyDown() && ok;
 +
-+		if (mc.jumpTracker.isClimbeyJump())
-+			this.jump = false;
-+
-+		if (this.gameSettings.keyBindJump.isKeyDown() == false)
-+			this.jump = false;
-+		
 +		this.sneak = (mc.sneakTracker.sneakCounter > 0 || mc.sneakTracker.sneakOverride || this.gameSettings.keyBindSneak.isKeyDown())
 +				&& mc.currentScreen == null;
 +
@@ -156,7 +150,7 @@
 +		this.moveForward = this.moveForward * vr.movementSpeedMultiplier;
 +		this.moveStrafe = this.moveStrafe * vr.movementSpeedMultiplier;
 +
-+		if (Main.katvr) {
++		if (Main.katvr && !flag) {
 +			this.moveStrafe = 0;
 +			this.moveForward = jkatvr.getSpeed() * jkatvr.walkDirection() * vr.movementSpeedMultiplier;
 +		}

@@ -3,10 +3,7 @@ package org.vivecraft.gameplay.screenhandlers;
 import java.util.function.Predicate;
 
 import org.vivecraft.api.VRData.VRDevicePose;
-import org.vivecraft.control.ButtonTuple;
 import org.vivecraft.control.ControllerType;
-import org.vivecraft.control.VRButtonMapping;
-import org.vivecraft.control.VRInputEvent;
 import org.vivecraft.gui.GuiRadial;
 import org.vivecraft.provider.MCOpenVR;
 import org.vivecraft.utils.OpenVRUtil;
@@ -30,9 +27,9 @@ public class RadialHandler {
 	public static Framebuffer Framebuffer = null;
 
 	private static ControllerType activecontroller;
-	private static ButtonTuple activeButton;
+	private static boolean lastPressedClickL, lastPressedClickR, lastPressedShiftL, lastPressedShiftR;
 	
-	public static boolean setOverlayShowing(boolean showingState, ButtonTuple button) {
+	public static boolean setOverlayShowing(boolean showingState, ControllerType controller) {
 		if (Main.kiosk) return false;
 		if(mc.vrSettings.seated) showingState = false;
 		int ret = 1;
@@ -41,13 +38,11 @@ public class RadialHandler {
 			int j = mc.mainWindow.getScaledHeight();
 			UI.init(Minecraft.getInstance(), i, j);
 			Showing = true;
-			activecontroller = button.controller;
+			activecontroller = controller;
 			orientOverlay(activecontroller);
-			activeButton = button; 
 		} else {
 			Showing = false;
 			activecontroller = null;
-			activeButton = null;
 		}
 
 		return isShowing();
@@ -159,20 +154,25 @@ public class RadialHandler {
 
 	}
 
-	public static boolean handleInputEvent(VRInputEvent event) {
+	public static void processBindings() {
+		if (!isShowing()) return;
 
-		if(!isShowing()) return false;
+		if (PointedL && GuiHandler.keyKeyboardShift.isPressed(ControllerType.LEFT)) {
+			UI.setShift(true);
+			lastPressedShiftL = true;
+		}
+		if (!GuiHandler.keyKeyboardShift.isKeyDown(ControllerType.LEFT) && lastPressedShiftL) {
+			UI.setShift(false);
+			lastPressedShiftL = false;
+		}
 
-		Predicate<ButtonTuple> predicate = b -> b.button == event.getButton() && b.isTouch == event.isButtonTouchEvent();
-		
-		VRButtonMapping shift = mc.vrSettings.buttonMappings.get(GuiHandler.keyShift.getKeyDescription());
-
-		if(((PointedL && event.getController().getType() == ControllerType.LEFT) || (PointedR && event.getController().getType() == ControllerType.RIGHT)) && shift.buttons.stream().anyMatch(predicate)) {
-			if (event.getButtonState())
+		if (PointedR && GuiHandler.keyKeyboardShift.isPressed(ControllerType.RIGHT)) {
 				UI.setShift(true);
-			else
+			lastPressedShiftR = true;
+		}
+		if (!GuiHandler.keyKeyboardShift.isKeyDown(ControllerType.RIGHT) && lastPressedShiftR) {
 				UI.setShift(false);
-			return true;
+			lastPressedShiftR = false;
 		}
 		
 		double d0 = Math.min(Math.max((int) UI.cursorX1, 0), mc.mainWindow.getWidth())
@@ -186,46 +186,37 @@ public class RadialHandler {
 				 * (double)mc.mainWindow.getScaledHeight() / (double)mc.mainWindow.getHeight();
 
 		if(mc.vrSettings.radialModeHold) {
+			if (activecontroller == null)
+				return;
 			
-			if(activeButton == null || activecontroller == null) 
-				return false;
-
-			boolean ismeUp = event.getButtonState() == false &&  activeButton.button == event.getButton() && activecontroller == event.getController().getType();	
-			
-			if(ismeUp) {
+			if (!MCOpenVR.keyRadialMenu.isKeyDown()) {
 				if (activecontroller == ControllerType.LEFT) {
 					UI.mouseClicked((int)d0, (int)d1, 0);
 				} else {
 					UI.mouseClicked((int)d2, (int)d3, 0);
 				}
 				RadialHandler.setOverlayShowing(false, null);
-				return false;
 			}
 			
 		} else {
-			VRButtonMapping leftClick = mc.vrSettings.buttonMappings.get(GuiHandler.keyLeftClick.getKeyDescription());
-			VRButtonMapping rightClick = mc.vrSettings.buttonMappings.get(GuiHandler.keyRightClick.getKeyDescription());
-			boolean isClick = leftClick.buttons.stream().anyMatch(predicate) || rightClick.buttons.stream().anyMatch(predicate);
-
-			if(PointedL && event.getController().getType() == ControllerType.LEFT && isClick) {
-				if(event.getButtonState()) {
+			if (PointedL && GuiHandler.keyKeyboardClick.isPressed(ControllerType.LEFT)) {
 					UI.mouseClicked((int)d0, (int)d1, 0);
-				} else {
+				lastPressedClickL = true;
+			}
+			if (!GuiHandler.keyKeyboardClick.isKeyDown(ControllerType.LEFT) && lastPressedClickL) {
 					UI.mouseReleased((int)d0, (int)d1, 0);
-				}
-				return true;
+				lastPressedClickL = false;
 			}
 
-			if(PointedR && event.getController().getType() == ControllerType.RIGHT && isClick) {
-				if(event.getButtonState()) {
+			if(PointedR && GuiHandler.keyKeyboardClick.isPressed(ControllerType.RIGHT)) {
 					UI.mouseClicked((int)d2, (int)d3, 0);
-				} else  {
+				lastPressedClickR = true;
+			}
+			if (!GuiHandler.keyKeyboardClick.isKeyDown(ControllerType.RIGHT) && lastPressedClickR) {
 					UI.mouseReleased((int)d2, (int)d3, 0);
-				}
-				return true;
+				lastPressedClickR = false;
 			}
 		}
-		return false;
 	}
 
 	public static boolean isShowing() {

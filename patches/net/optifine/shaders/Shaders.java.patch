@@ -126,6 +126,15 @@
              return screenshaderoptions == null ? def : screenshaderoptions.getColumns();
          }
      }
+@@ -1882,7 +1892,7 @@
+     public static void startup(Minecraft mc)
+     {
+         checkShadersModInstalled();
+-        mc = mc;
++        Shaders.mc = mc;
+         mc = Minecraft.getInstance();
+         capabilities = GL.getCapabilities();
+         glVersionString = GL11.glGetString(GL11.GL_VERSION);
 @@ -2236,6 +2246,8 @@
              }
  
@@ -225,15 +234,15 @@
          }
  
          if (needResizeShadow)
-@@ -4016,7 +4038,7 @@
+@@ -4015,7 +4037,7 @@
+ 
              if (entity != null)
              {
-                 isSleeping = entity instanceof LivingEntity && ((LivingEntity)entity).isSleeping();
--                eyePosY = (float)activeRenderInfo.getProjectedView().y;
-+                eyePosY = (float)activeRenderInfo.getPosition().y;
+-                isSleeping = entity instanceof LivingEntity && ((LivingEntity)entity).isSleeping();
++                isSleeping = false;//entity instanceof LivingEntity && ((LivingEntity)entity).isSleeping();
+                 eyePosY = (float)activeRenderInfo.getProjectedView().y;
                  eyeBrightness = entity.getBrightnessForRender();
                  float f2 = (float)diffSystemTime * 0.01F;
-                 float f3 = (float)Math.exp(Math.log(0.5D) * (double)f2 / (double)eyeBrightnessHalflife);
 @@ -4044,7 +4066,7 @@
  
                      if (livingentity.isPotionActive(Effects.NIGHT_VISION))
@@ -254,24 +263,6 @@
          mc.getProfiler().endSection();
          EXTFramebufferObject.glBindFramebufferEXT(36160, dfb);
  
-@@ -4346,7 +4370,7 @@
-     public static void setCamera(ActiveRenderInfo activeRenderInfo, float partialTicks)
-     {
-         Entity entity = activeRenderInfo.getRenderViewEntity();
--        Vec3d vec3d = activeRenderInfo.getProjectedView();
-+        Vec3d vec3d = activeRenderInfo.getPosition();
-         double d0 = vec3d.x;
-         double d1 = vec3d.y;
-         double d2 = vec3d.z;
-@@ -4395,7 +4419,7 @@
-     public static void setCameraShadow(ActiveRenderInfo activeRenderInfo, float partialTicks)
-     {
-         Entity entity = activeRenderInfo.getRenderViewEntity();
--        Vec3d vec3d = activeRenderInfo.getProjectedView();
-+        Vec3d vec3d = activeRenderInfo.getPosition();
-         double d0 = vec3d.x;
-         double d1 = vec3d.y;
-         double d2 = vec3d.z;
 @@ -4505,13 +4529,24 @@
          floatbuffer.clear();
          GL32.glGetFloatv(2982, floatbuffer);
@@ -298,7 +289,16 @@
          if (customUniforms != null)
          {
              customUniforms.update();
-@@ -5288,7 +5323,7 @@
+@@ -4799,7 +4834,7 @@
+         isRenderingDfb = false;
+         mc.getFramebuffer().bindFramebuffer(true);
+         GLX.glFramebufferTexture2D(GLX.GL_FRAMEBUFFER, GLX.GL_COLOR_ATTACHMENT0, 3553, mc.getFramebuffer().framebufferTexture, 0);
+-        GL32.glViewport(0, 0, mc.mainWindow.getFramebufferWidth(), mc.mainWindow.getFramebufferHeight());
++        //GL32.glViewport(0, 0, mc.mainWindow.getFramebufferWidth(), mc.mainWindow.getFramebufferHeight());
+         GlStateManager.depthMask(true);
+         GL32.glClearColor(clearColorR, clearColorG, clearColorB, 1.0F);
+         GL32.glClear(16640);
+@@ -5294,7 +5329,7 @@
  
          if (cap == 3553)
          {
@@ -307,7 +307,7 @@
          }
          else if (cap == 2912)
          {
-@@ -5302,7 +5337,7 @@
+@@ -5308,7 +5343,7 @@
  
          if (cap == 3553)
          {
@@ -316,7 +316,7 @@
          }
          else if (cap == 2912)
          {
-@@ -5313,13 +5348,13 @@
+@@ -5319,13 +5354,13 @@
      public static void sglEnableT2D(int cap)
      {
          GL32.glEnable(cap);
@@ -332,7 +332,7 @@
      }
  
      public static void sglEnableFog(int cap)
-@@ -5334,7 +5369,7 @@
+@@ -5340,7 +5375,7 @@
          disableFog();
      }
  
@@ -341,7 +341,7 @@
      {
          if (isRenderingSky)
          {
-@@ -5346,7 +5381,7 @@
+@@ -5352,7 +5387,7 @@
          }
      }
  

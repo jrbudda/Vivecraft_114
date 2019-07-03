@@ -11,7 +11,7 @@ import distutils.core
 from shutil import move
 from tempfile import mkstemp
 from os import remove, close
-from minecriftversion import mc_version, of_file_name, of_json_name, minecrift_version_num, \
+from minecriftversion import mc_version, of_file_name, minecrift_version_num, \
     minecrift_build, of_file_extension, of_file_md5, of_build_md5, mcp_version, mc_file_md5, \
     mcp_download_url, mcp_uses_generics
 from hashlib import md5  # pylint: disable-msg=E0611
@@ -199,11 +199,11 @@ def download_deps( mcp_dir, download_mc, forgedep=False ):
         source_json_file = os.path.join("installer",mc_version+"-forge.json")
     
     # Use optifine json name for destination dir and jar names
-    optifine_dest_dir = os.path.join(jars,"libraries","optifine","OptiFine",of_json_name )
+    optifine_dest_dir = os.path.join(jars,"libraries","optifine","OptiFine",of_file_name )
     mkdir_p( optifine_dest_dir )
 
     print 'Checking Optifine...'
-    optifine_jar = "OptiFine-"+of_json_name+".jar"
+    optifine_jar = "OptiFine-"+of_file_name+".jar"
     optifine_dest_file = os.path.join( optifine_dest_dir, optifine_jar )
  
     download_optifine = False
@@ -448,7 +448,7 @@ def main(mcp_dir):
 
     if nomerge == False:
         print("Applying Optifine...")
-        optifine = os.path.join(mcp_dir,"jars","libraries","optifine","OptiFine",of_json_name,"OptiFine-"+of_json_name+".jar" )
+        optifine = os.path.join(mcp_dir,"jars","libraries","optifine","OptiFine",of_file_name,"OptiFine-"+of_file_name+".jar" )
         minecraft_jar = os.path.join( mcp_dir,"jars","versions",mc_version,mc_version+".jar")
         print ' Merging\n  %s\n into\n  %s' % (optifine, minecraft_jar)
         zipmerge( minecraft_jar, optifine )

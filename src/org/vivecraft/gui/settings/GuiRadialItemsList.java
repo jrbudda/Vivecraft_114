@@ -60,7 +60,7 @@ public class GuiRadialItemsList extends ExtendedList
         }
 
 		@Override
-		public void render(int index, int x, int y, int width, int height, int mouseX, int mouseY, boolean p_194999_5_,float partialTicks)
+		public void render(int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean p_194999_5_,float partialTicks)
         {
             minecraft.fontRenderer.drawString(this.labelText, GuiRadialItemsList.this.minecraft.currentScreen.width / 2 - this.labelWidth / 2, y + height  - GuiRadialItemsList.this.minecraft.fontRenderer.FONT_HEIGHT - 1, 6777215);
         }
@@ -78,7 +78,7 @@ public class GuiRadialItemsList extends ExtendedList
         }      
         
 		@Override
-		public void render(int index, int x, int y, int width, int height, int mouseX, int mouseY, boolean p_194999_5_,float partialTicks)
+		public void render(int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean p_194999_5_,float partialTicks)
         {
             TextFormatting formatting = TextFormatting.WHITE;
             if(p_194999_5_) formatting = TextFormatting.GREEN;

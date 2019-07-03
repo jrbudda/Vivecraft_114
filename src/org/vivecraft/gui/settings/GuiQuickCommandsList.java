@@ -36,8 +36,9 @@ public class GuiQuickCommandsList extends ExtendedList<GuiQuickCommandsList.Comm
         
         private CommandEntry(String command, GuiQuickCommandsList parent)
         {
-            txt = new TextFieldWidget(minecraft.fontRenderer, parent.width / 2 - 100, 60, 200, 20, command);
-            this.btnDelete = new Button( 0, 0, 48, 18, "X", (p) -> {
+            txt = new TextFieldWidget(minecraft.fontRenderer, parent.width / 2 - 100, 60, 200, 20, "");
+            txt.setText(command);
+            this.btnDelete = new Button(0, 0, 18, 18, "X", (p) -> {
                 	CommandEntry.this.txt.setText("");
                 	CommandEntry.this.txt.changeFocus(true);
             });          
@@ -94,7 +95,7 @@ public class GuiQuickCommandsList extends ExtendedList<GuiQuickCommandsList.Comm
         }
         
         @Override
-		public void render(int index, int x, int y, int width, int height, int mouseX, int mouseY, boolean p_194999_5_,float partialTicks)
+		public void render(int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean p_194999_5_,float partialTicks)
         {
         	txt.x = x;
         	txt.y = y;
@@ -102,10 +103,11 @@ public class GuiQuickCommandsList extends ExtendedList<GuiQuickCommandsList.Comm
         	txt.render(mouseX, mouseY, partialTicks);
         	//GuiQuickCommandsList.this.minecraft.fontRenderer.drawString(command, x + 40  - GuiQuickCommandsList.this.maxListLabelWidth, y + p_148279_5_ / 2 - GuiQuickCommandsList.this.minecraft.fontRenderer.FONT_HEIGHT / 2, 16777215);
 
-        	this.btnDelete.x = txt.x+140;
+        	this.btnDelete.x =txt.x+txt.getWidth() + 2;
         	this.btnDelete.y= txt.y;
         	this.btnDelete.visible = true;
         	this.btnDelete.render(mouseX, mouseY, partialTicks);
+
         }
 
     }

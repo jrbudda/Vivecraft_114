@@ -79,7 +79,13 @@ public class GuiVROptionSlider extends GuiVROptionButton
         this.setMessage(minecraft.vrSettings.getButtonDisplayString(this.enumOptions));
         this.dragging = true;
     }
-
+    
+    @Override
+    protected int getYImage(boolean p_getYImage_1_)
+    {
+        return 0;
+    }
+    
     /**
      * Called when the left mouse button is released. This method is specific to GuiButton.
      */

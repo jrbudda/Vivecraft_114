@@ -10,18 +10,15 @@
  import net.minecraft.client.Minecraft;
  import net.minecraft.client.gui.FontRenderer;
  import net.minecraft.client.renderer.ActiveRenderInfo;
-@@ -132,9 +135,9 @@
+@@ -132,7 +135,7 @@
      {
          ActiveRenderInfo activerenderinfo = Minecraft.getInstance().gameRenderer.getActiveRenderInfo();
  
 -        if (activerenderinfo.func_216786_h())
 +        if (activerenderinfo.isValid())
          {
--            Vec3d vec3d = activerenderinfo.getProjectedView().func_216371_e();
-+            Vec3d vec3d = activerenderinfo.getPosition().func_216371_e();
+             Vec3d vec3d = activerenderinfo.getProjectedView().func_216371_e();
              AxisAlignedBB axisalignedbb = (new AxisAlignedBB(p_217735_0_, p_217735_1_)).offset(vec3d);
-             func_217730_a(axisalignedbb, p_217735_2_, p_217735_3_, p_217735_4_, p_217735_5_);
-         }
 @@ -144,12 +147,16 @@
      {
          ActiveRenderInfo activerenderinfo = Minecraft.getInstance().gameRenderer.getActiveRenderInfo();
@@ -29,8 +26,7 @@
 -        if (activerenderinfo.func_216786_h())
 +        if (activerenderinfo.isValid())
          {
--            Vec3d vec3d = activerenderinfo.getProjectedView().func_216371_e();
-+            Vec3d vec3d = activerenderinfo.getPosition().func_216371_e();
+             Vec3d vec3d = activerenderinfo.getProjectedView().func_216371_e();
              AxisAlignedBB axisalignedbb = (new AxisAlignedBB(p_217736_0_)).offset(vec3d).grow((double)p_217736_1_);
              func_217730_a(axisalignedbb, p_217736_2_, p_217736_3_, p_217736_4_, p_217736_5_);
          }
@@ -41,7 +37,7 @@
      }
  
      public static void func_217730_a(AxisAlignedBB p_217730_0_, float p_217730_1_, float p_217730_2_, float p_217730_3_, float p_217730_4_)
-@@ -186,12 +193,12 @@
+@@ -186,7 +193,7 @@
          Minecraft minecraft = Minecraft.getInstance();
          ActiveRenderInfo activerenderinfo = minecraft.gameRenderer.getActiveRenderInfo();
  
@@ -49,12 +45,4 @@
 +        if (activerenderinfo.isValid() && minecraft.getRenderManager().options != null)
          {
              FontRenderer fontrenderer = minecraft.fontRenderer;
--            double d0 = activerenderinfo.getProjectedView().x;
--            double d1 = activerenderinfo.getProjectedView().y;
--            double d2 = activerenderinfo.getProjectedView().z;
-+            double d0 = activerenderinfo.getPosition().x;
-+            double d1 = activerenderinfo.getPosition().y;
-+            double d2 = activerenderinfo.getPosition().z;
-             GlStateManager.pushMatrix();
-             GlStateManager.translatef((float)(p_217734_1_ - d0), (float)(p_217734_3_ - d1) + 0.07F, (float)(p_217734_5_ - d2));
-             GlStateManager.normal3f(0.0F, 1.0F, 0.0F);
+             double d0 = activerenderinfo.getProjectedView().x;

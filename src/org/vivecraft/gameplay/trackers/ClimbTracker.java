@@ -8,7 +8,7 @@ import java.util.Set;
 
 import org.vivecraft.api.NetworkHelper;
 import org.vivecraft.api.NetworkHelper.PacketDiscriminators;
-import org.vivecraft.control.VRButtonMapping;
+import org.vivecraft.control.ControllerType;
 import org.vivecraft.provider.MCOpenVR;
 
 import net.minecraft.block.Block;
@@ -48,6 +48,7 @@ public class ClimbTracker extends Tracker{
 	boolean wantjump = false;
 	AxisAlignedBB box[] = new AxisAlignedBB[2];
 	AxisAlignedBB latchbox[] = new AxisAlignedBB[2];
+	boolean[] inblock = new boolean[2];
 	int[] meta = new int[2];
 
 	//						2: Ladder facing north
@@ -98,7 +99,7 @@ public class ClimbTracker extends Tracker{
 			return false;
 		if(p.isPassenger())
 			return false;
-		if(!isClimbeyClimbEquipped() && p.moveForward > 0 && Minecraft.getInstance().vrSettings.vrFreeMove ) 
+		if(!isClimbeyClimbEquipped() && (p.moveForward != 0 || p.moveStrafing != 0))
 			return false;
 		return true;
 	}
@@ -131,6 +132,11 @@ public class ClimbTracker extends Tracker{
 	}
 
 	@Override
+	public void idleTick(ClientPlayerEntity player) {
+		MCOpenVR.getInputAction(MCOpenVR.keyClimbeyGrab).setEnabled(isGrabbingLadder() || (isClimbeyClimb() && (inblock[0] || inblock[1])));
+	}
+
+	@Override
 	public void reset(ClientPlayerEntity player) {
 		latchStartController = -1;
 		latched[0] = false;
@@ -155,6 +161,7 @@ public class ClimbTracker extends Tracker{
 		for(int c=0;c<2;c++){	
 			cpos[c] = mc.vrPlayer.vrdata_world_pre.getController(c).getPosition();
 			Vec3d controllerDir = mc.vrPlayer.vrdata_world_pre.getController(c).getDirection();
+			inblock[c] = false;
 
 			BlockPos bp = new BlockPos(cpos[c]);
 			BlockState bs = mc.world.getBlockState(bp);
@@ -293,9 +300,9 @@ public class ClimbTracker extends Tracker{
 					mc.player.onGround = !latched[0] && !latched[1];
 
 				if(c == 0)
-					button[c] = mc.gameSettings.keyBindAttack.isKeyDown();
+					button[c] = MCOpenVR.keyClimbeyGrab.isKeyDown(ControllerType.RIGHT);
 				else 
-					button[c] = mc.gameSettings.keyBindForward.isKeyDown() && !mc.player.onGround;
+					button[c] = MCOpenVR.keyClimbeyGrab.isKeyDown(ControllerType.LEFT);
 
 				inblock[c] = box[c] != null && box[c].offset(bp).contains(cpos[c]);
 
@@ -315,9 +322,9 @@ public class ClimbTracker extends Tracker{
 			if(!button[c] && latched[c]){ //let go 
 				latched[c] = false;
 				if(c == 0)
-					VRButtonMapping.unpressKey(mc.gameSettings.keyBindAttack);
+					MCOpenVR.keyClimbeyGrab.unpressKey(ControllerType.RIGHT);
 				else 
-					VRButtonMapping.unpressKey(mc.gameSettings.keyBindForward);
+					MCOpenVR.keyClimbeyGrab.unpressKey(ControllerType.LEFT);
 
 				jump = true;
 			} 
@@ -375,7 +382,7 @@ public class ClimbTracker extends Tracker{
 
 
 		if(!wantjump && !ladder) 
-			wantjump = mc.gameSettings.keyBindJump.isKeyDown() && mc.jumpTracker.isClimbeyJumpEquipped();
+			wantjump = MCOpenVR.keyClimbeyJump.isKeyDown() && mc.jumpTracker.isClimbeyJumpEquipped();
 
 		jump &= wantjump;
 
@@ -393,7 +400,8 @@ public class ClimbTracker extends Tracker{
 		if(!latched[0] && !latched[1] && !jump){
 			if(player.onGround && unsetflag){
 				unsetflag = false;
-				VRButtonMapping.unpressKey(mc.gameSettings.keyBindForward);
+				MCOpenVR.keyClimbeyGrab.unpressKey(ControllerType.RIGHT);
+				MCOpenVR.keyClimbeyGrab.unpressKey(ControllerType.LEFT);
 			}
 			latchStartController = -1;
 			return; //fly u fools

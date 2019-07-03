@@ -24,7 +24,7 @@ import net.minecraft.launchwrapper.IClassTransformer;
 
 public class MinecriftClassTransformer implements IClassTransformer
 {
-	private static final boolean DEBUG = true;//Boolean.parseBoolean(System.getProperty("legacy.debugClassLoading", "false"));
+	private static final boolean DEBUG = Boolean.parseBoolean(System.getProperty("legacy.debugClassLoading", "false"));
 	
     private ZipFile mcZipFile = null;
     private static URL mcZipURL = null;

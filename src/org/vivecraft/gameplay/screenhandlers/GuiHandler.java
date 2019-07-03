@@ -4,7 +4,8 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
 import org.vivecraft.api.VRData.VRDevicePose;
-import org.vivecraft.control.VRButtonMapping;
+import org.vivecraft.control.ControllerType;
+import org.vivecraft.control.HandedKeyBinding;
 import org.vivecraft.provider.MCOpenVR;
 import org.vivecraft.render.RenderPass;
 import org.vivecraft.settings.VRSettings;
@@ -72,15 +73,36 @@ public class GuiHandler {
 	public static Vec3d hudPos_room = new Vec3d(0,0,0);
 	public static Matrix4f hudRotation_room = new Matrix4f();
 	
-	public static final KeyBinding keyMenuButton = new KeyBinding("GUI Menu Button", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft GUI");
-	public static final KeyBinding keyLeftClick = new KeyBinding("GUI Left Click", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft GUI");
-	public static final KeyBinding keyRightClick = new KeyBinding("GUI Right Click", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft GUI");
-	public static final KeyBinding keyMiddleClick = new KeyBinding("GUI Middle Click", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft GUI");
-	public static final KeyBinding keyShift = new KeyBinding("GUI Shift", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft GUI");
-	public static final KeyBinding keyCtrl = new KeyBinding("GUI Ctrl", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft GUI");
-	public static final KeyBinding keyAlt = new KeyBinding("GUI Alt", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft GUI");
-	public static final KeyBinding keyScrollUp = new KeyBinding("GUI Scroll Up", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft GUI");
-	public static final KeyBinding keyScrollDown = new KeyBinding("GUI Scroll Down", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft GUI");
+	public static final KeyBinding keyLeftClick = new KeyBinding("vivecraft.key.guiLeftClick", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft GUI");
+	public static final KeyBinding keyRightClick = new KeyBinding("vivecraft.key.guiRightClick", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft GUI");
+	public static final KeyBinding keyMiddleClick = new KeyBinding("vivecraft.key.guiMiddleClick", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft GUI");
+	public static final KeyBinding keyShift = new KeyBinding("vivecraft.key.guiShift", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft GUI");
+	public static final KeyBinding keyCtrl = new KeyBinding("vivecraft.key.guiCtrl", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft GUI");
+	public static final KeyBinding keyAlt = new KeyBinding("vivecraft.key.guiAlt", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft GUI");
+	public static final KeyBinding keyScrollUp = new KeyBinding("vivecraft.key.guiScrollUp", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft GUI");
+	public static final KeyBinding keyScrollDown = new KeyBinding("vivecraft.key.guiScrollDown", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft GUI");
+	public static final KeyBinding keyScrollAxis = new KeyBinding("vivecraft.key.guiScrollAxis", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft GUI"); // dummy binding
+	public static final HandedKeyBinding keyKeyboardClick = new HandedKeyBinding("vivecraft.key.keyboardClick", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft Keyboard") {
+		@Override
+		public boolean isPriorityOnController(ControllerType type) {
+			if (KeyboardHandler.Showing && !mc.vrSettings.physicalKeyboard) {
+				return KeyboardHandler.isUsingController(type);
+			}
+			return RadialHandler.isShowing() && RadialHandler.isUsingController(type);
+		}
+	};
+	public static final HandedKeyBinding keyKeyboardShift = new HandedKeyBinding("vivecraft.key.keyboardShift", GLFW.GLFW_KEY_UNKNOWN, "Vivecraft Keyboard") {
+		@Override
+		public boolean isPriorityOnController(ControllerType type) {
+			if (KeyboardHandler.Showing) {
+				if (mc.vrSettings.physicalKeyboard)
+					return true;
+				return KeyboardHandler.isUsingController(type);
+			}
+			return RadialHandler.isShowing() && RadialHandler.isUsingController(type);
+		}
+	};
+
 	public static Framebuffer guiFramebuffer = null;
 
 
@@ -187,9 +209,9 @@ public class GuiHandler {
 	}
 
 	public static void processBindingsGui() {
-		if (controllerMouseX >= 0 && controllerMouseX < mc.mainWindow.getWidth()
-				&& controllerMouseY >=0 && controllerMouseY < mc.mainWindow.getWidth())
-		{
+		boolean mouseValid = controllerMouseX >= 0 && controllerMouseX < mc.mainWindow.getWidth()
+				&& controllerMouseY >=0 && controllerMouseY < mc.mainWindow.getWidth();
+
 			//This is how the MouseHelper do.
 			/*double deltaX = (controllerMouseX - lastMouseX)
 			 * (double)mc.mainWindow.getScaledWidth() / (double)mc.mainWindow.getWidth();
@@ -200,13 +222,11 @@ public class GuiHandler {
 			double d1 = Math.min(Math.max((int) controllerMouseY, 0), mc.mainWindow.getWidth())
 			 * (double)mc.mainWindow.getScaledHeight() / (double)mc.mainWindow.getHeight();*/
 
-			if (MCOpenVR.controllerDeviceIndex[MCOpenVR.RIGHT_CONTROLLER] != -1)
-			{
 				//if (keyLeftClick.isKeyDown() && mc.currentScreen != null)
 				//	mc.currentScreen.mouseDragged(d0, d1, 0, deltaX, deltaY);//Signals mouse move
 
 				//LMB
-				if (keyLeftClick.isPressed() && mc.currentScreen != null)
+		if (keyLeftClick.isPressed() && mc.currentScreen != null && mouseValid)
 				{ //press left mouse button
 					//if (Display.isActive())
 					//	KeyboardSimulator.robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
@@ -216,7 +236,7 @@ public class GuiHandler {
 					lastPressedLeftClick = true;
 				}	
 
-				if (!keyLeftClick.isKeyDown() && lastPressedLeftClick && mc.currentScreen != null) {
+		if (!keyLeftClick.isKeyDown() && lastPressedLeftClick) {
 					//release left mouse button
 					//if (Display.isActive()) KeyboardSimulator.robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 					//else 
@@ -227,7 +247,7 @@ public class GuiHandler {
 				//end LMB
 
 				//RMB
-				if (keyRightClick.isPressed() && mc.currentScreen != null) {
+		if (keyRightClick.isPressed() && mc.currentScreen != null && mouseValid) {
 					//press right mouse button
 					//if (Display.isActive()) KeyboardSimulator.robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
 					//else 
@@ -239,7 +259,7 @@ public class GuiHandler {
 				//if (keyRightClick.isKeyDown() && mc.currentScreen != null)
 				//	mc.currentScreen.mouseDragged(d0, d1, 0, deltaX, deltaY);//Signals mouse move
 
-				if (!keyRightClick.isKeyDown() && lastPressedRightClick && mc.currentScreen != null) {
+		if (!keyRightClick.isKeyDown() && lastPressedRightClick) {
 					//release right mouse button
 					//if (Display.isActive())
 					//	KeyboardSimulator.robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
@@ -251,7 +271,7 @@ public class GuiHandler {
 				//end RMB	
 
 				//MMB
-				if (keyMiddleClick.isPressed() && mc.currentScreen != null) {
+		if (keyMiddleClick.isPressed() && mc.currentScreen != null && mouseValid) {
 					//press middle mouse button
 					//if (Display.isActive())
 					//	KeyboardSimulator.robot.mousePress(InputEvent.BUTTON2_DOWN_MASK);
@@ -264,7 +284,7 @@ public class GuiHandler {
 				//if (keyMiddleClick.isKeyDown() && mc.currentScreen != null)
 				//	mc.currentScreen.mouseDragged(d0, d1, 0, deltaX, deltaY);//Signals mouse move
 
-				if (!keyMiddleClick.isKeyDown() && lastPressedMiddleClick && mc.currentScreen != null) {
+		if (!keyMiddleClick.isKeyDown() && lastPressedMiddleClick) {
 					//release middle mouse button
 					//if (Display.isActive())
 					//	KeyboardSimulator.robot.mouseRelease(InputEvent.BUTTON2_DOWN_MASK);
@@ -275,15 +295,11 @@ public class GuiHandler {
 				}	
 				//end MMB
 
-			}
-		}
-
 		//lastMouseX = controllerMouseX;
 		//lastMouseY = controllerMouseY;
 
-		if (MCOpenVR.controllerDeviceIndex[MCOpenVR.LEFT_CONTROLLER] != -1) {
 			//Shift
-			if (keyShift.isPressed())
+		if (keyShift.isPressed() && mc.currentScreen != null)
 			{
 				//press Shift
 				//if (mc.currentScreen != null) mc.currentScreen.pressShiftFake = true;
@@ -304,7 +320,7 @@ public class GuiHandler {
 			//end Shift
 
 			//Ctrl
-			if (keyCtrl.isPressed())
+		if (keyCtrl.isPressed() && mc.currentScreen != null)
 			{
 				//press Ctrl
 				//if (Display.isActive()) KeyboardSimulator.robot.keyPress(KeyEvent.VK_CONTROL);
@@ -323,7 +339,7 @@ public class GuiHandler {
 			//end Ctrl
 
 			//Alt
-			if (keyAlt.isPressed())
+		if (keyAlt.isPressed() && mc.currentScreen != null)
 			{
 				//press Alt
 				//if (Display.isActive()) KeyboardSimulator.robot.keyPress(KeyEvent.VK_ALT);
@@ -341,9 +357,7 @@ public class GuiHandler {
 			}	
 			//end Alt
 
-		}
-
-		if (keyScrollUp.isPressed()) {		
+		if (keyScrollUp.isPressed() && mc.currentScreen != null) {
 			MCOpenVR.triggerBindingHapticPulse(keyScrollUp, 400);
 
 			//	if(mc.isGameFocused()) {
@@ -354,7 +368,7 @@ public class GuiHandler {
 			InputSimulator.scrollMouse(0, 4);
 		}
 
-		if (keyScrollDown.isPressed()) {
+		if (keyScrollDown.isPressed() && mc.currentScreen != null) {
 				MCOpenVR.triggerBindingHapticPulse(keyScrollDown, 400);
 			//	if(mc.isGameFocused()) {
 			//		KeyboardSimulator.robot.mouseWheel(120);
@@ -363,26 +377,13 @@ public class GuiHandler {
 			//	}
 			InputSimulator.scrollMouse(0, -4);
 		}
-
-		if(keyMenuButton.isPressed()) { //handle esc
-			//if(mc.isGameFocused()){ //keep this one for now.
-				InputSimulator.pressKey(GLFW.GLFW_KEY_ESCAPE); //window focus... yadda yadda
-				InputSimulator.releaseKey(GLFW.GLFW_KEY_ESCAPE); //window focus... yadda yadda
-			//}
-			//else {
-			//	if (mc.player != null) mc.player.closeScreen();
-			//	else mc.displayGuiScreen((Screen)null);
-			//}
-
-			KeyboardHandler.setOverlayShowing(false);	
-		}
 	}
 
 	
 	
 	public static void onScreenChanged(Screen previousGuiScreen, Screen newScreen, boolean unpressKeys)
 	{
-		if(unpressKeys){
+		/*if(unpressKeys){
 			for (VRButtonMapping mapping : mc.vrSettings.buttonMappings.values()) {
 				if(newScreen!=null) {
 					if(mapping.isGUIBinding() && mapping.keyBinding != mc.gameSettings.keyBindInventory)
@@ -390,7 +391,7 @@ public class GuiHandler {
 				} else
 					mapping.actuallyUnpress();
 			}
-		}
+		}*/
 
 		if(newScreen == null) {
 			//just insurance

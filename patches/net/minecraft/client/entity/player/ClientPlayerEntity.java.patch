@@ -102,7 +102,7 @@
      public int sprintingTicksLeft;
      public float renderArmYaw;
      public float renderArmPitch;
-@@ -127,12 +160,102 @@
+@@ -127,12 +160,99 @@
          this.ambientSoundHandlers.add(new UnderwaterAmbientSoundHandler(this, p_i1829_1_.getSoundHandler()));
          this.ambientSoundHandlers.add(new BubbleColumnAmbientSoundHandler(this));
      }
@@ -111,13 +111,10 @@
 +    public void setItemInUseClient(ItemStack item){
 +    	this.activeItemStack = item;
 +    }
-+
 +    
 +    public void setItemInUseCountClient(int count){
 +    	this.activeItemStackUseCount = count;
 +    }
-+    
-+
 +	
 +	HashMap<Pair<Short, Integer>, TransactionMutex> pendingTransactions = new HashMap<>();
 +	
@@ -206,7 +203,7 @@
          return false;
      }
  
-@@ -143,6 +266,8 @@
+@@ -143,6 +263,8 @@
      {
      }
  
@@ -215,7 +212,7 @@
      public boolean startRiding(Entity entityIn, boolean force)
      {
          if (!super.startRiding(entityIn, force))
-@@ -162,7 +287,10 @@
+@@ -162,7 +284,10 @@
                  this.rotationYaw = entityIn.rotationYaw;
                  this.setRotationYawHead(entityIn.rotationYaw);
              }
@@ -227,7 +224,7 @@
              return true;
          }
      }
-@@ -174,6 +302,10 @@
+@@ -174,6 +299,10 @@
      {
          super.stopRiding();
          this.rowingBoat = false;
@@ -238,7 +235,7 @@
      }
  
      /**
-@@ -259,29 +391,41 @@
+@@ -259,29 +388,41 @@
              boolean flag1 = d0 * d0 + d1 * d1 + d2 * d2 > 9.0E-4D || this.positionUpdateTicks >= 20;
              boolean flag2 = d3 != 0.0D || d4 != 0.0D;
  
@@ -251,14 +248,6 @@
 -            else if (flag1 && flag2)
 -            {
 -                this.connection.sendPacket(new CPlayerPacket.PositionRotationPacket(this.posX, axisalignedbb.minY, this.posZ, this.rotationYaw, this.rotationPitch, this.onGround));
--            }
--            else if (flag1)
--            {
--                this.connection.sendPacket(new CPlayerPacket.PositionPacket(this.posX, axisalignedbb.minY, this.posZ, this.onGround));
--            }
--            else if (flag2)
--            {
--                this.connection.sendPacket(new CPlayerPacket.RotationPacket(this.rotationYaw, this.rotationPitch, this.onGround));
 +            if(teleported){
 +            	teleported = false;
 +            	flag2 = true;
@@ -294,6 +283,14 @@
 +            		this.connection.sendPacket(new CPlayerPacket(this.onGround));
 +            	}
              }
+-            else if (flag1)
+-            {
+-                this.connection.sendPacket(new CPlayerPacket.PositionPacket(this.posX, axisalignedbb.minY, this.posZ, this.onGround));
+-            }
+-            else if (flag2)
+-            {
+-                this.connection.sendPacket(new CPlayerPacket.RotationPacket(this.rotationYaw, this.rotationPitch, this.onGround));
+-            }
 -            else if (this.prevOnGround != this.onGround)
 -            {
 -                this.connection.sendPacket(new CPlayerPacket(this.onGround));
@@ -302,7 +299,7 @@
              if (flag1)
              {
                  this.lastReportedPosX = this.posX;
-@@ -297,6 +441,13 @@
+@@ -297,6 +438,13 @@
              }
  
              this.prevOnGround = this.onGround;
@@ -316,7 +313,7 @@
              this.autoJumpEnabled = this.mc.gameSettings.autoJump;
          }
      }
-@@ -796,8 +947,11 @@
+@@ -796,8 +944,11 @@
          boolean flag = this.movementInput.jump;
          boolean flag1 = this.movementInput.sneak;
          boolean flag2 = this.func_223110_ee();
@@ -329,7 +326,7 @@
          this.mc.getTutorial().handleMovement(this.movementInput);
  
          if (this.isHandActive() && !this.isPassenger())
-@@ -982,6 +1136,9 @@
+@@ -982,6 +1133,9 @@
          }
  
          super.livingTick();
@@ -339,7 +336,7 @@
  
          if (this.onGround && this.abilities.isFlying && !this.mc.playerController.isSpectatorMode())
          {
-@@ -1083,14 +1240,52 @@
+@@ -1083,14 +1237,52 @@
          return super.removeActivePotionEffect(potioneffectin);
      }
  
@@ -347,6 +344,10 @@
 +    @Override
 +    public void move(MoverType type, Vec3d move)
      {
+-        double d0 = this.posX;
+-        double d1 = this.posZ;
+-        super.move(typeIn, pos);
+-        this.updateAutoJump((float)(this.posX - d0), (float)(this.posZ - d1));
 +    	if(move.length() == 0) return;
 +    	if(this.isPassenger())return;
 +    	boolean freemove = OpenVRPlayer.get().getFreeMove();
@@ -355,22 +356,22 @@
 +    	Vec3d roomOrigin = OpenVRPlayer.get().roomOrigin;
 +    	//   	Vec3 camloc = Minecraft.getInstance().vrPlayer.getHMDPos_World();
 +
-+    	if ( (mc.climbTracker.isGrabbingLadder() || freemove || mc.swimTracker.isActive(this)) && (this.moveForward != 0 || this.isElytraFlying() || Math.abs(this.getMotion().x) > 0.01 || Math.abs(this.getMotion().z) > 0.01))
-+    {
++    	if ( (mc.climbTracker.isGrabbingLadder() || freemove || mc.swimTracker.isActive(this)) && 
++    			(this.moveForward != 0 || this.isElytraFlying() || Math.abs(this.getMotion().x) > 0.01 || Math.abs(this.getMotion().z) > 0.01))
++    	{
 +    		double ox = roomOrigin.x - posX;
 +    		double oz = roomOrigin.z - posZ;
-         double d0 = this.posX;
-         double d1 = this.posZ;
--        super.move(typeIn, pos);
++    		double d0 = this.posX;
++    		double d1 = this.posZ;
 +    		super.move(type, move);
 +
 +    		if(mc.vrSettings.walkUpBlocks)
 +    			this.stepHeight = 1.0f;
 +    		else {
 +    			this.stepHeight = 0.6f;
-         this.updateAutoJump((float)(this.posX - d0), (float)(this.posZ - d1));
-     }
- 
++    			this.updateAutoJump((float)(this.posX - d0), (float)(this.posZ - d1));
++    		}
++
 +    		double oy = this.posY;
 +    		OpenVRPlayer.get().setRoomOrigin(
 +    				posX + ox, 
@@ -383,18 +384,18 @@
 +    					OpenVRPlayer.get().roomOrigin.x, 
 +    					this.posY,
 +    					OpenVRPlayer.get().roomOrigin.z, false);
-+
 +    		} else {
 +    			this.onGround = true; //
 +    			//do not move player, VRPlayer.moveplayerinroom will move him around.
 +    		}
 +    	}
-+    }
+     }
+-
 +    
      public boolean isAutoJumpEnabled()
      {
          return this.autoJumpEnabled;
-@@ -1114,12 +1309,17 @@
+@@ -1114,12 +1306,17 @@
                      float f = this.getAIMoveSpeed();
                      float f1 = (float)vec3d2.lengthSquared();
  
@@ -414,7 +415,7 @@
                          vec3d2 = new Vec3d((double)(f2 * f5 - f3 * f4), vec3d2.y, (double)(f3 * f5 + f2 * f4));
                          f1 = (float)vec3d2.lengthSquared();
  
-@@ -1293,4 +1493,391 @@
+@@ -1293,4 +1490,386 @@
              return this.eyesInWaterPlayer;
          }
      }
@@ -538,18 +539,15 @@
 +        }
 +    }
 +           
-+    /**
-+     * Used in both water and by flying objects
-+     */
 +    @Override
 +    public void moveRelative(float friction, Vec3d move) 
 +    {
 +    	//   	super.moveFlying(strafe, forward, friction);
-+    	
-+		double up = move.y;
-+		double strafe = move.x;
-+		double forward = move.z;
-+	    	
++
++    	double up = move.y;
++    	double strafe = move.x;
++    	double forward = move.z;
++
 +    	OpenVRPlayer vr = mc.vrPlayer;		
 +    	if (!vr.getFreeMove()) {return;}
 +
@@ -578,13 +576,13 @@
 +
 +    		if(Main.katvr){
 +    			jkatvr.query();
-+  			
-+            	speed =  jkatvr.getSpeed() * jkatvr.walkDirection() * mc.vrSettings.movementSpeedMultiplier;
-+             	directionVec = new Vec3d(0, 0,speed);
++
++    			speed =  jkatvr.getSpeed() * jkatvr.walkDirection() * mc.vrSettings.movementSpeedMultiplier;
++    			directionVec = new Vec3d(0, 0,speed);
 +    			directionVec=directionVec.rotateYaw(-jkatvr.getYaw()* PIOVER180 + mc.vrPlayer.vrdata_world_pre.rotation_radians);	    		
 +
 +    			if(this.abilities.isFlying || this.inWater){
-+                	directionVec=directionVec.rotatePitch(con.vrdata_world_pre.hmd.getPitch()* PIOVER180);				
++    				directionVec=directionVec.rotatePitch(con.vrdata_world_pre.hmd.getPitch()* PIOVER180);				
 +    			}else{
 +
 +    			}
@@ -596,7 +594,6 @@
 +    			if(this.abilities.isFlying || this.inWater){
 +    				switch (mc.vrSettings.vrFreeMoveMode){
 +    				case VRSettings.FREEMOVE_CONTROLLER:
-+    				case VRSettings.FREEMOVE_JOYPAD:
 +    					directionVec = directionVec.rotatePitch(con.vrdata_world_pre.getController(1).getPitch()  * PIOVER180);		   
 +    					break;
 +    				case VRSettings.FREEMOVE_HMD:
@@ -614,7 +611,6 @@
 +    			}else{
 +    				switch (mc.vrSettings.vrFreeMoveMode){
 +    				case VRSettings.FREEMOVE_CONTROLLER:
-+    				case VRSettings.FREEMOVE_JOYPAD:
 +    					directionVec = directionVec.rotateYaw(-con.vrdata_world_pre.getController(1).getYaw() * PIOVER180);	
 +    					break;
 +    				case VRSettings.FREEMOVE_HMD:
@@ -632,19 +628,19 @@
 +    		mX = directionVec.x;
 +    		mY = directionVec.y;
 +    		mZ = directionVec.z;
-+    		
-+    		
++
++
 +    		// Modify acceleration sequence (each tick)
 +    		if(!this.abilities.isFlying && !this.inWater) addFactor = VRSettings.getInertiaAddFactor(inertiaFactor);
 +
 +    		float yAdd = 1f;
 +    		if(this.abilities.isFlying) yAdd = 5f; //HACK
 +
-+         	this.setMotion(this.getMotion().x + (mX * addFactor) , 
-+         			this.getMotion().y + (mY * yAdd) , 
-+         			this.getMotion().z + (mZ * addFactor) );
-+         	
-+         	
++    		this.setMotion(this.getMotion().x + (mX * addFactor) , 
++    				this.getMotion().y + (mY * yAdd) , 
++    				this.getMotion().z + (mZ * addFactor) );
++
++
 +    		this.additionX = mX;
 +    		this.additionZ = mZ;
 +    	} 

@@ -59,8 +59,7 @@ public class Installer extends JPanel  implements PropertyChangeListener
     private static final String MC_MD5            = "43648a75fe4364c4c83b19bfe64f00f0";
 	private static final String OF_LIB_PATH       = "libraries/optifine/OptiFine/";
     private static final String OF_FILE_NAME      = "1.14.3_HD_U_F1";
-    private static final String OF_JSON_NAME      = "1.14.3_HD_U_F1";
-    private static final String OF_MD5            = "1BAD956911F5E8F057FF2B76BFACA797";
+    private static final String OF_MD5            = "4ED93C34F52B111706D77D582A8CC5DC";
     private static final String OF_VERSION_EXT    = ".jar";
     private static String FORGE_VERSION     = "14.25.0.110";
 	/* END OF DO NOT RENAME */
@@ -754,7 +753,7 @@ public class Installer extends JPanel  implements PropertyChangeListener
 						(profileCreated == false ? " and Edit Profile->Use Version " + minecriftVersionName : " and select the '" + getMinecraftProfileName(useForge.isSelected(), useShadersMod.isSelected()) + "' profile.") +
 						"\nPlease download OptiFine " + OF_FILE_NAME + " from https://optifine.net/downloads before attempting to play." +
 						"\nDo not run and install it, instead rename the file to OptiFine-" + OF_FILE_NAME + " (note the hyphen) and manually place it into the following directory:" +
-						"\n" + (isMultiMC ? new File(mmcinst, "libraries").getAbsolutePath() : new File(targetDir, OF_LIB_PATH + OF_JSON_NAME).getAbsolutePath());
+						"\n" + (isMultiMC ? new File(mmcinst, "libraries").getAbsolutePath() : new File(targetDir, OF_LIB_PATH + OF_FILE_NAME).getAbsolutePath());
 			}
 			else {
 				if(isMultiMC && mmcinst != null)
@@ -788,11 +787,11 @@ public class Installer extends JPanel  implements PropertyChangeListener
 			boolean deleted = false;
 
 			try {
-				File fod = new File(targetDir,OF_LIB_PATH+OF_JSON_NAME);
+				File fod = new File(targetDir,OF_LIB_PATH+OF_FILE_NAME+"_LIB");
 				if(isMultiMC)
 					fod = new File(mmcinst,"libraries");
 				fod.mkdirs();
-				File fo = new File(fod,"OptiFine-"+OF_JSON_NAME+".jar");
+				File fo = new File(fod,"OptiFine-"+OF_FILE_NAME+"_LIB.jar");
 
 				// Attempt to get the Optifine MD5
 				String optOnDiskMd5 = GetMd5(fo);
@@ -823,7 +822,7 @@ public class Installer extends JPanel  implements PropertyChangeListener
 				}
 
 				// Need to attempt download...
-				success = downloadFile("http://vivecraft.org/jar/Optifine/OptiFine_" + OF_FILE_NAME + OF_VERSION_EXT, fo);
+				success = downloadFile("http://vivecraft.org/jar/Optifine/OptiFine_" + OF_FILE_NAME + "_LIB" + OF_VERSION_EXT, fo);
 				// Check (potentially) downloaded optifine md5
 				optOnDiskMd5 = GetMd5(fo);
 				if (success == false || optOnDiskMd5 == null || !optOnDiskMd5.equalsIgnoreCase(OF_MD5)) {
@@ -1306,16 +1305,15 @@ public class Installer extends JPanel  implements PropertyChangeListener
 				java.text.DateFormat dateFormat=new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 				if (prof == null) {
 					prof = new JSONObject();
-					prof.put("name", profileName);
-					prof.put("useHopperCrashService", false);
-					prof.put("launcherVisibilityOnGameClose", "keep the launcher open");
 					prof.put("created", dateFormat.format(new java.util.Date()));
 					profiles.put(profileName, prof);
 				}
 
 				prof.put("lastVersionId", minecriftVer + mod);
 				prof.put("javaArgs", "-Xmx" + ramAllocation.getSelectedItem() + "G -Xms" + ramAllocation.getSelectedItem() + "G -XX:+UseParallelGC -XX:ParallelGCThreads=3 -XX:MaxGCPauseMillis=3 -Xmn256M -Dfml.ignoreInvalidMinecraftCertificates=true -Dfml.ignorePatchDiscrepancies=true");
-				root.put("selectedProfile", profileName);
+				prof.put("name", profileName);
+				prof.put("icon", "Creeper_Head");
+				prof.put("type", "custom");
 				prof.put("lastUsed", dateFormat.format(new java.util.Date()));
 				if(chkCustomGameDir.isSelected() && txtCustomGameDir.getText().trim() != ""){
 					prof.put("gameDir", txtCustomGameDir.getText());

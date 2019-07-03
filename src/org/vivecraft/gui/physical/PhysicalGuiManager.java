@@ -79,7 +79,7 @@ public class PhysicalGuiManager extends Tracker {
 
 	@Override
 	public boolean isActive(ClientPlayerEntity player) {
-		return mc.vrSettings.physicalGuiEnabled;
+		return false;//mc.vrSettings.physicalGuiEnabled;
 	}
 
 	public void init(ClientPlayerEntity player){

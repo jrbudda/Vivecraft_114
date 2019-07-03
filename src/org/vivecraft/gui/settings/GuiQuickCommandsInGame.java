@@ -34,12 +34,12 @@ public class GuiQuickCommandsInGame extends Screen
     		w = i > 5 ? 1 : 0;
     		String com  = chatcommands[i];
     		this.addButton(new Button(this.width / 2 - 125 + 127 * w, 36 + (i-6*w) * 24, 125, 20, com.toString(), (p) -> { 
-    				GuiQuickCommandsInGame.this.minecraft.displayGuiScreen(null);
-    				GuiQuickCommandsInGame.this.minecraft.player.sendChatMessage(p.getMessage());
+    				minecraft.displayGuiScreen(null);
+    				minecraft.player.sendChatMessage(p.getMessage());
     		}));     
     	}
     	this.addButton(new Button( this.width / 2 -50, this.height -30  + var1, 100, 20, "Cancel", (p) -> { 
-				GuiQuickCommandsInGame.this.minecraft.displayInGameMenu(false);
+				minecraft.displayGuiScreen(new IngameMenuScreen(false));
 		}));   
     }
 
