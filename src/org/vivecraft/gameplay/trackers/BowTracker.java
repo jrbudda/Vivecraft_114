@@ -280,13 +280,10 @@ public class BowTracker extends Tracker {
         		
         ItemStack itemstack = this.findAmmo(player);
 
-        if (itemstack != null || flag)
-        {
-            if (itemstack == null)
-            {
+        if (flag && itemstack.isEmpty())
+        	{
                 return new ItemStack(Items.ARROW);
             }
-        }
         return itemstack;
     }
     

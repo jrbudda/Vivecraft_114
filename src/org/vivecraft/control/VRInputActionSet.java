@@ -3,11 +3,11 @@ package org.vivecraft.control;
 import net.minecraft.client.settings.KeyBinding;
 
 public enum VRInputActionSet {
-	GLOBAL("/actions/global", "Global", "leftright", false),
 	INGAME("/actions/ingame", "In-Game", "leftright", false),
 	GUI("/actions/gui", "GUI", "leftright", false),
-	KEYBOARD("/actions/keyboard", "Keyboard", "single", true),
+	GLOBAL("/actions/global", "Global", "leftright", false),
 	CLIMBEY("/actions/climbey", "Climbey Motion", "single", true),
+	KEYBOARD("/actions/keyboard", "Keyboard", "single", true),
 	MIXED_REALITY("/actions/mixedreality", "Mixed Reality", "single", true);
 
 	public final String name;

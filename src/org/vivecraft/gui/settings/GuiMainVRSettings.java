@@ -36,7 +36,7 @@ public class GuiMainVRSettings extends GuiVROptionsBase
             {
                 new VROptionLayout(GuiStandingSettings.class,VROptionLayout.Position.POS_LEFT,   4f, VROptionLayout.ENABLED, "Locomotion Settings..."),
                 new VROptionLayout(GuiRoomscaleSettings.class,VROptionLayout.Position.POS_RIGHT,   4f, VROptionLayout.ENABLED, "Interaction Settings..."),
-                new VROptionLayout(GuiVRControls.class,VROptionLayout.Position.POS_LEFT,   5f, VROptionLayout.ENABLED, "Controller Buttons..."),
+                new VROptionLayout(GuiVRControls.class,VROptionLayout.Position.POS_LEFT,   5f, VROptionLayout.ENABLED, "Controller Bindings..."),
                 new VROptionLayout(GuiRadialConfiguration.class,VROptionLayout.Position.POS_RIGHT,   5f, VROptionLayout.ENABLED, "Radial Menu..."),
                // new VROption(VRSettings.VrOptions.REVERSE_HANDS,   VROption.Position.POS_RIGHT,   5f, VROption.ENABLED, null),
             };

@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.DataFormatException;
@@ -12,8 +13,11 @@ import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
 import com.google.common.io.Files;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.NBTSizeTracker;
+import net.minecraft.nbt.NBTUtil;
+import net.minecraft.util.IntIdentityHashBiMap;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.LightType;
@@ -24,9 +28,12 @@ import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.dimension.DimensionType;
 
 public class MenuWorldExporter {
-	public static final int VERSION = 1;
+	public static final int VERSION = 2;
+	public static final int MIN_VERSION = 2;
 
 	public static byte[] saveArea(World world, int xMin, int zMin, int xSize, int zSize, int ground) throws IOException {
+		BlockStateMapper mapper = new BlockStateMapper();
+
 		int ySize = world.getHeight();
 		int[] blocks = new int[xSize * ySize * zSize];
 		byte[] skylightmap = new byte[xSize * ySize * zSize];
@@ -43,7 +50,7 @@ public class MenuWorldExporter {
 					int index3 = (y * zSize + zl) * xSize + xl;
 					BlockPos pos3 = new BlockPos(x, y, z);
 					BlockState state = world.getBlockState(pos3);
-					blocks[index3] = Block.getStateId(state);
+					blocks[index3] = mapper.getId(state);
 					skylightmap[index3] = (byte)world.getLightFor(LightType.SKY, pos3);
 					blocklightmap[index3] = (byte)world.getLightFor(LightType.BLOCK, pos3);
 				}
@@ -52,7 +59,6 @@ public class MenuWorldExporter {
 		
 		ByteArrayOutputStream data = new ByteArrayOutputStream();
 		DataOutputStream dos = new DataOutputStream(data);
-		dos.writeInt(VERSION);
 		dos.writeInt(xSize);
 		dos.writeInt(ySize);
 		dos.writeInt(zSize);
@@ -60,6 +66,7 @@ public class MenuWorldExporter {
 		dos.writeInt(world.dimension.getType().getId());
 		dos.writeUTF(world.getWorldInfo().getGenerator().getName());
 		dos.writeBoolean(world.dimension.hasSkyLight()); // because we can't init it later
+		mapper.writePalette(dos);
 		for (int i = 0; i < blocks.length; i++) {
 			dos.writeInt(blocks[i]);
 		}
@@ -69,11 +76,17 @@ public class MenuWorldExporter {
 		for (int i = 0; i < biomemap.length; i++) {
 			dos.writeInt(biomemap[i]);
 		}
-		
+
+		Header header = new Header();
+		header.version = VERSION;
+		header.uncompressedSize = data.size();
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		DataOutputStream headerStream = new DataOutputStream(output);
+		header.write(headerStream);
+
 		Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION);
 		deflater.setInput(data.toByteArray());
 		deflater.finish();
-		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		byte[] buffer = new byte[1048576];
 		while (!deflater.finished()) {
 			int len = deflater.deflate(buffer);
@@ -89,19 +102,23 @@ public class MenuWorldExporter {
 	}
 	
 	public static FakeBlockAccess loadWorld(byte[] data) throws IOException, DataFormatException {
+		Header header = new Header();
+		try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data))) {
+			header.read(dis);
+		}
+		if (header.version > VERSION || header.version < MIN_VERSION)
+			throw new DataFormatException("Unsupported menu world version: " + header.version);
+
 		Inflater inflater = new Inflater();
-		inflater.setInput(data);
-		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		inflater.setInput(data, Header.SIZE, data.length - Header.SIZE);
+		ByteArrayOutputStream output = new ByteArrayOutputStream(header.uncompressedSize);
 		byte[] buffer = new byte[1048576];
 		while (!inflater.finished()) {
 			int len = inflater.inflate(buffer);
 			output.write(buffer, 0, len);
 		}
-		
+
 		DataInputStream dis = new DataInputStream(new ByteArrayInputStream(output.toByteArray()));
-		int version = dis.readInt();
-		if (version > VERSION)
-			throw new DataFormatException("Unsupported menu world version: " + version);
 		int xSize = dis.readInt();
 		int ySize = dis.readInt();
 		int zSize = dis.readInt();
@@ -113,9 +130,11 @@ public class MenuWorldExporter {
 		if (worldType == null)
 			worldType = WorldType.DEFAULT;
 		boolean hasSkyLight = dis.readBoolean();
+		BlockStateMapper mapper = new BlockStateMapper();
+		mapper.readPalette(dis);
 		BlockState[] blocks = new BlockState[xSize * ySize * zSize];
 		for (int i = 0; i < blocks.length; i++) {
-			blocks[i] = Block.getStateById(dis.readInt());
+			blocks[i] = mapper.getState(dis.readInt());
 		}
 		byte[] skylightmap = new byte[xSize * ySize * zSize];
 		byte[] blocklightmap = new byte[xSize * ySize * zSize];
@@ -126,17 +145,11 @@ public class MenuWorldExporter {
 		}
 		Biome[] biomemap = new Biome[xSize * zSize];
 		for (int i = 0; i < biomemap.length; i++) {
-			biomemap[i] = getBiome(dis.readInt(), Biomes.PLAINS);
+			biomemap[i] = getBiome(dis.readInt());
 		}
 		
 		return new FakeBlockAccess(blocks, skylightmap, blocklightmap, biomemap, xSize, ySize, zSize, ground, dimensionType, worldType, hasSkyLight);
 	}
-	
-    public static Biome getBiome(int biomeId, Biome fallback)
-    {
-        Biome biome = Registry.BIOME.getByValue(biomeId);
-        return biome == null ? fallback : biome;
-    }
     
 	public static FakeBlockAccess loadWorld(InputStream is) throws IOException, DataFormatException {
 		ByteArrayOutputStream data = new ByteArrayOutputStream();
@@ -146,5 +159,72 @@ public class MenuWorldExporter {
 			data.write(buffer, 0, count);
 		}
 		return loadWorld(data.toByteArray());
+	}
+
+	public static int readVersion(File file) throws IOException {
+		try (DataInputStream dis = new DataInputStream(new FileInputStream(file))) {
+			Header header = new Header();
+			header.read(dis);
+			return header.version;
+		}
+	}
+
+	private static Biome getBiome(int biomeId)
+	{
+		Biome biome = Registry.BIOME.getByValue(biomeId);
+		return biome == null ? Biomes.PLAINS : biome;
+	}
+
+	// Just version for now, but could have future use
+	public static class Header {
+		public static final int SIZE = 8;
+
+		public int version;
+		public int uncompressedSize;
+
+		public void read(DataInputStream dis) throws IOException {
+			version = dis.readInt();
+			uncompressedSize = dis.readInt();
+		}
+
+		public void write(DataOutputStream dos) throws IOException {
+			dos.writeInt(version);
+			dos.writeInt(uncompressedSize);
+		}
+	}
+
+	private static class BlockStateMapper {
+		IntIdentityHashBiMap<BlockState> paletteMap = new IntIdentityHashBiMap<>(256);
+
+		int getId(BlockState state) {
+			int id = paletteMap.getId(state);
+			if (id == -1) {
+				return paletteMap.add(state);
+			} else {
+				return id;
+			}
+		}
+
+		BlockState getState(int id) {
+			return paletteMap.getByValue(id);
+		}
+
+		void readPalette(DataInputStream dis) throws IOException {
+			paletteMap.clear();
+			int size = dis.readInt();
+			for (int i = 0; i < size; i++) {
+				CompoundNBT tag = new CompoundNBT();
+				tag.read(dis, 0, NBTSizeTracker.INFINITE);
+				paletteMap.add(NBTUtil.readBlockState(tag));
+			}
+		}
+
+		void writePalette(DataOutputStream dos) throws IOException {
+			dos.writeInt(paletteMap.size());
+			for (int i = 0; i < paletteMap.size(); i++) {
+				CompoundNBT tag = NBTUtil.writeBlockState(paletteMap.getByValue(i));
+				tag.write(dos);
+			}
+		}
 	}
 }

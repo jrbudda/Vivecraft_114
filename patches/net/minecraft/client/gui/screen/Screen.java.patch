@@ -12,7 +12,7 @@
      protected Screen(ITextComponent p_i402_1_)
      {
          this.title = p_i402_1_;
-@@ -437,7 +442,17 @@
+@@ -437,7 +442,16 @@
      {
          if (this.minecraft.world != null)
          {
@@ -27,11 +27,10 @@
 +        		this.fillGradient(0, 0, this.width, this.height, -1072689136, -804253680);
 +        	}
 +        	//
-+        	this.fillGradient(0, 0, this.width, this.height, -1072689136, -804253680);
          }
          else
          {
-@@ -497,7 +512,7 @@
+@@ -497,7 +511,7 @@
  
      public static boolean hasShiftDown()
      {

@@ -46,27 +46,42 @@
              GlStateManager.disableBlend();
          }
      }
-@@ -735,7 +740,18 @@
- 
+@@ -725,18 +730,30 @@
+             {
+                 Shaders.beginEntities();
+             }
+-
+             ItemFrameRenderer.updateItemRenderDistance();
+             boolean flag3 = this.mc.gameSettings.fancyGraphics;
+             this.mc.gameSettings.fancyGraphics = Config.isDroppedItemsFancy();
+             this.world.getProfiler().endStartSection("entities");
+             List<Entity> list = Lists.newArrayList();
+             List<Entity> list1 = Lists.newArrayList();
+-
++        
              for (Entity entity : this.world.func_217416_b())
              {
 -                if ((!flag || Reflector.callBoolean(entity, Reflector.ForgeEntity_shouldRenderInPass, i)) && (this.renderManager.shouldRender(entity, p_215326_2_, d0, d1, d2) || entity.isRidingOrBeingRiddenBy(this.mc.player)) && (entity != p_215326_1_.getRenderViewEntity() || Shaders.isShadowPass || p_215326_1_.isThirdPerson() || p_215326_1_.getRenderViewEntity() instanceof LivingEntity && ((LivingEntity)p_215326_1_.getRenderViewEntity()).isSleeping()))
+-                {
 +            	
 +            	//Vivecraft
 +            	boolean selfRender = mc.currentPass == RenderPass.THIRD && mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_THIRD_PERSON;
 +            	selfRender |= mc.vrSettings.shouldRenderSelf || mc.vrSettings.tmpRenderSelf;
 +            	//		
-+            	
-+                if ((!flag || Reflector.callBoolean(entity, Reflector.ForgeEntity_shouldRenderInPass, i)) 
-+                		&& (this.renderManager.shouldRender(entity, p_215326_2_, d0, d1, d2) || 
-+                				entity.isRidingOrBeingRiddenBy(this.mc.player)) && (entity != p_215326_1_.getRenderViewEntity() ||
-+                				Shaders.isShadowPass ||
-+                				p_215326_1_.isThirdPerson() ||
-+                				p_215326_1_.getRenderViewEntity() instanceof LivingEntity && ((LivingEntity)p_215326_1_.getRenderViewEntity()).isSleeping()))
-                 {
++
++            	if ((!flag || Reflector.callBoolean(entity, Reflector.ForgeEntity_shouldRenderInPass, i)) 
++            			&& 	(this.renderManager.shouldRender(entity, p_215326_2_, d0, d1, d2) || 
++            							entity.isRidingOrBeingRiddenBy(this.mc.player)) &&
++            					(selfRender || entity != p_215326_1_.getRenderViewEntity() ||
++            						Shaders.isShadowPass ||
++            							p_215326_1_.isThirdPerson() || 
++            								p_215326_1_.getRenderViewEntity() instanceof LivingEntity && 
++            									((LivingEntity)p_215326_1_.getRenderViewEntity()).isSleeping()))
++            	{     	
                      ++this.countEntitiesRendered;
                      this.renderedEntity = entity;
-@@ -744,10 +760,21 @@
+ 
+@@ -744,10 +761,21 @@
                      {
                          Shaders.nextEntity(entity);
                      }
@@ -89,7 +104,7 @@
                      if (entity.isGlowing() || entity instanceof PlayerEntity && this.mc.player.isSpectator() && this.mc.gameSettings.keyBindSpectatorOutlines.isKeyDown())
                      {
                          list.add(entity);
-@@ -782,14 +809,15 @@
+@@ -782,14 +810,15 @@
              if (i == 0 && this.isRenderEntityOutlines() && (!list.isEmpty() || this.entityOutlinesRendered))
              {
                  this.world.getProfiler().endStartSection("entityOutlines");
@@ -107,7 +122,7 @@
                      RenderHelper.disableStandardItemLighting();
                      this.renderManager.setRenderOutlines(true);
  
-@@ -825,7 +853,8 @@
+@@ -825,7 +854,8 @@
                      GlStateManager.enableAlphaTest();
                  }
  
@@ -117,7 +132,7 @@
              }
  
              if (!this.isRenderEntityOutlines() && (!list.isEmpty() || this.entityOutlinesRendered))
-@@ -1072,13 +1101,15 @@
+@@ -1072,13 +1102,15 @@
          }
  
          this.mc.getProfiler().endStartSection("culling");
@@ -136,7 +151,7 @@
          this.lastViewEntityY = p_215320_1_.getProjectedView().y;
          this.lastViewEntityZ = p_215320_1_.getProjectedView().z;
          this.lastViewEntityPitch = (double)f;
-@@ -1452,7 +1483,7 @@
+@@ -1452,7 +1484,7 @@
          }
      }
  
@@ -145,7 +160,7 @@
      {
          this.mc.gameRenderer.enableLightmap();
  
-@@ -1629,10 +1660,10 @@
+@@ -1629,10 +1661,10 @@
  
              if (flag)
              {
@@ -158,7 +173,7 @@
              vec3d = CustomColors.getSkyColor(vec3d, this.mc.world, this.mc.getRenderViewEntity().posX, this.mc.getRenderViewEntity().posY + 1.0D, this.mc.getRenderViewEntity().posZ);
  
              if (flag)
-@@ -1697,7 +1728,7 @@
+@@ -1697,7 +1729,7 @@
  
                  if (flag)
                  {
@@ -167,7 +182,7 @@
                  }
  
                  GlStateManager.shadeModel(7425);
-@@ -1729,7 +1760,7 @@
+@@ -1729,7 +1761,7 @@
  
              if (flag)
              {
@@ -176,7 +191,7 @@
              }
  
              GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-@@ -1788,7 +1819,7 @@
+@@ -1788,7 +1820,7 @@
  
              if (flag)
              {
@@ -185,7 +200,7 @@
              }
  
              float f12 = this.world.getStarBrightness(partialTicks) * f10;
-@@ -1827,7 +1858,7 @@
+@@ -1827,7 +1859,7 @@
  
              if (flag)
              {
@@ -194,7 +209,7 @@
              }
  
              GlStateManager.color3f(0.0F, 0.0F, 0.0F);
-@@ -1897,7 +1928,7 @@
+@@ -1897,7 +1929,7 @@
  
              if (flag)
              {
@@ -203,7 +218,7 @@
              }
  
              GlStateManager.depthMask(true);
-@@ -2503,7 +2534,7 @@
+@@ -2503,7 +2535,7 @@
  
                  if (Config.isShaders())
                  {
@@ -212,7 +227,7 @@
                  }
  
                  GlStateManager.depthMask(false);
-@@ -2521,7 +2552,7 @@
+@@ -2521,7 +2553,7 @@
  
                  if (Config.isShaders())
                  {
@@ -221,7 +236,7 @@
                  }
  
                  GlStateManager.disableBlend();
-@@ -2767,7 +2798,7 @@
+@@ -2767,7 +2799,7 @@
      {
          ActiveRenderInfo activerenderinfo = this.mc.gameRenderer.getActiveRenderInfo();
  
@@ -230,7 +245,7 @@
          {
              ParticleStatus particlestatus = this.func_215327_a(minimizeLevel);
  
-@@ -2935,7 +2966,7 @@
+@@ -2935,7 +2967,7 @@
              case 1038:
                  ActiveRenderInfo activerenderinfo = this.mc.gameRenderer.getActiveRenderInfo();
  
@@ -239,7 +254,7 @@
                  {
                      double d0 = (double)pos.getX() - activerenderinfo.getProjectedView().x;
                      double d1 = (double)pos.getY() - activerenderinfo.getProjectedView().y;
-@@ -2974,6 +3005,8 @@
+@@ -2974,6 +3006,8 @@
      {
          Random random = this.world.rand;
  
@@ -248,7 +263,7 @@
          switch (type)
          {
              case 1000:
-@@ -3029,18 +3062,26 @@
+@@ -3029,18 +3063,26 @@
                  break;
  
              case 1011:
@@ -275,7 +290,7 @@
                  this.world.playSound(blockPosIn, SoundEvents.BLOCK_FENCE_GATE_CLOSE, SoundCategory.BLOCKS, 1.0F, this.world.rand.nextFloat() * 0.1F + 0.9F, false);
                  break;
  
-@@ -3061,14 +3102,26 @@
+@@ -3061,14 +3103,26 @@
                  break;
  
              case 1019:
@@ -302,7 +317,7 @@
                  this.world.playSound(blockPosIn, SoundEvents.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, SoundCategory.HOSTILE, 2.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F, false);
                  break;
  
-@@ -3097,10 +3150,17 @@
+@@ -3097,10 +3151,17 @@
                  break;
  
              case 1030:
@@ -320,7 +335,7 @@
                  this.world.playSound(blockPosIn, SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.BLOCKS, 0.3F, this.world.rand.nextFloat() * 0.1F + 0.9F, false);
                  break;
  
-@@ -3121,6 +3181,9 @@
+@@ -3121,6 +3182,9 @@
                  break;
  
              case 1036:
@@ -330,7 +345,7 @@
                  this.world.playSound(blockPosIn, SoundEvents.BLOCK_IRON_TRAPDOOR_CLOSE, SoundCategory.BLOCKS, 1.0F, this.world.rand.nextFloat() * 0.1F + 0.9F, false);
                  break;
  
-@@ -3483,4 +3546,11 @@
+@@ -3483,4 +3547,11 @@
              this.setFacing = p_initialize_2_;
          }
      }

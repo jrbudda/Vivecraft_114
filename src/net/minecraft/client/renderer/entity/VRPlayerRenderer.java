@@ -15,9 +15,9 @@ import net.minecraft.client.renderer.entity.layers.HeadLayer;
 import net.minecraft.client.renderer.entity.layers.HeldItemLayer;
 import net.minecraft.client.renderer.entity.layers.ParrotVariantLayer;
 import net.minecraft.client.renderer.entity.layers.SpinAttackEffectLayer;
-import net.minecraft.client.renderer.entity.layers.VRBipedArmorLayer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
+import net.minecraft.client.renderer.entity.model.VRArmorModel;
 import net.minecraft.client.renderer.entity.model.VRPlayerModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerModelPart;
@@ -44,7 +44,7 @@ public class VRPlayerRenderer extends LivingRenderer<AbstractClientPlayerEntity,
     public VRPlayerRenderer(EntityRendererManager p_i3453_1_, boolean p_i3453_2_)
     {
         super(p_i3453_1_, new VRPlayerModel<>(0.0F, p_i3453_2_), 0.5F);
-        VRBipedArmorLayer layer = new VRBipedArmorLayer<>(this, new BipedModel(0.5F), new BipedModel(1.0F));
+        BipedArmorLayer layer = new BipedArmorLayer<>(this, new VRArmorModel(0.5F), new VRArmorModel(1.0F));
         this.addLayer(layer);
         ((VRPlayerModel)this.field_77045_g).armor = layer;
         this.addLayer(new HeldItemLayer<>(this));

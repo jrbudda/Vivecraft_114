@@ -1,11 +1,13 @@
 --- a/net/minecraft/client/renderer/ActiveRenderInfo.java
 +++ b/net/minecraft/client/renderer/ActiveRenderInfo.java
-@@ -18,15 +18,15 @@
+@@ -17,16 +17,16 @@
+ 
  public class ActiveRenderInfo
  {
-     private boolean valid;
+-    private boolean valid;
 -    private IBlockReader world;
 -    private Entity field_216791_c;
++    protected boolean valid;
 +    protected IBlockReader world;
 +    protected Entity field_216791_c;
      private Vec3d pos = Vec3d.ZERO;

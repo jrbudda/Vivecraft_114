@@ -1,18 +1,9 @@
 package org.vivecraft.utils;
 
-import java.util.function.Predicate;
-import javax.annotation.Nullable;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.IFluidState;
-import net.minecraft.tags.Tag;
-import net.minecraft.tags.TagCollection;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -28,7 +19,6 @@ import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.dimension.Dimension;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.Heightmap;
-import net.minecraft.world.gen.Heightmap.Type;
 
 public class FakeBlockAccess implements IWorldReader {
 	private DimensionType dimensionType;
@@ -129,19 +119,6 @@ public class FakeBlockAccess implements IWorldReader {
 	}
 
 	@Override
-	public int getCombinedLight(BlockPos pos, int lightValue) {
-		return this.getLight(pos);
-		
-//		int sky = this.getLightFromNeighborsFor(LightType.SKY, pos);
-//		int block = this.getLightFromNeighborsFor(LightType.BLOCK, pos);
-//
-//		if (block < lightValue)
-//			block = lightValue;
-//
-//		return sky << 20 | block << 4;
-	}
-
-	@Override
 	public int getLightFor(LightType type, BlockPos pos) {
 		if (!checkCoords(pos))
 			return (type != LightType.SKY || !this.dimension.hasSkyLight()) && type != LightType.BLOCK ? 0 : type.defaultLightValue;
@@ -151,31 +128,6 @@ public class FakeBlockAccess implements IWorldReader {
 		else
 			return type == LightType.BLOCK ? blocklightmap[encodeCoords(pos)] : type.defaultLightValue;
 	}
-
-	
-//	public int getLightFromNeighborsFor(LightType type, BlockPos pos) {
-//		if (!checkCoords(pos))
-//			return type.defaultLightValue;
-//		if ((type == LightType.SKY && !this.dimension.hasSkyLight()))
-//			return 0;
-//
-//		if (getBlockState(pos).useNeighborBrightness(this, pos)) {
-//			int light = 0;
-//
-//			for (Direction face : Direction.values()) {
-//				int neighborLight = this.getLightFor(type, pos.offset(face));
-//
-//				if (neighborLight > light)
-//					light = neighborLight;
-//				if (light >= 15)
-//					return light;
-//			}
-//
-//			return light;
-//		} else {
-//			return this.getLightFor(type, pos);
-//		}
-//	}
 
 	@Override
 	public int getLightSubtracted(BlockPos pos, int amount) {
@@ -199,26 +151,25 @@ public class FakeBlockAccess implements IWorldReader {
 		}
 	}
 
-//	@Override
-//	public boolean isChunkLoaded(int x, int z, boolean allowEmpty) {
-//		return checkCoords(new BlockPos(x * 16, 0, z * 16)); // Uh?
-//	}
-//
-//	@Override
-//	public boolean canSeeSky(BlockPos pos) {
-//		return true; // ¯\_(ツ)_/¯
-//	}
+	@Override
+	public boolean chunkExists(int x, int z) {
+		return checkCoords(new BlockPos(x * 16, 0, z * 16)); // Uh?
+	}
+
+	@Override
+	public IChunk getChunk(int x, int z, ChunkStatus requiredStatus, boolean nonnull) {
+		return null; // ¯\_(ツ)_/¯
+	}
 
 	@Override
 	public int getHeight(Heightmap.Type heightmapType, int x, int z) {
 		return 0; // ¯\_(ツ)_/¯
 	}
 
-//	@Nullable
-//	@Override
-//	public PlayerEntity getClosestPlayer(double x, double y, double z, double distance, Predicate<Entity> predicate) {
-//		return null; // Yeah right
-//	}
+	@Override
+	public BlockPos getHeight(Heightmap.Type heightmapType, BlockPos pos) {
+		return BlockPos.ZERO; // ¯\_(ツ)_/¯
+	}
 
 	@Override
 	public int getSkylightSubtracted() {
@@ -266,23 +217,5 @@ public class FakeBlockAccess implements IWorldReader {
 	@Override
 	public Dimension getDimension() {
 		return this.dimension;
-	}
-
-	@Override
-	public IChunk getChunk(int x, int z, ChunkStatus requiredStatus, boolean nonnull) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean chunkExists(int chunkX, int chunkZ) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public BlockPos getHeight(Type heightmapType, BlockPos pos) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

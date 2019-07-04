@@ -4,7 +4,7 @@ import org.vivecraft.render.PlayerModelController;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 
-import net.minecraft.client.renderer.entity.layers.VRBipedArmorLayer;
+import net.minecraft.client.renderer.entity.layers.BipedArmorLayer;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -31,7 +31,7 @@ public class VRPlayerModel<T extends LivingEntity> extends BipedModel<T>
     ResourceLocation DIAMOND_HMD = new ResourceLocation("vivecraft:textures/diamond_hmd.png");
     ResourceLocation GOLD_HMD = new ResourceLocation("vivecraft:textures/gold_hmd.png");
     ResourceLocation BLACK_HMD = new ResourceLocation("vivecraft:textures/black_hmd.png");
-    public VRBipedArmorLayer armor = null;
+    public BipedArmorLayer armor = null;
     //VIVE END
     
     public VRPlayerModel(float p_i63_1_, boolean p_i63_2_)

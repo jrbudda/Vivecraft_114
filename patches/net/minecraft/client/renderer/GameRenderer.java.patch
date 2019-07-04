@@ -677,7 +677,7 @@
          this.disableLightmap();
          GlStateManager.matrixMode(5888);
          GlStateManager.popMatrix();
-+        GlStateManager.pushMatrix();
++ //       GlStateManager.pushMatrix();
  
          if (flag1 && this.mc.objectMouseOver != null)
          {
@@ -686,10 +686,10 @@
          GlStateManager.blendFuncSeparate(770, 771, 1, 0);
          GlStateManager.disableBlend();
 +        
-+        //Vivecraft re-investigate why we have to add this
-+        GlStateManager.matrixMode(GL11.GL_MODELVIEW);
-+        GlStateManager.popMatrix();
-+        //
++//        //Vivecraft re-investigate why we have to add this
++//        GlStateManager.matrixMode(GL11.GL_MODELVIEW);
++//        GlStateManager.popMatrix();
++//        //
 +
          this.enableLightmap();
          this.fogRenderer.func_217618_a(activerenderinfo, 0);
@@ -708,14 +708,14 @@
 +        //Shaders.isItemToRenderMainTranslucent() ||
 +        			//Shaders.isItemToRenderOffTranslucent() || mc.getItemRenderer().getFade() < 1;
 +
-+        if (shouldRenderHands())
-+            renderVRHands(!correctTranslucentGui, partialTicks);
-+
 +        if(!correctTranslucentGui) {
 +            if (flag)
 +                Shaders.useProgram(Shaders.ProgramHandWater);
 +            renderVRLit(correctTranslucentGui, partialTicks);
 +        }
++        
++        if (shouldRenderHands())
++            renderVRHands(!correctTranslucentGui, partialTicks);
  
          if (flag)
          {
@@ -725,17 +725,13 @@
              Shaders.preWater();
          }
  
-@@ -1303,12 +1622,50 @@
+@@ -1303,12 +1622,48 @@
              this.func_215313_a(activerenderinfo, worldrenderer, partialTicks, d0, d1, d2);
          }
  
-+        this.mc.getProfiler().endStartSection("VR");
-+
 +        this.fogRenderer.func_217619_a(activerenderinfo, partialTicks);
 +
 +        this.mc.getProfiler().startSection("hud");
-+
-+        disableLightmap();
 +
 +		if(correctTranslucentGui) {
 +		    if (flag)
@@ -749,7 +745,9 @@
 +        {
 +            this.renderVRMisc(partialTicks);
 +        }
-+
++        
++        disableLightmap();
++        
 +        this.mc.getProfiler().endSection();
 +
 +        GlStateManager.disableFog();
@@ -776,7 +774,7 @@
          this.mc.getProfiler().endStartSection("hand");
  
          if (this.renderHand && !Shaders.isShadowPass)
-@@ -1330,11 +1687,15 @@
+@@ -1330,11 +1685,15 @@
                  this.func_215308_a(activerenderinfo, partialTicks);
              }
          }
@@ -792,7 +790,7 @@
      }
  
      private void func_215313_a(ActiveRenderInfo p_215313_1_, WorldRenderer p_215313_2_, float p_215313_3_, double p_215313_4_, double p_215313_6_, double p_215313_8_)
-@@ -1344,7 +1705,11 @@
+@@ -1344,7 +1703,11 @@
              this.mc.getProfiler().endStartSection("clouds");
              GlStateManager.matrixMode(5889);
              GlStateManager.loadIdentity();
@@ -805,7 +803,7 @@
              GlStateManager.matrixMode(5888);
              GlStateManager.pushMatrix();
              this.fogRenderer.func_217618_a(p_215313_1_, 0);
-@@ -1353,7 +1718,11 @@
+@@ -1353,7 +1716,11 @@
              GlStateManager.popMatrix();
              GlStateManager.matrixMode(5889);
              GlStateManager.loadIdentity();
@@ -818,7 +816,7 @@
              GlStateManager.matrixMode(5888);
          }
      }
-@@ -2028,35 +2397,28 @@
+@@ -2028,35 +2395,28 @@
      }
  
      private void renderItemActivation(int widthsp, int heightScaled, float partialTicks)
@@ -866,7 +864,7 @@
          }
      }
  
-@@ -2079,4 +2441,2115 @@
+@@ -2079,4 +2439,2118 @@
      {
          return this.activeRender;
      }
@@ -2158,6 +2156,7 @@
 +
 +  		if(!crosshairSettings)
 +  			return;
++  		
 +  		if (mc.currentPass == RenderPass.THIRD) //it doesn't look very good.
 +  			return;
 +
@@ -2875,8 +2874,10 @@
 +    	renderVRGuiElements(translucent, partialTicks);
 +
 +    	if (translucent) {
-+            if (!this.shouldOccludeGui() && shouldRenderHands())
-+                renderVRHands(translucent, partialTicks);
++            if (!this.shouldOccludeGui() && shouldRenderHands()) {
++            	enableLightmap();
++            	renderVRHands(translucent, partialTicks);
++            }
 +
 +            this.mc.getProfiler().startSection("extra_translucent_pass");
 +

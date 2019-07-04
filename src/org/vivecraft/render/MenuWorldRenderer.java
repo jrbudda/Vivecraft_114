@@ -68,7 +68,7 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.NVFogDistance;
 
-public class MenuWorldRenderer implements IResourceManagerReloadListener {
+public class MenuWorldRenderer {
 	private static final ResourceLocation MOON_PHASES_TEXTURES = new ResourceLocation("textures/environment/moon_phases.png");
 	private static final ResourceLocation SUN_TEXTURES = new ResourceLocation("textures/environment/sun.png");
 	private static final ResourceLocation CLOUDS_TEXTURES = new ResourceLocation("textures/environment/clouds.png");
@@ -1896,11 +1896,5 @@ public class MenuWorldRenderer implements IResourceManagerReloadListener {
 		public ImmutableMap<IProperty<?>, Comparable<?>> getValues() {
 			return fluidState.getValues();
 		}
-	}
-
-
-	@Override
-	public void onResourceManagerReload(IResourceManager resourceManager) {
-		init();
 	}
 }

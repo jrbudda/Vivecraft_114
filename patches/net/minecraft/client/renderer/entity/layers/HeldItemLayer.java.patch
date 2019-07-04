@@ -72,6 +72,7 @@
 +
 +    		GlStateManager.rotatef(-90.0F, 1.0F, 0.0F, 0.0F);
 +    		GlStateManager.rotatef(180.0F, 0.0F, 1.0F, 0.0F);
++    		
 +    		boolean flag = handSide == HandSide.LEFT;
 +
 +    		//VIVECRAFT
@@ -110,7 +111,6 @@
 +
 +    				GlStateManager.translatef(0, 0.155F, -0.215F);
 +    				Minecraft.getInstance().getFirstPersonRenderer().renderItemSide(p_188358_1_, p_188358_2_, p_188358_3_, flag);
-+    				//
 +    				GlStateManager.popMatrix();
 + 
 +    				GlStateManager.pushMatrix();

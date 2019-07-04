@@ -1,5 +1,7 @@
 package org.vivecraft.render;
 
+import org.vivecraft.api.VRData.VRDevicePose;
+
 import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.block.BlockState;
@@ -37,40 +39,38 @@ public class VRActiveRenderInfo extends ActiveRenderInfo {
 	@Override
 	public void update(IBlockReader worldIn, Entity renderViewEntity, boolean thirdPersonIn,
 			boolean thirdPersonReverseIn, float partialTicks) {
+		this.valid = true;
 		this.world = worldIn;
 		this.field_216791_c = renderViewEntity;
 		Minecraft mc = Minecraft.getInstance();
 		// This is the center position of the camera, not the exact eye.
+		
+		VRDevicePose src = mc.vrPlayer.vrdata_world_render.hmd;		
+		
 		switch (mc.currentPass) {
 		case CENTER:
 		case LEFT:
 		case RIGHT:
-			this.setPostion(mc.vrPlayer.vrdata_world_render.hmd.getPosition());
-			// this.setDirection(mc.vrPlayer.vrdata_world_render.hmd.getYaw(),mc.vrPlayer.vrdata_world_render.hmd.getPitch());
-			// this.updateLook();
-			this.pitch = -mc.vrPlayer.vrdata_world_render.hmd.getPitch();
-			this.yaw = mc.vrPlayer.vrdata_world_render.hmd.getYaw();
-			this.look = mc.vrPlayer.vrdata_world_render.hmd.getDirection();
 			break;
-		case THIRD:
-			this.setPostion(mc.vrPlayer.vrdata_world_render.hmd.getPosition());
-			this.look = mc.vrPlayer.vrdata_world_render.hmd.getDirection().scale(-1);
-			mc.gameRenderer.applyMRCameraRotation(false);
+		case THIRD:	
+			src = mc.vrPlayer.vrdata_world_render.getEye(RenderPass.THIRD);
 			break;
 		default:
 			break;
-		}
+		}		
+		this.setPostion(src.getPosition());
+		// this.setDirection(mc.vrPlayer.vrdata_world_render.hmd.getYaw(),mc.vrPlayer.vrdata_world_render.hmd.getPitch());
+		this.pitch = -src.getPitch(); //No, I do not know why this is negative.
+		this.yaw = src.getYaw();
+		this.look = src.getDirection();
+		//this.updateLook();
 
+		
 	}
 
 	@Override
 	public void interpolateHeight() {
 		// noop
-	}
-
-	@Override
-	public boolean isValid() {
-		return Minecraft.getInstance().vrPlayer.vrdata_world_render != null;
 	}
 
 	@Override

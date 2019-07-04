@@ -1,6 +1,6 @@
 --- a/net/minecraft/util/MovementInputFromOptions.java
 +++ b/net/minecraft/util/MovementInputFromOptions.java
-@@ -1,6 +1,19 @@
+@@ -1,31 +1,160 @@
  package net.minecraft.util;
  
 +import org.vivecraft.control.ControllerType;
@@ -20,7 +20,12 @@
  
  public class MovementInputFromOptions extends MovementInput
  {
-@@ -11,21 +24,130 @@
+     private final GameSettings gameSettings;
+-
++    private boolean autoSprintActive = false;
++    
+     public MovementInputFromOptions(GameSettings p_i1444_1_)
+     {
          this.gameSettings = p_i1444_1_;
      }
  
@@ -125,6 +130,7 @@
 +					// Sprint only works for walk forwards obviously
 +					if (this.moveForward >= mc.vrSettings.autoSprintThreshold) {
 +						mc.player.setSprinting(true);
++						autoSprintActive = true;
 +						this.moveForward = 1;
 +					} else if (this.moveForward > 0) {
 +						// Adjust range so you can still reach full speed while not sprinting
@@ -133,7 +139,12 @@
 +				}
 +			}
 +		}
-+			
++		
++		if (autoSprintActive && this.moveForward < mc.vrSettings.autoSprintThreshold) {
++			mc.player.setSprinting(false);
++			autoSprintActive = false;
++		}
++		
 +		boolean ok = mc.currentScreen == null && (mc.vrPlayer.getFreeMove() || mc.vrSettings.simulateFalling) && !flag;
 +
 +		// VIVECRAFT DO ok.

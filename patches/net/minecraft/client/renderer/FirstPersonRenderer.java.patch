@@ -350,7 +350,7 @@
 +    			rendertype = VivecraftItemRendering.Block;
 +    		else if(item instanceof AbstractMapItem)
 +    			rendertype = VivecraftItemRendering.Map;
-+    		else if (BowTracker.isBow(stack))
++    		else if (stack.getUseAction() == UseAction.BOW)
 +    			rendertype = VivecraftItemRendering.Bow;
 +    		else if(item instanceof SwordItem)
 +    			rendertype = VivecraftItemRendering.Sword;

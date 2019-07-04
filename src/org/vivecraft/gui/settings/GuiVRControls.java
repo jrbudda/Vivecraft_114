@@ -38,8 +38,9 @@ public class GuiVRControls extends GuiVROptionsBase {
 	@Override
 	public void render(int mouseX, int mouseY, float partialTicks) {
 		super.render(mouseX, mouseY, partialTicks);
-		this.drawCenteredString(minecraft.fontRenderer, "Bindings are now handled by SteamVR Input.", this.width / 2, this.height / 2 - minecraft.fontRenderer.FONT_HEIGHT - 3, 16777215);
-		this.drawCenteredString(minecraft.fontRenderer, "Go to Settings > Controller Binding in the dashboard.", this.width / 2, this.height / 2 + 3, 16777215);
+		this.drawCenteredString(minecraft.fontRenderer, "Bindings are now handled by SteamVR Input.", this.width / 2, this.height / 2 - minecraft.fontRenderer.FONT_HEIGHT / 2 - minecraft.fontRenderer.FONT_HEIGHT - 3, 16777215);
+		this.drawCenteredString(minecraft.fontRenderer, "Go to Settings > Controller Binding in the dashboard.", this.width / 2, this.height / 2 - minecraft.fontRenderer.FONT_HEIGHT / 2, 16777215);
+		this.drawCenteredString(minecraft.fontRenderer, TextFormatting.GOLD + "Steam must be running " + TextFormatting.ITALIC + "before" + TextFormatting.RESET + TextFormatting.GOLD + " SteamVR is started, or bindings will not save.", this.width / 2, this.height / 2 - minecraft.fontRenderer.FONT_HEIGHT / 2 + minecraft.fontRenderer.FONT_HEIGHT + 3, 16777215);
 	}
 	
 		@Override

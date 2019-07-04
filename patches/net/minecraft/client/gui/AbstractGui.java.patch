@@ -10,16 +10,17 @@
          GlStateManager.color4f(f, f1, f2, f3);
          bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
          bufferbuilder.pos((double)p_fill_0_, (double)p_fill_3_, 0.0D).endVertex();
-@@ -86,6 +87,8 @@
-         float f7 = (float)(p_fillGradient_6_ & 255) / 255.0F;
+@@ -87,7 +88,8 @@
          GlStateManager.disableTexture();
          GlStateManager.enableBlend();
+         GlStateManager.disableAlphaTest();
+-        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 +        // VIVECRAFT: DestFactor of ONE is really what we want here, because math
 +        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
-         GlStateManager.disableAlphaTest();
-         GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
          GlStateManager.shadeModel(7425);
-@@ -150,6 +153,10 @@
+         Tessellator tessellator = Tessellator.getInstance();
+         BufferBuilder bufferbuilder = tessellator.getBuffer();
+@@ -150,6 +152,10 @@
  
      protected static void innerBlit(int p_innerBlit_0_, int p_innerBlit_1_, int p_innerBlit_2_, int p_innerBlit_3_, int p_innerBlit_4_, float p_innerBlit_5_, float p_innerBlit_6_, float p_innerBlit_7_, float p_innerBlit_8_)
      {
@@ -30,7 +31,7 @@
          Tessellator tessellator = Tessellator.getInstance();
          BufferBuilder bufferbuilder = tessellator.getBuffer();
          bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-@@ -158,5 +165,6 @@
+@@ -158,5 +164,6 @@
          bufferbuilder.pos((double)p_innerBlit_1_, (double)p_innerBlit_2_, (double)p_innerBlit_4_).tex((double)p_innerBlit_6_, (double)p_innerBlit_7_).endVertex();
          bufferbuilder.pos((double)p_innerBlit_0_, (double)p_innerBlit_2_, (double)p_innerBlit_4_).tex((double)p_innerBlit_5_, (double)p_innerBlit_7_).endVertex();
          tessellator.draw();
