@@ -358,8 +358,6 @@ public class OpenVRPlayer
 				}
 			}
 		}
-
-		mc.getProfiler().endSection();
 	}
 
 	public void doPlayerMoveInRoom(ClientPlayerEntity player){

@@ -77,6 +77,10 @@ public class VRSettings
     public static final int FREEMOVE_RUNINPLACE= 3;
     @Deprecated
     public static final int FREEMOVE_JOYPAD = 4;
+
+    public static final int MENU_WORLD_BOTH = 0;
+    public static final int MENU_WORLD_CUSTOM = 1;
+    public static final int MENU_WORLD_OFFICIAL = 2;
     
     public static final int NO_SHADER = -1;
 
@@ -162,6 +166,7 @@ public class VRSettings
     public int displayMirrorMode = MIRROR_ON_DUAL;
 	public boolean shouldRenderSelf=false;
 	public boolean tmpRenderSelf;
+	public int menuWorldSelection = MENU_WORLD_BOTH;
     //
     
     //Mixed Reality
@@ -711,6 +716,10 @@ public class VRSettings
                     	this.allowAdvancedBindings = optionTokens[1].equals("true");
                     }
 
+                    if(optionTokens[0].equals("menuWorldSelection")){
+                        this.menuWorldSelection = Integer.parseInt(optionTokens[1]);
+                    }
+
                     if(optionTokens[0].equals("firstRun")){
                     	this.firstRun = optionTokens[1].equals("true");
                     }
@@ -1051,7 +1060,17 @@ public class VRSettings
             case FORCE_STANDING_FREE_MOVE:
             	return this.forceStandingFreeMove ? var4 + "YES" : var4 + "NO";
             case ALLOW_ADVANCED_BINDINGS:
-            	return this.allowAdvancedBindings ? var4 + "YES" : var4 + "NO"; 	        default:
+            	return this.allowAdvancedBindings ? var4 + "YES" : var4 + "NO";
+            case MENU_WORLD_SELECTION:
+                switch (this.menuWorldSelection) {
+                    case MENU_WORLD_BOTH:
+                        return var4 + "Official & Custom";
+                    case MENU_WORLD_CUSTOM:
+                        return var4 + "Custom Only";
+                    case MENU_WORLD_OFFICIAL:
+                        return var4 + "Official Only";
+                }
+            default:
             		return "";
         }
     }
@@ -1361,6 +1380,19 @@ public class VRSettings
             case ALLOW_ADVANCED_BINDINGS:
             	this.allowAdvancedBindings = !this.allowAdvancedBindings;
             	break;
+            case MENU_WORLD_SELECTION:
+                switch (this.menuWorldSelection) {
+                    case MENU_WORLD_BOTH:
+                        this.menuWorldSelection = MENU_WORLD_CUSTOM;
+                        break;
+                    case MENU_WORLD_CUSTOM:
+                        this.menuWorldSelection = MENU_WORLD_OFFICIAL;
+                        break;
+                    case MENU_WORLD_OFFICIAL:
+                        this.menuWorldSelection = MENU_WORLD_BOTH;
+                        break;
+                }
+                break;
             default:
             	break;
     	}
@@ -1591,6 +1623,7 @@ public class VRSettings
             var5.println("seatedFreeMove:" + this.seatedFreeMove);
             var5.println("forceStandingFreeMove:" + this.forceStandingFreeMove);
             var5.println("allowAdvancedBindings:" + this.allowAdvancedBindings);
+            var5.println("menuWorldSelection:" + this.menuWorldSelection);
             var5.println("firstRun:" + this.firstRun);
             
             if (vrQuickCommands == null) vrQuickCommands = getQuickCommandsDefaults(); //defaults
@@ -2092,7 +2125,13 @@ public class VRSettings
         		"keyboard and mixed reality.",
         		"",
         		"Requires a restart to take effect."
-        });    	
+        }),
+        MENU_WORLD_SELECTION("Menu Worlds", false, false, new String[] {
+                "Which menu worlds to load on startup.",
+                "",
+                "If no custom worlds are found, official worlds",
+                "will be used regardless."
+        });
 //        ANISOTROPIC_FILTERING("options.anisotropicFiltering", true, false, 1.0F, 16.0F, 0.0F)
 //                {
 //                    private static final String __OBFID = "CL_00000654";
@@ -2386,8 +2425,8 @@ public class VRSettings
     	out[1] = "key.chat";
     	out[2] = "vivecraft.key.rotateRight";
     	out[3] = "key.pickItem";
-    	out[4] = "";
-    	out[5] = "";
+    	out[4] = "vivecraft.key.toggleMovement";
+    	out[5] = "vivecraft.key.togglePlayerList";
     	out[6] = "vivecraft.key.rotateLeft";
     	out[7] = "vivecraft.key.quickTorch";
 

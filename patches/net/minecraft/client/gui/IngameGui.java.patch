@@ -27,7 +27,17 @@
  import net.minecraft.client.gui.screen.inventory.ContainerScreen;
  import net.minecraft.client.renderer.ActiveRenderInfo;
  import net.minecraft.client.renderer.BufferBuilder;
-@@ -150,24 +157,31 @@
+@@ -108,6 +115,9 @@
+     private int scaledHeight;
+     private final Map<ChatType, List<IChatListener>> chatListeners = Maps.newHashMap();
+ 
++    // Vivecraft
++    public boolean showPlayerList;
++
+     public IngameGui(Minecraft p_i19_1_)
+     {
+         this.mc = p_i19_1_;
+@@ -150,24 +160,31 @@
          FontRenderer fontrenderer = this.getFontRenderer();
          GlStateManager.enableBlend();
  
@@ -65,7 +75,7 @@
          {
              float f = MathHelper.lerp(partialTicks, this.mc.player.prevTimeInPortal, this.mc.player.timeInPortal);
  
-@@ -176,6 +190,7 @@
+@@ -176,6 +193,7 @@
                  this.renderPortal(f);
              }
          }
@@ -73,7 +83,7 @@
  
          if (this.mc.playerController.getCurrentGameType() == GameType.SPECTATOR)
          {
-@@ -192,10 +207,13 @@
+@@ -192,10 +210,13 @@
              this.mc.getTextureManager().bindTexture(GUI_ICONS_LOCATION);
              GlStateManager.enableBlend();
              GlStateManager.enableAlphaTest();
@@ -90,7 +100,7 @@
              this.overlayBoss.render();
              this.mc.getProfiler().endSection();
              GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-@@ -280,8 +298,9 @@
+@@ -280,8 +301,9 @@
                      GlStateManager.pushMatrix();
                      GlStateManager.translatef((float)(this.scaledWidth / 2), (float)(this.scaledHeight - 68), 0.0F);
                      GlStateManager.enableBlend();
@@ -102,7 +112,7 @@
  
                      if (this.animateOverlayMessageColor)
                      {
-@@ -322,7 +341,8 @@
+@@ -322,7 +344,8 @@
                      GlStateManager.pushMatrix();
                      GlStateManager.translatef((float)(this.scaledWidth / 2), (float)(this.scaledHeight / 2), 0.0F);
                      GlStateManager.enableBlend();
@@ -112,7 +122,7 @@
                      GlStateManager.pushMatrix();
                      GlStateManager.scalef(4.0F, 4.0F, 4.0F);
                      int l1 = j1 << 24 & -16777216;
-@@ -370,8 +390,28 @@
+@@ -370,8 +393,28 @@
                  this.renderScoreboard(scoreobjective1);
              }
  
@@ -143,7 +153,16 @@
              GlStateManager.disableAlphaTest();
              GlStateManager.pushMatrix();
              GlStateManager.translatef(0.0F, (float)(this.scaledHeight - 48), 0.0F);
-@@ -431,8 +471,9 @@
+@@ -381,7 +424,7 @@
+             GlStateManager.popMatrix();
+             scoreobjective1 = scoreboard.getObjectiveInDisplaySlot(0);
+ 
+-            if (this.mc.gameSettings.keyBindPlayerList.isKeyDown() && (!this.mc.isIntegratedServerRunning() || this.mc.player.connection.getPlayerInfoMap().size() > 1 || scoreobjective1 != null))
++            if ((this.mc.gameSettings.keyBindPlayerList.isKeyDown() || showPlayerList) && (!this.mc.isIntegratedServerRunning() || this.mc.player.connection.getPlayerInfoMap().size() > 1 || scoreobjective1 != null))
+             {
+                 this.overlayPlayerList.setVisible(true);
+                 this.overlayPlayerList.render(this.scaledWidth, scoreboard, scoreobjective1);
+@@ -431,8 +474,9 @@
              }
              else
              {
@@ -155,7 +174,7 @@
                  this.blit((this.scaledWidth - 15) / 2, (this.scaledHeight - 15) / 2, 0, 0, 15, 15);
  
                  if (this.mc.gameSettings.attackIndicator == AttackIndicatorStatus.CROSSHAIR)
-@@ -617,6 +658,9 @@
+@@ -617,6 +661,9 @@
              int k = 182;
              int l = 91;
              this.blitOffset = -90;
@@ -165,7 +184,7 @@
              this.blit(i - 91, this.scaledHeight - 22, 0, 0, 182, 22);
              this.blit(i - 91 - 1 + playerentity.inventory.currentItem * 20, this.scaledHeight - 22 - 1, 0, 22, 24, 22);
  
-@@ -635,8 +679,9 @@
+@@ -635,8 +682,9 @@
              this.blitOffset = j;
              GlStateManager.enableRescaleNormal();
              GlStateManager.enableBlend();
@@ -177,7 +196,7 @@
              CustomItems.setRenderOffHand(false);
  
              for (int i1 = 0; i1 < 9; ++i1)
-@@ -785,8 +830,9 @@
+@@ -785,8 +833,9 @@
              {
                  GlStateManager.pushMatrix();
                  GlStateManager.enableBlend();
@@ -189,7 +208,7 @@
                  int i1 = j - 2;
                  int j1 = i + this.getFontRenderer().getStringWidth(s) + 2;
                  this.getFontRenderer().getClass();
-@@ -1236,7 +1282,8 @@
+@@ -1236,7 +1285,8 @@
      {
          GlStateManager.disableDepthTest();
          GlStateManager.depthMask(false);
@@ -199,7 +218,7 @@
          GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
          GlStateManager.disableAlphaTest();
          this.mc.getTextureManager().bindTexture(PUMPKIN_BLUR_TEX_PATH);
-@@ -1265,6 +1312,9 @@
+@@ -1265,6 +1315,9 @@
  
      private void renderVignette(Entity p_212303_1_)
      {
@@ -209,7 +228,7 @@
          if (!Config.isVignetteEnabled())
          {
              GlStateManager.enableDepthTest();
-@@ -1317,6 +1367,10 @@
+@@ -1317,6 +1370,10 @@
  
      private void renderPortal(float timeInPortal)
      {
@@ -220,7 +239,7 @@
          if (timeInPortal < 1.0F)
          {
              timeInPortal = timeInPortal * timeInPortal;
-@@ -1552,4 +1606,54 @@
+@@ -1552,4 +1609,54 @@
      {
          this.overlayDebug.func_212921_a();
      }

@@ -9,7 +9,6 @@ import org.vivecraft.gui.framework.VROptionLayout;
 import org.vivecraft.provider.MCOpenVR;
 import org.vivecraft.settings.VRSettings;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 
 public class GuiMainVRSettings extends GuiVROptionsBase 

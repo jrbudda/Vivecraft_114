@@ -45,12 +45,12 @@ public class VRInputAction {
 	private InputDigitalActionData_t.ByReference[] digitalData = new InputDigitalActionData_t.ByReference[ControllerType.values().length];
 	private InputAnalogActionData_t.ByReference[] analogData = new InputAnalogActionData_t.ByReference[ControllerType.values().length];
 
-	public VRInputAction(KeyBinding keyBinding, String requirement, String type, boolean global) {
+	public VRInputAction(KeyBinding keyBinding, String requirement, String type, VRInputActionSet actionSetOverride) {
 		this.keyBinding = keyBinding;
 		this.requirement = requirement;
 		this.type = type;
-		this.actionSet = global ? VRInputActionSet.GLOBAL : VRInputActionSet.fromKeyBinding(keyBinding);
-		this.name = "/actions/" + this.actionSet.name().toLowerCase() + "/in/" + keyBinding.getKeyDescription().replace('/', '_');
+		this.actionSet = actionSetOverride != null ? actionSetOverride : VRInputActionSet.fromKeyBinding(keyBinding);
+		this.name = this.actionSet.name + "/in/" + keyBinding.getKeyDescription().replace('/', '_');
 
 		for (int i = 0; i < ControllerType.values().length; i++) {
 			digitalData[i] = new InputDigitalActionData_t.ByReference();
@@ -185,7 +185,7 @@ public class VRInputAction {
 
 		int error = MCOpenVR.vrInput.GetDigitalActionData.apply(handle, digitalData[index], digitalData[index].size(), hand != null ? MCOpenVR.getControllerHandle(hand) : JOpenVRLibrary.k_ulInvalidInputValueHandle);
 		if (error != 0)
-			throw new RuntimeException("Error reading digital data for '" + this.name + "': code " + MCOpenVR.getInputError(error));
+			throw new RuntimeException("Error reading digital data for '" + this.name + "': " + MCOpenVR.getInputError(error));
 		digitalData[index].read();
 	}
 
@@ -196,7 +196,7 @@ public class VRInputAction {
 
 		int error = MCOpenVR.vrInput.GetAnalogActionData.apply(handle, analogData[index], analogData[index].size(), hand != null ? MCOpenVR.getControllerHandle(hand) : JOpenVRLibrary.k_ulInvalidInputValueHandle);
 		if (error != 0)
-			throw new RuntimeException("Error reading analog data for '" + this.name + "': code " + MCOpenVR.getInputError(error));
+			throw new RuntimeException("Error reading analog data for '" + this.name + "': " + MCOpenVR.getInputError(error));
 		analogData[index].read();
 	}
 
@@ -222,7 +222,7 @@ public class VRInputAction {
 		longRef.setPointer(p);
 		int error = MCOpenVR.vrInput.GetActionOrigins.apply(MCOpenVR.getActionSetHandle(actionSet), handle, longRef, JOpenVRLibrary.k_unMaxActionOriginCount);
 		if (error != 0)
-			throw new RuntimeException("Error getting action origins for '" + this.name + "': code " + MCOpenVR.getInputError(error));
+			throw new RuntimeException("Error getting action origins for '" + this.name + "': " + MCOpenVR.getInputError(error));
 
 		List<Long> list = new ArrayList<>();
 		for (long handle : p.getLongArray(0, JOpenVRLibrary.k_unMaxActionOriginCount)) {
@@ -380,7 +380,7 @@ public class VRInputAction {
 		Pointer p = new Memory(JOpenVRLibrary.k_unMaxPropertyStringSize + 1);
 		int error = MCOpenVR.vrInput.GetOriginLocalizedName.apply(handle, p, JOpenVRLibrary.k_unMaxPropertyStringSize, JOpenVRLibrary.EVRInputStringBits.EVRInputStringBits_VRInputString_All);
 		if (error != 0)
-			throw new RuntimeException("Error getting origin name: code " + MCOpenVR.getInputError(error));
+			throw new RuntimeException("Error getting origin name: " + MCOpenVR.getInputError(error));
 		return p.getString(0);
 	}
 

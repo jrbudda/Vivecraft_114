@@ -415,7 +415,7 @@
                          vec3d2 = new Vec3d((double)(f2 * f5 - f3 * f4), vec3d2.y, (double)(f3 * f5 + f2 * f4));
                          f1 = (float)vec3d2.lengthSquared();
  
-@@ -1293,4 +1490,386 @@
+@@ -1293,4 +1490,387 @@
              return this.eyesInWaterPlayer;
          }
      }
@@ -790,10 +790,11 @@
 +    }
 +    
 +    @Override
-+    public ItemStack onFoodEaten(World p_213357_1_, ItemStack p_213357_2_) {   	
++    public ItemStack onFoodEaten(World p_213357_1_, ItemStack p_213357_2_) {
 +    	if (p_213357_2_.isFood())
-+        {       
-+    		if (p_213357_2_.getDisplayName().getString().equals("EAT ME")) {
++        {
++        	// Just wanna be safe here, I dunno if this is ever called on the client for non-self
++    		if (this == Minecraft.getInstance().player && p_213357_2_.getDisplayName().getString().equals("EAT ME")) {
 +    			Minecraft.getInstance().vrPlayer.wfMode = 1;
 +    			Minecraft.getInstance().vrPlayer.wfCount = 400;
 +    		}

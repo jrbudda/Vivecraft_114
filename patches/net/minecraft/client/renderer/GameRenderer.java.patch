@@ -52,7 +52,7 @@
  import net.minecraft.client.shader.ShaderGroup;
  import net.minecraft.client.shader.ShaderLinkHelper;
  import net.minecraft.crash.CrashReport;
-@@ -49,7 +65,10 @@
+@@ -49,8 +65,12 @@
  import net.minecraft.entity.projectile.ProjectileHelper;
  import net.minecraft.fluid.IFluidState;
  import net.minecraft.item.ItemStack;
@@ -61,9 +61,11 @@
 +import net.minecraft.potion.Effect;
 +import net.minecraft.potion.EffectInstance;
  import net.minecraft.potion.Effects;
++import net.minecraft.profiler.DebugProfiler;
  import net.minecraft.resources.IResourceManager;
  import net.minecraft.resources.IResourceManagerReloadListener;
-@@ -59,6 +78,7 @@
+ import net.minecraft.resources.SimpleResource;
+@@ -59,6 +79,7 @@
  import net.minecraft.util.BlockRenderLayer;
  import net.minecraft.util.CachedBlockInfo;
  import net.minecraft.util.Direction;
@@ -71,7 +73,7 @@
  import net.minecraft.util.ResourceLocation;
  import net.minecraft.util.ScreenShotHelper;
  import net.minecraft.util.SoundCategory;
-@@ -69,8 +89,11 @@
+@@ -69,8 +90,11 @@
  import net.minecraft.util.math.BlockRayTraceResult;
  import net.minecraft.util.math.EntityRayTraceResult;
  import net.minecraft.util.math.MathHelper;
@@ -83,7 +85,7 @@
  import net.minecraft.util.math.shapes.VoxelShape;
  import net.minecraft.util.text.StringTextComponent;
  import net.minecraft.util.text.Style;
-@@ -90,12 +113,30 @@
+@@ -90,12 +114,30 @@
  import net.optifine.gui.GuiChatOF;
  import net.optifine.reflect.Reflector;
  import net.optifine.reflect.ReflectorForge;
@@ -114,7 +116,7 @@
  
  public class GameRenderer implements AutoCloseable, IResourceManagerReloadListener
  {
-@@ -140,7 +181,7 @@
+@@ -140,7 +182,7 @@
      private boolean initialized = false;
      private World updatedWorld = null;
      public boolean fogStandard = false;
@@ -123,7 +125,7 @@
      private long lastServerTime = 0L;
      private int lastServerTicks = 0;
      private int serverWaitTime = 0;
-@@ -151,15 +192,45 @@
+@@ -151,15 +193,45 @@
      public int loadVisibleChunksCounter = -1;
      public static final int loadVisibleChunksMessageId = 201435902;
      private boolean guiLoadingVisible = false;
@@ -175,7 +177,7 @@
          this.lightmapTexture = new LightTexture(this);
          this.fogRenderer = new FogRenderer(this);
          this.shaderGroup = null;
-@@ -175,6 +246,14 @@
+@@ -175,6 +247,14 @@
                  this.rainYCoords[i << 5 | j] = f / f2;
              }
          }
@@ -190,7 +192,7 @@
      }
  
      public void close()
-@@ -250,7 +329,8 @@
+@@ -250,7 +330,8 @@
              try
              {
                  this.shaderGroup = new ShaderGroup(this.mc.getTextureManager(), this.resourceManager, this.mc.getFramebuffer(), resourceLocationIn);
@@ -200,7 +202,7 @@
                  this.useShader = true;
              }
              catch (IOException ioexception)
-@@ -358,16 +438,24 @@
+@@ -358,16 +439,24 @@
       * Gets the block or object that is being moused over.
       */
      public void getMouseOver(float partialTicks)
@@ -230,7 +232,7 @@
              boolean flag = false;
              int i = 3;
              double d1 = d0;
-@@ -388,8 +476,9 @@
+@@ -388,8 +477,9 @@
              {
                  d1 = this.mc.objectMouseOver.getHitVec().squareDistanceTo(vec3d);
              }
@@ -242,7 +244,7 @@
              Vec3d vec3d2 = vec3d.add(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0);
              float f = 1.0F;
              AxisAlignedBB axisalignedbb = entity.getBoundingBox().expand(vec3d1.scale(d0)).grow(1.0D, 1.0D, 1.0D);
-@@ -568,8 +657,9 @@
+@@ -568,8 +658,9 @@
          }
      }
  
@@ -253,7 +255,7 @@
          this.farPlaneDistance = (float)(this.mc.gameSettings.renderDistanceChunks * 16);
  
          if (Config.isFogFancy())
-@@ -596,17 +686,47 @@
+@@ -596,17 +687,47 @@
              GlStateManager.translatef((float)this.cameraYaw, (float)(-this.cameraPitch), 0.0F);
              GlStateManager.scaled(this.cameraZoom, this.cameraZoom, 1.0D);
          }
@@ -304,7 +306,7 @@
          float f = MathHelper.lerp(partialTicks, this.mc.player.prevTimeInPortal, this.mc.player.timeInPortal);
  
          if (f > 0.0F)
-@@ -624,12 +744,108 @@
+@@ -624,12 +745,108 @@
              GlStateManager.scalef(1.0F / f1, 1.0F, 1.0F);
              GlStateManager.rotatef(-((float)this.rendererUpdateCount + partialTicks) * (float)i, 0.0F, 1.0F, 1.0F);
          }
@@ -414,33 +416,48 @@
  
      public void renderHand(ActiveRenderInfo p_renderHand_1_, float p_renderHand_2_, boolean p_renderHand_3_, boolean p_renderHand_4_, boolean p_renderHand_5_)
      {
-@@ -726,12 +942,14 @@
+@@ -726,21 +943,26 @@
          return i > 200 ? 1.0F : 0.7F + MathHelper.sin(((float)i - partialTicks) * (float)Math.PI * 0.2F) * 0.3F;
      }
  
 -    public void updateCameraAndRender(float partialTicks, long nanoTime, boolean renderWorldIn)
 +    public void renderGame(float partialTicks, long nanoTime, boolean renderWorldIn)
      {
-+    	
-+    	if(mc.currentPass == RenderPass.LEFT) { //Vivecraft once per pass
-         this.frameInit();
- 
+-        this.frameInit();
+-
 -        if (!this.mc.isGameFocused() && this.mc.gameSettings.pauseOnLostFocus && (!this.mc.gameSettings.touchscreen || !this.mc.mouseHelper.isRightDown()))
 -        {
+-            if (Util.milliTime() - this.prevFrameTime > 500L)
+-            {
+-                this.mc.displayInGameMenu(false);
+-            }
+-        }
+-        else
+-        {
+-            this.prevFrameTime = Util.milliTime();
+-        }
++    	
++    	if(mc.currentPass == RenderPass.LEFT) { //Vivecraft once per pass
++    		this.frameInit();
++
++    		setupClipPlanes();
++
 +    		if (!always_true && !this.mc.isGameFocused() && this.mc.gameSettings.pauseOnLostFocus && (!this.mc.gameSettings.touchscreen || !this.mc.mouseHelper.isRightDown()))
 +    		{//never pause on focus loss.
-             if (Util.milliTime() - this.prevFrameTime > 500L)
-             {
-                 this.mc.displayInGameMenu(false);
-@@ -741,6 +959,7 @@
-         {
-             this.prevFrameTime = Util.milliTime();
-         }
++    			if (Util.milliTime() - this.prevFrameTime > 500L)
++    			{
++    				this.mc.displayInGameMenu(false);
++    			}
++    		}
++    		else
++    		{
++    			this.prevFrameTime = Util.milliTime();
++    		}
 +    	}
  
          if (!this.mc.skipRenderWorld)
          {
-@@ -751,11 +970,13 @@
+@@ -751,11 +973,13 @@
              if (renderWorldIn && this.mc.world != null && !Config.isReloadingResources())
              {
                  this.mc.getProfiler().startSection("level");
@@ -455,7 +472,7 @@
  
                  if (this.mc.isSingleplayer() && this.timeWorldIcon < Util.milliTime() - 1000L)
                  {
-@@ -787,6 +1008,7 @@
+@@ -787,6 +1011,7 @@
  
                  if (!this.mc.gameSettings.hideGUI || this.mc.currentScreen != null)
                  {
@@ -463,7 +480,7 @@
                      GlStateManager.alphaFunc(516, 0.1F);
                      this.mc.mainWindow.loadGUIRenderMatrix(Minecraft.IS_RUNNING_ON_MAC);
                      this.renderItemActivation(this.mc.mainWindow.getScaledWidth(), this.mc.mainWindow.getScaledHeight(), partialTicks);
-@@ -801,22 +1023,25 @@
+@@ -801,22 +1026,25 @@
                      {
                          Lagometer.showLagometer((int)this.mc.mainWindow.getGuiScaleFactor());
                      }
@@ -491,7 +508,7 @@
              if (this.guiLoadingVisible != (this.mc.loadingGui != null))
              {
                  if (this.mc.loadingGui != null)
-@@ -886,8 +1111,38 @@
+@@ -886,8 +1114,38 @@
                      throw new ReportedException(crashreport1);
                  }
              }
@@ -530,7 +547,7 @@
          this.frameFinish();
          this.waitForServerThread();
          Lagometer.updateLagometer();
-@@ -938,7 +1193,10 @@
+@@ -938,7 +1196,10 @@
  
      private boolean isDrawBlockOutline()
      {
@@ -542,7 +559,7 @@
          {
              return false;
          }
-@@ -975,14 +1233,28 @@
+@@ -975,14 +1236,28 @@
  
      public void renderWorld(float partialTicks, long finishTimeNano)
      {
@@ -572,7 +589,7 @@
  
          if (Config.isShaders())
          {
-@@ -1010,21 +1282,25 @@
+@@ -1010,21 +1285,25 @@
          ParticleManager particlemanager = this.mc.particles;
          boolean flag1 = this.isDrawBlockOutline();
          GlStateManager.enableCull();
@@ -601,7 +618,7 @@
  
          this.fogRenderer.func_217619_a(activerenderinfo, partialTicks);
          GlStateManager.clear(16640, Minecraft.IS_RUNNING_ON_MAC);
-@@ -1034,6 +1310,11 @@
+@@ -1034,6 +1313,11 @@
              Shaders.clearRenderBuffer();
          }
  
@@ -613,7 +630,7 @@
          if (flag)
          {
              Shaders.setCamera(activerenderinfo, partialTicks);
-@@ -1060,9 +1341,14 @@
+@@ -1060,9 +1344,14 @@
              this.fogRenderer.func_217618_a(activerenderinfo, -1);
              this.mc.getProfiler().endStartSection("sky");
              GlStateManager.matrixMode(5889);
@@ -630,7 +647,7 @@
  
              if (flag)
              {
-@@ -1077,15 +1363,20 @@
+@@ -1077,15 +1366,20 @@
              }
  
              GlStateManager.matrixMode(5889);
@@ -654,7 +671,7 @@
          this.fogRenderer.func_217618_a(activerenderinfo, 0);
          GlStateManager.shadeModel(7425);
  
-@@ -1111,14 +1402,16 @@
+@@ -1111,14 +1405,16 @@
              worldrenderer.func_215320_a(activerenderinfo, icamera, this.frameCount++, this.mc.player.isSpectator());
          }
  
@@ -673,7 +690,7 @@
          {
              this.mc.getProfiler().endStartSection("finish");
              GL11.glFinish();
-@@ -1185,6 +1478,7 @@
+@@ -1185,6 +1481,7 @@
          this.disableLightmap();
          GlStateManager.matrixMode(5888);
          GlStateManager.popMatrix();
@@ -681,7 +698,7 @@
  
          if (flag1 && this.mc.objectMouseOver != null)
          {
-@@ -1220,6 +1514,12 @@
+@@ -1220,6 +1517,12 @@
  
          GlStateManager.blendFuncSeparate(770, 771, 1, 0);
          GlStateManager.disableBlend();
@@ -694,7 +711,7 @@
          this.enableLightmap();
          this.fogRenderer.func_217618_a(activerenderinfo, 0);
          this.mc.getProfiler().endStartSection("particles");
-@@ -1261,10 +1561,29 @@
+@@ -1261,10 +1564,29 @@
  
          GlStateManager.depthMask(true);
          worldrenderer.func_215322_a(activerenderinfo, partialTicks);
@@ -715,7 +732,7 @@
 +        }
 +        
 +        if (shouldRenderHands())
-+            renderVRHands(!correctTranslucentGui, partialTicks);
++            renderVRHands(false, partialTicks);
  
          if (flag)
          {
@@ -725,7 +742,7 @@
              Shaders.preWater();
          }
  
-@@ -1303,12 +1622,48 @@
+@@ -1303,12 +1625,48 @@
              this.func_215313_a(activerenderinfo, worldrenderer, partialTicks, d0, d1, d2);
          }
  
@@ -733,20 +750,20 @@
 +
 +        this.mc.getProfiler().startSection("hud");
 +
-+		if(correctTranslucentGui) {
-+		    if (flag)
-+                Shaders.useProgram(Shaders.ProgramHandWater);
-+            renderVRLit(correctTranslucentGui, partialTicks);
-+        }
-+
-+        this.mc.getProfiler().endStartSection("misc");
-+
-+        if (mc.currentPass != RenderPass.THIRD || mc.vrSettings.displayMirrorMode != VRSettings.MIRROR_THIRD_PERSON)
-+        {
-+            this.renderVRMisc(partialTicks);
-+        }
-+        
-+        disableLightmap();
++			if(correctTranslucentGui) {
++			    if (flag)
++	                Shaders.useProgram(Shaders.ProgramHandWater);
++	            renderVRLit(correctTranslucentGui, partialTicks);
++	        }
++	
++	        this.mc.getProfiler().endStartSection("misc");
++	
++	        if (mc.currentPass != RenderPass.THIRD || mc.vrSettings.displayMirrorMode != VRSettings.MIRROR_THIRD_PERSON)
++	        {
++	            this.renderVRMisc(partialTicks);
++	        }
++	        
++	        disableLightmap();
 +        
 +        this.mc.getProfiler().endSection();
 +
@@ -774,7 +791,7 @@
          this.mc.getProfiler().endStartSection("hand");
  
          if (this.renderHand && !Shaders.isShadowPass)
-@@ -1330,11 +1685,15 @@
+@@ -1330,11 +1688,15 @@
                  this.func_215308_a(activerenderinfo, partialTicks);
              }
          }
@@ -790,7 +807,7 @@
      }
  
      private void func_215313_a(ActiveRenderInfo p_215313_1_, WorldRenderer p_215313_2_, float p_215313_3_, double p_215313_4_, double p_215313_6_, double p_215313_8_)
-@@ -1344,7 +1703,11 @@
+@@ -1344,7 +1706,11 @@
              this.mc.getProfiler().endStartSection("clouds");
              GlStateManager.matrixMode(5889);
              GlStateManager.loadIdentity();
@@ -803,7 +820,7 @@
              GlStateManager.matrixMode(5888);
              GlStateManager.pushMatrix();
              this.fogRenderer.func_217618_a(p_215313_1_, 0);
-@@ -1353,7 +1716,11 @@
+@@ -1353,7 +1719,11 @@
              GlStateManager.popMatrix();
              GlStateManager.matrixMode(5889);
              GlStateManager.loadIdentity();
@@ -816,7 +833,7 @@
              GlStateManager.matrixMode(5888);
          }
      }
-@@ -2028,35 +2395,28 @@
+@@ -2028,35 +2398,28 @@
      }
  
      private void renderItemActivation(int widthsp, int heightScaled, float partialTicks)
@@ -864,7 +881,7 @@
          }
      }
  
-@@ -2079,4 +2439,2118 @@
+@@ -2079,4 +2442,2118 @@
      {
          return this.activeRender;
      }
@@ -1469,7 +1486,7 @@
 +  			mc.getProfiler().endSection();
 +
 +  			// VIVE added debug info to HUD
-+  			if (mc.gameSettings.showDebugInfo && mc.gameSettings.showDebugProfilerChart)
++  	        if (mc.gameSettings.showDebugProfilerChart && !mc.gameSettings.hideGUI)
 +  			{
 +  				mc.drawProfiler();
 +  			}
@@ -2870,13 +2887,13 @@
 +        this.colorBuffer.flip();
 +        return this.colorBuffer;
 +    }
-+    private void renderVRLit(boolean translucent, float partialTicks) {
-+    	renderVRGuiElements(translucent, partialTicks);
++    private void renderVRLit(boolean translucentSecondPass, float partialTicks) {
++    	renderVRGuiElements(translucentSecondPass, partialTicks);
 +
-+    	if (translucent) {
++    	if (translucentSecondPass) {
 +            if (!this.shouldOccludeGui() && shouldRenderHands()) {
 +            	enableLightmap();
-+            	renderVRHands(translucent, partialTicks);
++            	renderVRHands(true, partialTicks);
 +            }
 +
 +            this.mc.getProfiler().startSection("extra_translucent_pass");
@@ -2901,7 +2918,7 @@
 +        }
 +    }
 +
-+    private void renderVRHands(boolean translucent, float partialTicks) {
++    private void renderVRHands(boolean translucentSecondPass, float partialTicks) {
 +        this.mc.getProfiler().startSection("hands");
 +
 +        RenderHelper.enableStandardItemLighting();
@@ -2913,7 +2930,7 @@
 +            renderMainMenuHands();
 +        } else {
 +            this.renderVRHand_Main(partialTicks);
-+            this.renderVRHand_Offhand(partialTicks, !translucent);
++            this.renderVRHand_Offhand(partialTicks, !translucentSecondPass);
 +        }
 +
 +        //

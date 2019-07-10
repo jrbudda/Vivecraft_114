@@ -1,6 +1,17 @@
 --- a/net/minecraft/client/tutorial/Tutorial.java
 +++ b/net/minecraft/client/tutorial/Tutorial.java
-@@ -134,7 +134,7 @@
+@@ -97,7 +97,9 @@
+             this.stop();
+         }
+ 
+-        this.tutorialStep = this.minecraft.gameSettings.tutorialStep.create(this);
++        // VIVECRAFT: Real men don't need tutorials.
++        //this.tutorialStep = this.minecraft.gameSettings.tutorialStep.create(this);
++        this.tutorialStep = TutorialSteps.NONE.create(this);
+     }
+ 
+     public void tick()
+@@ -134,7 +136,7 @@
          }
      }
  

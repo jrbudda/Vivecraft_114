@@ -10,3 +10,36 @@
      private static final Map<Integer, String> LOOKUP_MAP = make(Maps.newHashMap(), (p_lambda$static$0_0_) ->
      {
          p_lambda$static$0_0_.put(0, "No error");
+@@ -933,18 +936,20 @@
+ 
+     public static boolean useVbo()
+     {
+-        if (Config.isMultiTexture())
+-        {
+-            return false;
+-        }
+-        else if (Config.isRenderRegions() && !vboRegions)
+-        {
+-            return false;
+-        }
+-        else
+-        {
+-            return useVbo && Minecraft.getInstance().gameSettings.ofUseVbo;
+-        }
++    	//Vivecraft if u cant use vbos u cant do anything
++    	return true;
++//        if (Config.isMultiTexture())
++//        {
++//            return false;
++//        }
++//        else if (Config.isRenderRegions() && !vboRegions)
++//        {
++//            return false;
++//        }
++//        else
++//        {
++//            return useVbo && Minecraft.getInstance().gameSettings.ofUseVbo;
++//        }
+     }
+ 
+     public static void glBindFramebuffer(int p_glBindFramebuffer_0_, int p_glBindFramebuffer_1_)

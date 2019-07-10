@@ -96,7 +96,6 @@ public class MenuWorldRenderer {
 	public MenuFogRenderer fogRenderer;
 	public Set<TextureAtlasSprite> visibleTextures = new HashSet<>();
 	private Random rand;
-	private boolean init;
 	private boolean ready;
 
 	public MenuWorldRenderer() {
@@ -114,14 +113,13 @@ public class MenuWorldRenderer {
 
 	public void init() {
 		try {
-			Minecraft mc = Minecraft.getInstance();
 			InputStream inputStream = MenuWorldDownloader.getRandomWorld();
 			if (inputStream != null) {
-				System.out.println("Initializing main menu world renderer...");				
+				System.out.println("Initializing main menu world renderer...");
+				loadRenderers();
 				System.out.println("Loading world data...");
 				setWorld(MenuWorldExporter.loadWorld(inputStream));
 				System.out.println("Building geometry...");
-				loadRenderers();
 				prepare();
 				mc.gameRenderer.menuWorldFastTime = new Random().nextInt(10) == 0;
 			} else {
@@ -131,10 +129,12 @@ public class MenuWorldRenderer {
 		catch (Exception e) {
 			System.out.println("Exception thrown when loading main menu world, falling back to old menu room");
 			e.printStackTrace();
+			destroy();
 			setWorld(null);
 		}
 		catch (OutOfMemoryError e) { // Only effective way of preventing crash on poop computers with low heap size
 			System.out.println("OutOfMemoryError while loading main menu world. Low heap size or 32-bit Java?");
+			destroy();
 			setWorld(null);
 		}
 	}

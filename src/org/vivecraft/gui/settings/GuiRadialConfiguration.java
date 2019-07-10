@@ -181,7 +181,7 @@ public class GuiRadialConfiguration extends GuiVROptionsBase
 		super.render(par1, par2, par3);
 
 		if (GuiRadialConfiguration.this.visibleList == null)
-			this.drawCenteredString(minecraft.fontRenderer, "Make sure the radial menu binding is bound.", this.width / 2, this.height - 50, 0x55FF55);
+			this.drawCenteredString(minecraft.fontRenderer, "Make sure Open Radial Menu is bound.", this.width / 2, this.height - 50, 0x55FF55);
 
 		if(this.isShift)
 			this.drawCenteredString(minecraft.fontRenderer, "Hold (Keyboard Shift) with the radial menu open to switch to this set", this.width / 2, this.height - 36, 13777015);

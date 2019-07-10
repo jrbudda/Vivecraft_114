@@ -11,3 +11,12 @@
      }
  
      public static boolean isNaturalTextures()
+@@ -1558,7 +1560,7 @@
+ 
+     public static boolean isConnectedTexturesFancy()
+     {
+-        return gameSettings.ofConnectedTextures == 2;
++        return false;// gameSettings.ofConnectedTextures == 2;
+     }
+ 
+     public static boolean isFastRender()

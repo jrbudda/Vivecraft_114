@@ -11,6 +11,15 @@
  import net.minecraft.block.Block;
  import net.minecraft.block.BlockState;
  import net.minecraft.client.util.ITooltipFlag;
+@@ -168,7 +172,7 @@
+         {
+             ItemStack itemstack = playerIn.getHeldItem(handIn);
+ 
+-            if (playerIn.canEat(this.getFood().canEatWhenFull()))
++            if (playerIn.canEat(this.getFood().canEatWhenFull()) || itemstack.getDisplayName().getString().equals("EAT ME"))
+             {
+                 playerIn.setActiveHand(handIn);
+                 return new ActionResult<>(ActionResultType.SUCCESS, itemstack);
 @@ -424,6 +428,18 @@
          float f = player.rotationPitch;
          float f1 = player.rotationYaw;

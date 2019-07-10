@@ -27,17 +27,23 @@
      private int starGLCallList = -1;
      private int glSkyList = -1;
      private int glSkyList2 = -1;
-@@ -298,7 +302,8 @@
+@@ -297,9 +301,12 @@
+ 
              try
              {
-                 this.entityOutlineShader = new ShaderGroup(this.mc.getTextureManager(), this.mc.getResourceManager(), this.mc.getFramebuffer(), resourcelocation);
+-                this.entityOutlineShader = new ShaderGroup(this.mc.getTextureManager(), this.mc.getResourceManager(), this.mc.getFramebuffer(), resourcelocation);
 -                this.entityOutlineShader.createBindFramebuffers(this.mc.mainWindow.getFramebufferWidth(), this.mc.mainWindow.getFramebufferHeight());
-+                // VIVECRAFT: Use eye framebuffer instead of window
-+                this.entityOutlineShader.createBindFramebuffers(this.mc.stereoProvider.framebufferVrRender.framebufferWidth, this.mc.stereoProvider.framebufferVrRender.framebufferHeight);
-                 this.entityOutlineFramebuffer = this.entityOutlineShader.getFramebufferRaw("final");
+-                this.entityOutlineFramebuffer = this.entityOutlineShader.getFramebufferRaw("final");
++            	if(mc.getFramebuffer() != null) {
++	            	this.entityOutlineShader = new ShaderGroup(this.mc.getTextureManager(), this.mc.getResourceManager(), this.mc.getFramebuffer(), resourcelocation);
++	                // VIVECRAFT: Use eye framebuffer instead of window
++	                this.entityOutlineShader.createBindFramebuffers(this.mc.stereoProvider.framebufferVrRender.framebufferWidth, this.mc.stereoProvider.framebufferVrRender.framebufferHeight);
++	                this.entityOutlineFramebuffer = this.entityOutlineShader.getFramebufferRaw("final");
++            	}
              }
              catch (IOException ioexception)
-@@ -327,7 +332,7 @@
+             {
+@@ -327,7 +334,7 @@
          {
              GlStateManager.enableBlend();
              GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
@@ -46,7 +52,7 @@
              GlStateManager.disableBlend();
          }
      }
-@@ -725,18 +730,30 @@
+@@ -725,18 +732,30 @@
              {
                  Shaders.beginEntities();
              }
@@ -81,7 +87,7 @@
                      ++this.countEntitiesRendered;
                      this.renderedEntity = entity;
  
-@@ -744,10 +761,21 @@
+@@ -744,10 +763,21 @@
                      {
                          Shaders.nextEntity(entity);
                      }
@@ -104,7 +110,7 @@
                      if (entity.isGlowing() || entity instanceof PlayerEntity && this.mc.player.isSpectator() && this.mc.gameSettings.keyBindSpectatorOutlines.isKeyDown())
                      {
                          list.add(entity);
-@@ -782,14 +810,15 @@
+@@ -782,14 +812,15 @@
              if (i == 0 && this.isRenderEntityOutlines() && (!list.isEmpty() || this.entityOutlinesRendered))
              {
                  this.world.getProfiler().endStartSection("entityOutlines");
@@ -122,7 +128,7 @@
                      RenderHelper.disableStandardItemLighting();
                      this.renderManager.setRenderOutlines(true);
  
-@@ -825,7 +854,8 @@
+@@ -825,7 +856,8 @@
                      GlStateManager.enableAlphaTest();
                  }
  
@@ -132,7 +138,7 @@
              }
  
              if (!this.isRenderEntityOutlines() && (!list.isEmpty() || this.entityOutlinesRendered))
-@@ -1072,13 +1102,15 @@
+@@ -1072,13 +1104,15 @@
          }
  
          this.mc.getProfiler().endStartSection("culling");
@@ -151,7 +157,7 @@
          this.lastViewEntityY = p_215320_1_.getProjectedView().y;
          this.lastViewEntityZ = p_215320_1_.getProjectedView().z;
          this.lastViewEntityPitch = (double)f;
-@@ -1452,7 +1484,7 @@
+@@ -1452,7 +1486,7 @@
          }
      }
  
@@ -160,7 +166,7 @@
      {
          this.mc.gameRenderer.enableLightmap();
  
-@@ -1629,10 +1661,10 @@
+@@ -1629,10 +1663,10 @@
  
              if (flag)
              {
@@ -173,7 +179,7 @@
              vec3d = CustomColors.getSkyColor(vec3d, this.mc.world, this.mc.getRenderViewEntity().posX, this.mc.getRenderViewEntity().posY + 1.0D, this.mc.getRenderViewEntity().posZ);
  
              if (flag)
-@@ -1697,7 +1729,7 @@
+@@ -1697,7 +1731,7 @@
  
                  if (flag)
                  {
@@ -182,7 +188,7 @@
                  }
  
                  GlStateManager.shadeModel(7425);
-@@ -1729,7 +1761,7 @@
+@@ -1729,7 +1763,7 @@
  
              if (flag)
              {
@@ -191,7 +197,7 @@
              }
  
              GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-@@ -1788,7 +1820,7 @@
+@@ -1788,7 +1822,7 @@
  
              if (flag)
              {
@@ -200,7 +206,7 @@
              }
  
              float f12 = this.world.getStarBrightness(partialTicks) * f10;
-@@ -1827,7 +1859,7 @@
+@@ -1827,7 +1861,7 @@
  
              if (flag)
              {
@@ -209,7 +215,7 @@
              }
  
              GlStateManager.color3f(0.0F, 0.0F, 0.0F);
-@@ -1897,7 +1929,7 @@
+@@ -1897,7 +1931,7 @@
  
              if (flag)
              {
@@ -218,7 +224,7 @@
              }
  
              GlStateManager.depthMask(true);
-@@ -2503,7 +2535,7 @@
+@@ -2503,7 +2537,7 @@
  
                  if (Config.isShaders())
                  {
@@ -227,7 +233,7 @@
                  }
  
                  GlStateManager.depthMask(false);
-@@ -2521,7 +2553,7 @@
+@@ -2521,7 +2555,7 @@
  
                  if (Config.isShaders())
                  {
@@ -236,7 +242,7 @@
                  }
  
                  GlStateManager.disableBlend();
-@@ -2767,7 +2799,7 @@
+@@ -2767,7 +2801,7 @@
      {
          ActiveRenderInfo activerenderinfo = this.mc.gameRenderer.getActiveRenderInfo();
  
@@ -245,7 +251,7 @@
          {
              ParticleStatus particlestatus = this.func_215327_a(minimizeLevel);
  
-@@ -2935,7 +2967,7 @@
+@@ -2935,7 +2969,7 @@
              case 1038:
                  ActiveRenderInfo activerenderinfo = this.mc.gameRenderer.getActiveRenderInfo();
  
@@ -254,7 +260,7 @@
                  {
                      double d0 = (double)pos.getX() - activerenderinfo.getProjectedView().x;
                      double d1 = (double)pos.getY() - activerenderinfo.getProjectedView().y;
-@@ -2974,6 +3006,8 @@
+@@ -2974,6 +3008,8 @@
      {
          Random random = this.world.rand;
  
@@ -263,7 +269,7 @@
          switch (type)
          {
              case 1000:
-@@ -3029,18 +3063,26 @@
+@@ -3029,18 +3065,26 @@
                  break;
  
              case 1011:
@@ -290,7 +296,7 @@
                  this.world.playSound(blockPosIn, SoundEvents.BLOCK_FENCE_GATE_CLOSE, SoundCategory.BLOCKS, 1.0F, this.world.rand.nextFloat() * 0.1F + 0.9F, false);
                  break;
  
-@@ -3061,14 +3103,26 @@
+@@ -3061,14 +3105,26 @@
                  break;
  
              case 1019:
@@ -317,7 +323,7 @@
                  this.world.playSound(blockPosIn, SoundEvents.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, SoundCategory.HOSTILE, 2.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F, false);
                  break;
  
-@@ -3097,10 +3151,17 @@
+@@ -3097,10 +3153,17 @@
                  break;
  
              case 1030:
@@ -335,7 +341,7 @@
                  this.world.playSound(blockPosIn, SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.BLOCKS, 0.3F, this.world.rand.nextFloat() * 0.1F + 0.9F, false);
                  break;
  
-@@ -3121,6 +3182,9 @@
+@@ -3121,6 +3184,9 @@
                  break;
  
              case 1036:
@@ -345,7 +351,7 @@
                  this.world.playSound(blockPosIn, SoundEvents.BLOCK_IRON_TRAPDOOR_CLOSE, SoundCategory.BLOCKS, 1.0F, this.world.rand.nextFloat() * 0.1F + 0.9F, false);
                  break;
  
-@@ -3483,4 +3547,11 @@
+@@ -3483,4 +3549,11 @@
              this.setFacing = p_initialize_2_;
          }
      }

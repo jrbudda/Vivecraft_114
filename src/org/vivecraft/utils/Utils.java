@@ -46,6 +46,25 @@ import org.apache.commons.io.IOUtils;
 
 public class Utils
 {
+	// Magic list from a C# snippet, don't question it
+	private static final char[] illegalChars = {34, 60, 62, 124, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 58, 42, 63, 92, 47};
+
+	static {
+		// Needs to be sorted for binary search
+		Arrays.sort(illegalChars);
+	}
+
+	public static String sanitizeFileName(String fileName) {
+		StringBuilder sanitized = new StringBuilder();
+		for (int i = 0; i < fileName.length(); i++) {
+			char ch = fileName.charAt(i);
+			if (Arrays.binarySearch(illegalChars, ch) < 0)
+				sanitized.append(ch);
+			else
+				sanitized.append('_');
+		}
+		return sanitized.toString();
+	}
 
 	public static org.vivecraft.utils.Vector3 convertToOVRVector(Vector3f vector) {
 		return new Vector3(vector.x, vector.y, vector.z);

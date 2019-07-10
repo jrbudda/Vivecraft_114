@@ -17,7 +17,7 @@ public class GuiSeatedOptions extends GuiVROptionsBase
 			new VROptionEntry(VRSettings.VrOptions.KEYHOLE),
 			new VROptionEntry(VRSettings.VrOptions.SEATED_HUD_XHAIR),
 			new VROptionEntry(VRSettings.VrOptions.WORLD_ROTATION_INCREMENT),
-			new VROptionEntry(VRSettings.VrOptions.SEATED_FREE_MOVE),
+			new VROptionEntry(VRSettings.VrOptions.SEATED_FREE_MOVE, true),
 			new VROptionEntry(VRSettings.VrOptions.DUMMY, true),
 			new VROptionEntry("Teleport Settings...", (button, mousePos) -> {
 				minecraft.displayGuiScreen(new GuiTeleportSettings(this));

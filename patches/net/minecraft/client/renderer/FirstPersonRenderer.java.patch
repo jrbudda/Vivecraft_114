@@ -257,7 +257,7 @@
      }
  
      /**
-@@ -399,183 +475,350 @@
+@@ -399,183 +475,352 @@
          RenderHelper.disableStandardItemLighting();
      }
  
@@ -623,19 +623,6 @@
 +				GlStateManager.rotatef(90.0F, 0.0F, 1.0F, 0.0F);   
 +				GlStateManager.rotatef(-90.0F, 0.0F, 0.0F, 1.0F);     
                              break;
--
--                        case SPEAR:
--                            this.transformSideFirstPerson(handside, equippedProgress);
--                            GlStateManager.translatef((float)k * -0.5F, 0.7F, 0.1F);
--                            GlStateManager.rotatef(-55.0F, 1.0F, 0.0F, 0.0F);
--                            GlStateManager.rotatef((float)k * 35.3F, 0.0F, 1.0F, 0.0F);
--                            GlStateManager.rotatef((float)k * -9.785F, 0.0F, 0.0F, 1.0F);
--                            float f13 = (float)stack.getUseDuration() - ((float)this.mc.player.getItemInUseCount() - partialTicks + 1.0F);
--                            float f16 = f13 / 10.0F;
--
--                            if (f16 > 1.0F)
--                            {
--                                f16 = 1.0F;
 +    		case Sword:
 +    			if(vive){
 +    				GlStateManager.translatef(0f, 0f, -0.2f);		
@@ -665,7 +652,9 @@
 +    			break;
 +    		case Tool:
 +
-+    			if(mc.climbTracker.isClaws(stack) && mc.climbTracker.isClimbeyClimb()){
++    			boolean climbClaws = mc.climbTracker.isClaws(stack) && mc.climbTracker.isClimbeyClimb();
++
++    			if(climbClaws){
 +
 +    				GlStateManager.scaled(0.3, 0.3, 0.3);
 +    				GlStateManager.translatef(-.025f, .12f, .25f);
@@ -674,15 +663,9 @@
 +    				if((MCOpenVR.keyClimbeyGrab.isKeyDown(ControllerType.RIGHT) && rightSide) || (MCOpenVR.keyClimbeyGrab.isKeyDown(ControllerType.LEFT) && !rightSide)) {
 +    					GlStateManager.translatef(0f, 0f, -.2f);	
 +    				}
-                             }
- 
--                            if (f16 > 0.1F)
--                            {
--                                float f18 = MathHelper.sin((f13 - 0.1F) * 1.3F);
--                                float f20 = f16 - 0.1F;
--                                float f5 = f18 * f20;
--                                GlStateManager.translatef(f5 * 0.0F, f5 * 0.004F, f5 * 0.0F);
-+    			if(vive || item instanceof ArrowItem){
++    			}
++
++    			if(vive || climbClaws){
 +    				GlStateManager.translatef(0f, -.025f, -0.1f);		
 +    				GlStateManager.scaled(0.6, 0.6, 0.6);	
 +
@@ -695,7 +678,27 @@
 +    			} else {
 +    				GlStateManager.translatef(0f, 0.035f, -0.1f);		
 +    				GlStateManager.scaled(0.6, 0.6, 0.6);	
-+
+ 
+-                        case SPEAR:
+-                            this.transformSideFirstPerson(handside, equippedProgress);
+-                            GlStateManager.translatef((float)k * -0.5F, 0.7F, 0.1F);
+-                            GlStateManager.rotatef(-55.0F, 1.0F, 0.0F, 0.0F);
+-                            GlStateManager.rotatef((float)k * 35.3F, 0.0F, 1.0F, 0.0F);
+-                            GlStateManager.rotatef((float)k * -9.785F, 0.0F, 0.0F, 1.0F);
+-                            float f13 = (float)stack.getUseDuration() - ((float)this.mc.player.getItemInUseCount() - partialTicks + 1.0F);
+-                            float f16 = f13 / 10.0F;
+-
+-                            if (f16 > 1.0F)
+-                            {
+-                                f16 = 1.0F;
+-                            }
+-
+-                            if (f16 > 0.1F)
+-                            {
+-                                float f18 = MathHelper.sin((f13 - 0.1F) * 1.3F);
+-                                float f20 = f16 - 0.1F;
+-                                float f5 = f18 * f20;
+-                                GlStateManager.translatef(f5 * 0.0F, f5 * 0.004F, f5 * 0.0F);
 +    				if(item instanceof CarrotOnAStickItem || item instanceof FishingRodItem) {
 +    					GlStateManager.rotatef(39.4f, 1.0F, 0.0F, 0.0F);
                              }
@@ -705,11 +708,12 @@
 -                            GlStateManager.translatef(0.0F, 0.0F, f16 * 0.2F);
 -                            GlStateManager.scalef(1.0F, 1.0F, 1.0F + f16 * 0.2F);
 -                            GlStateManager.rotatef((float)k * 45.0F, 0.0F, -1.0F, 0.0F);
-+    				GlStateManager.rotatef(-45F - 39.4f, 1.0F, 0.0F, 0.0F);
-+    				GlStateManager.rotatef(90.0F, 0.0F, 1.0F, 0.0F);
-                     }
+-                    }
 -                }
 -                else if (player.isSpinAttacking())
++    				GlStateManager.rotatef(-45F - 39.4f, 1.0F, 0.0F, 0.0F);
++    				GlStateManager.rotatef(90.0F, 0.0F, 1.0F, 0.0F);
++    			}
 +    			
 +    			break;
 +    		case Noms:
@@ -753,7 +757,7 @@
  
              GlStateManager.popMatrix();
          }
-@@ -586,49 +829,59 @@
+@@ -586,49 +831,59 @@
       */
      public void renderOverlays(float partialTicks)
      {
@@ -801,7 +805,7 @@
 -            BlockState blockstate = this.mc.world.getBlockState(new BlockPos(this.mc.player));
 -            BlockPos blockpos = new BlockPos(this.mc.player);
 -            PlayerEntity playerentity = this.mc.player;
--
+ 
 -            for (int i = 0; i < 8; ++i)
 -            {
 -                double d0 = playerentity.posX + (double)(((float)((i >> 0) % 2) - 0.5F) * playerentity.getWidth() * 0.8F);
@@ -816,7 +820,7 @@
 -                    blockpos = blockpos1;
 -                }
 -            }
- 
+-
 -            if (blockstate.getRenderType() != BlockRenderType.INVISIBLE)
 -            {
 -                Object object = Reflector.getFieldValue(Reflector.RenderBlockOverlayEvent_OverlayType_BLOCK);
@@ -843,7 +847,7 @@
                  this.renderFireInFirstPerson();
              }
          }
-@@ -710,13 +963,13 @@
+@@ -710,13 +965,13 @@
          Tessellator tessellator = Tessellator.getInstance();
          BufferBuilder bufferbuilder = tessellator.getBuffer();
          GlStateManager.color4f(1.0F, 1.0F, 1.0F, 0.9F);
@@ -860,7 +864,7 @@
          {
              GlStateManager.pushMatrix();
              TextureAtlasSprite textureatlassprite = this.mc.getTextureMap().getSprite(ModelBakery.LOCATION_FIRE_1);
-@@ -725,19 +978,20 @@
+@@ -725,19 +980,20 @@
              float f2 = textureatlassprite.getMaxU();
              float f3 = textureatlassprite.getMinV();
              float f4 = textureatlassprite.getMaxV();
@@ -892,7 +896,7 @@
              tessellator.draw();
              GlStateManager.popMatrix();
          }
-@@ -822,4 +1076,130 @@
+@@ -822,4 +1078,130 @@
              this.equippedProgressOffHand = 0.0F;
          }
      }

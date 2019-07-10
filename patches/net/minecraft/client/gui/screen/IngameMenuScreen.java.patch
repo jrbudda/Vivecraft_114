@@ -106,7 +106,7 @@
 +		this.addButton(new Button(this.width / 2 - 51, this.height / 4 + 120 + -16, 49, 20, "Profiler", (p) ->
 +		{
 +			minecraft.gameSettings.showDebugProfilerChart = ! minecraft.gameSettings.showDebugProfilerChart;
-+				minecraft.gameSettings.showDebugInfo = minecraft.gameSettings.showDebugProfilerChart;
++				minecraft.gameSettings.ofProfiler = minecraft.gameSettings.showDebugProfilerChart;
 +				minecraft.displayGuiScreen(null);
 +		})); 
 +		this.addButton(new Button(this.width / 2 + 4, this.height / 4 + 120 + -16, 98, 20, "Screenshot", (p) ->

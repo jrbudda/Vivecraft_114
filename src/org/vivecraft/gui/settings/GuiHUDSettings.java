@@ -17,7 +17,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 public class GuiHUDSettings extends GuiVROptionsBase
 {
-    static VROptionEntry[] hudOptions = new VROptionEntry[] {
+    private VROptionEntry[] hudOptions = new VROptionEntry[] {
             new VROptionEntry(VRSettings.VrOptions.HUD_HIDE),
             new VROptionEntry(VRSettings.VrOptions.HUD_LOCK_TO),
 			new VROptionEntry(VRSettings.VrOptions.HUD_SCALE),
@@ -36,6 +36,10 @@ public class GuiHUDSettings extends GuiVROptionsBase
 			new VROptionEntry(VRSettings.VrOptions.PHYSICAL_KEYBOARD, (button, mousePos) -> {
 				KeyboardHandler.setOverlayShowing(false);
 				return false;
+			}),
+			new VROptionEntry("Menu World Settings...", (button, mousePos) -> {
+				Minecraft.getInstance().displayGuiScreen(new GuiMenuWorldSettings(this));
+				return true;
 			}),
     };
 
@@ -58,7 +62,7 @@ public class GuiHUDSettings extends GuiVROptionsBase
 				minecraft.displayGuiScreen(guiVRControls);
 				return false;
 			};
-            optionEntries = ArrayUtils.add(optionEntries, new VROptionEntry("GUI Buttons...", func));
+            optionEntries = ArrayUtils.add(optionEntries, new VROptionEntry("GUI Bindings...", func));
 		}
 
     	super.init(optionEntries, true);

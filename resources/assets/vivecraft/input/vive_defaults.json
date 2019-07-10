@@ -291,6 +291,28 @@
                "path" : "/user/hand/right/input/trigger"
             }
          ]
+      },
+      "/actions/technical" : {
+         "sources" : [
+            {
+               "inputs" : {
+                  "touch" : {
+                     "output" : "/actions/technical/in/vivecraft.key.trackpadtouch"
+                  }
+               },
+               "mode" : "trackpad",
+               "path" : "/user/hand/left/input/trackpad"
+            },
+            {
+               "inputs" : {
+                  "touch" : {
+                     "output" : "/actions/technical/in/vivecraft.key.trackpadtouch"
+                  }
+               },
+               "mode" : "trackpad",
+               "path" : "/user/hand/right/input/trackpad"
+            }
+         ]
       }
    },
    "category" : "steamvr_input",

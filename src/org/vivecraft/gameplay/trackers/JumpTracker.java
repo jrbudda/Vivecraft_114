@@ -67,7 +67,7 @@ public class JumpTracker extends Tracker {
 
 	public void doProcess(ClientPlayerEntity player){
 
-		if(isClimbeyJumpEquipped() && mc.vrPlayer.getFreeMove()){
+		if(isClimbeyJumpEquipped()){
 
 			OpenVRPlayer provider = mc.vrPlayer;
 
