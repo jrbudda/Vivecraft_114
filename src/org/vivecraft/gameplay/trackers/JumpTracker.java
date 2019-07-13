@@ -42,6 +42,7 @@ public class JumpTracker extends Tracker {
 			return false;
 		if(p==null || !p.isAlive() || !p.onGround)
 			return false;
+		if(mc.playerController == null) return false;
 		if(p.isInWater() || p.isInLava())
 			return false;
 		if(p.isSneaking() || p.isPassenger())

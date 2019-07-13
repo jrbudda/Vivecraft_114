@@ -1,9 +1,11 @@
 package org.vivecraft.gui.settings;
 
+import org.vivecraft.gui.framework.GuiVROptionButton;
 import org.vivecraft.gui.framework.GuiVROptionsBase;
 import org.vivecraft.settings.VRSettings;
 
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.Widget;
 
 public class GuiOtherHUDSettings extends GuiVROptionsBase
 {
@@ -17,10 +19,12 @@ public class GuiOtherHUDSettings extends GuiVROptionsBase
             VRSettings.VrOptions.CROSSHAIR_OCCLUSION,
             //VRSettings.VrOptions.MAX_CROSSHAIR_DISTANCE_AT_BLOCKREACH,
             VRSettings.VrOptions.CROSSHAIR_SCALES_WITH_DISTANCE,
-            //VRSettings.VrOptions.CHAT_FADE_AWAY,
-            VRSettings.VrOptions.DUMMY,
+            VRSettings.VrOptions.CHAT_NOTIFICATIONS
     };
-    // VIVE END - hide options not supported by tracked controller UI
+
+    static VRSettings.VrOptions[] chat = new VRSettings.VrOptions[] {
+            VRSettings.VrOptions.CHAT_NOTIFICATION_SOUND      
+    };
 
     public GuiOtherHUDSettings(Screen guiScreen) {
         super( guiScreen );
@@ -31,6 +35,8 @@ public class GuiOtherHUDSettings extends GuiVROptionsBase
     {
     	vrTitle = "Chat/Crosshair Settings";
     	super.init(hudOptions, true);  
+    	if(minecraft.vrSettings.chatNotifications > 1)
+    		super.init(chat, false);
     	super.addDefaultButtons();
     }
 
@@ -42,5 +48,15 @@ public class GuiOtherHUDSettings extends GuiVROptionsBase
         this.settings.menuCrosshairScale = 1f;
         this.settings.useCrosshairOcclusion = false;
         this.settings.crosshairScalesWithDistance = false;
+        this.settings.chatNotifications = VRSettings.CHAT_NOTIFICATIONS_NONE;
+        this.settings.chatNotificationSound = "block.note_block.bell";
     }
+	@Override
+	
+	protected void actionPerformed(Widget widget) {
+		if(!(widget instanceof GuiVROptionButton)) return;
+		GuiVROptionButton button = (GuiVROptionButton) widget;
+		if (button.id == VRSettings.VrOptions.CHAT_NOTIFICATIONS.ordinal())
+			this.reinit = true;
+	}
 }

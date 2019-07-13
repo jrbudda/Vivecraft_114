@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 
 import org.vivecraft.settings.VRSettings;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.button.Button;
 
 public class GuiVROptionButton extends Button
@@ -26,6 +27,10 @@ public class GuiVROptionButton extends Button
         super(x, y, width, height, text, action);
     	this.id = id;
         this.enumOptions = option;
+
+        Minecraft mc = Minecraft.getInstance();
+        if (option != null && mc.vrSettings.overrides.hasSetting(option) && mc.vrSettings.overrides.getSetting(option).isValueOverridden())
+            this.active = false;
     }
 
     @Nullable

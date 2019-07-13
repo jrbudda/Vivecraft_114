@@ -25,6 +25,7 @@ public class RowTracker extends Tracker{
 			return false;
 		if(p==null || !p.isAlive())
 			return false;
+		if(mc.playerController == null) return false;
 		if(Minecraft.getInstance().gameSettings.keyBindForward.isKeyDown()) //important
 			return false;
 		if(!(p.getRidingEntity() instanceof BoatEntity))

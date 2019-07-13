@@ -11,7 +11,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.item.minecart.MinecartEntity;
 import net.minecraft.entity.passive.horse.AbstractHorseEntity;
-import net.minecraft.entity.passive.horse.HorseEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
@@ -30,6 +29,7 @@ public class VehicleTracker extends Tracker {
 	public boolean isActive(ClientPlayerEntity p){
 		Minecraft mc = Minecraft.getInstance();
 		if(p == null) return false;
+		if(mc.playerController == null) return false;
 		if(!p.isAlive()) return false;
 		return true;
 	}
@@ -41,7 +41,7 @@ public class VehicleTracker extends Tracker {
 	}
 
 	public double getVehicleFloor(Entity vehicle, double original) {
-		if(vehicle instanceof HorseEntity)
+		if(vehicle instanceof AbstractHorseEntity)
 			return original; //horses are fine.
 		
 		return vehicle.posY;

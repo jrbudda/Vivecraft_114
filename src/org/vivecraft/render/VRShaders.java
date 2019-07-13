@@ -27,6 +27,7 @@ public class VRShaders {
 
 	public static int _FOVReduction_Enabled = -1;
 	public static int _FOVReduction_RadiusUniform = -1;
+	public static int _FOVReduction_OffsetUniform = -1;
 	public static int _FOVReduction_BorderUniform = -1;
 	public static int _FOVReduction_TextureUniform = -1;
 	public static int _FOVReduction_shaderProgramId = -1;
@@ -92,6 +93,7 @@ public class VRShaders {
 
 		// Setup uniform IDs
 		_FOVReduction_RadiusUniform = ARBShaderObjects.glGetUniformLocationARB(_FOVReduction_shaderProgramId, "circle_radius");
+		_FOVReduction_OffsetUniform= ARBShaderObjects.glGetUniformLocationARB(_FOVReduction_shaderProgramId, "circle_offset");
 		_FOVReduction_BorderUniform = ARBShaderObjects.glGetUniformLocationARB(_FOVReduction_shaderProgramId, "border");
 		_FOVReduction_TextureUniform = ARBShaderObjects.glGetUniformLocationARB(_FOVReduction_shaderProgramId, "tex0");
 

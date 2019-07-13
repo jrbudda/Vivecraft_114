@@ -2,6 +2,7 @@
 
 uniform sampler2D tex0;
 uniform float circle_radius;
+uniform float circle_offset = 0.1;
 uniform float border;
 
 uniform float water;
@@ -47,7 +48,7 @@ void main(){
 	}
 
 	if(circle_radius < 0.8){ //arfy barfy
-		vec2 circle_center = vec2(0.5 + eye*0.1, 0.5);
+		vec2 circle_center = vec2(0.5 + eye*circle_offset, 0.5);
 		vec2 uv = gl_TexCoord[0].xy; 
 		uv -= circle_center; 
 		float dist =  sqrt(dot(uv, uv)); 

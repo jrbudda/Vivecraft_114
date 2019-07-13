@@ -62,6 +62,7 @@ public class TeleportTracker extends Tracker{
     
 	public boolean isActive(ClientPlayerEntity p){
 		if(p == null) return false;
+		if(mc.playerController == null) return false;
 		if(!p.isAlive()) return false;
 		if(p.isSleeping()) return false;
 		return true;
@@ -424,12 +425,12 @@ public class TeleportTracker extends Tracker{
             			ok = false;
             	}        	
 
-            	if (!mc.player.abilities.allowFlying && mc.vrSettings.vrLimitedSurvivalTeleport) { //survival mode mode
-        			if(mc.vrSettings.vrTeleportDownLimit > 0 && yDiff > mc.vrSettings.vrTeleportDownLimit + 0.2)
+            	if (!mc.player.abilities.allowFlying && NetworkHelper.isLimitedSurvivalTeleport()) { //survival mode mode
+        			if(NetworkHelper.getTeleportDownLimit() > 0 && yDiff > NetworkHelper.getTeleportDownLimit() + 0.2)
         	    		ok = false;
-        			else if(mc.vrSettings.vrTeleportUpLimit > 0 && -yDiff > mc.vrSettings.vrTeleportUpLimit + 0.2)
+        			else if(NetworkHelper.getTeleportUpLimit() > 0 && -yDiff > NetworkHelper.getTeleportUpLimit() + 0.2)
         	    		ok = false;  			
-        			else if(mc.vrSettings.vrTeleportHorizLimit > 0 && xzdiff > mc.vrSettings.vrTeleportHorizLimit + 0.2)
+        			else if(NetworkHelper.getTeleportHorizLimit() > 0 && xzdiff > NetworkHelper.getTeleportHorizLimit() + 0.2)
         	    		ok = false;
             	}
                 
@@ -462,7 +463,7 @@ public class TeleportTracker extends Tracker{
 
         mc.swingTracker.disableSwing = 3;
 
-        if(mc.vrSettings.vrLimitedSurvivalTeleport){
+        if(NetworkHelper.isLimitedSurvivalTeleport()){
           mc.player.addExhaustion((float) (movementTeleportDistance / 16 * 1.2f));    
           
           if (mc.playerController.isNotCreative() && vrMovementStyle.arcAiming){
@@ -520,7 +521,7 @@ public class TeleportTracker extends Tracker{
     			
     			return true; //really should check if the block above is passable. Maybe later.
     		} else {
-    			if (!mc.player.abilities.allowFlying && mc.vrSettings.vrLimitedSurvivalTeleport) 
+    			if (!mc.player.abilities.allowFlying && NetworkHelper.isLimitedSurvivalTeleport())
     				return false; //if creative, check if can hop on top.
     		}
     	}

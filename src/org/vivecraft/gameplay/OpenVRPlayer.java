@@ -79,7 +79,7 @@ public class OpenVRPlayer
 			return vrdata_world_pre;
 	}
 
-	public float worldScale =  Minecraft.getInstance().vrSettings.vrWorldScale;
+	public float worldScale = Minecraft.getInstance().vrSettings.overrides.getSetting(VRSettings.VrOptions.WORLD_SCALE).getFloat();
 	private boolean noTeleportClient = true;
 	private boolean teleportOverride = false;
 	public int teleportWarningTimer = -1;
@@ -123,21 +123,22 @@ public class OpenVRPlayer
 	public void preTick(){
 		
 		//adjust world scale
+		float scale = mc.vrSettings.overrides.getSetting(VRSettings.VrOptions.WORLD_SCALE).getFloat();
 		if (mc.world == null || mc.currentScreen instanceof WinGameScreen) 
 			this.worldScale = 1.0f;
 		else if (this.wfCount > 0 && !mc.isGamePaused()) {
 			if(this.wfCount < 40){
 				this.worldScale-=this.wfMode / 2;
-				if(this.worldScale >  mc.vrSettings.vrWorldScale && this.wfMode <0) this.worldScale = mc.vrSettings.vrWorldScale;
-				if(this.worldScale <  mc.vrSettings.vrWorldScale && this.wfMode >0) this.worldScale = mc.vrSettings.vrWorldScale;
+				if(this.worldScale >  scale && this.wfMode <0) this.worldScale = scale;
+				if(this.worldScale <  scale && this.wfMode >0) this.worldScale = scale;
 			} else {
 				this.worldScale+=this.wfMode / 2;
-				if(this.worldScale >  mc.vrSettings.vrWorldScale*20) this.worldScale = 20;
-				if(this.worldScale <  mc.vrSettings.vrWorldScale/10) this.worldScale = 0.1f;				
+				if(this.worldScale >  scale*20) this.worldScale = 20;
+				if(this.worldScale <  scale/10) this.worldScale = 0.1f;
 			}
 			this.wfCount--;
 		} else {
-			this.worldScale = mc.vrSettings.vrWorldScale;
+			this.worldScale = scale;
 		}
 		
 		this.vrdata_world_pre = new VRData(this.roomOrigin, mc.vrSettings.walkMultiplier, worldScale, (float) Math.toRadians(mc.vrSettings.vrWorldRotation));

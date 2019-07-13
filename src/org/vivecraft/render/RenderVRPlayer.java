@@ -91,9 +91,11 @@ public class RenderVRPlayer extends PlayerRenderer
 //        modelplayer.bipedLeftArmwear.rotationPointX = 0.0F;
 //        modelplayer.bipedLeftArmwear.rotationPointY = 0.0F;
         modelplayer.bipedLeftArmwear.rotationPointZ = 0.0F;
-
         modelplayer.bipedLeftArmwear.render(0.0625F);
+
         GlStateManager.disableBlend();
+        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0f);
+
     }
 	
 }

@@ -38,6 +38,23 @@ public class GuiVROptionSlider extends GuiVROptionButton
         return 0;
     }
 
+    protected void onDrag(double p_onDrag_1_, double p_onDrag_3_, double p_onDrag_5_, double p_onDrag_7_)
+    {
+        this.setValueFromMouse(p_onDrag_1_);
+        super.onDrag(p_onDrag_1_, p_onDrag_3_, p_onDrag_5_, p_onDrag_7_);
+    }
+    
+    private void setValueFromMouse(double p_setValueFromMouse_1_)
+    {
+    	Minecraft mc = Minecraft.getInstance();
+        this.sliderValue = (double)((float)(p_setValueFromMouse_1_ - (this.x + 4)) / (float)(this.width - 8));
+        this.sliderValue = MathHelper.clamp(this.sliderValue, 0.0D, 1.0D);
+        double d0 = this.enumOptions.denormalizeValue((float) this.sliderValue);
+        mc.vrSettings.setOptionFloatValue(this.enumOptions, (float) d0);
+        this.sliderValue = this.enumOptions.normalizeValue((float) d0);
+        this.setMessage(mc.vrSettings.getButtonDisplayString(this.enumOptions));
+    }
+    
     /**
      * Fired when the mouse button is dragged. Equivalent of MouseListener.mouseDragged(MouseEvent e).
      */
@@ -45,20 +62,6 @@ public class GuiVROptionSlider extends GuiVROptionButton
     {
         if (this.visible)
         {
-            if (this.dragging)
-            {
-                this.sliderValue = (double)((float)(mouseX - (this.x + 4)) / (float)(this.width - 8));
-                this.sliderValue = MathHelper.clamp(this.sliderValue, 0.0D, 1.0D);
-            }
-
-            if (this.dragging)
-            {
-                double d0 = this.enumOptions.denormalizeValue((float) this.sliderValue);
-                mc.vrSettings.setOptionFloatValue(this.enumOptions, (float) d0);
-                this.sliderValue = this.enumOptions.normalizeValue((float) d0);
-                this.setMessage(mc.vrSettings.getButtonDisplayString(this.enumOptions));
-            }
-
             mc.getTextureManager().bindTexture(WIDGETS_LOCATION);
             GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             int i = (this.isHovered() ? 2 : 1) * 20;
@@ -86,9 +89,8 @@ public class GuiVROptionSlider extends GuiVROptionButton
         return 0;
     }
     
-    /**
-     * Called when the left mouse button is released. This method is specific to GuiButton.
-     */
+   
+    @Override
     public void onRelease(double mouseX, double mouseY)
     {
         this.dragging = false;

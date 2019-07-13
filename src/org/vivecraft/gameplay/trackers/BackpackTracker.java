@@ -27,6 +27,7 @@ public class BackpackTracker extends Tracker {
 		if(mc.vrSettings.seated) return false;
 		if(!mc.vrSettings.backpackSwitching) return false;
 		if(p == null) return false;
+		if(mc.playerController == null) return false;
 		if(!p.isAlive()) return false;
 		if(p.isSleeping()) return false;
 		if(mc.bowTracker.isDrawing) return false;

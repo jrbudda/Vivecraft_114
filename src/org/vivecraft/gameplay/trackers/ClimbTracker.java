@@ -97,6 +97,7 @@ public class ClimbTracker extends Tracker{
 			return false;
 		if(p==null || !p.isAlive())
 			return false;
+		if(mc.playerController == null) return false;		
 		if(p.isPassenger())
 			return false;
 		if(!isClimbeyClimbEquipped() && (p.moveForward != 0 || p.moveStrafing != 0))
@@ -133,7 +134,7 @@ public class ClimbTracker extends Tracker{
 
 	@Override
 	public void idleTick(ClientPlayerEntity player) {
-		MCOpenVR.getInputAction(MCOpenVR.keyClimbeyGrab).setEnabled(isGrabbingLadder() || (isClimbeyClimb() && (inblock[0] || inblock[1])));
+		MCOpenVR.getInputAction(MCOpenVR.keyClimbeyGrab).setEnabled(!mc.player.onGround || isGrabbingLadder() || (isClimbeyClimb() && (inblock[0] || inblock[1])));
 	}
 
 	@Override

@@ -16,6 +16,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.WaterMobEntity;
+import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraft.entity.passive.horse.HorseEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.item.HoeItem;
@@ -57,6 +58,7 @@ public class SwingTracker extends Tracker{
 	}
 
 	public boolean isActive(ClientPlayerEntity p){
+		if(mc.playerController == null) return false;
     	if(p == null) return false;
     	if(!p.isAlive()) return false;
     	if(p.isSleeping()) return false;
@@ -194,7 +196,7 @@ public class SwingTracker extends Tracker{
         			if(mc.vrSettings.animaltouching) {
         				boolean touchable = hitEntity instanceof AnimalEntity || hitEntity instanceof WaterMobEntity;
         				
-        				if (hitEntity instanceof HorseEntity && player.isInWater()) {
+        				if (hitEntity instanceof AbstractHorseEntity && player.isInWater()) {
         					touchable = false;
         					inAnEntity = true;
         				}
@@ -238,7 +240,7 @@ public class SwingTracker extends Tracker{
         		AxisAlignedBB axisalignedbb = player.getBoundingBox().grow(4.0D, 4.0D, 4.0D);
 
 
-        		BlockRayTraceResult blockHit = mc.world.rayTraceBlocks(new RayTraceContext(lastWeaponEndAir[c], weaponEnd[c], BlockMode.COLLIDER, FluidMode.NONE, mc.player));
+        		BlockRayTraceResult blockHit = mc.world.rayTraceBlocks(new RayTraceContext(lastWeaponEndAir[c], weaponEnd[c], BlockMode.OUTLINE, FluidMode.NONE, mc.player));
 
         		EntityRayTraceResult entityHit = ProjectileHelper.func_221273_a(player, lastWeaponEndAir[c], weaponEnd[c], axisalignedbb, (p_lambda$getMouseOver$0_0_) ->
         		{

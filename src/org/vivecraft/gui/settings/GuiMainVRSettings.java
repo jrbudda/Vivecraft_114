@@ -18,7 +18,7 @@ public class GuiMainVRSettings extends GuiVROptionsBase
             new VROptionLayout(GuiHUDSettings.class,VROptionLayout.Position.POS_LEFT,  1,  VROptionLayout.ENABLED, "HUD and GUI Settings..."),
             new VROptionLayout(GuiRenderOpticsSettings.class,VROptionLayout.Position.POS_LEFT,   0, VROptionLayout.ENABLED, "Stereo Rendering..."),
             new VROptionLayout(GuiQuickCommandEditor.class,VROptionLayout.Position.POS_RIGHT,  0, VROptionLayout.ENABLED, "Quick Commands..."),
-            new VROptionLayout(GuiOtherHUDSettings.class,VROptionLayout.Position.POS_RIGHT,  1, VROptionLayout.ENABLED, "Crosshair Settings..."),
+            new VROptionLayout(GuiOtherHUDSettings.class,VROptionLayout.Position.POS_RIGHT,  1, VROptionLayout.ENABLED, "Chat & Crosshair Settings..."),
             new VROptionLayout(VRSettings.VrOptions.WORLD_SCALE,       	VROptionLayout.Position.POS_LEFT,   6f, VROptionLayout.ENABLED, null),
             new VROptionLayout(VRSettings.VrOptions.WORLD_ROTATION,       VROptionLayout.Position.POS_RIGHT,   6f, VROptionLayout.ENABLED, null),
             new VROptionLayout(VRSettings.VrOptions.PLAY_MODE_SEATED, (button, mousePos) -> {

@@ -21,6 +21,7 @@ public class RunTracker extends Tracker {
 			return false;
 		if(p==null || !p.isAlive())
 			return false;
+		if(mc.playerController == null) return false;
 		if(!p.onGround && (p.isInWater() || p.isInLava())) 
 			return false;
 		if(p.isOnLadder()) 

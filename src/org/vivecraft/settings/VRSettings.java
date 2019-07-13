@@ -8,11 +8,14 @@ import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.function.Supplier;
 
+import org.vivecraft.api.NetworkHelper;
 import org.vivecraft.provider.MCOpenVR;
 import org.vivecraft.settings.profile.ProfileManager;
 import org.vivecraft.settings.profile.ProfileReader;
@@ -22,8 +25,13 @@ import org.vivecraft.utils.Vector3;
 
 import net.minecraft.client.GameSettings;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.registry.Registry;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
@@ -60,6 +68,11 @@ public class VRSettings
     public static final int RENDER_BLOCK_OUTLINE_MODE_HUD = 1;
     public static final int RENDER_BLOCK_OUTLINE_MODE_NEVER = 2;
   
+    public static final int CHAT_NOTIFICATIONS_NONE = 0;
+    public static final int CHAT_NOTIFICATIONS_HAPTIC = 1;
+    public static final int CHAT_NOTIFICATIONS_SOUND = 2;
+    public static final int CHAT_NOTIFICATIONS_BOTH = 3;
+
     public static final int MIRROR_OFF = 10;
     public static final int MIRROR_ON_DUAL = 11;
     public static final int MIRROR_ON_SINGLE = 12;
@@ -94,6 +107,8 @@ public class VRSettings
     public int smoothRunTickCount = 20;
     public boolean smoothTick = false;
     //Jrbudda's Options
+
+    public ServerOverrides overrides = new ServerOverrides();
 
     public String[] vrQuickCommands;
     public String[] vrRadialItems;
@@ -160,6 +175,8 @@ public class VRSettings
     //Rendering
     public boolean useFsaa = true;   // default to off
     public boolean useFOVReduction = false;   // default to off
+	public float fovRedutioncOffset = 0.1f;
+	public float fovReductionMin = 0.25f;
     public boolean vrUseStencil = true;
     public boolean insideBlockSolidColor = false; //unused
     public float renderScaleFactor = 1.0f;
@@ -211,9 +228,13 @@ public class VRSettings
 	public boolean radialModeHold = true;
 	public boolean physicalKeyboard = true;
 	public boolean allowAdvancedBindings = false;
+	public int chatNotifications = CHAT_NOTIFICATIONS_NONE; // 0 = off, 1 = haptic, 2 = sound, 3 = both
+	public String chatNotificationSound = "block.note_block.bell"; 
+
     //
      	
     private Minecraft mc;
+
 
 
 	
@@ -646,7 +667,12 @@ public class VRSettings
                     if(optionTokens[0].equals("fovReduction")){
                         this.useFOVReduction=optionTokens[1].equals("true");
                     }
-
+                    if(optionTokens[0].equals("fovReductionMin")){
+                        this.fovReductionMin=parseFloat(optionTokens[1]);
+                    }
+                    if(optionTokens[0].equals("fovRedutioncOffset")){
+                        this.fovRedutioncOffset=parseFloat(optionTokens[1]);
+                    }
                     if(optionTokens[0].equals("alwaysSimulateKeyboard")){
                         this.alwaysSimulateKeyboard=optionTokens[1].equals("true");
                     }
@@ -719,7 +745,15 @@ public class VRSettings
                     if(optionTokens[0].equals("menuWorldSelection")){
                         this.menuWorldSelection = Integer.parseInt(optionTokens[1]);
                     }
-
+                    
+                    if(optionTokens[0].equals("chatNotifications")){
+                    	this.chatNotifications = Integer.parseInt(optionTokens[1]);
+                    }
+                    
+                    if(optionTokens[0].equals("chatNotificationSound")){
+                    	this.chatNotificationSound = optionTokens[1];
+                    }
+                    
                     if(optionTokens[0].equals("firstRun")){
                     	this.firstRun = optionTokens[1].equals("true");
                     }
@@ -936,6 +970,22 @@ public class VRSettings
                     return var4 + "Always";
                 else if (this.renderBlockOutlineMode == RENDER_BLOCK_OUTLINE_MODE_NEVER)
                     return var4 + "Never";
+	        case CHAT_NOTIFICATIONS:
+                if (this.chatNotifications == CHAT_NOTIFICATIONS_NONE)
+                    return var4 + "None";
+                else if (this.chatNotifications == CHAT_NOTIFICATIONS_HAPTIC)
+                    return var4 + "Haptic";
+                else if (this.chatNotifications == CHAT_NOTIFICATIONS_SOUND)
+                    return var4 + "Sound";
+                else if (this.chatNotifications == CHAT_NOTIFICATIONS_BOTH)
+                    return var4 + "Both";
+	        case CHAT_NOTIFICATION_SOUND:
+	        	try {
+		        	SoundEvent se = Registry.SOUND_EVENT.getOrDefault(new ResourceLocation(chatNotificationSound));
+		        	return I18n.format(se.getName().getPath());
+				} catch (Exception e) {
+					return "error";
+				}
 	        case HUD_OCCLUSION:
 	        	return this.hudOcclusion ? var4 + "ON" : var4 + "OFF";
 	        case MENU_ALWAYS_FOLLOW_FACE:
@@ -965,7 +1015,7 @@ public class VRSettings
             case ALLOW_CRAWLING:
                 return this.vrAllowCrawling ? var4 + "ON" : var4 + "OFF"; 
             case LIMIT_TELEPORT:
-                return this.vrLimitedSurvivalTeleport ? var4 + "ON" : var4 + "OFF";
+                return this.overrides.getSetting(par1EnumOptions).getBoolean() ? var4 + "ON" : var4 + "OFF";
             case REVERSE_HANDS:
             	return this.vrReverseHands ? var4 + "ON" : var4 + "OFF";
             case STENCIL_ON:
@@ -973,7 +1023,7 @@ public class VRSettings
             case BCB_ON:
             	return this.vrShowBlueCircleBuddy ? var4 + "ON" : var4 + "OFF";
             case WORLD_SCALE:
-	            return var4 + String.format("%.2f", this.vrWorldScale)+ "x" ;
+	            return var4 + String.format("%.2f", this.overrides.getSetting(par1EnumOptions).getFloat())+ "x" ;
             case WORLD_ROTATION:
 	            return var4 + String.format("%.0f", this.vrWorldRotation);
             case WORLD_ROTATION_INCREMENT:
@@ -1025,6 +1075,10 @@ public class VRSettings
                 }
             case FOV_REDUCTION:
                 return this.useFOVReduction ? var4 + "ON" : var4 + "OFF";
+            case FOV_REDUCTION_MIN:
+                return var4 + String.format("%.2f", fovReductionMin);
+            case FOV_REDUCTION_OFFSET:
+                return var4 + String.format("%.2f", fovRedutioncOffset);
             case AUTO_OPEN_KEYBOARD:
                 return this.autoOpenKeyboard ? var4 + "ON" : var4 + "OFF";
             case BACKPACK_SWITCH:
@@ -1047,12 +1101,18 @@ public class VRSettings
             	else if (this.bowMode == BOW_MODE_VANILLA)
             		return var4 + "VANILLA";
             	else return var4 + " wtf?";
-            case TELEPORT_UP_LIMIT:
-	            return var4 +  (this.vrTeleportUpLimit > 0 ? this.vrTeleportUpLimit+ " Blocks" :" OFF");
-            case TELEPORT_DOWN_LIMIT:
-	            return var4 +  (this.vrTeleportDownLimit > 0 ? this.vrTeleportDownLimit+ " Blocks" :" OFF");
-            case TELEPORT_HORIZ_LIMIT:
-	            return var4 +  (this.vrTeleportHorizLimit > 0 ? this.vrTeleportHorizLimit+ " Blocks" :" OFF");
+            case TELEPORT_UP_LIMIT: {
+                int limit = this.overrides.getSetting(par1EnumOptions).getInt();
+                return var4 + (limit > 0 ? limit + " Blocks" : " OFF");
+            }
+            case TELEPORT_DOWN_LIMIT: {
+                int limit = this.overrides.getSetting(par1EnumOptions).getInt();
+                return var4 + (limit > 0 ? limit + " Blocks" : " OFF");
+            }
+            case TELEPORT_HORIZ_LIMIT: {
+                int limit = this.overrides.getSetting(par1EnumOptions).getInt();
+                return var4 + (limit > 0 ? limit + " Blocks" : " OFF");
+            }
             case ALLOW_STANDING_ORIGIN_OFFSET:
                 return this.allowStandingOriginOffset ? var4 + "YES" : var4 + "NO";
             case SEATED_FREE_MOVE:
@@ -1105,23 +1165,25 @@ public class VRSettings
             case AUTO_SPRINT_THRESHOLD:
                 return this.autoSprintThreshold;
             // VIVE START - new options
-            case WORLD_SCALE:          	
-            	if(vrWorldScale ==  0.1f) return 0;
-            	if(vrWorldScale ==  0.25f) return 1;
-            	if(vrWorldScale >=  0.5f && vrWorldScale <=  2.0f) return (vrWorldScale / 0.1f) - 3f;
-            	if(vrWorldScale == 3) return 18;
-            	if(vrWorldScale == 4) return 19;
-            	if(vrWorldScale == 6) return 20;
-            	if(vrWorldScale == 8) return 21;
-            	if(vrWorldScale == 10) return 22;
-            	if(vrWorldScale == 12) return 23;
-            	if(vrWorldScale == 16) return 24;
-            	if(vrWorldScale == 20) return 25;
-            	if(vrWorldScale == 30) return 26;
-            	if(vrWorldScale == 50) return 27;
-            	if(vrWorldScale == 75) return 28;
-            	if(vrWorldScale == 100) return 29;
-            	return 7;
+            case WORLD_SCALE: {
+                float scale = overrides.getSetting(par1EnumOptions).getFloat();
+                if (scale == 0.1f) return 0;
+                if (scale == 0.25f) return 1;
+                if (scale >= 0.5f && scale <= 2.0f) return (scale / 0.1f) - 3f;
+                if (scale == 3) return 18;
+                if (scale == 4) return 19;
+                if (scale == 6) return 20;
+                if (scale == 8) return 21;
+                if (scale == 10) return 22;
+                if (scale == 12) return 23;
+                if (scale == 16) return 24;
+                if (scale == 20) return 25;
+                if (scale == 30) return 26;
+                if (scale == 50) return 27;
+                if (scale == 75) return 28;
+                if (scale == 100) return 29;
+                return 7;
+            }
             case WORLD_ROTATION:
                 return vrWorldRotation;
             case WORLD_ROTATION_INCREMENT:
@@ -1141,12 +1203,15 @@ public class VRSettings
             case BOW_MODE:
             	return this.bowMode;
             case TELEPORT_UP_LIMIT:          	
-            	return this.vrTeleportUpLimit;
+            	return overrides.getSetting(par1EnumOptions).getInt();
             case TELEPORT_DOWN_LIMIT:          	
-            	return this.vrTeleportDownLimit;
+            	return overrides.getSetting(par1EnumOptions).getInt();
             case TELEPORT_HORIZ_LIMIT:          	
-            	return this.vrTeleportHorizLimit;
-
+            	return overrides.getSetting(par1EnumOptions).getInt();
+            case FOV_REDUCTION_MIN:          	
+            	return this.fovReductionMin;
+            case FOV_REDUCTION_OFFSET:          	
+            	return this.fovRedutioncOffset;
             // VIVE END - new options
             default:
                 return 0.0f;
@@ -1245,7 +1310,23 @@ public class VRSettings
                 if (this.renderBlockOutlineMode > RENDER_BLOCK_OUTLINE_MODE_NEVER)
                     this.renderBlockOutlineMode = RENDER_BLOCK_OUTLINE_MODE_ALWAYS;
 	            break;
-	            
+	        case CHAT_NOTIFICATIONS:
+                this.chatNotifications++;
+                if (this.chatNotifications > CHAT_NOTIFICATIONS_BOTH)
+                    this.chatNotifications = CHAT_NOTIFICATIONS_NONE;
+	            break;      
+	        case CHAT_NOTIFICATION_SOUND:
+	        	try {
+		        	SoundEvent se = Registry.SOUND_EVENT.getOrDefault(new ResourceLocation(chatNotificationSound));        	
+		        	int i = Registry.SOUND_EVENT.getId(se);
+		        	i++;
+		        	if(i >= Registry.SOUND_EVENT.keySet().size())
+		        		i = 0;
+		        	this.chatNotificationSound = Registry.SOUND_EVENT.getByValue(i).getName().getPath();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+	            break;   
 	        case HUD_OCCLUSION:
 	            this.hudOcclusion = !this.hudOcclusion;
 	            break;
@@ -1447,7 +1528,8 @@ public class VRSettings
                	else if(par2 == 27) vrWorldScale = 50f;
                	else if(par2 == 28) vrWorldScale = 75f;
                	else if(par2 == 29) vrWorldScale = 100f;           	         	
-            	else vrWorldScale = 1;           	
+            	else vrWorldScale = 1;
+            	vrWorldScale = MathHelper.clamp(vrWorldScale, overrides.getSetting(par1EnumOptions).getValueMin(), overrides.getSetting(par1EnumOptions).getValueMax());
                 break;
             case WORLD_ROTATION:
                 this.vrWorldRotation = par2;
@@ -1491,7 +1573,15 @@ public class VRSettings
             	break;
             case AUTO_SPRINT_THRESHOLD:
                 this.autoSprintThreshold = par2;
+            	break;
+            case FOV_REDUCTION_MIN:
+                this.fovReductionMin = par2;
+            	break;
+            case FOV_REDUCTION_OFFSET:
+                this.fovRedutioncOffset = par2;
+            	break;
             	// VIVE END - new options
+                
             default:
             	break;
     	}
@@ -1607,6 +1697,8 @@ public class VRSettings
             var5.println("manualCalibration:" + this.manualCalibration);
             var5.println("vehicleRotation:" + this.vehicleRotation);
             var5.println("fovReduction:" + this.useFOVReduction);
+            var5.println("fovReductionMin:" + this.fovReductionMin);
+            var5.println("fovRedutioncOffset:" + this.fovRedutioncOffset);
             var5.println("alwaysSimulateKeyboard:" + this.alwaysSimulateKeyboard);
             var5.println("autoOpenKeyboard:" + this.autoOpenKeyboard);
             var5.println("forceHardwareDetection:" + this.forceHardwareDetection);
@@ -1624,6 +1716,8 @@ public class VRSettings
             var5.println("forceStandingFreeMove:" + this.forceStandingFreeMove);
             var5.println("allowAdvancedBindings:" + this.allowAdvancedBindings);
             var5.println("menuWorldSelection:" + this.menuWorldSelection);
+            var5.println("chatNotifications:" + this.chatNotifications);
+            var5.println("chatNotificationSound:" + this.chatNotificationSound);
             var5.println("firstRun:" + this.firstRun);
             
             if (vrQuickCommands == null) vrQuickCommands = getQuickCommandsDefaults(); //defaults
@@ -1774,6 +1868,16 @@ public class VRSettings
                 "            is enabled",
                 "  Never:    The crosshair is never shown"
         }),
+        CHAT_NOTIFICATIONS("Chat Notifications", false, true,new String[] {
+                "Sets what happens when you recieve a chat message",
+                "  None: Nothing!",
+                "  Haptic: Pulse on left controller.",
+                "  Sound: Plays the Chat Notification Sound",
+                "  Both: Both haptic and Sound"
+        }),
+        CHAT_NOTIFICATION_SOUND("Notification Sound", false, true,new String[] {
+                "Sets the chat notification sound"
+        }),
         CROSSHAIR_ROLL("Roll Crosshair", false, true,new String[] {
                 "Sets the crosshair roll behaviour.",
                 "  With Head: The crosshair rolls with your head.",
@@ -1820,6 +1924,7 @@ public class VRSettings
                 "Pointer: A keyboard which you can use by pointing",
                 "either controller's crosshair at and pressing buttons."
         }),
+        
 
 
         //HMD/render
@@ -2053,6 +2158,12 @@ public class VRSettings
                 "Shrinks the field of view while moving. Can help with",
                 "motion sickness."
         }),
+        FOV_REDUCTION_MIN("FOV Reduction Size",true,false, 0.1f, 0.7f, 0.05f, new String[] {
+        		"The final size of FOV reduction."
+        }),
+        FOV_REDUCTION_OFFSET("FOV Reduction Offset",true,false, 0.0f, 0.3f, 0.01f, new String[] {
+        		"Horizontally offsets the center of the FOV reduction for non-standard HMDs."
+        }),
         // OTher buttons
         OTHER_HUD_SETTINGS("Overlay/Crosshair/Chat...", false, true, new String[] {
                 "Configure Crosshair and overlay settings."
@@ -2145,9 +2256,9 @@ public class VRSettings
         private final boolean enumBoolean;
         private final String enumString;
         private final float valueStep;
-        private float valueMin;
-        private float valueMax;
-        private String[] tooltip;
+        private final float valueMin;
+        private final float valueMax;
+        private final String[] tooltip;
         
         public static VRSettings.VrOptions getEnumOptions(int par0)
         {
@@ -2220,11 +2331,6 @@ public class VRSettings
         public String[] getToolTip()
         {
             return this.tooltip;
-        }
-
-        public void setValueMax(float p_148263_1_)
-        {
-            this.valueMax = p_148263_1_;
         }
 
         protected float snapToStep(float p_148264_1_)
@@ -2433,9 +2539,196 @@ public class VRSettings
     	return out;   	
     }
 
-	public double normalizeValue(float optionFloatValue) {
+    public double normalizeValue(float optionFloatValue) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+
+	public class ServerOverrides {
+        private Map<VRSettings.VrOptions, Setting> optionMap = new EnumMap<>(VrOptions.class);
+        private Map<String, Setting> networkNameMap = new HashMap<>();
+
+        private ServerOverrides() {
+            registerSetting(VrOptions.LIMIT_TELEPORT, "limitedTeleport", () -> vrLimitedSurvivalTeleport);
+            registerSetting(VrOptions.TELEPORT_UP_LIMIT, "teleportLimitUp", () -> vrTeleportUpLimit);
+            registerSetting(VrOptions.TELEPORT_DOWN_LIMIT, "teleportLimitDown", () -> vrTeleportDownLimit);
+            registerSetting(VrOptions.TELEPORT_HORIZ_LIMIT, "teleportLimitHoriz", () -> vrTeleportHorizLimit);
+            registerSetting(VrOptions.WORLD_SCALE, "worldScale", () -> vrWorldScale);
+        }
+
+        private void registerSetting(VrOptions option, String networkName, Supplier<Object> originalValue) {
+            Setting setting = new Setting(option, networkName, originalValue);
+            optionMap.put(option, setting);
+            networkNameMap.put(networkName, setting);
+        }
+
+        public void resetAll() {
+            for (Setting setting : optionMap.values()) {
+                setting.valueSet = false;
+                setting.valueMinSet = false;
+                setting.valueMaxSet = false;
+            }
+        }
+
+        public boolean hasSetting(VrOptions option) {
+            return optionMap.containsKey(option);
+        }
+
+        public boolean hasSetting(String networkName) {
+            return networkNameMap.containsKey(networkName);
+        }
+
+        public Setting getSetting(VrOptions option) {
+            Setting setting = optionMap.get(option);
+            if (setting == null)
+                throw new IllegalArgumentException("setting not registered: " + option);
+
+            return setting;
+        }
+
+        public Setting getSetting(String networkName) {
+            Setting setting = networkNameMap.get(networkName);
+            if (setting == null)
+                throw new IllegalArgumentException("setting not registered: " + networkName);
+
+            return setting;
+        }
+
+        public class Setting {
+            private final VrOptions option;
+            private final String networkName;
+            private final Supplier<Object> originalValue;
+
+            private boolean valueSet;
+            private Object value;
+
+            // For float options
+            private boolean valueMinSet, valueMaxSet;
+            private float valueMin, valueMax;
+
+            public Setting(VrOptions option, String networkName, Supplier<Object> originalValue) {
+                this.option = option;
+                this.networkName = networkName;
+                this.originalValue = originalValue;
+            }
+
+            private void checkFloat() {
+                if (!option.enumFloat)
+                    throw new IllegalArgumentException("not a float option: " + option);
+            }
+
+            public boolean isFloat() {
+                return option.enumFloat;
+            }
+
+            public Object getOriginalValue() {
+                return originalValue.get();
+            }
+
+            public boolean isValueOverridden() {
+                return valueSet;
+            }
+
+            public Object getValue() {
+                if (valueSet)
+                    return value;
+                else
+                    return originalValue.get();
+            }
+
+            public boolean getBoolean() {
+                Object val = getValue();
+
+                if (val instanceof Boolean)
+                    return (Boolean)val;
+                else
+                    return false;
+            }
+
+            public int getInt() {
+                Object val = getValue();
+
+                if (val instanceof Number)
+                    return MathHelper.clamp(((Number)val).intValue(), (int)getValueMin(), (int)getValueMax());
+                else
+                    return 0;
+            }
+
+            public float getFloat() {
+                Object val = getValue();
+
+                if (val instanceof Number)
+                    return MathHelper.clamp(((Number)val).floatValue(), getValueMin(), getValueMax());
+                else
+                    return 0;
+            }
+
+            public String getString() {
+                Object val = getValue();
+
+                if (val instanceof String)
+                    return val.toString();
+                else
+                    return "";
+            }
+
+            public void setValue(Object value) {
+                this.value = value;
+                valueSet = true;
+            }
+
+            public void resetValue() {
+                valueSet = false;
+            }
+
+            public boolean isValueMinOverridden() {
+                checkFloat();
+                return valueMinSet;
+            }
+
+            public float getValueMin() {
+                checkFloat();
+                if (valueMinSet)
+                    return valueMin;
+                else
+                    return Float.MIN_VALUE;
+            }
+
+            public void setValueMin(float valueMin) {
+                checkFloat();
+                this.valueMin = valueMin;
+                valueMinSet = true;
+            }
+
+            public void resetValueMin() {
+                checkFloat();
+                valueMinSet = false;
+            }
+
+            public boolean isValueMaxOverridden() {
+                checkFloat();
+                return valueMaxSet;
+            }
+
+            public float getValueMax() {
+                checkFloat();
+                if (valueMaxSet)
+                    return valueMax;
+                else
+                    return Float.MAX_VALUE;
+            }
+
+            public void setValueMax(float valueMax) {
+                checkFloat();
+                this.valueMax = valueMax;
+                valueMaxSet = true;
+            }
+
+            public void resetValueMax() {
+                checkFloat();
+                valueMaxSet = false;
+            }
+        }
+    }
 }
 

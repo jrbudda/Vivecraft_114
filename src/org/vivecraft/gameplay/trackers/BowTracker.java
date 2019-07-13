@@ -86,6 +86,7 @@ public class BowTracker extends Tracker {
 	
 	public boolean isActive(ClientPlayerEntity p){
 		if(p == null) return false;
+		if(mc.playerController == null) return false;
 		if(!p.isAlive()) return false;
 		if(p.isSleeping()) return false;
 		return isHoldingBow(p, Hand.MAIN_HAND) || isHoldingBow(p, Hand.OFF_HAND)  ;
@@ -189,12 +190,11 @@ public class BowTracker extends Tracker {
 				player.setItemInUseClient(bow);
 				player.setItemInUseCountClient(bow.getUseDuration() - 1);
 				Minecraft.getInstance().physicalGuiManager.preClickAction();
-				mc.playerController.processRightClick(player, player.world, hand);//server
 			}
 
 		} else if((Util.milliTime() - tsNotch) > 500) {
 			canDraw = false;
-			player.setItemInUseClient(ItemStack.EMPTY);//client draw only
+			player.setItemInUseClient(ItemStack.EMPTY);//client draw only'
 		}
 			
 		if (!isDrawing && canDraw  && pressed && !lastpressed) {

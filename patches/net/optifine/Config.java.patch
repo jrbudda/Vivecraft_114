@@ -1,6 +1,24 @@
 --- a/net/optifine/Config.java
 +++ b/net/optifine/Config.java
-@@ -1543,7 +1543,9 @@
+@@ -129,13 +129,14 @@
+ 
+     public static void initGameSettings(GameSettings settings)
+     {
+-        if (gameSettings == null)
+-        {
++    	//oh this game again.
++     //   if (gameSettings == null)
++      //  {
+             gameSettings = settings;
+             updateAvailableProcessors();
+             ReflectorForge.putLaunchBlackboard("optifine.ForgeSplashCompatible", Boolean.TRUE);
+             antialiasingLevel = gameSettings.ofAaLevel;
+-        }
++     //   }
+     }
+ 
+     public static void initDisplay()
+@@ -1543,7 +1544,9 @@
  
      public static boolean isConnectedTextures()
      {
@@ -11,7 +29,7 @@
      }
  
      public static boolean isNaturalTextures()
-@@ -1558,7 +1560,7 @@
+@@ -1558,7 +1561,7 @@
  
      public static boolean isConnectedTexturesFancy()
      {

@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/renderer/entity/layers/HeldItemLayer.java
 +++ b/net/minecraft/client/renderer/entity/layers/HeldItemLayer.java
-@@ -1,14 +1,22 @@
+@@ -1,14 +1,23 @@
  package net.minecraft.client.renderer.entity.layers;
  
 +import org.vivecraft.gameplay.trackers.BowTracker;
@@ -17,13 +17,14 @@
  import net.minecraft.entity.LivingEntity;
 +import net.minecraft.entity.player.PlayerEntity;
  import net.minecraft.item.ItemStack;
++import net.minecraft.item.UseAction;
 +import net.minecraft.util.Hand;
  import net.minecraft.util.HandSide;
 +import net.minecraft.util.math.Vec3d;
  
  public class HeldItemLayer<T extends LivingEntity, M extends EntityModel<T> & IHasArm> extends LayerRenderer<T, M>
  {
-@@ -42,23 +50,92 @@
+@@ -42,23 +51,94 @@
  
      private void renderHeldItem(LivingEntity p_188358_1_, ItemStack p_188358_2_, ItemCameraTransforms.TransformType p_188358_3_, HandSide handSide)
      {
@@ -57,7 +58,9 @@
 +    			}
 +    		}
 +
-+    		if(handSide == HandSide.LEFT && vr && BowTracker.isHoldingBowEither(p_188358_1_)){
++    		if(handSide == HandSide.LEFT && vr && 
++    				(p_188358_2_.getUseAction() == UseAction.BOW ||
++    				p_188358_1_.getHeldItemMainhand().getUseAction() == UseAction.BOW)){
 +    			return;
 +    		}
 +
@@ -81,14 +84,10 @@
 +    		}
 +    		else{
 +    			GlStateManager.translatef((float)(flag ? -1 : 1) / 16.0F, 0.125F,  -.2125f);
-+    			if(BowTracker.isBow(p_188358_2_) && !rotinfo.seated){
++    			if(p_188358_2_.getUseAction() == UseAction.BOW && !rotinfo.seated){
 +
-+    				Vec3d diff = rotinfo.leftArmPos.subtract(rotinfo.rightArmPos);
-+    				double ltor = Math.atan2(-diff.x, diff.z) +  Math.PI/2;   
-+    				Vec3d rtol = rotinfo.rightArmPos.subtract(rotinfo.leftArmPos).rotateYaw((float) ltor);
-+    				Vec3d larm = rotinfo.leftArmPos;
 +    				VRPlayerModel m = (VRPlayerModel) this.getEntityModel();
-+    				larm = larm.rotateYaw((float)(ltor)).add(rotinfo.leftArmRot.scale(-0.2));  
++    				
 +    				float scale = (float) 0.0625;
 +
 +    				GlStateManager.popMatrix();
@@ -97,12 +96,16 @@
 +    				GlStateManager.translatef(m.bipedLeftArm.rotationPointX*scale,m.bipedLeftArm.rotationPointY*scale,m.bipedLeftArm.rotationPointZ*scale);
 +
 +    				if(p_188358_1_.isHandActive()){
++    					//yaw is handled by the body
++    					float pitch1 = p_188358_1_.rotationPitch;
 +
-+    					float yaw1 = (float) Math.atan2(-rtol.x, -rtol.z); 
-+    					float pitch1 = (float) Math.asin(rtol.y/rtol.length()); 
-+
-+    					GlStateManager.rotatef((float) Math.toDegrees(-Math.PI + yaw1), 0,1,0);
-+    					GlStateManager.rotatef((float) Math.toDegrees(pitch1), 1,0,0);
++    					if(p_188358_1_ == Minecraft.getInstance().getRenderViewEntity()) {
++        					 pitch1 = Minecraft.getInstance().gameRenderer.rvepitch;
++    					}		
++    					
++    					GlStateManager.rotatef((float) (-90), 0,1,0);
++    					GlStateManager.rotatef((float) pitch1, 1,0,0);
++    	    			GlStateManager.translatef(0, -0.155F, 0);
 +
 +    				} else{
 +    					GlStateManager.rotatef((float) Math.toDegrees(m.bipedLeftArm.rotateAngleY), 0,1,0);

@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.vivecraft.gameplay.OpenVRPlayer;
 import org.vivecraft.render.PlayerModelController;
+import org.vivecraft.settings.VRSettings;
 import org.vivecraft.utils.Quaternion;
 import org.vivecraft.utils.lwjgl.Matrix4f;
 
@@ -35,7 +36,8 @@ public class NetworkHelper {
 		MOVEMODE,
 		UBERPACKET,
 		TELEPORT,
-		CLIMBING
+		CLIMBING,
+		SETTING_OVERRIDE
 	}
 	public final static ResourceLocation channel = new ResourceLocation("vivecraft:data");
 	
@@ -170,6 +172,22 @@ public class NetworkHelper {
 				sendTo.player.connection.sendPacket(pack);
 			}
 		}
+	}
+
+	public static boolean isLimitedSurvivalTeleport() {
+		return Minecraft.getInstance().vrSettings.overrides.getSetting(VRSettings.VrOptions.LIMIT_TELEPORT).getBoolean();
+	}
+
+	public static int getTeleportUpLimit() {
+		return Minecraft.getInstance().vrSettings.overrides.getSetting(VRSettings.VrOptions.TELEPORT_UP_LIMIT).getInt();
+	}
+
+	public static int getTeleportDownLimit() {
+		return Minecraft.getInstance().vrSettings.overrides.getSetting(VRSettings.VrOptions.TELEPORT_DOWN_LIMIT).getInt();
+	}
+
+	public static int getTeleportHorizLimit() {
+		return Minecraft.getInstance().vrSettings.overrides.getSetting(VRSettings.VrOptions.TELEPORT_HORIZ_LIMIT).getInt();
 	}
 	
 }

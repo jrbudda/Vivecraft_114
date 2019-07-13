@@ -36,6 +36,7 @@ public class EatingTracker extends Tracker{
 		if(Minecraft.getInstance().vrSettings.seated)
 			return false;
 		if(p == null) return false;
+		if(mc.playerController == null) return false;
 		if(!p.isAlive()) return false;
 		if(p.isSleeping()) return false;
 		if(p.getHeldItemMainhand() != null){

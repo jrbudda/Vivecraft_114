@@ -1,0 +1,30 @@
+--- a/net/minecraft/client/gui/NewChatGui.java
++++ b/net/minecraft/client/gui/NewChatGui.java
+@@ -9,11 +9,18 @@
+ import net.minecraft.client.Minecraft;
+ import net.minecraft.client.gui.screen.ChatScreen;
+ import net.minecraft.entity.player.ChatVisibility;
++import net.minecraft.util.ResourceLocation;
++import net.minecraft.util.SoundCategory;
+ import net.minecraft.util.math.MathHelper;
++import net.minecraft.util.math.Vec3d;
++import net.minecraft.util.registry.Registry;
+ import net.minecraft.util.text.ITextComponent;
+ import net.minecraft.util.text.StringTextComponent;
+ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.Logger;
++import org.vivecraft.control.ControllerType;
++import org.vivecraft.provider.MCOpenVR;
++import org.vivecraft.settings.VRSettings;
+ 
+ public class NewChatGui extends AbstractGui
+ {
+@@ -162,7 +169,7 @@
+ 
+     public void printChatMessage(ITextComponent chatComponent)
+     {
+-        this.printChatMessageWithOptionalDeletion(chatComponent, 0);
++    	this.printChatMessageWithOptionalDeletion(chatComponent, 0);
+     }
+ 
+     /**

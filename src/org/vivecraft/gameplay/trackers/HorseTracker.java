@@ -8,6 +8,7 @@ import org.vivecraft.utils.Utils;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraft.entity.passive.horse.HorseEntity;
 import net.minecraft.util.math.Vec3d;
 
@@ -25,9 +26,10 @@ public class HorseTracker extends Tracker {
 			return false;
 		if (p == null || !p.isAlive())
 			return false;
+		if(mc.playerController == null) return false;
 		if (Minecraft.getInstance().gameSettings.keyBindForward.isKeyDown())
 			return false;
-		if (!(p.getRidingEntity() instanceof HorseEntity))
+		if (!(p.getRidingEntity() instanceof AbstractHorseEntity))
 			return false;
 		if (Minecraft.getInstance().bowTracker.isNotched())
 			return false;

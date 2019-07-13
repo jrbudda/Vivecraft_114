@@ -358,23 +358,10 @@ public class GuiHandler {
 			//end Alt
 
 		if (keyScrollUp.isPressed() && mc.currentScreen != null) {
-			MCOpenVR.triggerBindingHapticPulse(keyScrollUp, 400);
-
-			//	if(mc.isGameFocused()) {
-			//		KeyboardSimulator.robot.mouseWheel(-120);
-			//	} else {
-			//		mc.currentScreen.mouseScrolled(4);
-			//	}
 			InputSimulator.scrollMouse(0, 4);
 		}
 
 		if (keyScrollDown.isPressed() && mc.currentScreen != null) {
-				MCOpenVR.triggerBindingHapticPulse(keyScrollDown, 400);
-			//	if(mc.isGameFocused()) {
-			//		KeyboardSimulator.robot.mouseWheel(120);
-			//	} else {
-			//		mc.currentScreen.mouseScrolled(-4);
-			//	}
 			InputSimulator.scrollMouse(0, -4);
 		}
 	}
@@ -697,7 +684,7 @@ public class GuiHandler {
 
   		// counter head rotation
   		if (currentPass != RenderPass.THIRD) {
-  			GL11.glMultMatrixf(mc.vrPlayer.vrdata_world_render.hmd.getMatrix().toFloatBuffer());
+  			GL11.glMultMatrixf(mc.vrPlayer.vrdata_world_render.getEye(currentPass).getMatrix().toFloatBuffer());
   		} else {
   			mc.gameRenderer.applyMRCameraRotation(false);			
   		}
