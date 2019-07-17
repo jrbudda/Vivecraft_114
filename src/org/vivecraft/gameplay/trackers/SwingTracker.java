@@ -5,8 +5,11 @@ import java.util.List;
 import org.vivecraft.provider.MCOpenVR;
 import org.vivecraft.utils.MCReflection;
 
+import net.minecraft.block.BambooBlock;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.LadderBlock;
+import net.minecraft.block.TorchBlock;
 import net.minecraft.block.VineBlock;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
@@ -19,13 +22,23 @@ import net.minecraft.entity.passive.WaterMobEntity;
 import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraft.entity.passive.horse.HorseEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
+import net.minecraft.item.AbstractMapItem;
+import net.minecraft.item.ArrowItem;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.CarrotOnAStickItem;
+import net.minecraft.item.CrossbowItem;
+import net.minecraft.item.FishingRodItem;
+import net.minecraft.item.FlintAndSteelItem;
 import net.minecraft.item.HoeItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.ShearsItem;
+import net.minecraft.item.ShieldItem;
 import net.minecraft.item.SwordItem;
 import net.minecraft.item.ToolItem;
 import net.minecraft.item.TridentItem;
+import net.minecraft.item.UseAction;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -41,17 +54,17 @@ import net.minecraft.util.math.RayTraceContext.BlockMode;
 import net.minecraft.util.math.RayTraceContext.FluidMode;
 
 public class SwingTracker extends Tracker{
-  
-    //VIVECRAFT SWINGING SUPPORT
-    private Vec3d[] lastWeaponEndAir = new Vec3d[]{new Vec3d(0, 0, 0), new Vec3d(0,0,0)};
-    private boolean[] lastWeaponSolid = new boolean[2];
+
+	//VIVECRAFT SWINGING SUPPORT
+	private Vec3d[] lastWeaponEndAir = new Vec3d[]{new Vec3d(0, 0, 0), new Vec3d(0,0,0)};
+	private boolean[] lastWeaponSolid = new boolean[2];
 	private Vec3d[] weaponEnd= new Vec3d[2];
 	private Vec3d[] weaponEndlast= new Vec3d[]{new Vec3d(0, 0, 0), new Vec3d(0,0,0)};
-	
-    public boolean[] shouldIlookatMyHand= new boolean[2];
-    public boolean[] IAmLookingAtMyHand= new boolean[2];
-    
-    public int disableSwing = 3;
+
+	public boolean[] shouldIlookatMyHand= new boolean[2];
+	public boolean[] IAmLookingAtMyHand= new boolean[2];
+
+	public int disableSwing = 3;
 
 	public SwingTracker(Minecraft mc) {
 		super(mc);
@@ -59,26 +72,46 @@ public class SwingTracker extends Tracker{
 
 	public boolean isActive(ClientPlayerEntity p){
 		if(mc.playerController == null) return false;
-    	if(p == null) return false;
-    	if(!p.isAlive()) return false;
-    	if(p.isSleeping()) return false;
-    	Minecraft mc = Minecraft.getInstance();
-    	if (!mc.vrSettings.weaponCollision)
-    		return false;
-    	if (mc.vrSettings.seated)
-    		return false;
-    	if(mc.vrSettings.vrFreeMoveMode == mc.vrSettings.FREEMOVE_RUNINPLACE && p.moveForward > 0){
-    		return false; //dont hit things while RIPing.
-    	}
-    	if(p.isActiveItemStackBlocking()){
-    		return false; //dont hit things while blocking.
-    	}
-    	if(mc.jumpTracker.isjumping()) 
-    		return false;
-    	return true;    
-    }
-	
+		if(p == null) return false;
+		if(!p.isAlive()) return false;
+		if(p.isSleeping()) return false;
+		Minecraft mc = Minecraft.getInstance();
+		if (!mc.vrSettings.weaponCollision)
+			return false;
+		if (mc.vrSettings.seated)
+			return false;
+		if(mc.vrSettings.vrFreeMoveMode == mc.vrSettings.FREEMOVE_RUNINPLACE && p.moveForward > 0){
+			return false; //dont hit things while RIPing.
+		}
+		if(p.isActiveItemStackBlocking()){
+			return false; //dont hit things while blocking.
+		}
+		if(mc.jumpTracker.isjumping()) 
+			return false;
+		return true;    
+	}
 
+	public static boolean isTool(Item item) {
+
+		boolean flag = (item instanceof ToolItem ||
+				item instanceof ArrowItem ||
+				item instanceof HoeItem || 
+				item instanceof FishingRodItem || 
+				item instanceof CarrotOnAStickItem ||
+				item instanceof ShearsItem||
+				item == Items.BONE ||
+				item == Items.BLAZE_ROD||
+				item == Items.BAMBOO ||
+				item == Items.TORCH ||
+				item == Items.REDSTONE_TORCH ||
+				item == Items.STICK ||
+				item == Items.DEBUG_STICK ||
+				item instanceof FlintAndSteelItem);
+
+		return flag;
+	}
+
+	
 	public void doProcess(ClientPlayerEntity player){ //on tick
        
         mc.getProfiler().startSection("updateSwingAttack");
@@ -108,9 +141,7 @@ public class SwingTracker extends Tracker{
             	sword = true;
             	tool = true;    	
             }
-            else if (item instanceof ToolItem ||
-            		item instanceof HoeItem
-            		){
+            else if (isTool(item)) {
             	tool = true;
             }
 //            else if(item !=null && Reflector.forgeExists()){ //tinkers hack

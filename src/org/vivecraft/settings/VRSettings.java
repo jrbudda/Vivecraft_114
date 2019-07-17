@@ -232,6 +232,9 @@ public class VRSettings
 	public String chatNotificationSound = "block.note_block.bell"; 
 
     //
+
+    // This map is only here to preserve old settings, not intended for general use
+    private Map<String, String> preservedSettingMap;
      	
     private Minecraft mc;
 
@@ -794,7 +797,7 @@ public class VRSettings
 //                        
                        
                     }
-
+                    
                     if(optionTokens[0].startsWith("QUICKCOMMAND_")){
                     	String[] pts = optionTokens[0].split("_");
                     	int i = Integer.parseInt(pts[1]);
@@ -830,7 +833,9 @@ public class VRSettings
                     logger.warn("Skipping bad VR option: " + var2);
                     var7.printStackTrace();
                 }
-            }           
+            }
+
+            preservedSettingMap = optionsVRReader.getData();
             optionsVRReader.close();
         }
         catch (Exception var8)
@@ -1607,6 +1612,8 @@ public class VRSettings
         try
         {
             ProfileWriter var5 = new ProfileWriter(ProfileManager.PROFILE_SET_VR, theProfiles);
+            if (preservedSettingMap != null)
+                var5.setData(preservedSettingMap);
 
             var5.println("version:" + version);
             var5.println("newlyCreated:" + false );
@@ -2049,8 +2056,11 @@ public class VRSettings
         }),
         REVERSE_HANDS("Reverse Hands",false, true,new String[] {
 				"Swap left/right hands as dominant",
-				"  ON: Left dominant, weirdo.",
-				"  OFF: Right dominant"
+				"  ON: Left dominant",
+				"  OFF: Right dominant",
+                "",
+                "To reverse the buttons, restart the game and make",
+                "sure default bindings are selected in SteamVR."
     		}),
         STENCIL_ON("Use Eye Stencil", false, true,new String[] {
                 "Mask out areas of the screen outside the FOV.",

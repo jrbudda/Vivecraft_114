@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.vivecraft.api.Vec3History;
 import org.vivecraft.control.ControllerType;
 import org.vivecraft.control.HandedKeyBinding;
+import org.vivecraft.control.HapticScheduler;
 import org.vivecraft.control.TrackedController;
 import org.vivecraft.control.TrackpadSwipeSampler;
 import org.vivecraft.control.VRInputAction;
@@ -206,6 +207,8 @@ public class MCOpenVR
 	private static InputOriginInfo_t.ByReference originInfo;
 	private static VRActiveActionSet_t.ByReference activeActionSetsReference;
 
+	private static HapticScheduler hapticScheduler;
+
 	public static boolean mrMovingCamActive;
 	public static Vec3d mrControllerPos = Vec3d.ZERO;
 	public static float mrControllerPitch;
@@ -358,6 +361,8 @@ public class MCOpenVR
 			poseMatrices[i] = new Matrix4f();
 			deviceVelocity[i] = new Vec3d(0,0,0);
 		}
+
+		hapticScheduler = new HapticScheduler();
 
 		initialized = true;
 
@@ -660,10 +665,11 @@ public class MCOpenVR
 			throw new RuntimeException("Failed to write action manifest", e);
 		}
 
-		Utils.loadAssetToFile("input/vive_defaults.json", new File("openvr/input/vive_defaults.json"), false);
-		Utils.loadAssetToFile("input/oculus_defaults.json", new File("openvr/input/oculus_defaults.json"), false);
-		Utils.loadAssetToFile("input/wmr_defaults.json", new File("openvr/input/wmr_defaults.json"), false);
-		Utils.loadAssetToFile("input/knuckles_defaults.json", new File("openvr/input/knuckles_defaults.json"), false);
+		String rev = mc.vrSettings.vrReverseHands ? "_reversed" : "";
+		Utils.loadAssetToFile("input/vive_defaults" + rev + ".json", new File("openvr/input/vive_defaults.json"), false);
+		Utils.loadAssetToFile("input/oculus_defaults" + rev + ".json", new File("openvr/input/oculus_defaults.json"), false);
+		Utils.loadAssetToFile("input/wmr_defaults" + rev + ".json", new File("openvr/input/wmr_defaults.json"), false);
+		Utils.loadAssetToFile("input/knuckles_defaults" + rev + ".json", new File("openvr/input/knuckles_defaults.json"), false);
 		Utils.loadAssetToFile("input/tracker_defaults.json", new File("openvr/input/tracker_defaults.json"), false);
 	}
 
@@ -1796,7 +1802,14 @@ public class MCOpenVR
 				return rightControllerHandle;
 			else
 				return leftControllerHandle;
+		}
 	}
+
+	public static long getHapticHandle(ControllerType hand) {
+		if (hand == ControllerType.RIGHT)
+			return rightHapticHandle;
+		else
+			return leftHapticHandle;
 	}
 	
 	public static String getInputError(int code){
@@ -2171,9 +2184,7 @@ public class MCOpenVR
 
 	public static void triggerHapticPulse(ControllerType controller, float durationSeconds, float frequency, float amplitude, float delaySeconds) {
 		if (Minecraft.getInstance().vrSettings.seated || !inputInitialized) return;
-		int error = vrInput.TriggerHapticVibrationAction.apply(controller == ControllerType.LEFT ? leftHapticHandle : rightHapticHandle, delaySeconds, durationSeconds, frequency, amplitude, JOpenVRLibrary.k_ulInvalidInputValueHandle);
-		if (error != 0)
-			System.out.println("Error triggering haptic: " + getInputError(error));
+		hapticScheduler.queueHapticPulse(controller, durationSeconds, frequency, amplitude, delaySeconds);
 	}
 
 	public static void triggerHapticPulse(ControllerType controller, float durationSeconds, float frequency, float amplitude) {

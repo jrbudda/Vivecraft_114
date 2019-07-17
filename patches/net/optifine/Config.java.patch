@@ -18,23 +18,3 @@
      }
  
      public static void initDisplay()
-@@ -1543,7 +1544,9 @@
- 
-     public static boolean isConnectedTextures()
-     {
--        return gameSettings.ofConnectedTextures != 3;
-+    	//VIVECRAFT - TEMPORARY
-+    	return false;
-+        //return gameSettings.ofConnectedTextures != 3;
-     }
- 
-     public static boolean isNaturalTextures()
-@@ -1558,7 +1561,7 @@
- 
-     public static boolean isConnectedTexturesFancy()
-     {
--        return gameSettings.ofConnectedTextures == 2;
-+        return false;// gameSettings.ofConnectedTextures == 2;
-     }
- 
-     public static boolean isFastRender()

@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/renderer/FirstPersonRenderer.java
 +++ b/net/minecraft/client/renderer/FirstPersonRenderer.java
-@@ -3,10 +3,22 @@
+@@ -3,10 +3,25 @@
  import com.google.common.base.MoreObjects;
  import com.mojang.blaze3d.platform.GLX;
  import com.mojang.blaze3d.platform.GlStateManager;
@@ -12,18 +12,21 @@
 +import org.lwjgl.opengl.GL11;
 +import org.vivecraft.control.ControllerType;
 +import org.vivecraft.gameplay.trackers.BowTracker;
++import org.vivecraft.gameplay.trackers.SwingTracker;
 +import org.vivecraft.provider.MCOpenVR;
 +import org.vivecraft.render.RenderPass;
 +import org.vivecraft.render.RenderVRPlayer;
 +
++import net.minecraft.block.BambooBlock;
  import net.minecraft.block.Block;
  import net.minecraft.block.BlockRenderType;
  import net.minecraft.block.BlockState;
 +import net.minecraft.block.Blocks;
++import net.minecraft.block.TorchBlock;
  import net.minecraft.client.Minecraft;
  import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
  import net.minecraft.client.entity.player.ClientPlayerEntity;
-@@ -18,20 +30,37 @@
+@@ -18,20 +33,37 @@
  import net.minecraft.client.renderer.texture.AtlasTexture;
  import net.minecraft.client.renderer.texture.TextureAtlasSprite;
  import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -61,7 +64,7 @@
  import net.minecraft.world.storage.MapData;
  import net.optifine.Config;
  import net.optifine.DynamicLights;
-@@ -51,12 +80,20 @@
+@@ -51,12 +83,20 @@
      private float prevEquippedProgressOffHand;
      private final EntityRendererManager renderManager;
      private final ItemRenderer itemRenderer;
@@ -83,7 +86,7 @@
      }
  
      public void renderItem(LivingEntity entityIn, ItemStack heldStack, ItemCameraTransforms.TransformType transform)
-@@ -101,7 +138,7 @@
+@@ -101,7 +141,7 @@
          GlStateManager.popMatrix();
      }
  
@@ -92,15 +95,16 @@
      {
          AbstractClientPlayerEntity abstractclientplayerentity = this.mc.player;
          int i = this.mc.world.getCombinedLight(new BlockPos(abstractclientplayerentity.posX, abstractclientplayerentity.posY + (double)abstractclientplayerentity.getEyeHeight(), abstractclientplayerentity.posZ), 0);
-@@ -177,26 +214,17 @@
+@@ -176,29 +216,19 @@
+ 
      private void renderMapFirstPersonSide(float equippedProgress, HandSide hand, float swingProgress, ItemStack stack)
      {
-         float f = hand == HandSide.RIGHT ? 1.0F : -1.0F;
+-        float f = hand == HandSide.RIGHT ? 1.0F : -1.0F;
 -        GlStateManager.translatef(f * 0.125F, -0.125F, 0.0F);
- 
+-
 -        if (!this.mc.player.isInvisible())
 -        {
-             GlStateManager.pushMatrix();
+-            GlStateManager.pushMatrix();
 -            GlStateManager.rotatef(f * 10.0F, 0.0F, 0.0F, 1.0F);
 -            this.renderArmFirstPerson(equippedProgress, swingProgress, hand);
 -            GlStateManager.popMatrix();
@@ -108,22 +112,33 @@
 -
 -        GlStateManager.pushMatrix();
 -        GlStateManager.translatef(f * 0.51F, -0.08F + equippedProgress * -1.2F, -0.75F);
-+        	GlStateManager.translatef(-f * 0.125F, -0.125F, 0.0F);
-+	    	GlStateManager.translatef(-f * 0F, 0.225F, -0.2F);
-+	    	GlStateManager.rotatef(-30.0F, 1.0F, 0.0F, 0.0F);
-+	    	GlStateManager.rotatef(-30.0F*f, 0.0F, 1.0F, 0.0F);
-         float f1 = MathHelper.sqrt(swingProgress);
-         float f2 = MathHelper.sin(f1 * (float)Math.PI);
-         float f3 = -0.5F * f2;
-         float f4 = 0.4F * MathHelper.sin(f1 * ((float)Math.PI * 2F));
-         float f5 = -0.3F * MathHelper.sin(swingProgress * (float)Math.PI);
+-        float f1 = MathHelper.sqrt(swingProgress);
+-        float f2 = MathHelper.sin(f1 * (float)Math.PI);
+-        float f3 = -0.5F * f2;
+-        float f4 = 0.4F * MathHelper.sin(f1 * ((float)Math.PI * 2F));
+-        float f5 = -0.3F * MathHelper.sin(swingProgress * (float)Math.PI);
 -        GlStateManager.translatef(f * f3, f4 - 0.3F * f2, f5);
 -        GlStateManager.rotatef(f2 * -45.0F, 1.0F, 0.0F, 0.0F);
 -        GlStateManager.rotatef(f * f2 * -30.0F, 0.0F, 1.0F, 0.0F);
-         this.renderMapFirstPerson(stack);
-         GlStateManager.popMatrix();
+-        this.renderMapFirstPerson(stack);
+-        GlStateManager.popMatrix();
++    	float f = hand == HandSide.RIGHT ? 1.0F : -1.0F;
++    	GlStateManager.pushMatrix();
++    	GlStateManager.translatef(-f * 0.125F, -0.125F, 0.0F);
++    	GlStateManager.translatef(-f * 0F, 0.225F, -0.2F);
++    	GlStateManager.rotatef(-30.0F, 1.0F, 0.0F, 0.0F);
++    	GlStateManager.rotatef(-30.0F*f, 0.0F, 1.0F, 0.0F);
++    	float f1 = MathHelper.sqrt(swingProgress);
++    	float f2 = MathHelper.sin(f1 * (float)Math.PI);
++    	float f3 = -0.5F * f2;
++    	float f4 = 0.4F * MathHelper.sin(f1 * ((float)Math.PI * 2F));
++    	float f5 = -0.3F * MathHelper.sin(swingProgress * (float)Math.PI);
++    	this.renderMapFirstPerson(stack);
++    	GlStateManager.popMatrix();
      }
-@@ -206,14 +234,20 @@
+ 
+     private void renderMapFirstPerson(float pitch, float equippedProgress, float swingProgress)
+@@ -206,19 +236,26 @@
          float f = MathHelper.sqrt(swingProgress);
          float f1 = -0.2F * MathHelper.sin(swingProgress * (float)Math.PI);
          float f2 = -0.4F * MathHelper.sin(f * (float)Math.PI);
@@ -150,7 +165,20 @@
          this.renderMapFirstPerson(this.itemStackMainHand);
      }
  
-@@ -248,6 +282,7 @@
+     private void renderMapFirstPerson(ItemStack stack)
+     {
++    	GlStateManager.disableCull();
+         GlStateManager.rotatef(180.0F, 0.0F, 1.0F, 0.0F);
+         GlStateManager.rotatef(180.0F, 0.0F, 0.0F, 1.0F);
+         GlStateManager.scalef(0.38F, 0.38F, 0.38F);
+@@ -242,12 +279,14 @@
+         }
+ 
+         GlStateManager.enableLighting();
++    	GlStateManager.enableCull();
+     }
+ 
+     private void renderArmFirstPerson(float equippedProgress, float swingProgress, HandSide side)
      {
          boolean flag = side != HandSide.LEFT;
          float f = flag ? 1.0F : -1.0F;
@@ -158,7 +186,7 @@
          float f1 = MathHelper.sqrt(swingProgress);
          float f2 = -0.3F * MathHelper.sin(f1 * (float)Math.PI);
          float f3 = 0.4F * MathHelper.sin(f1 * ((float)Math.PI * 2F));
-@@ -258,8 +293,10 @@
+@@ -258,8 +297,10 @@
          float f6 = MathHelper.sin(f1 * (float)Math.PI);
          GlStateManager.rotatef(f * f6 * 70.0F, 0.0F, 1.0F, 0.0F);
          GlStateManager.rotatef(f * f5 * -20.0F, 0.0F, 0.0F, 1.0F);
@@ -169,7 +197,7 @@
          GlStateManager.translatef(f * -1.0F, 3.6F, 3.5F);
          GlStateManager.rotatef(f * 120.0F, 0.0F, 0.0F, 1.0F);
          GlStateManager.rotatef(200.0F, 1.0F, 0.0F, 0.0F);
-@@ -278,6 +315,31 @@
+@@ -278,6 +319,31 @@
          }
  
          GlStateManager.enableCull();
@@ -201,7 +229,7 @@
      }
  
      private void transformEatFirstPerson(float partialTicks, HandSide hand, ItemStack stack)
-@@ -288,32 +350,46 @@
+@@ -288,32 +354,46 @@
          if (f1 < 0.8F)
          {
              float f2 = MathHelper.abs(MathHelper.cos(f / 4.0F * (float)Math.PI) * 0.1F);
@@ -257,7 +285,7 @@
      }
  
      /**
-@@ -399,183 +475,352 @@
+@@ -399,183 +479,342 @@
          RenderHelper.disableStandardItemLighting();
      }
  
@@ -277,25 +305,13 @@
      public void renderItemInFirstPerson(AbstractClientPlayerEntity player, float partialTicks, float pitch, Hand hand, float swingProgress, ItemStack stack, float equippedProgress)
      {
 -        if (!Config.isShaders() || !Shaders.isSkipRenderHand(hand))
-+    	boolean mainHand = hand == Hand.MAIN_HAND;
-+    	HandSide HandSide = mainHand ? player.getPrimaryHand() : player.getPrimaryHand().opposite();
-+    	equippedProgress = getEquipProgress(hand, partialTicks);
-+
-+    	boolean shouldrenderhand = true;
-+    	if(mc.currentPass == RenderPass.THIRD && mc.vrSettings.mixedRealityRenderHands == false)
-+    		shouldrenderhand = false;
-+
-+    	if(BowTracker.isBow(stack))
-+    		shouldrenderhand = false;
-+
-+
-+    	if (shouldrenderhand && !player.isInvisible())
-         {
+-        {
 -            boolean flag = hand == Hand.MAIN_HAND;
 -            HandSide handside = flag ? player.getPrimaryHand() : player.getPrimaryHand().opposite();
 -            GlStateManager.pushMatrix();
-+    		this.renderArmFirstPerson(equippedProgress, player.swingingHand == hand ? swingProgress : 0, HandSide);
-+    	}
++    	boolean mainHand = hand == Hand.MAIN_HAND;
++    	HandSide HandSide = mainHand ? player.getPrimaryHand() : player.getPrimaryHand().opposite();
++    	equippedProgress = getEquipProgress(hand, partialTicks);
  
 -            if (stack.isEmpty())
 -            {
@@ -320,7 +336,9 @@
 -                boolean flag1 = CrossbowItem.isCharged(stack);
 -                boolean flag2 = handside == HandSide.RIGHT;
 -                int i = flag2 ? 1 : -1;
-+    	if(stack!=null && stack.isEmpty() == false){
++    	boolean shouldrenderhand = true;
++    	if(mc.currentPass == RenderPass.THIRD && mc.vrSettings.mixedRealityRenderHands == false)
++    		shouldrenderhand = false;
  
 -                if (player.isHandActive() && player.getItemInUseCount() > 0 && player.getActiveHand() == hand)
 -                {
@@ -331,14 +349,13 @@
 -                    GlStateManager.rotatef((float)i * -9.785F, 0.0F, 0.0F, 1.0F);
 -                    float f9 = (float)stack.getUseDuration() - ((float)this.mc.player.getItemInUseCount() - partialTicks + 1.0F);
 -                    float f12 = f9 / (float)CrossbowItem.func_220026_e(stack);
-+            GlStateManager.pushMatrix();
++    	if(BowTracker.isBow(stack))
++    		shouldrenderhand = false;
  
 -                    if (f12 > 1.0F)
 -                    {
 -                        f12 = 1.0F;
 -                    }
-+    		Item item = stack.getItem();
-+    		VivecraftItemRendering rendertype = VivecraftItemRendering.Item;
  
 -                    if (f12 > 0.1F)
 -                    {
@@ -346,6 +363,22 @@
 -                        float f3 = f12 - 0.1F;
 -                        float f4 = f15 * f3;
 -                        GlStateManager.translatef(f4 * 0.0F, f4 * 0.004F, f4 * 0.0F);
+-                    }
++    	if (shouldrenderhand && !player.isInvisible())
++        {
++    		this.renderArmFirstPerson(equippedProgress, player.swingingHand == hand ? swingProgress : 0, HandSide);
++    	}
++
++    	if(stack!=null && stack.isEmpty() == false){
+ 
+-                    GlStateManager.translatef(f12 * 0.0F, f12 * 0.0F, f12 * 0.04F);
+-                    GlStateManager.scalef(1.0F, 1.0F, 1.0F + f12 * 0.2F);
+-                    GlStateManager.rotatef((float)i * 45.0F, 0.0F, -1.0F, 0.0F);
++            GlStateManager.pushMatrix();
++
++    		Item item = stack.getItem();
++    		VivecraftItemRendering rendertype = VivecraftItemRendering.Item;
++
 +    		if(item instanceof BlockItem)
 +    			rendertype = VivecraftItemRendering.Block;
 +    		else if(item instanceof AbstractMapItem)
@@ -362,13 +395,7 @@
 +    			rendertype = VivecraftItemRendering.Crossbow;
 +    		else if(stack.getUseAction() == UseAction.EAT || stack.getUseAction() == UseAction.DRINK)
 +    			rendertype = VivecraftItemRendering.Noms;
-+    		else if(item instanceof ToolItem ||
-+    				item instanceof ArrowItem ||
-+    				item instanceof HoeItem || 
-+    				item instanceof FishingRodItem || 
-+    				item instanceof CarrotOnAStickItem ||
-+    				item instanceof ShearsItem||
-+    				item instanceof FlintAndSteelItem)
++    		else if(SwingTracker.isTool(item))
 +    			rendertype = VivecraftItemRendering.Tool;
 +
 +    		boolean rightSide = HandSide == HandSide.RIGHT;
@@ -386,10 +413,11 @@
 +    		
 +    		switch (rendertype) {
 +    		case Block:
++    			Block b = ((BlockItem) item).getBlock(); 
 +    			if (this.itemRenderer.shouldRenderItemIn3D(stack)){
 +    				GlStateManager.translatef(0f, 0f, -0.1f);	
 +    				GlStateManager.scaled(0.2, 0.2, 0.2);
-+    			}else if(((BlockItem) item).getBlock() == Blocks.TORCH) {
++				}else if(b instanceof TorchBlock || b instanceof BambooBlock) {
 +    				GlStateManager.translatef(0f, 0.05f, -0.2f);		
 +    				GlStateManager.scaled(0.6, 0.6, 0.6);	
 +    				GlStateManager.rotatef(90.0F, 0.0F, 1.0F, 0.0F);
@@ -398,7 +426,15 @@
 +    				GlStateManager.translatef(0f, 0f, -0.15f);		
 +    				GlStateManager.scaled(0.3, 0.3, 0.3);
 +    				GlStateManager.rotatef(-i*45.0F, 0.0F, 1.0F, 0.0F);   
-+                }
+                 }
+-                else
+-                {
+-                    float f = -0.4F * MathHelper.sin(MathHelper.sqrt(swingProgress) * (float)Math.PI);
+-                    float f1 = 0.2F * MathHelper.sin(MathHelper.sqrt(swingProgress) * ((float)Math.PI * 2F));
+-                    float f2 = -0.2F * MathHelper.sin(swingProgress * (float)Math.PI);
+-                    GlStateManager.translatef((float)i * f, f1, f2);
+-                    this.transformSideFirstPerson(handside, equippedProgress);
+-                    this.transformFirstPerson(handside, swingProgress);
 +    			break;
 +    		case Bow:
 +    			GlStateManager.scalef(1.0f, 1.0f, 1.0f);
@@ -481,28 +517,12 @@
 +    				GlStateManager.scalef(0.5f,0.5f,0.5f);    
 +    				GlStateManager.rotatef(90f, 1.0F, 0.0F, 0.0F);    
 +
-+    				if(vive){
-+    					GlStateManager.translated(-0.012, 0.2, 00);
-+    					GlStateManager.rotatef(-45F, 1.0F, 0.0F, 0.0F);
-+    				} else {
-+    					GlStateManager.translated(-0.012, 0.17, .100);
-+    					GlStateManager.rotatef(-45F + 39.4f, 1.0F, 0.0F, 0.0F	);
-                     }
- 
--                    GlStateManager.translatef(f12 * 0.0F, f12 * 0.0F, f12 * 0.04F);
--                    GlStateManager.scalef(1.0F, 1.0F, 1.0F + f12 * 0.2F);
--                    GlStateManager.rotatef((float)i * 45.0F, 0.0F, -1.0F, 0.0F);
++    				GlStateManager.translated(-0.012, 0.2, 00);
++    				GlStateManager.rotatef(-45F, 1.0F, 0.0F, 0.0F);
++
 +    				GlStateManager.rotatef(-90.0F, 0.0F, 1.0F, 0.0F);
 +    				GlStateManager.rotatef(90.0F, 0.0F, 0.0F, 1.0F);	
-                 }
--                else
--                {
--                    float f = -0.4F * MathHelper.sin(MathHelper.sqrt(swingProgress) * (float)Math.PI);
--                    float f1 = 0.2F * MathHelper.sin(MathHelper.sqrt(swingProgress) * ((float)Math.PI * 2F));
--                    float f2 = -0.2F * MathHelper.sin(swingProgress * (float)Math.PI);
--                    GlStateManager.translatef((float)i * f, f1, f2);
--                    this.transformSideFirstPerson(handside, equippedProgress);
--                    this.transformFirstPerson(handside, swingProgress);
++    			}
 +    			break;
 +    		case Item:
 +    			GlStateManager.translatef(0f, 0f, -0.1f);		
@@ -553,15 +573,15 @@
 -                        case NONE:
 -                            this.transformSideFirstPerson(handside, equippedProgress);
 -                            break;
-+					charging = true;
-+					j = EnchantmentHelper.getRiptideModifier(stack);
- 
+-
 -                        case EAT:
 -                        case DRINK:
 -                            this.transformEatFirstPerson(partialTicks, handside, stack);
 -                            this.transformSideFirstPerson(handside, equippedProgress);
 -                            break;
--
++					charging = true;
++					j = EnchantmentHelper.getRiptideModifier(stack);
+ 
 -                        case BLOCK:
 -                            this.transformSideFirstPerson(handside, equippedProgress);
 -                            break;
@@ -645,7 +665,7 @@
 +				GlStateManager.translatef(0, .06f, -0.1f);
 +
 +    			GlStateManager.scaled(0.5, 0.5, 0.5);	
-+        		GlStateManager.rotatef(-90.0F - (vive ? 0 : 39.4f), 1.0F, 0.0F, 0.0F);   
++        		GlStateManager.rotatef(-90.0F, 1.0F, 0.0F, 0.0F);   
 +
 +    			GlStateManager.rotatef(-45.0F, 0.0F, 0.0F, 1.0F); 
 +    		//	GlStateManager.rotatef(45.0F, 1.0F, 0.0F, 0.0F);   
@@ -691,20 +711,20 @@
 -                            if (f16 > 1.0F)
 -                            {
 -                                f16 = 1.0F;
--                            }
--
--                            if (f16 > 0.1F)
--                            {
--                                float f18 = MathHelper.sin((f13 - 0.1F) * 1.3F);
--                                float f20 = f16 - 0.1F;
--                                float f5 = f18 * f20;
--                                GlStateManager.translatef(f5 * 0.0F, f5 * 0.004F, f5 * 0.0F);
 +    				if(item instanceof CarrotOnAStickItem || item instanceof FishingRodItem) {
 +    					GlStateManager.rotatef(39.4f, 1.0F, 0.0F, 0.0F);
                              }
 +    				else
 +    					GlStateManager.rotatef(180.0F, 0.0F, 0.0F, 1.0F);  
  
+-                            if (f16 > 0.1F)
+-                            {
+-                                float f18 = MathHelper.sin((f13 - 0.1F) * 1.3F);
+-                                float f20 = f16 - 0.1F;
+-                                float f5 = f18 * f20;
+-                                GlStateManager.translatef(f5 * 0.0F, f5 * 0.004F, f5 * 0.0F);
+-                            }
+-
 -                            GlStateManager.translatef(0.0F, 0.0F, f16 * 0.2F);
 -                            GlStateManager.scalef(1.0F, 1.0F, 1.0F + f16 * 0.2F);
 -                            GlStateManager.rotatef((float)k * 45.0F, 0.0F, -1.0F, 0.0F);
@@ -757,7 +777,7 @@
  
              GlStateManager.popMatrix();
          }
-@@ -586,49 +831,59 @@
+@@ -586,49 +825,59 @@
       */
      public void renderOverlays(float partialTicks)
      {
@@ -805,7 +825,7 @@
 -            BlockState blockstate = this.mc.world.getBlockState(new BlockPos(this.mc.player));
 -            BlockPos blockpos = new BlockPos(this.mc.player);
 -            PlayerEntity playerentity = this.mc.player;
- 
+-
 -            for (int i = 0; i < 8; ++i)
 -            {
 -                double d0 = playerentity.posX + (double)(((float)((i >> 0) % 2) - 0.5F) * playerentity.getWidth() * 0.8F);
@@ -813,7 +833,7 @@
 -                double d2 = playerentity.posZ + (double)(((float)((i >> 2) % 2) - 0.5F) * playerentity.getWidth() * 0.8F);
 -                BlockPos blockpos1 = new BlockPos(d0, d1 + (double)playerentity.getEyeHeight(), d2);
 -                BlockState blockstate1 = this.mc.world.getBlockState(blockpos1);
--
+ 
 -                if (blockstate1.causesSuffocation(this.mc.world, blockpos1))
 -                {
 -                    blockstate = blockstate1;
@@ -847,7 +867,7 @@
                  this.renderFireInFirstPerson();
              }
          }
-@@ -710,13 +965,13 @@
+@@ -710,13 +959,13 @@
          Tessellator tessellator = Tessellator.getInstance();
          BufferBuilder bufferbuilder = tessellator.getBuffer();
          GlStateManager.color4f(1.0F, 1.0F, 1.0F, 0.9F);
@@ -864,7 +884,7 @@
          {
              GlStateManager.pushMatrix();
              TextureAtlasSprite textureatlassprite = this.mc.getTextureMap().getSprite(ModelBakery.LOCATION_FIRE_1);
-@@ -725,19 +980,20 @@
+@@ -725,19 +974,20 @@
              float f2 = textureatlassprite.getMaxU();
              float f3 = textureatlassprite.getMinV();
              float f4 = textureatlassprite.getMaxV();
@@ -896,7 +916,7 @@
              tessellator.draw();
              GlStateManager.popMatrix();
          }
-@@ -822,4 +1078,130 @@
+@@ -822,4 +1072,130 @@
              this.equippedProgressOffHand = 0.0F;
          }
      }
