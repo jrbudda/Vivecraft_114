@@ -897,17 +897,17 @@ public class VRSettings
                 switch(this.displayMirrorMode) {
                     case MIRROR_OFF:
                     default:
-                        return var4 + "OFF";
+                        return var4 + "OFF (fast)";
                     case MIRROR_ON_DUAL:
-                        return var4 + "Dual";
+                        return var4 + "Dual (fast)";
                     case MIRROR_ON_SINGLE:
-                        return var4 + "Single";
+                        return var4 + "Single (fast)";
                     case MIRROR_FIRST_PERSON:
-                        return var4 + "1st Person";
+                        return var4 + "1st Person (slow)";
                     case MIRROR_THIRD_PERSON:
-                        return var4 + "3rd Person";
+                        return var4 + "3rd Person (slow)";
                     case MIRROR_MIXED_REALITY:
-                        return var4 + "Mixed Reality";
+                        return var4 + "Mixed Reality (slow)";
 
                 }
             case MIXED_REALITY_KEY_COLOR:

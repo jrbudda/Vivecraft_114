@@ -329,7 +329,7 @@
          boolean flag2 = this.func_223110_ee();
          boolean flag3 = this.shouldRenderSneaking() || this.func_213300_bk();
          this.movementInput.tick(flag3, this.isSpectator());
-+       this.mc.vrPlayer.doLookOverride(mc.vrPlayer.vrdata_world_pre);
++        this.mc.vrPlayer.doLookOverride(mc.vrPlayer.vrdata_world_pre);
          this.mc.getTutorial().handleMovement(this.movementInput);
  
          if (this.isHandActive() && !this.isPassenger())

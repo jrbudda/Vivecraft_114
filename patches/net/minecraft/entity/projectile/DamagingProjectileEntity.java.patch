@@ -9,24 +9,46 @@
  import net.minecraft.entity.Entity;
  import net.minecraft.entity.EntityType;
  import net.minecraft.entity.LivingEntity;
-@@ -46,7 +49,19 @@
+@@ -44,18 +47,30 @@
+ 
+     public DamagingProjectileEntity(EntityType <? extends DamagingProjectileEntity > p_i3928_1_, LivingEntity p_i3928_2_, double p_i3928_3_, double p_i3928_5_, double p_i3928_7_, World p_i3928_9_)
      {
-         this(p_i3928_1_, p_i3928_9_);
-         this.shootingEntity = p_i3928_2_;
+-        this(p_i3928_1_, p_i3928_9_);
+-        this.shootingEntity = p_i3928_2_;
 -        this.setLocationAndAngles(p_i3928_2_.posX, p_i3928_2_.posY, p_i3928_2_.posZ, p_i3928_2_.rotationYaw, p_i3928_2_.rotationPitch);
-+                //VIVE USE CONTROLLER
-+        ServerVivePlayer vp = NetworkHelper.vivePlayers.get(p_i3928_2_.getUniqueID());
-+        if (vp !=null && vp.isVR())
-+        {
-+        	Vec3d aim = vp.getControllerDir(0);
-+        	Vec3d aimSource = vp.getControllerPos(0);
-+        	float pitch = (float)Math.toDegrees(Math.asin(aim.y/aim.length()));
-+        	float yaw = (float)Math.toDegrees(Math.atan2(aim.x, -aim.z));   
-+        	this.setLocationAndAngles(aimSource.x + aim.x*0.6f, aimSource.y+aim.y*0.6f, aimSource.z+aim.z*0.6f, yaw, pitch);
-+        } else {
-+            this.setLocationAndAngles(p_i3928_2_.posX, p_i3928_2_.posY, p_i3928_2_.posZ, p_i3928_2_.rotationYaw, p_i3928_2_.rotationPitch);
-+        }
-+        
-         this.setPosition(this.posX, this.posY, this.posZ);
-         this.setMotion(Vec3d.ZERO);
-         p_i3928_3_ = p_i3928_3_ + this.rand.nextGaussian() * 0.4D;
+-        this.setPosition(this.posX, this.posY, this.posZ);
+-        this.setMotion(Vec3d.ZERO);
+-        p_i3928_3_ = p_i3928_3_ + this.rand.nextGaussian() * 0.4D;
+-        p_i3928_5_ = p_i3928_5_ + this.rand.nextGaussian() * 0.4D;
+-        p_i3928_7_ = p_i3928_7_ + this.rand.nextGaussian() * 0.4D;
+-        double d0 = (double)MathHelper.sqrt(p_i3928_3_ * p_i3928_3_ + p_i3928_5_ * p_i3928_5_ + p_i3928_7_ * p_i3928_7_);
+-        this.accelerationX = p_i3928_3_ / d0 * 0.1D;
+-        this.accelerationY = p_i3928_5_ / d0 * 0.1D;
+-        this.accelerationZ = p_i3928_7_ / d0 * 0.1D;
++    	this(p_i3928_1_, p_i3928_9_);
++    	this.shootingEntity = p_i3928_2_;
++    	//VIVE USE CONTROLLER
++    	ServerVivePlayer vp = NetworkHelper.vivePlayers.get(p_i3928_2_.getUniqueID());
++    	if (vp !=null && vp.isVR())
++    	{
++    		Vec3d aim = vp.getControllerDir(0);
++    		Vec3d aimSource = vp.getControllerPos(0);
++    		float pitch = (float)Math.toDegrees(Math.asin(aim.y/aim.length()));
++    		float yaw = (float)Math.toDegrees(Math.atan2(aim.x, -aim.z));   
++    		this.setLocationAndAngles(aimSource.x + aim.x*0.6f, aimSource.y+aim.y*0.6f, aimSource.z+aim.z*0.6f, yaw, pitch);
++    	} else {
++    		this.setLocationAndAngles(p_i3928_2_.posX, p_i3928_2_.posY, p_i3928_2_.posZ, p_i3928_2_.rotationYaw, p_i3928_2_.rotationPitch);
++    	}
++
++    	this.setPosition(this.posX, this.posY, this.posZ);
++    	this.setMotion(Vec3d.ZERO);
++    	p_i3928_3_ = p_i3928_3_ + this.rand.nextGaussian() * 0.4D;
++    	p_i3928_5_ = p_i3928_5_ + this.rand.nextGaussian() * 0.4D;
++    	p_i3928_7_ = p_i3928_7_ + this.rand.nextGaussian() * 0.4D;
++    	double d0 = (double)MathHelper.sqrt(p_i3928_3_ * p_i3928_3_ + p_i3928_5_ * p_i3928_5_ + p_i3928_7_ * p_i3928_7_);
++    	this.accelerationX = p_i3928_3_ / d0 * 0.1D;
++    	this.accelerationY = p_i3928_5_ / d0 * 0.1D;
++    	this.accelerationZ = p_i3928_7_ / d0 * 0.1D;
+     }
+ 
+     protected void registerData()

@@ -1,6 +1,6 @@
 --- a/net/minecraft/util/MovementInputFromOptions.java
 +++ b/net/minecraft/util/MovementInputFromOptions.java
-@@ -1,31 +1,160 @@
+@@ -1,31 +1,162 @@
  package net.minecraft.util;
  
 +import org.vivecraft.control.ControllerType;
@@ -35,7 +35,9 @@
 +		VRInputAction action = MCOpenVR.getInputAction(keyBinding);
 +		return action.isEnabled() ? Math.abs(action.getAxis1D(false)) : 0;
 +	}
-+    public void func_217607_a(boolean sneaking, boolean spectator)
++	
++	@Override
++    public void tick(boolean sneaking, boolean spectator)
      {
 -        this.forwardKeyDown = this.gameSettings.keyBindForward.isKeyDown();
 -        this.backKeyDown = this.gameSettings.keyBindBack.isKeyDown();

@@ -646,9 +646,9 @@
          activerenderinfo.update(this.mc.world, (Entity)(this.mc.getRenderViewEntity() == null ? this.mc.player : this.mc.getRenderViewEntity()), this.mc.gameSettings.thirdPersonView > 0, this.mc.gameSettings.thirdPersonView == 2, partialTicks);
 +        applyCameraDepth(false);     
          ClippingHelper clippinghelper = ClippingHelperImpl.getInstance();
--        worldrenderer.func_224745_a(activerenderinfo);
+         worldrenderer.func_224745_a(activerenderinfo);
 -        this.mc.getProfiler().endStartSection("clear");
- 
+-
          if (flag)
          {
 -            Shaders.setViewport(0, 0, this.mc.mainWindow.getFramebufferWidth(), this.mc.mainWindow.getFramebufferHeight());

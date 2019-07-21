@@ -185,7 +185,7 @@
 +	 * The minecriftVerString will be automatically updated by the build scripts, do
 +	 * not modify here. Modify minecriftversion.py in root minecrift dir.
 +	 */
-+    public final String minecriftVerString = "Vivecraft 1.14.4 jrbudda-2-b0";
++    public final String minecriftVerString = "Vivecraft 1.14.4 jrbudda-2-r0";
 +	/* end version */
 +	/** END MINECRIFT */
 +
@@ -289,7 +289,7 @@
          ResourceLoadProgressGui.loadLogoTexture(this);
          this.setLoadingGui(new ResourceLoadProgressGui(this, this.resourceManager.initialReload(Util.getServerExecutor(), this, field_223714_G), () ->
          {
-+        						// Vivecraft - post load
++        			// Vivecraft - post load
 +					if (stereoProvider.isInitialized())
 +						menuWorldRenderer.init();
 +					LangHelper.loadLocaleData();
@@ -636,7 +636,20 @@
          ++this.fpsCounter;
          boolean flag = this.isSingleplayer() && (this.currentScreen != null && this.currentScreen.isPauseScreen() || this.loadingGui != null && this.loadingGui.isPauseScreen()) && !this.integratedServer.getPublic();
  
-@@ -1121,7 +1510,7 @@
+@@ -1110,6 +1499,12 @@
+         }
+ 
+         this.profiler.endTick();
++
++		if (this.gameSettings.showDebugProfilerChart && !this.gameSettings.hideGUI) {
++			this.profiler.func_219899_d().func_219939_d();
++		} else {
++			this.profiler.func_219899_d().func_219938_b();
++		}
+     }
+ 
+     public void updateDisplay(boolean limitFramerate)
+@@ -1121,7 +1516,7 @@
          if (limitFramerate && this.isFramerateLimited())
          {
              this.profiler.startSection("fpslimit_wait");
@@ -645,7 +658,7 @@
              this.profiler.endSection();
          }
      }
-@@ -1136,16 +1525,20 @@
+@@ -1136,16 +1531,20 @@
              this.currentScreen.resize(this, this.mainWindow.getScaledWidth(), this.mainWindow.getScaledHeight());
          }
  
@@ -672,7 +685,7 @@
          }
  
          if (this.mouseHelper != null)
-@@ -1239,7 +1632,7 @@
+@@ -1239,7 +1638,7 @@
          }
      }
  
@@ -681,7 +694,7 @@
      {
          if (this.profiler.func_219899_d().isEnabled())
          {
-@@ -1407,9 +1800,7 @@
+@@ -1407,9 +1806,7 @@
                          this.player.swingArm(Hand.MAIN_HAND);
                      }
                  }
@@ -692,7 +705,7 @@
                  this.playerController.resetBlockRemoving();
              }
          }
-@@ -1463,11 +1854,10 @@
+@@ -1463,11 +1860,10 @@
      /**
       * Called when user clicked he's mouse right button (place)
       */
@@ -708,7 +721,7 @@
  
              if (!this.player.isRowingBoat())
              {
-@@ -1485,6 +1875,7 @@
+@@ -1485,6 +1881,7 @@
                          switch (this.objectMouseOver.getType())
                          {
                              case ENTITY:
@@ -716,7 +729,7 @@
                                  EntityRayTraceResult entityraytraceresult = (EntityRayTraceResult)this.objectMouseOver;
                                  Entity entity = entityraytraceresult.getEntity();
  
-@@ -1503,7 +1894,7 @@
+@@ -1503,7 +1900,7 @@
                              case BLOCK:
                                  BlockRayTraceResult blockraytraceresult = (BlockRayTraceResult)this.objectMouseOver;
                                  int i = itemstack.getCount();
@@ -725,7 +738,7 @@
  
                                  if (actionresulttype == ActionResultType.SUCCESS)
                                  {
-@@ -1523,9 +1914,9 @@
+@@ -1523,9 +1920,9 @@
                                  }
                          }
                      }
@@ -738,7 +751,7 @@
                          this.gameRenderer.itemRenderer.resetEquippedProgress(hand);
                          return;
                      }
-@@ -1547,6 +1938,7 @@
+@@ -1547,6 +1944,7 @@
       */
      public void runTick()
      {
@@ -746,7 +759,7 @@
          if (this.rightClickDelayTimer > 0)
          {
              --this.rightClickDelayTimer;
-@@ -1560,7 +1952,7 @@
+@@ -1560,7 +1958,7 @@
          }
  
          this.profiler.endSection();
@@ -755,7 +768,7 @@
          this.tutorial.onMouseHover(this.world, this.objectMouseOver);
          this.profiler.startSection("gameMode");
  
-@@ -1571,10 +1963,11 @@
+@@ -1571,10 +1969,11 @@
  
          this.profiler.endStartSection("textures");
  
@@ -770,7 +783,7 @@
  
          if (this.currentScreen == null && this.player != null)
          {
-@@ -1609,6 +2002,11 @@
+@@ -1609,6 +2008,11 @@
          {
              this.ingameGUI.func_212910_m();
          }
@@ -782,7 +795,7 @@
  
          if (this.loadingGui == null && (this.currentScreen == null || this.currentScreen.passEvents))
          {
-@@ -1622,8 +2020,27 @@
+@@ -1622,8 +2026,27 @@
              }
          }
  
@@ -812,7 +825,7 @@
              this.profiler.endStartSection("gameRenderer");
  
              if (!this.isGamePaused)
-@@ -1655,8 +2072,13 @@
+@@ -1655,8 +2078,13 @@
              this.gameRenderer.stopUseShader();
          }
  
@@ -828,7 +841,7 @@
              this.musicTicker.tick();
          }
  
-@@ -1719,25 +2141,28 @@
+@@ -1719,25 +2147,28 @@
          this.profiler.endSection();
      }
  
@@ -876,7 +889,16 @@
          }
  
          while (this.gameSettings.keyBindSmoothCamera.isPressed())
-@@ -1816,10 +2241,10 @@
+@@ -1805,7 +2236,7 @@
+ 
+         if (flag2)
+         {
+-            while (this.gameSettings.keyBindChat.isPressed())
++   			if (this.currentScreen == null && this.gameSettings.keyBindChat.isPressed())
+             {
+                 this.displayGuiScreen(new ChatScreen(""));
+             }
+@@ -1816,10 +2247,10 @@
              }
          }
  
@@ -891,7 +913,7 @@
                  this.playerController.onStoppedUsingItem(this.player);
              }
  
-@@ -1840,10 +2265,18 @@
+@@ -1840,10 +2271,18 @@
          }
          else
          {
@@ -913,7 +935,16 @@
  
              while (this.gameSettings.keyBindUseItem.isPressed())
              {
-@@ -1956,8 +2389,11 @@
+@@ -1861,7 +2300,7 @@
+             this.rightClickMouse();
+         }
+ 
+-        this.sendClickBlockToController(this.currentScreen == null && this.gameSettings.keyBindAttack.isKeyDown() && this.mouseHelper.isMouseGrabbed());
++		this.sendClickBlockToController(this.currentScreen == null && this.gameSettings.keyBindAttack.isKeyDown());
+     }
+ 
+     /**
+@@ -1956,8 +2395,11 @@
      /**
       * unloads the current world first
       */
@@ -927,7 +958,16 @@
          WorkingScreen workingscreen = new WorkingScreen();
          workingscreen.displaySavingString(new TranslationTextComponent("connect.joining"));
          this.func_213241_c(workingscreen);
-@@ -2769,4 +3205,652 @@
+@@ -2245,6 +2687,8 @@
+                 }
+             }
+         }
++
++		physicalGuiManager.init(player);
+     }
+ 
+     private ItemStack storeTEInStack(ItemStack stack, TileEntity te)
+@@ -2769,4 +3213,652 @@
      {
          return this.loadingGui;
      }
