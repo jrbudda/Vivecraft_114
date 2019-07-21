@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/renderer/texture/Stitcher.java
 +++ b/net/minecraft/client/renderer/texture/Stitcher.java
-@@ -12,15 +12,15 @@
+@@ -13,15 +13,15 @@
  
  public class Stitcher
  {

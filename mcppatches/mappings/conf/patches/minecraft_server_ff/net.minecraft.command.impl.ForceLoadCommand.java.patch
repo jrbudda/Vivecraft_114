@@ -1,7 +1,7 @@
 ﻿diff -r -U 3 minecraft\net\minecraft\command\impl\ForceLoadCommand.java minecraft_patched\net\minecraft\command\impl\ForceLoadCommand.java
 --- minecraft\net\minecraft\command\impl\ForceLoadCommand.java
 +++ minecraft_patched\net\minecraft\command\impl\ForceLoadCommand.java
-@@ -84,7 +84,7 @@
+@@ -80,7 +80,7 @@
        DimensionType dimensiontype = p_212722_0_.func_197023_e().func_201675_m().func_186058_p();
        ServerWorld serverworld = p_212722_0_.func_197028_i().func_71218_a(dimensiontype);
        LongSet longset = serverworld.func_217469_z();

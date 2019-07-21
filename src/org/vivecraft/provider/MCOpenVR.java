@@ -175,7 +175,6 @@ public class MCOpenVR
 	public static double startedOpeningInventory = 0;
 	public static boolean hudPopup = true;
 
-
 	static boolean headIsTracking;
 
 	private static int moveModeSwitchCount = 0;
@@ -1043,6 +1042,7 @@ public class MCOpenVR
 
 				detectedHardware = HardwareType.fromManufacturer(id);
 				mc.vrSettings.loadOptions();
+				VRHotkeys.loadExternalCameraConfig();
 
 			} else {
 				throw new Exception(jopenvr.JOpenVRLibrary.VR_GetVRInitErrorAsEnglishDescription(getError()).getString(0));			 
@@ -2183,7 +2183,14 @@ public class MCOpenVR
 	}
 
 	public static void triggerHapticPulse(ControllerType controller, float durationSeconds, float frequency, float amplitude, float delaySeconds) {
-		if (Minecraft.getInstance().vrSettings.seated || !inputInitialized) return;
+		if (mc.vrSettings.seated || !inputInitialized) return;
+		if (mc.vrSettings.vrReverseHands) {
+			if (controller == ControllerType.RIGHT)
+				controller = ControllerType.LEFT;
+			else
+				controller = ControllerType.RIGHT;
+		}
+
 		hapticScheduler.queueHapticPulse(controller, durationSeconds, frequency, amplitude, delaySeconds);
 	}
 

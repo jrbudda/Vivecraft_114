@@ -156,7 +156,7 @@
 +                    case TEMPERATURE:
 +                        BlockPos blockpos1 = Shaders.getCameraPosition();
 +                        Biome biome1 = Shaders.getCurrentWorld().getBiome(blockpos1);
-+                        return biome1 != null ? biome1.getTemperature(blockpos1) : 0.0F;
++                        return biome1 != null ? biome1.func_225486_c(blockpos1) : 0.0F;
 +
 +                    case RAINFALL:
 +                        BlockPos blockpos = Shaders.getCameraPosition();

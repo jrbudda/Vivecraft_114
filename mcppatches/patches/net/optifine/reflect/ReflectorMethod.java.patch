@@ -1,6 +1,6 @@
 --- a/net/optifine/reflect/ReflectorMethod.java
 +++ b/net/optifine/reflect/ReflectorMethod.java
-@@ -165,7 +165,7 @@
+@@ -170,7 +170,7 @@
              }
          }
  

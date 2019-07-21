@@ -1,15 +1,12 @@
 --- a/net/minecraft/client/shader/Shader.java
 +++ b/net/minecraft/client/shader/Shader.java
-@@ -80,9 +80,10 @@
-         this.manager.func_216538_b("OutSize").set(f, f1);
-         this.manager.func_216538_b("Time").set(partialTicks);
+@@ -80,7 +80,8 @@
+         this.manager.getShaderUniform("OutSize").set(f, f1);
+         this.manager.getShaderUniform("Time").set(partialTicks);
          Minecraft minecraft = Minecraft.getInstance();
--        this.manager.func_216538_b("ScreenSize").set((float)minecraft.mainWindow.getFramebufferWidth(), (float)minecraft.mainWindow.getFramebufferHeight());
+-        this.manager.getShaderUniform("ScreenSize").set((float)minecraft.mainWindow.getFramebufferWidth(), (float)minecraft.mainWindow.getFramebufferHeight());
 +        // VIVECRAFT: Use eye framebuffer instead of window
-+        this.manager.func_216538_b("ScreenSize").set((float)minecraft.stereoProvider.framebufferVrRender.framebufferWidth, (float)minecraft.stereoProvider.framebufferVrRender.framebufferHeight);
++        this.manager.getShaderUniform("ScreenSize").set((float)minecraft.stereoProvider.framebufferVrRender.framebufferWidth, (float)minecraft.stereoProvider.framebufferVrRender.framebufferHeight);
          this.manager.func_216535_f();
--        this.framebufferOut.func_216493_b(Minecraft.IS_RUNNING_ON_MAC);
-+        this.framebufferOut.framebufferClear(Minecraft.IS_RUNNING_ON_MAC);
+         this.framebufferOut.framebufferClear(Minecraft.IS_RUNNING_ON_MAC);
          this.framebufferOut.bindFramebuffer(false);
-         GlStateManager.depthMask(false);
-         GlStateManager.colorMask(true, true, true, true);

@@ -1,11 +1,6 @@
 --- a/net/optifine/gui/GuiScreenCapeOF.java
 +++ b/net/optifine/gui/GuiScreenCapeOF.java
-@@ -13,14 +13,14 @@
- 
- public class GuiScreenCapeOF extends GuiScreenOF
- {
--    private final Screen parentScreen;
-+    private final Screen parentGuiScreen;
+@@ -17,10 +17,10 @@
      private String message;
      private long messageHideTimeMs;
  
@@ -14,16 +9,7 @@
      {
          super(new StringTextComponent(I18n.format("of.options.capeOF.title")));
 -        this.parentScreen = parentScreenIn;
-+        this.parentGuiScreen = parentGuiScreenIn;
++        this.parentScreen = parentGuiScreenIn;
      }
  
      protected void init()
-@@ -43,7 +43,7 @@
-             {
-                 if (guibuttonof.id == 200)
-                 {
--                    this.minecraft.displayGuiScreen(this.parentScreen);
-+                    this.minecraft.displayGuiScreen(this.parentGuiScreen);
-                 }
- 
-                 if (guibuttonof.id == 210)

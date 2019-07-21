@@ -43,7 +43,7 @@
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
 +import org.vivecraft.api.NetworkHelper;
-+import org.vivecraft.api.VivePlayer;
++import org.vivecraft.api.ServerVivePlayer;
  
  public class ServerPlayerEntity extends PlayerEntity implements IContainerListener
  {
@@ -52,7 +52,7 @@
      {
          this.openContainer.addListener(this);
 +
-+		VivePlayer vp = NetworkHelper.vivePlayers.get(this.getUniqueID());
++		ServerVivePlayer vp = NetworkHelper.vivePlayers.get(this.getUniqueID());
 +		if (vp != null && vp.isVR()) {
 +			if (rand.nextInt(20) == 3) {
 +				ItemStack stack;
@@ -74,7 +74,7 @@
      }
 +	@Override
 +	public void spawnSweepParticles() {
-+		VivePlayer vp = NetworkHelper.vivePlayers.get(this.getUniqueID());
++		ServerVivePlayer vp = NetworkHelper.vivePlayers.get(this.getUniqueID());
 +		if (vp == null || vp.isVR() == false) {
 +			super.spawnSweepParticles();
 +		} else {
@@ -99,7 +99,7 @@
 +
 +	@Override
 +	protected void updateItemUse(ItemStack stack, int eatingParticleCount) {
-+		VivePlayer vp = NetworkHelper.vivePlayers.get(this.getUniqueID());
++		ServerVivePlayer vp = NetworkHelper.vivePlayers.get(this.getUniqueID());
 +		if (vp == null || vp.isVR() == false) {
 +			super.updateItemUse(stack, eatingParticleCount);
 +		} else {
@@ -168,7 +168,7 @@
 -        {
 +        {        	
 +            //Vivecraft, set spwanpos of dropped item.
-+            VivePlayer vp = NetworkHelper.vivePlayers.get(this.getUniqueID());    
++            ServerVivePlayer vp = NetworkHelper.vivePlayers.get(this.getUniqueID());    
 +            if (vp != null && vp.isVR() == false && !dropAround) {
 +    			Vec3d pos = vp.getControllerPos(0);    	
 +    			Vec3d aim = vp.getControllerDir(0);

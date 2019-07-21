@@ -6,16 +6,16 @@
  import javax.annotation.Nullable;
 +
 +import org.vivecraft.api.NetworkHelper;
-+import org.vivecraft.api.VivePlayer;
++import org.vivecraft.api.ServerVivePlayer;
 +
  import net.minecraft.advancements.CriteriaTriggers;
  import net.minecraft.block.BlockState;
  import net.minecraft.enchantment.EnchantmentHelper;
 @@ -85,6 +89,21 @@
  
-         if (p_i2099_2_ instanceof PlayerEntity)
+         if (p_i2354_2_ instanceof PlayerEntity)
          {
-+        	VivePlayer vp = NetworkHelper.vivePlayers.get(p_i2099_2_.getUniqueID());
++        	ServerVivePlayer vp = NetworkHelper.vivePlayers.get(p_i2354_2_.getUniqueID());
 +        	if (vp !=null && vp.isVR())
 +        	{
 +        		//VIVE SET SPAWNPOS
@@ -38,7 +38,7 @@
          this.dataManager.register(field_213876_as, (byte)0);
      }
 -
-+    public Vec3d getVRAim(VivePlayer vp){
++    public Vec3d getVRAim(ServerVivePlayer vp){
 +		Vec3d aim = vp.getControllerDir(0);
 +    	if(!vp.isSeated() && vp.getDraw() > 0){
 +    		aim = vp.getControllerPos(1).subtract(vp.getControllerPos(0)).normalize();
@@ -48,7 +48,7 @@
      public void shoot(Entity shooter, float pitch, float yaw, float p_184547_4_, float velocity, float inaccuracy)
      {
 +    	//VIVE SET AIM AND SPEED
-+        VivePlayer vp = NetworkHelper.vivePlayers.get(shooter.getUniqueID());
++        ServerVivePlayer vp = NetworkHelper.vivePlayers.get(shooter.getUniqueID());
 +        if (vp !=null && vp.isVR())
 +        { 
 +        	if(this instanceof TridentEntity) {

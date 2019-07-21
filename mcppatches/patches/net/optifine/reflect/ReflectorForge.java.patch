@@ -1,6 +1,6 @@
 --- a/net/optifine/reflect/ReflectorForge.java
 +++ b/net/optifine/reflect/ReflectorForge.java
-@@ -217,7 +217,7 @@
+@@ -186,7 +186,7 @@
          }
          else
          {

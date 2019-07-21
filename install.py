@@ -13,7 +13,7 @@ from tempfile import mkstemp
 from os import remove, close
 from minecriftversion import mc_version, of_file_name, minecrift_version_num, \
     minecrift_build, of_file_extension, of_file_md5, of_build_md5, mcp_version, mc_file_md5, \
-    mcp_download_url, mcp_uses_generics
+    mcp_download_url, mcp_uses_generics 
 from hashlib import md5  # pylint: disable-msg=E0611
 from optparse import OptionParser
 from applychanges import applychanges, apply_patch
@@ -312,7 +312,7 @@ def download_deps( mcp_dir, download_mc, forgedep=False ):
     if download_mc == True:
         repo = "https://s3.amazonaws.com/Minecraft.Download/"
         jar_file = os.path.join(versions,mc_version+".jar")
-        jar_url = "https://launcher.mojang.com/v1/objects/af100b34ec7ef2b8b9cf7775b544d21d690dddec/client.jar"
+        jar_url = "https://launcher.mojang.com/v1/objects/8c325a0c5bd674dd747d6ebaa4c791fd363ad8a9/client.jar"
         download_file( jar_url, jar_file, mc_file_md5 )
         shutil.copy(jar_file,os.path.join(flat_lib_dir, os.path.basename(jar_file))) 
         

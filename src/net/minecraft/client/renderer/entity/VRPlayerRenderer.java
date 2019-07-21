@@ -1,5 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
+import org.vivecraft.render.PlayerModelController;
+import org.vivecraft.render.PlayerModelController.RotInfo;
 import org.vivecraft.utils.Quaternion;
 
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -20,6 +22,7 @@ import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.entity.model.VRArmorModel;
 import net.minecraft.client.renderer.entity.model.VRPlayerModel;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerModelPart;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
@@ -46,7 +49,7 @@ public class VRPlayerRenderer extends LivingRenderer<AbstractClientPlayerEntity,
         super(p_i3453_1_, new VRPlayerModel<>(0.0F, p_i3453_2_), 0.5F);
         BipedArmorLayer layer = new BipedArmorLayer<>(this, new VRArmorModel(0.5F), new VRArmorModel(1.0F));
         this.addLayer(layer);
-        ((VRPlayerModel)this.field_77045_g).armor = layer;
+        ((VRPlayerModel)this.entityModel).armor = layer;
         this.addLayer(new HeldItemLayer<>(this));
         this.addLayer(new ArrowLayer<>(this));
        // this.addLayer(new Deadmau5HeadLayer(this));
@@ -63,7 +66,7 @@ public class VRPlayerRenderer extends LivingRenderer<AbstractClientPlayerEntity,
         {
             double d0 = y;
 
-            if (entity.func_213287_bg())
+            if (entity.shouldRenderSneaking())
             {
                 d0 = y - 0.125D;
             }
@@ -82,6 +85,27 @@ public class VRPlayerRenderer extends LivingRenderer<AbstractClientPlayerEntity,
         }
     }
 
+    @Override
+    public float prepareScale(AbstractClientPlayerEntity entitylivingbaseIn, float partialTicks)
+    {  	
+        GlStateManager.enableRescaleNormal();
+        GlStateManager.scalef(-1.0F, -1.0F, 1.0F);
+        this.preRenderCallback(entitylivingbaseIn, partialTicks);
+        float f = 0.0625F;
+    	PlayerModelController.RotInfo rotInfo = PlayerModelController.getInstance().getRotationsForPlayer(((PlayerEntity)entitylivingbaseIn).getUniqueID());
+        
+    	if(rotInfo != null) {
+    	//	f *= rotInfo.heightScale;
+            GlStateManager.translatef(0.0F, -1.501F *rotInfo.heightScale , 0.0F); //keep?
+            return f;
+    	} else {
+    		//magical mystical bullshit
+            GlStateManager.translatef(0.0F, -1.501F, 0.0F);
+            return f;
+    	}
+
+    }
+    
     private void setModelVisibilities(AbstractClientPlayerEntity clientPlayer)
     {
         VRPlayerModel<AbstractClientPlayerEntity> playermodel = this.getEntityModel();
@@ -103,7 +127,7 @@ public class VRPlayerRenderer extends LivingRenderer<AbstractClientPlayerEntity,
             playermodel.bipedRightLegwear.showModel = clientPlayer.isWearing(PlayerModelPart.RIGHT_PANTS_LEG);
             playermodel.bipedLeftArmwear.showModel = clientPlayer.isWearing(PlayerModelPart.LEFT_SLEEVE);
             playermodel.bipedRightArmwear.showModel = clientPlayer.isWearing(PlayerModelPart.RIGHT_SLEEVE);
-            playermodel.isSneak = clientPlayer.func_213287_bg();
+            playermodel.isSneak = clientPlayer.shouldRenderSneaking();
             BipedModel.ArmPose bipedmodel$armpose = this.func_217766_a(clientPlayer, itemstack, itemstack1, Hand.MAIN_HAND);
             BipedModel.ArmPose bipedmodel$armpose1 = this.func_217766_a(clientPlayer, itemstack, itemstack1, Hand.OFF_HAND);
 
@@ -117,18 +141,7 @@ public class VRPlayerRenderer extends LivingRenderer<AbstractClientPlayerEntity,
                 playermodel.rightArmPose = bipedmodel$armpose1;
                 playermodel.leftArmPose = bipedmodel$armpose;
             }
-        }
-        
-//		if(clientPlayer.isUser()){
-//			playermodel.bipedHead.showModel=false;
-//			playermodel.vrHMD.showModel=false;
-//			playermodel.bipedLeftArm.showModel=false;
-//			playermodel.bipedRightArm.showModel=false;
-//			playermodel.bipedLeftArmwear.showModel=false;
-//			playermodel.bipedRightArmwear.showModel=false;
-//			playermodel.bipedHeadwear.showModel=false;
-//		}
-		
+        }	
     }
 
     private BipedModel.ArmPose func_217766_a(AbstractClientPlayerEntity p_217766_1_, ItemStack p_217766_2_, ItemStack p_217766_3_, Hand p_217766_4_)
@@ -222,7 +235,7 @@ public class VRPlayerRenderer extends LivingRenderer<AbstractClientPlayerEntity,
         GlStateManager.enableBlend();
         playermodel.swingProgress = 0.0F;
         playermodel.isSneak = false;
-        playermodel.field_205061_a = 0.0F;
+        playermodel.swimAnimation = 0.0F;
         playermodel.setRotationAngles(clientPlayer, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
         playermodel.bipedRightArm.rotateAngleX = 0.0F;
         playermodel.bipedRightArm.render(0.0625F);
@@ -241,7 +254,7 @@ public class VRPlayerRenderer extends LivingRenderer<AbstractClientPlayerEntity,
         GlStateManager.enableBlend();
         playermodel.isSneak = false;
         playermodel.swingProgress = 0.0F;
-        playermodel.field_205061_a = 0.0F;
+        playermodel.swimAnimation = 0.0F;
         playermodel.setRotationAngles(clientPlayer, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
         playermodel.bipedLeftArm.rotateAngleX = 0.0F;
         playermodel.bipedLeftArm.render(0.0625F);

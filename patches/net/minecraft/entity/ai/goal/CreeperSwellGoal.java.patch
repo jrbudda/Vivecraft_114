@@ -6,7 +6,7 @@
  import java.util.EnumSet;
 +
 +import org.vivecraft.api.NetworkHelper;
-+import org.vivecraft.api.VivePlayer;
++import org.vivecraft.api.ServerVivePlayer;
 +
  import net.minecraft.entity.LivingEntity;
  import net.minecraft.entity.monster.CreeperEntity;
@@ -19,9 +19,9 @@
 +    //Vivecraft
 +    public float creeperBlowyUppyRadius = 1.75f; //VIVE default is 3.
 +    //
-     public CreeperSwellGoal(CreeperEntity p_i3368_1_)
+     public CreeperSwellGoal(CreeperEntity p_i3244_1_)
      {
-         this.field_75269_a = p_i3368_1_;
+         this.field_75269_a = p_i3244_1_;
 @@ -21,6 +27,14 @@
      public boolean shouldExecute()
      {
@@ -29,7 +29,7 @@
 +		//Vivecraft
 +        float radius = 9.0f;
 +        if (livingentity != null){
-+        	VivePlayer vp = NetworkHelper.vivePlayers.get(livingentity.getUniqueID());
++        	ServerVivePlayer vp = NetworkHelper.vivePlayers.get(livingentity.getUniqueID());
 +        	if (vp != null && vp.isVR())
 +        		radius = creeperBlowyUppyRadius*creeperBlowyUppyRadius;
 +        }

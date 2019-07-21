@@ -2,10 +2,10 @@
 +++ b/net/minecraft/client/resources/VirtualAssetsPack.java
 @@ -18,7 +18,7 @@
  
-     public VirtualAssetsPack(ResourceIndex p_i1317_1_)
+     public VirtualAssetsPack(ResourceIndex p_i293_1_)
      {
 -        super("minecraft", "realms");
 +        super("minecraft", "realms", "vivecraft");
-         this.field_195785_b = p_i1317_1_;
+         this.field_195785_b = p_i293_1_;
      }
  

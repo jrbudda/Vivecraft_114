@@ -6,17 +6,17 @@
  import javax.annotation.Nullable;
 +
 +import org.vivecraft.api.NetworkHelper;
-+import org.vivecraft.api.VivePlayer;
++import org.vivecraft.api.ServerVivePlayer;
 +
  import net.minecraft.block.Blocks;
  import net.minecraft.entity.Entity;
  import net.minecraft.entity.EntityType;
 @@ -49,6 +53,15 @@
-         this(p_i2312_1_, p_i2312_2_.posX, p_i2312_2_.posY + (double)p_i2312_2_.getEyeHeight() - (double)0.1F, p_i2312_2_.posZ, p_i2312_3_);
-         this.owner = p_i2312_2_;
-         this.ownerId = p_i2312_2_.getUniqueID();
+         this(p_i1351_1_, p_i1351_2_.posX, p_i1351_2_.posY + (double)p_i1351_2_.getEyeHeight() - (double)0.1F, p_i1351_2_.posZ, p_i1351_3_);
+         this.owner = p_i1351_2_;
+         this.ownerId = p_i1351_2_.getUniqueID();
 +        //VIVE SET SPAWNPOS
-+        VivePlayer vp = NetworkHelper.vivePlayers.get(owner.getUniqueID());
++        ServerVivePlayer vp = NetworkHelper.vivePlayers.get(owner.getUniqueID());
 +        if (vp !=null && vp.isVR())
 +        {
 +        	Vec3d aimSource = vp.getControllerPos(0);
@@ -32,7 +32,7 @@
      public void shoot(Entity entityThrower, float rotationPitchIn, float rotationYawIn, float pitchOffset, float velocity, float inaccuracy)
      {
 +    	//VIVE USE CONTROLLER
-+        VivePlayer vp = NetworkHelper.vivePlayers.get(owner.getUniqueID());
++        ServerVivePlayer vp = NetworkHelper.vivePlayers.get(owner.getUniqueID());
 +        if (vp !=null && vp.isVR())
 +        {
 +        	Vec3d aim = vp.getControllerDir(0);

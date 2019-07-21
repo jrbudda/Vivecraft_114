@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/particle/Particle.java
 +++ b/net/minecraft/client/particle/Particle.java
-@@ -194,7 +194,8 @@
+@@ -185,7 +185,8 @@
      {
          double d0 = x;
          double d1 = y;
@@ -10,7 +10,7 @@
          if (this.canCollide && (x != 0.0D || y != 0.0D || z != 0.0D) && this.hasNearBlocks(x, y, z))
          {
              Vec3d vec3d = Entity.func_223307_a((Entity)null, new Vec3d(x, y, z), this.getBoundingBox(), this.world, ISelectionContext.dummy(), new ReuseableStream<>(Stream.empty()));
-@@ -216,7 +217,7 @@
+@@ -207,7 +208,7 @@
              this.motionX = 0.0D;
          }
  

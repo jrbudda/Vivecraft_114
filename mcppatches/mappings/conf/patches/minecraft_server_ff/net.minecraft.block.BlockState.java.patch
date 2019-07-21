@@ -1,7 +1,7 @@
 ﻿diff -r -U 3 minecraft\net\minecraft\block\BlockState.java minecraft_patched\net\minecraft\block\BlockState.java
 --- minecraft\net\minecraft\block\BlockState.java
 +++ minecraft_patched\net\minecraft\block\BlockState.java
-@@ -316,8 +316,8 @@
+@@ -324,8 +324,8 @@
  
     public static <T> BlockState func_215698_a(Dynamic<T> p_215698_0_) {
        DefaultedRegistry defaultedregistry = Registry.field_212618_g;

@@ -6,7 +6,7 @@
  import javax.annotation.Nullable;
 +
 +import org.vivecraft.api.NetworkHelper;
-+import org.vivecraft.api.VivePlayer;
++import org.vivecraft.api.ServerVivePlayer;
 +
  import net.minecraft.block.Block;
  import net.minecraft.block.BlockState;
@@ -26,7 +26,7 @@
          Vec3d vec3d = player.getEyePosition(1.0F);
 +        
 +        //Vivecraft - Good Luck keeping this viable with Forge!
-+    	VivePlayer vp = NetworkHelper.vivePlayers.get(player.getUniqueID());
++    	ServerVivePlayer vp = NetworkHelper.vivePlayers.get(player.getUniqueID());
 +    	if (vp !=null && vp.isVR())
 +    	{
 +    		vec3d = vp.getControllerPos(0);

@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/renderer/tileentity/TileEntityRendererDispatcher.java
 +++ b/net/minecraft/client/renderer/tileentity/TileEntityRendererDispatcher.java
-@@ -45,7 +45,7 @@
+@@ -44,7 +44,7 @@
  
  public class TileEntityRendererDispatcher
  {

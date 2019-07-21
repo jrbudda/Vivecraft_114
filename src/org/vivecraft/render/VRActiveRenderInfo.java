@@ -41,7 +41,7 @@ public class VRActiveRenderInfo extends ActiveRenderInfo {
 			boolean thirdPersonReverseIn, float partialTicks) {
 		this.valid = true;
 		this.world = worldIn;
-		this.field_216791_c = renderViewEntity;
+		this.renderViewEntity = renderViewEntity;
 		Minecraft mc = Minecraft.getInstance();
 		// This is the center position of the camera, not the exact eye.
 		

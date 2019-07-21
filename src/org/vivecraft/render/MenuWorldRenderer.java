@@ -878,7 +878,7 @@ public class MenuWorldRenderer {
 		int k = MathHelper.floor(z);
 		BlockPos blockpos = new BlockPos(i, j, k);
 		Biome biome = this.blockAccess.getBiome(blockpos);
-		float f2 = biome.getTemperature(blockpos);
+		float f2 = biome.func_225486_c(blockpos);
 		int l = biome.getSkyColorByTemp(f2);
 		float f3 = (float)(l >> 16 & 255) / 255.0F;
 		float f4 = (float)(l >> 8 & 255) / 255.0F;

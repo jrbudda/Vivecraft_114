@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/multiplayer/PlayerController.java
 +++ b/net/minecraft/client/multiplayer/PlayerController.java
-@@ -360,7 +360,7 @@
+@@ -329,7 +329,7 @@
          }
      }
  

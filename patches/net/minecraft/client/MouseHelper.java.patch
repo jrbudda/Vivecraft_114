@@ -61,7 +61,7 @@
          {
              if (!this.mouseGrabbed)
              {
-@@ -381,6 +390,10 @@
+@@ -382,6 +391,10 @@
       */
      public void ungrabMouse()
      {

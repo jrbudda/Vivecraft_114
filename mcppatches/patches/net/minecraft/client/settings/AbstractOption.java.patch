@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/settings/AbstractOption.java
 +++ b/net/minecraft/client/settings/AbstractOption.java
-@@ -117,9 +117,10 @@
+@@ -118,9 +118,10 @@
              return d0 == p_lambda$static$20_1_.getMaxValue() ? s + I18n.format("options.fov.max") : s + (int)d0;
          }
      });
@@ -13,7 +13,7 @@
      }, (p_lambda$static$22_0_, p_lambda$static$22_1_) ->
      {
          p_lambda$static$22_0_.framerateLimit = p_lambda$static$22_1_.intValue();
-@@ -127,7 +128,7 @@
+@@ -128,7 +129,7 @@
  
          if (p_lambda$static$22_0_.framerateLimit <= 0)
          {

@@ -8,11 +8,11 @@
 +    private final GameRenderer gameRenderer;
      private final Minecraft client;
  
-     public LightTexture(GameRenderer p_i118_1_)
+     public LightTexture(GameRenderer p_i10_1_)
      {
--        this.entityRenderer = p_i118_1_;
-+        this.gameRenderer = p_i118_1_;
-         this.client = p_i118_1_.getMinecraft();
+-        this.entityRenderer = p_i10_1_;
++        this.gameRenderer = p_i10_1_;
+         this.client = p_i10_1_.getMinecraft();
          this.dynamicTexture = new DynamicTexture(16, 16, false);
          this.resourceLocation = this.client.getTextureManager().getDynamicTextureLocation("light_map", this.dynamicTexture);
 @@ -102,7 +102,7 @@

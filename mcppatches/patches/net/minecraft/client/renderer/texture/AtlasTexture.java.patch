@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/renderer/texture/AtlasTexture.java
 +++ b/net/minecraft/client/renderer/texture/AtlasTexture.java
-@@ -202,7 +202,7 @@
+@@ -208,7 +208,7 @@
                  {
                      GlStateManager.bindTexture(this.getMultiTexID().norm);
  
@@ -9,7 +9,7 @@
                      {
                          TextureAtlasSprite textureatlassprite4 = textureatlassprite2.spriteNormal;
  
-@@ -217,7 +217,7 @@
+@@ -223,7 +223,7 @@
                  {
                      GlStateManager.bindTexture(this.getMultiTexID().spec);
  
@@ -18,7 +18,28 @@
                      {
                          TextureAtlasSprite textureatlassprite5 = textureatlassprite3.spriteSpecular;
  
-@@ -823,7 +823,7 @@
+@@ -763,9 +763,8 @@
+                 PngSizeInfo pngsizeinfo = new PngSizeInfo(iresource.toString(), iresource.getInputStream());
+                 AnimationMetadataSection animationmetadatasection = iresource.getMetadata(AnimationMetadataSection.SERIALIZER);
+                 TextureAtlasSprite textureatlassprite = new TextureAtlasSprite(p_loadTexture_3_, pngsizeinfo, animationmetadatasection);
+-                ResourceLocation resourcelocation2;
+ 
+-                for (resourcelocation2 : textureatlassprite.getDependencies())
++                for (ResourceLocation resourcelocation2 : textureatlassprite.getDependencies())
+                 {
+                     if (!this.sprites.contains(resourcelocation2))
+                     {
+@@ -790,8 +789,7 @@
+                         p_loadTexture_1_.addSprite(textureatlassprite);
+                     }
+ 
+-                    resourcelocation2 = (ResourceLocation)object;
+-                    return (int)resourcelocation2;
++                    return (int)object;
+                 }
+ 
+                 k = p_loadTexture_4_;
+@@ -900,7 +898,7 @@
  
      private int detectMinimumSpriteSize(Set<ResourceLocation> p_detectMinimumSpriteSize_1_, IResourceManager p_detectMinimumSpriteSize_2_, int p_detectMinimumSpriteSize_3_)
      {
@@ -27,7 +48,7 @@
  
          for (ResourceLocation resourcelocation : p_detectMinimumSpriteSize_1_)
          {
-@@ -867,7 +867,7 @@
+@@ -944,7 +942,7 @@
  
          int l = 0;
          Set set = map.keySet();

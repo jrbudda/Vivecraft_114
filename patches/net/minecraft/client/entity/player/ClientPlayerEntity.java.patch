@@ -103,7 +103,7 @@
      public float renderArmYaw;
      public float renderArmPitch;
 @@ -127,12 +160,99 @@
-         this.ambientSoundHandlers.add(new UnderwaterAmbientSoundHandler(this, p_i1829_1_.getSoundHandler()));
+         this.ambientSoundHandlers.add(new UnderwaterAmbientSoundHandler(this, p_i2493_1_.getSoundHandler()));
          this.ambientSoundHandlers.add(new BubbleColumnAmbientSoundHandler(this));
      }
 -
@@ -325,20 +325,15 @@
      public void swingArm(Hand hand)
      {
          super.swingArm(hand);
-@@ -796,8 +947,11 @@
-         boolean flag = this.movementInput.jump;
-         boolean flag1 = this.movementInput.sneak;
+@@ -798,6 +949,7 @@
          boolean flag2 = this.func_223110_ee();
--        boolean flag3 = this.func_213287_bg() || this.func_213300_bk();
-+        boolean flag3 = this.func_213287_bg() || this.func_213300_bk();      
-         this.movementInput.func_217607_a(flag3, this.isSpectator());
-+        //if (Reflector.forgeExists())
-+       // 	Reflector.callVoid(Reflector.ForgeHooksClient_onInputUpdate, this, this.movementInput);
-+        this.mc.vrPlayer.doLookOverride(mc.vrPlayer.vrdata_world_pre);
+         boolean flag3 = this.shouldRenderSneaking() || this.func_213300_bk();
+         this.movementInput.tick(flag3, this.isSpectator());
++       this.mc.vrPlayer.doLookOverride(mc.vrPlayer.vrdata_world_pre);
          this.mc.getTutorial().handleMovement(this.movementInput);
  
          if (this.isHandActive() && !this.isPassenger())
-@@ -982,6 +1136,9 @@
+@@ -982,6 +1134,9 @@
          }
  
          super.livingTick();
@@ -348,7 +343,7 @@
  
          if (this.onGround && this.abilities.isFlying && !this.mc.playerController.isSpectatorMode())
          {
-@@ -1083,14 +1240,52 @@
+@@ -1083,14 +1238,52 @@
          return super.removeActivePotionEffect(potioneffectin);
      }
  
@@ -407,7 +402,7 @@
      public boolean isAutoJumpEnabled()
      {
          return this.autoJumpEnabled;
-@@ -1114,12 +1309,17 @@
+@@ -1114,12 +1307,17 @@
                      float f = this.getAIMoveSpeed();
                      float f1 = (float)vec3d2.lengthSquared();
  
@@ -427,7 +422,7 @@
                          vec3d2 = new Vec3d((double)(f2 * f5 - f3 * f4), vec3d2.y, (double)(f3 * f5 + f2 * f4));
                          f1 = (float)vec3d2.lengthSquared();
  
-@@ -1293,4 +1493,387 @@
+@@ -1293,4 +1491,387 @@
              return this.eyesInWaterPlayer;
          }
      }

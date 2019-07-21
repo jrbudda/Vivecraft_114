@@ -20,11 +20,13 @@ import org.vivecraft.provider.MCOpenVR;
 import org.vivecraft.settings.profile.ProfileManager;
 import org.vivecraft.settings.profile.ProfileReader;
 import org.vivecraft.settings.profile.ProfileWriter;
+import org.vivecraft.utils.Angle;
 import org.vivecraft.utils.Quaternion;
 import org.vivecraft.utils.Vector3;
 
 import net.minecraft.client.GameSettings;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.SoundSystem;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.util.ResourceLocation;
@@ -132,6 +134,7 @@ public class VRSettings
 	public int bowMode = BOW_MODE_ON;
 	public String keyboardKeys =  "`1234567890-=qwertyuiop[]\\asdfghjkl;\':\"zxcvbnm,./?<>";
 	public String keyboardKeysShift ="~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL;\':\"ZXCVBNM,./?<>";
+	public String hrtfSelection = "";
 	public boolean firstRun = true;
 	//
 
@@ -202,6 +205,7 @@ public class VRSettings
     public float mrMovingCamOffsetY = 0;
     public float mrMovingCamOffsetZ = 0;
     public Quaternion mrMovingCamOffsetRotQuat = new Quaternion();
+    public Angle.Order externalCameraAngleOrder = Angle.Order.XZY;
     //
     
     //HUD/GUI
@@ -584,6 +588,14 @@ public class VRSettings
                     {
                         this.mrMovingCamOffsetRotQuat.z = this.parseFloat(optionTokens[1]);
                     }
+                    if (optionTokens[0].equals("externalCameraAngleOrder")) {
+                        try {
+                            this.externalCameraAngleOrder = Angle.Order.valueOf(optionTokens[1].toUpperCase());
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("Invalid angle order: " + optionTokens[1]);
+                        }
+                    }
+
                     if (optionTokens[0].equals("vrTouchHotbar"))
                     {
                     	  this.vrTouchHotbar = optionTokens[1].equals("true");
@@ -1135,6 +1147,17 @@ public class VRSettings
                     case MENU_WORLD_OFFICIAL:
                         return var4 + "Official Only";
                 }
+            case HRTF_SELECTION: {
+                int index = SoundSystem.hrtfList.indexOf(this.hrtfSelection);
+                if (this.hrtfSelection.equals("off"))
+                    return var4 + "Off";
+                else if (index == -1)
+                    return var4 + "Default";
+                else
+                    return var4 + SoundSystem.hrtfList.get(index);
+            }
+            case RELOAD_EXTERNAL_CAMERA:
+                return var2;
             default:
             		return "";
         }
@@ -1479,6 +1502,23 @@ public class VRSettings
                         break;
                 }
                 break;
+            case HRTF_SELECTION:
+                {
+                    int nextIndex = SoundSystem.hrtfList.indexOf(this.hrtfSelection) + 1;
+                    if (nextIndex == SoundSystem.hrtfList.size())
+                        this.hrtfSelection = "off";
+                    else if (this.hrtfSelection.equals("off"))
+                        this.hrtfSelection = "";
+                    else
+                        this.hrtfSelection = SoundSystem.hrtfList.get(nextIndex);
+
+                    // Reload the sound engine to get the new HRTF
+                    mc.getSoundHandler().sndManager.reload();
+                }
+                break;
+            case RELOAD_EXTERNAL_CAMERA:
+                VRHotkeys.loadExternalCameraConfig();
+                break;
             default:
             	break;
     	}
@@ -1682,6 +1722,7 @@ public class VRSettings
             var5.println("mrMovingCamOffsetRotX:" + this.mrMovingCamOffsetRotQuat.x);
             var5.println("mrMovingCamOffsetRotY:" + this.mrMovingCamOffsetRotQuat.y);
             var5.println("mrMovingCamOffsetRotZ:" + this.mrMovingCamOffsetRotQuat.z);
+            var5.println("externalCameraAngleOrder:" + this.externalCameraAngleOrder.name());
             var5.println("vrTouchHotbar:" + this.vrTouchHotbar);
             var5.println("seatedhmd:" + this.seatedUseHMD);
             var5.println("seatedHudAltMode:" + this.seatedHudAltMode);
@@ -2059,7 +2100,7 @@ public class VRSettings
 				"  ON: Left dominant",
 				"  OFF: Right dominant",
                 "",
-                "To reverse the buttons, restart the game and make",
+                "To swap the buttons, restart the game and make",
                 "sure default bindings are selected in SteamVR."
     		}),
         STENCIL_ON("Use Eye Stencil", false, true,new String[] {
@@ -2252,6 +2293,14 @@ public class VRSettings
                 "",
                 "If no custom worlds are found, official worlds",
                 "will be used regardless."
+        }),
+        HRTF_SELECTION("HRTF", false, false, new String[] {
+                "HRTF profile to use for directional 3D audio.",
+                "",
+                "These are specific to your particular audio device."
+        }),
+        RELOAD_EXTERNAL_CAMERA("Reload External Camera", false, false, new String[] {
+                "Reloads the camera config from ExternalCamera.cfg"
         });
 //        ANISOTROPIC_FILTERING("options.anisotropicFiltering", true, false, 1.0F, 16.0F, 0.0F)
 //                {

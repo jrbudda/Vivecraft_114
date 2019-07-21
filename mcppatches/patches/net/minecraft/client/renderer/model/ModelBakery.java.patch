@@ -1,11 +1,49 @@
 --- a/net/minecraft/client/renderer/model/ModelBakery.java
 +++ b/net/minecraft/client/renderer/model/ModelBakery.java
-@@ -376,7 +376,7 @@
-                                 break label275;
-                             }
+@@ -469,9 +469,9 @@
  
--                            for (Pair<String, BlockModelDefinition> pair : exception)
-+                            for (Pair<String, BlockModelDefinition> pair : (List<Pair<String, BlockModelDefinition>>) exception)
+                                 try {
+                                     ModelBakery.ModelListWrapper modelbakery$modellistwrapper1 = pair2.getSecond().get();
+-                                    hashmap1.computeIfAbsent(modelbakery$modellistwrapper1, (p_lambda$null$20_0_) -> {
++                                    ((Set)map3.computeIfAbsent(modelbakery$modellistwrapper1, (p_lambda$null$20_0_) -> {
+                                         return Sets.newIdentityHashSet();
+-                                    }).add(p_lambda$loadBlockstate$21_6_);
++                                    })).add(p_lambda$loadBlockstate$21_6_);
+                                 }
+                                 catch (Exception exception11)
+                                 {
+@@ -480,11 +480,11 @@
+                             });
+                             map3.forEach((p_lambda$loadBlockstate$22_1_, p_lambda$loadBlockstate$22_2_) ->
                              {
-                                 BlockModelDefinition blockmodeldefinition = pair.getSecond();
-                                 Map<BlockState, IUnbakedModel> map2 = Maps.newIdentityHashMap();
+-                                Iterator<BlockState> iterator = p_lambda$loadBlockstate$22_2_.iterator();
++                                Iterator iterator = ((Iterable)p_lambda$loadBlockstate$22_2_).iterator();
+ 
+                                 while (iterator.hasNext())
+                                 {
+-                                    BlockState blockstate = iterator.next();
++                                    BlockState blockstate = (BlockState) iterator.next();
+ 
+                                     if (blockstate.getRenderType() != BlockRenderType.MODEL)
+                                     {
+@@ -493,9 +493,9 @@
+                                     }
+                                 }
+ 
+-                                if (p_lambda$loadBlockstate$22_2_.size() > 1)
++                                if (((Set)p_lambda$loadBlockstate$22_2_).size() > 1)
+                                 {
+-                                    this.func_225352_a(p_lambda$loadBlockstate$22_2_);
++                                    this.func_225352_a((Iterable)p_lambda$loadBlockstate$22_2_);
+                                 }
+                             });
+                         }
+@@ -562,7 +562,7 @@
+ 
+                     try {
+                         ModelBakery.ModelListWrapper modelbakery$modellistwrapper1 = pair2.getSecond().get();
+-                        hashmap1.computeIfAbsent(modelbakery$modellistwrapper1, (p_lambda$null$20_0_) -> {
++                        hashmap2.computeIfAbsent(modelbakery$modellistwrapper1, (p_lambda$null$20_0_) -> {
+                             return Sets.newIdentityHashSet();
+                         }).add(p_lambda$loadBlockstate$21_6_);
+                     }

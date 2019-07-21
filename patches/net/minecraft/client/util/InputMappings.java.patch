@@ -6,10 +6,10 @@
  import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 +import net.minecraft.client.Minecraft;
 +
- import java.util.Map;
- import java.util.Objects;
- import javax.annotation.Nullable;
-@@ -12,6 +14,7 @@
+ import java.lang.invoke.MethodHandle;
+ import java.lang.invoke.MethodHandles;
+ import java.lang.invoke.MethodType;
+@@ -16,6 +18,7 @@
  import org.lwjgl.glfw.GLFWKeyCallbackI;
  import org.lwjgl.glfw.GLFWMouseButtonCallbackI;
  import org.lwjgl.glfw.GLFWScrollCallbackI;
@@ -17,7 +17,7 @@
  
  public class InputMappings
  {
-@@ -45,7 +48,12 @@
+@@ -52,7 +55,12 @@
  
      public static boolean isKeyDown(long p_216506_0_, int p_216506_2_)
      {

@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.vivecraft.gameplay.OpenVRPlayer;
 import org.vivecraft.render.PlayerModelController;
+import org.vivecraft.settings.AutoCalibration;
 import org.vivecraft.settings.VRSettings;
 import org.vivecraft.utils.Quaternion;
 import org.vivecraft.utils.lwjgl.Matrix4f;
@@ -23,7 +24,7 @@ import net.minecraft.util.math.Vec3d;
 
 public class NetworkHelper {
 
-	public static Map<UUID, VivePlayer> vivePlayers = new HashMap<UUID, VivePlayer>();
+	public static Map<UUID, ServerVivePlayer> vivePlayers = new HashMap<UUID, ServerVivePlayer>();
 	
 	public enum PacketDiscriminators {
 		VERSION,
@@ -37,7 +38,8 @@ public class NetworkHelper {
 		UBERPACKET,
 		TELEPORT,
 		CLIMBING,
-		SETTING_OVERRIDE
+		SETTING_OVERRIDE,
+		HEIGHT
 	}
 	public final static ResourceLocation channel = new ResourceLocation("vivecraft:data");
 	
@@ -71,6 +73,7 @@ public class NetworkHelper {
 	public static boolean serverSupportsDirectTeleport = false;
 	
 	private static float worldScallast = 0;
+	private static float heightlast = 0;
 
 	public static void sendVRPlayerPositions(OpenVRPlayer player) {
 		if(!serverWantsData) return;
@@ -87,6 +90,20 @@ public class NetworkHelper {
 			
 			worldScallast = worldScale;
 		}
+		
+		float userheight = AutoCalibration.getPlayerHeight();
+
+		if (userheight != heightlast) {
+			ByteBuf payload = Unpooled.buffer();
+			payload.writeFloat(userheight);
+			byte[] out = new byte[payload.readableBytes()];
+			payload.readBytes(out);
+			CCustomPayloadPacket pack = getVivecraftClientPacket(PacketDiscriminators.HEIGHT,out);
+			Minecraft.getInstance().getConnection().sendPacket(pack);
+			
+			heightlast = userheight;
+		}
+		
 		byte[] a=null, b = null, c=null;
 		{
 			FloatBuffer buffer = player.vrdata_world_post.hmd.getMatrix().toFloatBuffer();
@@ -138,25 +155,25 @@ public class NetworkHelper {
 			Minecraft.getInstance().getConnection().sendPacket(pack);
 		}
 		
-		PlayerModelController.getInstance().Update(Minecraft.getInstance().player.getUniqueID(), a, b, c, true);
+		PlayerModelController.getInstance().Update(Minecraft.getInstance().player.getGameProfile().getId(), a, b, c, worldScale, userheight / ServerVivePlayer.defaultHeight, true);
 		
 	}
 	
 	
 	public static boolean isVive(ServerPlayerEntity p){
 		if(p == null) return false;
-			if(vivePlayers.containsKey(p.getUniqueID())){
-				return vivePlayers.get(p.getUniqueID()).isVR();
+			if(vivePlayers.containsKey(p.getGameProfile().getId())){
+				return vivePlayers.get(p.getGameProfile().getId()).isVR();
 			}
 		return false;
 	}
 	
 	public static void sendPosData(ServerPlayerEntity from) {
 
-		VivePlayer v = vivePlayers.get(from.getUniqueID());
+		ServerVivePlayer v = vivePlayers.get(from.getUniqueID());
 		if (v==null || v.isVR() == false || v.player == null || v.player.hasDisconnected()) return;
 
-		for (VivePlayer sendTo : vivePlayers.values()) {
+		for (ServerVivePlayer sendTo : vivePlayers.values()) {
 
 			if (sendTo == null || sendTo.player == null || sendTo.player.hasDisconnected())
 				continue; // dunno y but just in case.

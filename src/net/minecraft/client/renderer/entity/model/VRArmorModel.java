@@ -1,7 +1,10 @@
 package net.minecraft.client.renderer.entity.model;
 
+import org.vivecraft.render.PlayerModelController;
+
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.util.Hand;
 import net.minecraft.util.HandSide;
@@ -23,20 +26,30 @@ public class VRArmorModel<T extends LivingEntity> extends BipedModel<T> implemen
 	@Override
     public void render(T entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
     {
-    	float x,y, xls, yls, xrs, yrs;
+		
+
+		float x,y, xls, yls, xrs, yrs;
     	x = this.bipedHead.rotateAngleX;
     	y = this.bipedHead.rotateAngleY;
     	xls = this.bipedLeftArm.rotateAngleX;
     	yls = this.bipedLeftArm.rotateAngleY;
     	xrs = this.bipedRightArm.rotateAngleX;
     	yrs = this.bipedRightArm.rotateAngleY;
+    	
         this.setRotationAngles(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
+        
+    	PlayerModelController.RotInfo rotInfo = PlayerModelController.getInstance().getRotationsForPlayer(((PlayerEntity)entityIn).getUniqueID());
+
     	this.bipedHead.rotateAngleX = x;
     	this.bipedHead.rotateAngleY = y;
-    	this.bipedLeftArm.rotateAngleX = xls;
-    	this.bipedLeftArm.rotateAngleY = yls;
-    	this.bipedRightArm.rotateAngleX = xrs;
-    	this.bipedRightArm.rotateAngleY = yrs;
+    	
+    	if(rotInfo !=null && rotInfo.seated == false) {
+	    	this.bipedLeftArm.rotateAngleX = xls;
+	    	this.bipedLeftArm.rotateAngleY = yls;
+	    	this.bipedRightArm.rotateAngleX = xrs;
+	    	this.bipedRightArm.rotateAngleY = yrs;
+    	}
+    	
         GlStateManager.pushMatrix();
 
         if (this.isChild)
@@ -58,7 +71,7 @@ public class VRArmorModel<T extends LivingEntity> extends BipedModel<T> implemen
         }
         else
         {
-            if (entityIn.func_213287_bg())
+            if (entityIn.shouldRenderSneaking())
             {
                 GlStateManager.translatef(0.0F, 0.2F, 0.0F);
             }

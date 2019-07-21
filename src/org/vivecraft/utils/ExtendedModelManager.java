@@ -1,6 +1,7 @@
 package org.vivecraft.utils;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ModelBakery;
 import net.minecraft.client.renderer.model.ModelManager;
@@ -14,11 +15,16 @@ import java.util.Map;
 import java.util.Set;
 
 public class ExtendedModelManager extends ModelManager{
+	public ExtendedModelManager(AtlasTexture p_i1132_1_, BlockColors p_i1132_2_) {
+		super(p_i1132_1_, p_i1132_2_);
+		// TODO Auto-generated constructor stub
+	}
+
 	ArrayList<String> models=new ArrayList<>();
 
-	public ExtendedModelManager(AtlasTexture textures) {
-		super(textures);
-	}
+//	public ExtendedModelManager(AtlasTexture textures) {
+//		super(textures);
+//	}
 
 	//i have no idea what this class wants or does.
 //	@Override

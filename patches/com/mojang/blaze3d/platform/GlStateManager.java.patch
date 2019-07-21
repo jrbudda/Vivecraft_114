@@ -197,16 +197,16 @@
          {
 @@ -1275,10 +1275,10 @@
  
-         public Color(float p_i73_1_, float p_i73_2_, float p_i73_3_, float p_i73_4_)
+         public Color(float p_i90_1_, float p_i90_2_, float p_i90_3_, float p_i90_4_)
          {
--            this.field_179195_a = p_i73_1_;
--            this.field_179193_b = p_i73_2_;
--            this.field_179194_c = p_i73_3_;
--            this.field_179192_d = p_i73_4_;
-+            this.red = p_i73_1_;
-+            this.green = p_i73_2_;
-+            this.blue = p_i73_3_;
-+            this.alpha = p_i73_4_;
+-            this.field_179195_a = p_i90_1_;
+-            this.field_179193_b = p_i90_2_;
+-            this.field_179194_c = p_i90_3_;
+-            this.field_179192_d = p_i90_4_;
++            this.red = p_i90_1_;
++            this.green = p_i90_2_;
++            this.blue = p_i90_3_;
++            this.alpha = p_i90_4_;
          }
      }
  

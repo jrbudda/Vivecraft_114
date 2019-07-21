@@ -1,15 +1,15 @@
 --- a/net/minecraft/client/renderer/ActiveRenderInfo.java
 +++ b/net/minecraft/client/renderer/ActiveRenderInfo.java
-@@ -17,16 +17,16 @@
+@@ -18,16 +18,16 @@
  
  public class ActiveRenderInfo
  {
 -    private boolean valid;
 -    private IBlockReader world;
--    private Entity field_216791_c;
+-    private Entity renderViewEntity;
 +    protected boolean valid;
 +    protected IBlockReader world;
-+    protected Entity field_216791_c;
++    protected Entity renderViewEntity;
      private Vec3d pos = Vec3d.ZERO;
      private final BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos();
 -    private Vec3d look;
@@ -25,21 +25,3 @@
      private boolean thirdPerson;
      private boolean thirdPersonReverse;
      private float height;
-@@ -161,7 +161,7 @@
-         return this.pos;
-     }
- 
--    public BlockPos func_216780_d()
-+    public BlockPos getBlockPos()
-     {
-         return this.blockPos;
-     }
-@@ -181,7 +181,7 @@
-         return this.field_216791_c;
-     }
- 
--    public boolean func_216786_h()
-+    public boolean isValid()
-     {
-         return this.valid;
-     }

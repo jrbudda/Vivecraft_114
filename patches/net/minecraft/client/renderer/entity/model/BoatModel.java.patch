@@ -43,7 +43,7 @@
 +    	Vec3d lArm = null;
 +
 +    	if (boat.getControllingPassenger() instanceof PlayerEntity) {
-+    		UUID playerId = ((PlayerEntity) boat.getControllingPassenger()).getGameProfile().getId();
++    		UUID playerId = ((PlayerEntity) boat.getControllingPassenger()).getUniqueID();
 +    		if (Minecraft.getInstance().player.getUniqueID().equals(playerId)) {
 +    			lArm = MCOpenVR.controllerHistory[1].averagePosition(0.1);
 +    			rArm = MCOpenVR.controllerHistory[0].averagePosition(0.1);

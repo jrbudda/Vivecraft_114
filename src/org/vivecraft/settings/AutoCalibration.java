@@ -102,7 +102,7 @@ public class AutoCalibration {
 	public static void calibrateManual() {
 		Minecraft mc=Minecraft.getInstance();
 		mc.vrSettings.manualCalibration=(float) MCOpenVR.hmdPivotHistory.latest().y;
-		mc.printChatMessage(String.format("User height set to %.2fm",mc.vrSettings.manualCalibration));
+		mc.printChatMessage(String.format("User height set to %.2fm",getPlayerHeight()));
 	}
 
 	public static class MagnetPoint{
@@ -112,15 +112,26 @@ public class AutoCalibration {
 	}
 
 	public static float getPlayerHeight(){
+	
+		float h = defaultHeight;
+		
 		Minecraft mc=Minecraft.getInstance();
+		
 		if(mc.vrSettings.manualCalibration!=-1)
-			return mc.vrSettings.manualCalibration;
-		if(currentCalibration==null || currentCalibration.weight<weightCap) {
-			if (mc.vrSettings.autoCalibration != -1)
-				return mc.vrSettings.autoCalibration;
-			else
-				return defaultHeight;
+			h= mc.vrSettings.manualCalibration;
+		else {
+			if(currentCalibration==null || currentCalibration.weight<weightCap) {
+				if (mc.vrSettings.autoCalibration != -1)
+					h = mc.vrSettings.autoCalibration;
+			} else {
+				h = (float) currentCalibration.center;
+			}
 		}
-		return (float) currentCalibration.center;
+		
+		if (mc.vrSettings.seated || mc.vrSettings.allowStandingOriginOffset)
+			return MCOpenVR.offset.getY() + h; //stand tall, my lazy friends.
+		else
+			return h;
+		
 	}
 }

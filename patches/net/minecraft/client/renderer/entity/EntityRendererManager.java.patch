@@ -10,7 +10,7 @@
  import net.minecraft.client.GameSettings;
  import net.minecraft.client.Minecraft;
  import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-@@ -135,6 +138,10 @@
+@@ -134,6 +137,10 @@
      private final Map <Class, EntityRenderer> renderers = Maps.newHashMap();
      private final Map<String, PlayerRenderer> skinMap = Maps.newHashMap();
      private final PlayerRenderer playerRenderer;
@@ -21,7 +21,7 @@
      private FontRenderer textRenderer;
      private double renderPosX;
      private double renderPosY;
-@@ -298,7 +305,20 @@
+@@ -292,7 +299,20 @@
          {
              String s = ((AbstractClientPlayerEntity)entityIn).getSkinType();
              PlayerRenderer playerrenderer = this.skinMap.get(s);

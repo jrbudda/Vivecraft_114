@@ -7,5 +7,5 @@
 -    private final SoundEngine sndManager;
 +    public final SoundEngine sndManager;
  
-     public SoundHandler(IResourceManager p_i821_1_, GameSettings p_i821_2_)
+     public SoundHandler(IResourceManager p_i239_1_, GameSettings p_i239_2_)
      {

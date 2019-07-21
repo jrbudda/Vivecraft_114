@@ -8,6 +8,7 @@ import java.awt.Color;
 
 import org.vivecraft.gui.framework.GuiVROptionButton;
 import org.vivecraft.gui.framework.GuiVROptionsBase;
+import org.vivecraft.settings.VRHotkeys;
 import org.vivecraft.settings.VRSettings;
 
 import net.minecraft.client.gui.screen.Screen;
@@ -26,7 +27,6 @@ public class GuiRenderOpticsSettings  extends GuiVROptionsBase
             VRSettings.VrOptions.MIRROR_DISPLAY,     
             VRSettings.VrOptions.FSAA,
             VRSettings.VrOptions.STENCIL_ON,
-            VRSettings.VrOptions.DUMMY,
     };
     
     static VRSettings.VrOptions[] MROptions = new VRSettings.VrOptions[] {
@@ -57,7 +57,16 @@ public class GuiRenderOpticsSettings  extends GuiVROptionsBase
     {
         vrTitle = "Stereo Renderer Settings";
     	super.init(openVRDisplayOptions, true);
-    	if(minecraft.vrSettings.displayMirrorMode == settings.MIRROR_MIXED_REALITY){
+
+		if (VRHotkeys.hasExternalCameraConfig() &&
+				(minecraft.vrSettings.displayMirrorMode == VRSettings.MIRROR_MIXED_REALITY || minecraft.vrSettings.displayMirrorMode == VRSettings.MIRROR_THIRD_PERSON))
+		{
+			super.init(new VRSettings.VrOptions[] { VRSettings.VrOptions.RELOAD_EXTERNAL_CAMERA }, false);
+		} else {
+			super.init(new VRSettings.VrOptions[] { VRSettings.VrOptions.DUMMY }, false);
+		}
+
+    	if(minecraft.vrSettings.displayMirrorMode == VRSettings.MIRROR_MIXED_REALITY){
 //    		GuiSmallButtonEx mr = new GuiSmallButtonEx(0, this.width / 2 - 68, this.height / 6 + 65, "Mixed Reality Options");
 //    		mr.enabled = false;
 //    		this.buttons.add(mr);
@@ -75,9 +84,9 @@ public class GuiRenderOpticsSettings  extends GuiVROptionsBase
     				buttons[i] = VRSettings.VrOptions.DUMMY;
     		} 		
     		super.init(buttons, false);
-    	}else if(minecraft.vrSettings.displayMirrorMode == settings.MIRROR_FIRST_PERSON ){
+    	}else if(minecraft.vrSettings.displayMirrorMode == VRSettings.MIRROR_FIRST_PERSON ){
     		super.init(UDOptions, false);
-    	}else if( minecraft.vrSettings.displayMirrorMode == settings.MIRROR_THIRD_PERSON){
+    	}else if( minecraft.vrSettings.displayMirrorMode == VRSettings.MIRROR_THIRD_PERSON){
     		super.init(TUDOptions, false);
     	}
     	super.addDefaultButtons();

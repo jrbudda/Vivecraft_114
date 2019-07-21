@@ -1,9 +1,8 @@
 --- a/net/minecraft/client/renderer/entity/layers/HeldItemLayer.java
 +++ b/net/minecraft/client/renderer/entity/layers/HeldItemLayer.java
-@@ -1,14 +1,23 @@
+@@ -1,14 +1,22 @@
  package net.minecraft.client.renderer.entity.layers;
  
-+import org.vivecraft.gameplay.trackers.BowTracker;
 +import org.vivecraft.render.PlayerModelController;
 +import org.vivecraft.render.PlayerModelController.RotInfo;
 +
@@ -24,71 +23,65 @@
  
  public class HeldItemLayer<T extends LivingEntity, M extends EntityModel<T> & IHasArm> extends LayerRenderer<T, M>
  {
-@@ -42,23 +51,94 @@
- 
-     private void renderHeldItem(LivingEntity p_188358_1_, ItemStack p_188358_2_, ItemCameraTransforms.TransformType p_188358_3_, HandSide handSide)
-     {
--        if (!p_188358_2_.isEmpty())
--        {
--            GlStateManager.pushMatrix();
--            this.translateToHand(handSide);
--
--            if (p_188358_1_.func_213287_bg())
--            {
--                GlStateManager.translatef(0.0F, 0.2F, 0.0F);
--            }
--
--            GlStateManager.rotatef(-90.0F, 1.0F, 0.0F, 0.0F);
--            GlStateManager.rotatef(180.0F, 0.0F, 1.0F, 0.0F);
--            boolean flag = handSide == HandSide.LEFT;
--            GlStateManager.translatef((float)(flag ? -1 : 1) / 16.0F, 0.125F, -0.625F);
--            Minecraft.getInstance().getFirstPersonRenderer().renderItemSide(p_188358_1_, p_188358_2_, p_188358_3_, flag);
--            GlStateManager.popMatrix();
--        }
-+    	if (!p_188358_2_.isEmpty())
-+    	{
-+    		boolean vr =false;;
+@@ -26,6 +34,10 @@
+         if (!itemstack.isEmpty() || !itemstack1.isEmpty())
+         {
+             GlStateManager.pushMatrix();
++            
 +    		RotInfo rotinfo = null;
-+    		if(p_188358_1_ instanceof PlayerEntity){
-+    			if(PlayerModelController.getInstance().isTracked(p_188358_1_.getUniqueID())){
++    		if(entityIn instanceof PlayerEntity)
++    				rotinfo = PlayerModelController.getInstance().getRotationsForPlayer(entityIn.getUniqueID());
+ 
+             if (this.getEntityModel().isChild)
+             {
+@@ -34,6 +46,10 @@
+                 GlStateManager.scalef(0.5F, 0.5F, 0.5F);
+             }
+ 
++            if(rotinfo!=null) {
++                GlStateManager.scalef(rotinfo.heightScale, rotinfo.heightScale, rotinfo.heightScale);
++            }
++            
+             this.renderHeldItem(entityIn, itemstack1, ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND, HandSide.RIGHT);
+             this.renderHeldItem(entityIn, itemstack, ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND, HandSide.LEFT);
+             GlStateManager.popMatrix();
+@@ -44,6 +60,18 @@
+     {
+         if (!p_188358_2_.isEmpty())
+         {
++    		RotInfo rotinfo = null;
++    		if(p_188358_1_ instanceof PlayerEntity)
 +    				rotinfo = PlayerModelController.getInstance().getRotationsForPlayer(p_188358_1_.getUniqueID());
-+    				if(rotinfo.seated ==false){
-+    					vr = true;
-+    				}
-+    			}
-+    		}
 +
-+    		if(handSide == HandSide.LEFT && vr && 
++    		if(handSide == HandSide.LEFT && 
++    				rotinfo !=null && 
++    				rotinfo.seated == false && 
 +    				(p_188358_2_.getUseAction() == UseAction.BOW ||
-+    				p_188358_1_.getHeldItemMainhand().getUseAction() == UseAction.BOW)){
++    				p_188358_1_.getHeldItemMainhand().getUseAction() == UseAction.BOW))
 +    			return;
-+    		}
 +
-+    		GlStateManager.pushMatrix();
 +
-+    		if (p_188358_1_.isSneaking())
-+    		{
-+    			GlStateManager.translatef(0.0F, 0.2F, 0.0F);
-+    		}
+             GlStateManager.pushMatrix();
+             this.translateToHand(handSide);
+ 
+@@ -55,7 +83,60 @@
+             GlStateManager.rotatef(-90.0F, 1.0F, 0.0F, 0.0F);
+             GlStateManager.rotatef(180.0F, 0.0F, 1.0F, 0.0F);
+             boolean flag = handSide == HandSide.LEFT;
 +
-+    		this.translateToHand(handSide);
-+
-+    		GlStateManager.rotatef(-90.0F, 1.0F, 0.0F, 0.0F);
-+    		GlStateManager.rotatef(180.0F, 0.0F, 1.0F, 0.0F);
-+    		
-+    		boolean flag = handSide == HandSide.LEFT;
-+
-+    		//VIVECRAFT
-+    		if(!vr) {
-+    			GlStateManager.translatef((float)(flag ? -1 : 1) / 16.0F, 0.125F, -0.625F);   
++			//VIVECRAFT
++    		if(rotinfo == null || rotinfo.seated) {
+             GlStateManager.translatef((float)(flag ? -1 : 1) / 16.0F, 0.125F, -0.625F);
 +    		}
 +    		else{
++
 +    			GlStateManager.translatef((float)(flag ? -1 : 1) / 16.0F, 0.125F,  -.2125f);
++
 +    			if(p_188358_2_.getUseAction() == UseAction.BOW && !rotinfo.seated){
 +
 +    				VRPlayerModel m = (VRPlayerModel) this.getEntityModel();
-+    				
-+    				float scale = (float) 0.0625;
++
++    				float scale = (float) 0.0625 * rotinfo.heightScale;
 +
 +    				GlStateManager.popMatrix();
 +    				GlStateManager.pushMatrix();
@@ -100,12 +93,12 @@
 +    					float pitch1 = p_188358_1_.rotationPitch;
 +
 +    					if(p_188358_1_ == Minecraft.getInstance().getRenderViewEntity()) {
-+        					 pitch1 = Minecraft.getInstance().gameRenderer.rvepitch;
++    						pitch1 = Minecraft.getInstance().gameRenderer.rvepitch;
 +    					}		
-+    					
++
 +    					GlStateManager.rotatef((float) (-90), 0,1,0);
 +    					GlStateManager.rotatef((float) pitch1, 1,0,0);
-+    	    			GlStateManager.translatef(0, -0.155F, 0);
++    					GlStateManager.translatef(0, -0.155F, 0);
 +
 +    				} else{
 +    					GlStateManager.rotatef((float) Math.toDegrees(m.bipedLeftArm.rotateAngleY), 0,1,0);
@@ -115,7 +108,7 @@
 +    				GlStateManager.translatef(0, 0.155F, -0.215F);
 +    				Minecraft.getInstance().getFirstPersonRenderer().renderItemSide(p_188358_1_, p_188358_2_, p_188358_3_, flag);
 +    				GlStateManager.popMatrix();
-+ 
++
 +    				GlStateManager.pushMatrix();
 +    				this.translateToHand(handSide);
 +    				GlStateManager.popMatrix();
@@ -124,15 +117,11 @@
 +    				GlStateManager.rotatef(-80.0F, 1.0F, 0.0F, 0.0F);        		
 +    			}
 +
-+
 +    			GlStateManager.translatef(0, 0.155F, -0.215F);
 +
 +    		}
 +
 +    		//
-+    		Minecraft.getInstance().getFirstPersonRenderer().renderItemSide(p_188358_1_, p_188358_2_, p_188358_3_, flag);
-+    		GlStateManager.popMatrix();
-+    	}
-     }
- 
-     protected void translateToHand(HandSide p_191361_1_)
+             Minecraft.getInstance().getFirstPersonRenderer().renderItemSide(p_188358_1_, p_188358_2_, p_188358_3_, flag);
+             GlStateManager.popMatrix();
+         }

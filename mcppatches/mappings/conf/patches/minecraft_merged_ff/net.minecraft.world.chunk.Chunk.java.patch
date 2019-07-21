@@ -1,7 +1,7 @@
 ﻿diff -r -U 3 minecraft\net\minecraft\world\chunk\Chunk.java minecraft_patched\net\minecraft\world\chunk\Chunk.java
 --- minecraft\net\minecraft\world\chunk\Chunk.java
 +++ minecraft_patched\net\minecraft\world\chunk\Chunk.java
-@@ -734,7 +734,7 @@
+@@ -735,7 +735,7 @@
  
     public void func_222879_B() {
        if (this.field_201621_s instanceof ChunkPrimerTickList) {
@@ -10,7 +10,7 @@
              return this.func_180495_p(p_222881_1_).func_177230_c();
           });
           this.field_201621_s = EmptyTickList.func_205388_a();
-@@ -744,7 +744,7 @@
+@@ -745,7 +745,7 @@
        }
  
        if (this.field_205325_u instanceof ChunkPrimerTickList) {
@@ -19,7 +19,7 @@
              return this.func_204610_c(p_222878_1_).func_206886_c();
           });
           this.field_205325_u = EmptyTickList.func_205388_a();
-@@ -756,12 +756,12 @@
+@@ -757,12 +757,12 @@
     }
  
     public void func_222880_a(ServerWorld p_222880_1_) {

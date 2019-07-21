@@ -21,15 +21,16 @@
  public class MovementInputFromOptions extends MovementInput
  {
      private final GameSettings gameSettings;
--
 +    private boolean autoSprintActive = false;
-+    
-     public MovementInputFromOptions(GameSettings p_i1444_1_)
+ 
+-    public MovementInputFromOptions(GameSettings p_i2787_1_)
++    public MovementInputFromOptions(GameSettings p_i1444_1_)
      {
-         this.gameSettings = p_i1444_1_;
+-        this.gameSettings = p_i2787_1_;
++        this.gameSettings = p_i1444_1_;
      }
  
--    public void func_217607_a(boolean p_217607_1_, boolean p_217607_2_)
+-    public void tick(boolean slow, boolean noDampening)
 +	public static float getMovementAxisValue(KeyBinding keyBinding) {
 +		VRInputAction action = MCOpenVR.getInputAction(keyBinding);
 +		return action.isEnabled() ? Math.abs(action.getAxis1D(false)) : 0;
@@ -89,7 +90,7 @@
 +			Vector2 strafeAxis = strafeAction.isEnabled() ? strafeAction.getAxis2D(false) : new Vector2();
 +			Vector2 rotateAxis = rotateAction.isEnabled() ? rotateAction.getAxis2D(false) : new Vector2();
  
--        if (!p_217607_2_ && (this.sneak || p_217607_1_))
+-        if (!noDampening && (this.sneak || slow))
 +			if (strafeAxis.getX() != 0 || strafeAxis.getY() != 0) {
 +				set = true;
 +				this.moveForward = strafeAxis.getY();

@@ -40,7 +40,8 @@ public class Installer extends JPanel  implements PropertyChangeListener
 	private static final boolean ALLOW_HYDRA_INSTALL = false; 
 	private static final boolean ALLOW_KATVR_INSTALL = true; 
 	private static final boolean ALLOW_KIOSK_INSTALL = true; 
-	private static final boolean ALLOW_HRTF_INSTALL = true; 
+	private static final boolean ALLOW_HRTF_INSTALL = false; 
+	private static final boolean PROMPT_REMOVE_HRTF = true; 
 	private static final boolean ALLOW_SHADERSMOD_INSTALL = false;  
 
 	private static final boolean NEEDS_2010_REDIST = false;
@@ -54,12 +55,12 @@ public class Installer extends JPanel  implements PropertyChangeListener
 	public static String winredist2010_32url = "http://download.microsoft.com/download/C/6/D/C6D0FD4E-9E53-4897-9B91-836EBA2AACD3/vcredist_x86.exe";
 
 	/* DO NOT RENAME THESE STRING CONSTS - THEY ARE USED IN (AND THE VALUES UPDATED BY) THE AUTOMATED BUILD SCRIPTS */
-    private static final String MINECRAFT_VERSION = "1.14.3";
-    private static final String MC_VERSION        = "1.14.3";
-    private static final String MC_MD5            = "43648a75fe4364c4c83b19bfe64f00f0";
+    private static final String MINECRAFT_VERSION = "1.14.4";
+    private static final String MC_VERSION        = "1.14.4";
+    private static final String MC_MD5            = "5dd255be377ac11a4414c4bc6426daa7";
 	private static final String OF_LIB_PATH       = "libraries/optifine/OptiFine/";
-    private static final String OF_FILE_NAME      = "1.14.3_HD_U_F1";
-    private static final String OF_MD5            = "4ED93C34F52B111706D77D582A8CC5DC";
+    private static final String OF_FILE_NAME      = "1.14.4_HD_U_F2";
+    private static final String OF_MD5            = "76656e30fb15e996e983fcbd55cd8d25";
     private static final String OF_VERSION_EXT    = ".jar";
     private static String FORGE_VERSION     = "14.25.0.110";
 	/* END OF DO NOT RENAME */
@@ -722,6 +723,10 @@ public class Installer extends JPanel  implements PropertyChangeListener
 					sbErrors.append("Failed to set up HRTF! Vivecraft will still work but audio won't be binaural.\n");
 				}
 			}
+			
+			if(PROMPT_REMOVE_HRTF)
+				DeleteLegacyHRTF();
+			
 			boolean profileCreated = false;
 			finalMessage = "Failed: Couldn't setup profile!";
 			
@@ -1223,7 +1228,42 @@ public class Installer extends JPanel  implements PropertyChangeListener
 			}
 			return false;
 		}
+		
+		private boolean DeleteLegacyHRTF() {
+			// Find the correct location 
+			File alsoftrc;
 
+			//I honestly have no clue where Mac stores this, so I'm assuming the same as Linux.
+			if (isWindows && appDataDir != null)
+			{
+				alsoftrc = new File(appDataDir, "alsoft.ini");
+			}
+			else
+			{
+				alsoftrc = new File(userHomeDir, ".alsoftrc");
+			}
+			try
+			{
+				//check if exists and prompt
+				if(alsoftrc.exists()) {
+					int ret = JOptionPane.showConfirmDialog(null,
+							"Binaural Audio .ini file found. Vivecraft now handles this setting in-game.\r\nWould you like to delete this file?\r\n\r\nChoose 'No' only if you play older versions of Vivecraft or have some other need for a system-wide alsoft.ini",
+							"Remove legacy file",
+							JOptionPane.YES_NO_OPTION,
+							JOptionPane.QUESTION_MESSAGE);
+					if(ret == JOptionPane.YES_OPTION) {
+						alsoftrc.delete();
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				finalMessage += " Error: "+e.getLocalizedMessage();
+			}
+
+			return false;
+		}
+		
 		private boolean EnableHRTF()           // Implementation by Zach Jaggi
 		{
 			// Find the correct location to stick alsoftrc

@@ -16,7 +16,7 @@
  import net.minecraft.client.renderer.texture.DynamicTexture;
  import net.minecraft.entity.LivingEntity;
  import net.minecraft.entity.Pose;
-@@ -22,6 +25,7 @@
+@@ -20,6 +23,7 @@
  import net.minecraft.util.Direction;
  import net.minecraft.util.Util;
  import net.minecraft.util.math.MathHelper;
@@ -24,7 +24,7 @@
  import net.minecraft.util.text.TextFormatting;
  import net.optifine.Config;
  import net.optifine.EmissiveTextures;
-@@ -30,6 +34,7 @@
+@@ -28,6 +32,7 @@
  import net.optifine.shaders.Shaders;
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
@@ -32,7 +32,7 @@
  
  public abstract class LivingRenderer<T extends LivingEntity, M extends EntityModel<T>> extends EntityRenderer<T> implements IEntityRenderer<T, M>
  {
-@@ -139,6 +144,28 @@
+@@ -137,6 +142,24 @@
                  float f7 = MathHelper.lerp(partialTicks, entity.prevRotationPitch, entity.rotationPitch);
                  this.renderLivingAt(entity, x, y, z);
                  float f8 = this.handleRotationFloat(entity, partialTicks);
@@ -47,11 +47,7 @@
 +                	mp.renderPos = new Vec3d(d3, d4, d5);
 +                	if(PlayerModelController.getInstance().isTracked(uuid)){
 +                		PlayerModelController.RotInfo rotInfo=PlayerModelController.getInstance().getRotationsForPlayer(uuid);	
-+                		Vec3d diff = rotInfo.leftArmPos.subtract(rotInfo.rightArmPos).rotateYaw((float)-Math.PI/2);
-+                		if(rotInfo.reverse) diff = diff.scale(-1);
-+                		if(rotInfo.seated) diff = rotInfo.rightArmRot;
-+                		double ltor = Math.atan2(-diff.x, diff.z);  
-+                		f = (float) Math.toDegrees(ltor);
++                		f = (float) Math.toDegrees(rotInfo.getBodyYawRadians());
 +                	}
 +                }
 +

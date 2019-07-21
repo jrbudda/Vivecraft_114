@@ -7,7 +7,7 @@
  import com.google.common.collect.Lists;
  import com.google.common.collect.Maps;
  import com.mojang.authlib.GameProfile;
-@@ -280,6 +281,8 @@
+@@ -283,6 +284,8 @@
  import net.minecraft.util.math.MutableBoundingBox;
  import net.minecraft.util.math.SectionPos;
  import net.minecraft.util.math.Vec3d;
@@ -16,11 +16,12 @@
  import net.minecraft.util.text.ITextComponent;
  import net.minecraft.util.text.TranslationTextComponent;
  import net.minecraft.world.Explosion;
-@@ -293,6 +296,13 @@
+@@ -296,6 +299,14 @@
  import net.minecraft.world.storage.MapData;
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
 +import org.vivecraft.api.NetworkHelper;
++import org.vivecraft.api.ServerVivePlayer;
 +import org.vivecraft.api.NetworkHelper.PacketDiscriminators;
 +import org.vivecraft.control.ControllerType;
 +import org.vivecraft.gameplay.OpenVRPlayer;
@@ -30,10 +31,10 @@
  
  public class ClientPlayNetHandler implements IClientPlayNetHandler
  {
-@@ -322,8 +332,14 @@
-         this.profile = p_i3241_4_;
-         this.advancementManager = new ClientAdvancementManager(p_i3241_1_);
-         this.clientSuggestionProvider = new ClientSuggestionProvider(this, p_i3241_1_);
+@@ -325,6 +336,12 @@
+         this.profile = p_i780_4_;
+         this.advancementManager = new ClientAdvancementManager(p_i780_1_);
+         this.clientSuggestionProvider = new ClientSuggestionProvider(this, p_i780_1_);
 +        //VIVECRAFT
 +        NetworkHelper.serverAllowsClimbey = false;
 +        NetworkHelper.serverWantsData = false;
@@ -41,12 +42,9 @@
 +        this.client.vrSettings.overrides.resetAll();
 +        //
      }
--
-+    
+ 
      public ClientSuggestionProvider getSuggestionProvider()
-     {
-         return this.clientSuggestionProvider;
-@@ -380,6 +396,15 @@
+@@ -383,6 +400,15 @@
          this.client.gameSettings.sendSettingsToServer();
          this.netManager.sendPacket(new CCustomPayloadPacket(CCustomPayloadPacket.BRAND, (new PacketBuffer(Unpooled.buffer())).writeString(ClientBrandRetriever.getClientModName())));
          this.client.getMinecraftGame().func_216814_a();
@@ -62,7 +60,7 @@
      }
  
      /**
-@@ -943,6 +968,11 @@
+@@ -951,6 +977,11 @@
      public void handleDisconnect(SDisconnectPacket packetIn)
      {
          this.netManager.closeChannel(packetIn.getReason());
@@ -74,7 +72,7 @@
      }
  
      /**
-@@ -1011,8 +1041,31 @@
+@@ -1019,8 +1050,31 @@
       */
      public void handleChat(SChatPacket packetIn)
      {
@@ -108,7 +106,7 @@
      }
  
      /**
-@@ -1142,7 +1195,9 @@
+@@ -1150,7 +1204,9 @@
  
                      if (entity1 == this.client.player && !flag)
                      {
@@ -119,7 +117,7 @@
                      }
                  }
              }
-@@ -1361,7 +1416,7 @@
+@@ -1369,7 +1425,7 @@
      {
          PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
          Container container = null;
@@ -128,7 +126,7 @@
  
          if (packetIn.getWindowId() == 0)
          {
-@@ -1376,6 +1431,9 @@
+@@ -1384,6 +1440,9 @@
          {
              this.sendPacket(new CConfirmTransactionPacket(packetIn.getWindowId(), packetIn.getActionNumber(), true));
          }
@@ -138,7 +136,7 @@
      }
  
      /**
-@@ -2357,6 +2415,99 @@
+@@ -2365,6 +2424,107 @@
  
                  this.client.debugRenderer.field_217741_m.func_217692_a(pointofinterestdebugrenderer$braininfo);
              }
@@ -188,7 +186,15 @@
 +    					packetbuffer.readBytes(29).getBytes(0, c1);
 +    					UUID u = new UUID(hi, low);
 +
-+    					PlayerModelController.getInstance().Update(u, hmd, c0, c1);    		
++    					float scale = 1f;
++    					float height = ServerVivePlayer.defaultHeight;
++    					if (packetbuffer.isReadable())
++    						scale = packetbuffer.readFloat();
++    					if (packetbuffer.isReadable())
++    						height = packetbuffer.readFloat();		
++
++    					PlayerModelController.getInstance().Update(u, hmd, c0, c1, scale, height / ServerVivePlayer.defaultHeight);    
++    						
 +    					break;
 +    				case SETTING_OVERRIDE:
 +    				    // TODO: Placeholder code until proper framework is implemented
@@ -238,7 +244,7 @@
              else
              {
                  LOGGER.warn("Unknown custom packed identifier: {}", (Object)resourcelocation);
-@@ -2736,4 +2887,14 @@
+@@ -2750,4 +2910,14 @@
      {
          return this.field_217289_q;
      }

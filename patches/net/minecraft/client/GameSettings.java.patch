@@ -8,7 +8,7 @@
  
  public class GameSettings
  {
-@@ -114,16 +115,16 @@
+@@ -114,17 +115,17 @@
      private final Map<SoundCategory, Float> soundLevels = Maps.newEnumMap(SoundCategory.class);
      public boolean useNativeTransport = true;
      public AttackIndicatorStatus attackIndicator = AttackIndicatorStatus.CROSSHAIR;
@@ -16,6 +16,7 @@
 +    public TutorialSteps tutorialStep = TutorialSteps.NONE;
      public int biomeBlendRadius = 2;
      public double mouseWheelSensitivity = 1.0D;
+     public boolean field_225307_E = true;
      public int glDebugVerbosity = 1;
 -    public boolean autoJump = true;
 +    public boolean autoJump = false;
@@ -28,7 +29,7 @@
      public boolean entityShadows = true;
      public boolean forceUnicodeFont;
      public boolean invertMouse;
-@@ -224,7 +225,7 @@
+@@ -225,7 +226,7 @@
      public int ofTranslucentBlocks = 0;
      public boolean ofDynamicFov = true;
      public boolean ofAlternateBlocks = true;
@@ -37,17 +38,17 @@
      public boolean ofCustomEntityModels = true;
      public boolean ofCustomGuis = true;
      public boolean ofShowGlErrors = true;
-@@ -272,6 +273,9 @@
-     {
-         this.setForgeKeybindProperties();
-         this.keyBindings = ArrayUtils.addAll(new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindSprint, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.keyBindCommand, this.keyBindScreenshot, this.keyBindTogglePerspective, this.keyBindSmoothCamera, this.keyBindFullscreen, this.keyBindSpectatorOutlines, this.keyBindSwapHands, this.keyBindSaveToolbar, this.keyBindLoadToolbar, this.keyBindAdvancements}, this.keyBindsHotbar);
+@@ -300,6 +301,9 @@
+         this.ofKeyBindZoom = new KeyBinding("of.key.zoom", 67, "key.categories.misc");
+         this.keyBindings = ArrayUtils.add(this.keyBindings, this.ofKeyBindZoom);
+         KeyUtils.fixKeyConflicts(this.keyBindings, new KeyBinding[] {this.ofKeyBindZoom});
 +        //Vivecraft
 +        this.keyBindings = MCOpenVR.initializeBindings(this.keyBindings);
 +        //
-         this.difficulty = Difficulty.NORMAL;
-         this.lastServer = "";
-         this.fov = 70.0D;
-@@ -1020,7 +1024,7 @@
+         this.renderDistanceChunks = 8;
+         this.loadOptions();
+         Config.initGameSettings(this);
+@@ -1019,7 +1023,7 @@
              {
                  if (i >= aint[j])
                  {
@@ -56,7 +57,7 @@
                  }
              }
  
-@@ -1468,7 +1472,7 @@
+@@ -1467,7 +1471,7 @@
                  return;
              }
  
@@ -65,7 +66,7 @@
  
              if (this.ofFastRender)
              {
-@@ -2583,6 +2587,15 @@
+@@ -2582,6 +2586,15 @@
              KeyUtils.fixKeyConflicts(this.keyBindings, new KeyBinding[] {this.ofKeyBindZoom});
              KeyBinding.resetKeyBindingArrayAndHash();
              bufferedreader.close();
@@ -81,8 +82,8 @@
          }
          catch (Exception exception11)
          {
-@@ -2965,3 +2978,4 @@
-         resourcePackListIn.setEnabledPacks(set);
+@@ -2958,3 +2971,4 @@
+         }
      }
  }
 +

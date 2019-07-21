@@ -6,7 +6,7 @@
  import javax.annotation.Nullable;
 +
 +import org.vivecraft.api.NetworkHelper;
-+import org.vivecraft.api.VivePlayer;
++import org.vivecraft.api.ServerVivePlayer;
 +
  import net.minecraft.enchantment.EnchantmentHelper;
  import net.minecraft.entity.Entity;
@@ -19,7 +19,7 @@
 +                
 +                //Vivecraft       
 +                Vec3d pos = new Vec3d(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ);
-+            	VivePlayer vp = NetworkHelper.vivePlayers.get(entity.getUniqueID());
++            	ServerVivePlayer vp = NetworkHelper.vivePlayers.get(entity.getUniqueID());
 +            	if (vp !=null && vp.isVR())
 +            	{
 +            	        pos = vp.getControllerPos(0);

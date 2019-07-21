@@ -1,17 +1,19 @@
 --- a/net/minecraft/world/dimension/EndDimension.java
 +++ b/net/minecraft/world/dimension/EndDimension.java
-@@ -24,8 +24,12 @@
-     public EndDimension(World p_i2604_1_, DimensionType p_i2604_2_)
+@@ -23,9 +23,13 @@
+ 
+     public EndDimension(World p_i3605_1_, DimensionType p_i3605_2_)
      {
-         super(p_i2604_1_, p_i2604_2_);
--        CompoundNBT compoundnbt = p_i2604_1_.getWorldInfo().getDimensionData(DimensionType.THE_END);
--        this.dragonFightManager = p_i2604_1_ instanceof ServerWorld ? new DragonFightManager((ServerWorld)p_i2604_1_, compoundnbt.getCompound("DragonFight")) : null;
-+        if(p_i2604_1_!=null) {
-+        	CompoundNBT compoundnbt = p_i2604_1_.getWorldInfo().getDimensionData(DimensionType.THE_END);
-+        	this.dragonFightManager = p_i2604_1_ instanceof ServerWorld ? new DragonFightManager((ServerWorld)p_i2604_1_, compoundnbt.getCompound("DragonFight")) : null;
-+        } else {
-+        	dragonFightManager = null;
-+        }
+-        super(p_i3605_1_, p_i3605_2_);
+-        CompoundNBT compoundnbt = p_i3605_1_.getWorldInfo().getDimensionData(DimensionType.THE_END);
+-        this.dragonFightManager = p_i3605_1_ instanceof ServerWorld ? new DragonFightManager((ServerWorld)p_i3605_1_, compoundnbt.getCompound("DragonFight")) : null;
++    	super(p_i3605_1_, p_i3605_2_);
++    	if(p_i3605_1_!=null) {
++    		CompoundNBT compoundnbt = p_i3605_1_.getWorldInfo().getDimensionData(DimensionType.THE_END);
++    		this.dragonFightManager = p_i3605_1_ instanceof ServerWorld ? new DragonFightManager((ServerWorld)p_i3605_1_, compoundnbt.getCompound("DragonFight")) : null;
++    	} else {
++    		dragonFightManager = null;
++    	}
      }
  
      public ChunkGenerator<?> createChunkGenerator()

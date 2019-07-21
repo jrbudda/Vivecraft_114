@@ -20,7 +20,7 @@
  
  public class HorseModel<T extends AbstractHorseEntity> extends EntityModel<T>
  {
-@@ -106,9 +117,90 @@
+@@ -106,9 +117,91 @@
  
          for (RendererModel renderermodel1 : this.field_217135_l)
          {
@@ -38,7 +38,8 @@
 +
 +        		//Debug debugAbs=new Debug(Vec3d.ZERO);
 +        		//Debug debug=new Debug(abstracthorse.getPositionVector());
-+        		PlayerModelController.RotInfo rotInfo = PlayerModelController.getInstance().getRotationFromEntity((PlayerEntity) abstracthorse.getControllingPassenger());
++        		PlayerModelController.RotInfo rotInfo = PlayerModelController.getInstance().
++        				getRotationsForPlayer(p.getUniqueID());       		
 +
 +        		if(rotInfo != null && !rotInfo.seated) {
 +

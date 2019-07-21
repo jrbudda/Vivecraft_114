@@ -9,15 +9,6 @@
      private final GameSettings options;
      private boolean loaded;
      private final SoundSystem sndSystem = new SoundSystem();
-@@ -473,7 +473,7 @@
- 
-     public void func_217920_a(ActiveRenderInfo p_217920_1_)
-     {
--        if (this.loaded && p_217920_1_.func_216786_h())
-+        if (this.loaded && p_217920_1_.isValid())
-         {
-             Vec3d vec3d = p_217920_1_.getProjectedView();
-             Vec3d vec3d1 = p_217920_1_.getLookDirection();
 @@ -485,6 +485,18 @@
              });
          }

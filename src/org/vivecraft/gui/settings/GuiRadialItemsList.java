@@ -69,12 +69,12 @@ public class GuiRadialItemsList extends ExtendedList
     public class MappingEntry extends ExtendedList.AbstractListEntry
     {
         private final KeyBinding myKey;
-        private GuiRadialConfiguration parentGuiScreen;
+        private GuiRadialConfiguration parentScreen;
         
         private MappingEntry(KeyBinding key, GuiRadialConfiguration parent)
         {
             this.myKey = key;
-            this.parentGuiScreen = parent;
+            this.parentScreen = parent;
         }      
         
 		@Override
@@ -87,7 +87,7 @@ public class GuiRadialItemsList extends ExtendedList
 		
 		@Override
 		public boolean mouseClicked(double mouseX, double mouseY, int button) {
-	     	parentGuiScreen.setKey(myKey);
+	     	parentScreen.setKey(myKey);
         	return true;
 		}
     }

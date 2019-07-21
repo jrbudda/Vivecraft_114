@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/renderer/entity/EntityRendererManager.java
 +++ b/net/minecraft/client/renderer/entity/EntityRendererManager.java
-@@ -132,7 +132,7 @@
+@@ -131,7 +131,7 @@
  
  public class EntityRendererManager
  {

@@ -22,12 +22,12 @@
  import net.minecraft.crash.CrashReport;
  import net.minecraft.crash.CrashReportCategory;
 @@ -134,6 +141,9 @@
- import net.minecraft.world.dimension.DimensionType;
+ import net.minecraft.world.server.ServerWorld;
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
 +import org.vivecraft.api.NetworkHelper;
 +import org.vivecraft.api.NetworkHelper.PacketDiscriminators;
-+import org.vivecraft.api.VivePlayer;
++import org.vivecraft.api.ServerVivePlayer;
  
  public class ServerPlayNetHandler implements IServerPlayNetHandler
  {
@@ -40,7 +40,7 @@
      }
  
      public void captureCurrentPosition()
-@@ -1729,6 +1741,90 @@
+@@ -1689,6 +1701,95 @@
       */
      public void processCustomPayload(CCustomPayloadPacket packetIn)
      {
@@ -55,7 +55,7 @@
 +        	PacketDiscriminators dis = PacketDiscriminators.values()[packetIn.data.readByte()];
 +    		byte[] data = new byte[len-1];
 +        	packetIn.data.readBytes(data);
-+    		VivePlayer vp = NetworkHelper.vivePlayers.get(this.player.getUniqueID());
++    		ServerVivePlayer vp = NetworkHelper.vivePlayers.get(this.player.getUniqueID());
 +    		if(vp == null && dis != PacketDiscriminators.VERSION) {
 +    			//how?
 +    			return;
@@ -67,7 +67,7 @@
 +            	sendPacket(NetworkHelper.getVivecraftServerPacket(PacketDiscriminators.REQUESTDATA, new byte[]{}));  
 +            	sendPacket(NetworkHelper.getVivecraftServerPacket(PacketDiscriminators.CLIMBING, new byte[]{1, 0}));
 +            	sendPacket(NetworkHelper.getVivecraftServerPacket(PacketDiscriminators.TELEPORT, new byte[]{})); 
-+    			vp = new VivePlayer(this.player);
++    			vp = new ServerVivePlayer(this.player);
 +            	NetworkHelper.vivePlayers.put(this.player.getUniqueID(), vp);
 +            	
 +            	BufferedReader br = new BufferedReader(
@@ -113,6 +113,11 @@
 +            	packetIn.data.readByte();
 +    			vp.worldScale = packetIn.data.readFloat();
 +    			break;
++    		case HEIGHT:
++            	packetIn.data.resetReaderIndex();
++            	packetIn.data.readByte();
++    			vp.height = packetIn.data.readFloat();
++    			break;			
 +    		case TELEPORT:
 +            	packetIn.data.resetReaderIndex();
 +            	packetIn.data.readByte();

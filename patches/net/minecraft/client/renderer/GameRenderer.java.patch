@@ -117,7 +117,12 @@
  
  public class GameRenderer implements AutoCloseable, IResourceManagerReloadListener
  {
-@@ -140,7 +183,7 @@
+@@ -136,11 +179,11 @@
+     private int shaderIndex = SHADER_COUNT;
+     private boolean useShader;
+     public int frameCount;
+-    private final ActiveRenderInfo activeRender = new ActiveRenderInfo();
++    private ActiveRenderInfo activeRender = new ActiveRenderInfo();
      private boolean initialized = false;
      private World updatedWorld = null;
      public boolean fogStandard = false;
@@ -126,14 +131,19 @@
      private long lastServerTime = 0L;
      private int lastServerTicks = 0;
      private int serverWaitTime = 0;
-@@ -151,15 +194,49 @@
+@@ -151,13 +194,50 @@
      public int loadVisibleChunksCounter = -1;
      public static final int loadVisibleChunksMessageId = 201435902;
      private boolean guiLoadingVisible = false;
 +    /** MINECRIFT */
 +    public static float MAX_CROSSHAIR_DISTANCE = 64f;
  
--    public GameRenderer(Minecraft p_i83_1_, IResourceManager p_i83_2_)
+-    public GameRenderer(Minecraft p_i128_1_, IResourceManager p_i128_2_)
+-    {
+-        this.mc = p_i128_1_;
+-        this.resourceManager = p_i128_2_;
+-        this.itemRenderer = p_i128_1_.getFirstPersonRenderer();
+-        this.mapItemRenderer = new MapItemRenderer(p_i128_1_.getTextureManager());
 +    private boolean eyeCollision = false;
 +    Block eyeCollisionBlock;
 +    public float minClipDistance = 0.05f;
@@ -167,22 +177,18 @@
 +  	Vec3i tpInvalidColor = new Vec3i((byte)83, (byte)83, (byte)83);
 +    /** END MINECRIFT */
 +    public GameRenderer(Minecraft p_i114_1_, IResourceManager p_i114_2_)
-     {
-         this.shaderIndex = SHADER_COUNT;
--        this.activeRender = new ActiveRenderInfo();
--        this.mc = p_i83_1_;
--        this.resourceManager = p_i83_2_;
--        this.itemRenderer = p_i83_1_.getFirstPersonRenderer();
--        this.mapItemRenderer = new MapItemRenderer(p_i83_1_.getTextureManager());
-+        this.activeRender = new VRActiveRenderInfo();
++    {
++    	//Vivecraft
++    	this.activeRender = new VRActiveRenderInfo();
++    	//
 +        this.mc = p_i114_1_;
-+        this.resourceManager = p_i114_2_;
-+        this.itemRenderer = p_i114_1_.getFirstPersonRenderer();
-+        this.mapItemRenderer = new MapItemRenderer(p_i114_1_.getTextureManager());
++        this.resourceManager = mc.getResourceManager();
++        this.itemRenderer = mc.getFirstPersonRenderer();
++        this.mapItemRenderer = new MapItemRenderer(mc.getTextureManager());
          this.lightmapTexture = new LightTexture(this);
          this.fogRenderer = new FogRenderer(this);
          this.shaderGroup = null;
-@@ -175,6 +252,14 @@
+@@ -173,6 +253,14 @@
                  this.rainYCoords[i << 5 | j] = f / f2;
              }
          }
@@ -197,7 +203,7 @@
      }
  
      public void close()
-@@ -250,7 +335,8 @@
+@@ -248,7 +336,8 @@
              try
              {
                  this.shaderGroup = new ShaderGroup(this.mc.getTextureManager(), this.resourceManager, this.mc.getFramebuffer(), resourceLocationIn);
@@ -207,7 +213,7 @@
                  this.useShader = true;
              }
              catch (IOException ioexception)
-@@ -358,16 +444,24 @@
+@@ -356,16 +445,24 @@
       * Gets the block or object that is being moused over.
       */
      public void getMouseOver(float partialTicks)
@@ -237,7 +243,7 @@
              boolean flag = false;
              int i = 3;
              double d1 = d0;
-@@ -388,8 +482,9 @@
+@@ -391,8 +488,9 @@
              {
                  d1 = this.mc.objectMouseOver.getHitVec().squareDistanceTo(vec3d);
              }
@@ -249,7 +255,7 @@
              Vec3d vec3d2 = vec3d.add(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0);
              float f = 1.0F;
              AxisAlignedBB axisalignedbb = entity.getBoundingBox().expand(vec3d1.scale(d0)).grow(1.0D, 1.0D, 1.0D);
-@@ -452,6 +547,10 @@
+@@ -455,6 +553,10 @@
  
      private double getFOVModifier(ActiveRenderInfo p_215311_1_, float p_215311_2_, boolean p_215311_3_)
      {
@@ -260,7 +266,7 @@
          if (this.debugView)
          {
              return 90.0D;
-@@ -568,8 +667,9 @@
+@@ -562,8 +664,9 @@
          }
      }
  
@@ -271,7 +277,7 @@
          this.farPlaneDistance = (float)(this.mc.gameSettings.renderDistanceChunks * 16);
  
          if (Config.isFogFancy())
-@@ -596,17 +696,47 @@
+@@ -590,17 +693,50 @@
              GlStateManager.translatef((float)this.cameraYaw, (float)(-this.cameraPitch), 0.0F);
              GlStateManager.scaled(this.cameraZoom, this.cameraZoom, 1.0D);
          }
@@ -295,14 +301,17 @@
 +		else
 +		{
 +			float clip = isClouds ? clipDistance * 4 : clipDistance;
-+			if (mc.currentPass == RenderPass.THIRD && this.mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_MIXED_REALITY) {
++			if (mc.currentPass == RenderPass.THIRD) {
++			    if (this.mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_MIXED_REALITY)
 +				GlStateManager.multMatrix(Matrix4f.perspective(this.mc.vrSettings.mixedRealityFov, this.mc.vrSettings.mixedRealityAspectRatio , minClipDistance, clip));
++			    else
++                    GlStateManager.multMatrix(Matrix4f.perspective(this.mc.vrSettings.mixedRealityFov, (float)this.mc.mainWindow.getFramebufferWidth() / (float)this.mc.mainWindow.getFramebufferHeight(), minClipDistance, clip));
 +				GL11.glGetFloatv(GL11.GL_PROJECTION_MATRIX, matrixBuffer);
 +				matrixBuffer.rewind();
 +				this.thirdPassProjectionMatrix.read(matrixBuffer); //save it.
 +				matrixBuffer.rewind();
 +			} else {
-+		        GlStateManager.multMatrix(Matrix4f.perspective(this.getFOVModifier(this.activeRender, partialTicks, true), (float)this.mc.mainWindow.getFramebufferWidth() / (float)this.mc.mainWindow.getFramebufferHeight(), 0.05F, this.clipDistance));
++		        GlStateManager.multMatrix(Matrix4f.perspective(this.getFOVModifier(this.activeRender, partialTicks, true), (float)this.mc.mainWindow.getFramebufferWidth() / (float)this.mc.mainWindow.getFramebufferHeight(), minClipDistance, this.clipDistance));
 +			}
 +		}
 +		//
@@ -322,7 +331,7 @@
          float f = MathHelper.lerp(partialTicks, this.mc.player.prevTimeInPortal, this.mc.player.timeInPortal);
  
          if (f > 0.0F)
-@@ -624,12 +754,109 @@
+@@ -618,12 +754,109 @@
              GlStateManager.scalef(1.0F / f1, 1.0F, 1.0F);
              GlStateManager.rotatef(-((float)this.rendererUpdateCount + partialTicks) * (float)i, 0.0F, 1.0F, 1.0F);
          }
@@ -360,9 +369,9 @@
 +		{
 +			this.farPlaneDistance *= 0.83F;
 +		}
-+
-+		this.clipDistance = this.farPlaneDistance * 2.0F;
  
++		this.clipDistance = this.farPlaneDistance * 2.0F;
++
 +        if (this.clipDistance < 173.0F)
 +        {
 +            this.clipDistance = 173.0F;
@@ -433,7 +442,16 @@
  
      public void renderHand(ActiveRenderInfo p_renderHand_1_, float p_renderHand_2_, boolean p_renderHand_3_, boolean p_renderHand_4_, boolean p_renderHand_5_)
      {
-@@ -726,21 +953,26 @@
+@@ -683,7 +916,7 @@
+ 
+             if (this.mc.gameSettings.thirdPersonView == 0 && !flag)
+             {
+-                this.itemRenderer.renderOverlays(p_renderHand_2_);
++          //      this.itemRenderer.renderOverlays(p_renderHand_2_);
+                 this.hurtCameraEffect(p_renderHand_2_);
+             }
+ 
+@@ -720,21 +953,26 @@
          return i > 200 ? 1.0F : 0.7F + MathHelper.sin(((float)i - partialTicks) * (float)Math.PI * 0.2F) * 0.3F;
      }
  
@@ -474,7 +492,7 @@
  
          if (!this.mc.skipRenderWorld)
          {
-@@ -751,11 +983,13 @@
+@@ -745,11 +983,13 @@
              if (renderWorldIn && this.mc.world != null && !Config.isReloadingResources())
              {
                  this.mc.getProfiler().startSection("level");
@@ -489,7 +507,7 @@
  
                  if (this.mc.isSingleplayer() && this.timeWorldIcon < Util.milliTime() - 1000L)
                  {
-@@ -787,6 +1021,7 @@
+@@ -781,6 +1021,7 @@
  
                  if (!this.mc.gameSettings.hideGUI || this.mc.currentScreen != null)
                  {
@@ -497,7 +515,7 @@
                      GlStateManager.alphaFunc(516, 0.1F);
                      this.mc.mainWindow.loadGUIRenderMatrix(Minecraft.IS_RUNNING_ON_MAC);
                      this.renderItemActivation(this.mc.mainWindow.getScaledWidth(), this.mc.mainWindow.getScaledHeight(), partialTicks);
-@@ -801,22 +1036,25 @@
+@@ -795,22 +1036,27 @@
                      {
                          Lagometer.showLagometer((int)this.mc.mainWindow.getGuiScaleFactor());
                      }
@@ -521,11 +539,13 @@
                  TileEntityRendererDispatcher.instance.fontRenderer = this.mc.fontRenderer;
              }
 -
++            
++           
 +/*
              if (this.guiLoadingVisible != (this.mc.loadingGui != null))
              {
                  if (this.mc.loadingGui != null)
-@@ -886,16 +1124,47 @@
+@@ -880,16 +1126,47 @@
                      throw new ReportedException(crashreport1);
                  }
              }
@@ -577,7 +597,7 @@
      }
  
      private void createWorldIcon()
-@@ -938,7 +1207,10 @@
+@@ -932,7 +1209,10 @@
  
      private boolean isDrawBlockOutline()
      {
@@ -589,7 +609,7 @@
          {
              return false;
          }
-@@ -975,14 +1247,28 @@
+@@ -969,14 +1249,29 @@
  
      public void renderWorld(float partialTicks, long finishTimeNano)
      {
@@ -606,6 +626,7 @@
 +    	//Vivecraft
 +    	cacheRVEPos((LivingEntity) mc.getRenderViewEntity());	
 +    	setupRVE();
++    	setupOverlayStatus(partialTicks); 
 +    	
 +     	if(mc.currentPass == RenderPass.LEFT) {
 +    	//
@@ -619,18 +640,13 @@
  
          if (Config.isShaders())
          {
-@@ -1010,21 +1296,25 @@
-         ParticleManager particlemanager = this.mc.particles;
-         boolean flag1 = this.isDrawBlockOutline();
-         GlStateManager.enableCull();
-+        
-         this.mc.getProfiler().endStartSection("camera");
-+        
+@@ -1008,19 +1303,20 @@
          this.setupCameraTransform(partialTicks);
          ActiveRenderInfo activerenderinfo = this.activeRender;
          activerenderinfo.update(this.mc.world, (Entity)(this.mc.getRenderViewEntity() == null ? this.mc.player : this.mc.getRenderViewEntity()), this.mc.gameSettings.thirdPersonView > 0, this.mc.gameSettings.thirdPersonView == 2, partialTicks);
 +        applyCameraDepth(false);     
          ClippingHelper clippinghelper = ClippingHelperImpl.getInstance();
+-        worldrenderer.func_224745_a(activerenderinfo);
 -        this.mc.getProfiler().endStartSection("clear");
  
          if (flag)
@@ -643,12 +659,13 @@
 -            GlStateManager.viewport(0, 0, this.mc.mainWindow.getFramebufferWidth(), this.mc.mainWindow.getFramebufferHeight());
 +            GlStateManager.viewport(0, 0, this.mc.getFramebuffer().framebufferWidth, this.mc.getFramebuffer().framebufferHeight);
          }
-+        
-+        this.mc.getProfiler().endStartSection("clear");
  
-         this.fogRenderer.func_217619_a(activerenderinfo, partialTicks);
++        this.mc.getProfiler().endStartSection("clear");
++
+         this.fogRenderer.updateFogColor(activerenderinfo, partialTicks);
          GlStateManager.clear(16640, Minecraft.IS_RUNNING_ON_MAC);
-@@ -1034,6 +1324,11 @@
+ 
+@@ -1029,6 +1325,11 @@
              Shaders.clearRenderBuffer();
          }
  
@@ -660,8 +677,8 @@
          if (flag)
          {
              Shaders.setCamera(activerenderinfo, partialTicks);
-@@ -1060,9 +1355,14 @@
-             this.fogRenderer.func_217618_a(activerenderinfo, -1);
+@@ -1055,9 +1356,14 @@
+             this.fogRenderer.setupFog(activerenderinfo, -1, partialTicks);
              this.mc.getProfiler().endStartSection("sky");
              GlStateManager.matrixMode(5889);
 -            GlStateManager.loadIdentity();
@@ -677,7 +694,7 @@
  
              if (flag)
              {
-@@ -1077,15 +1377,20 @@
+@@ -1072,9 +1378,13 @@
              }
  
              GlStateManager.matrixMode(5889);
@@ -693,16 +710,8 @@
          }
          else
          {
-             GlStateManager.disableBlend();
-         }
--
-+       
-+       
-         this.fogRenderer.func_217618_a(activerenderinfo, 0);
-         GlStateManager.shadeModel(7425);
- 
-@@ -1111,14 +1416,16 @@
-             worldrenderer.func_215320_a(activerenderinfo, icamera, this.frameCount++, this.mc.player.isSpectator());
+@@ -1106,14 +1416,16 @@
+             worldrenderer.setupTerrain(activerenderinfo, icamera, this.frameCount++, this.mc.player.isSpectator());
          }
  
 -        this.mc.getProfiler().endStartSection("updatechunks");
@@ -720,7 +729,7 @@
          {
              this.mc.getProfiler().endStartSection("finish");
              GL11.glFinish();
-@@ -1185,6 +1492,7 @@
+@@ -1168,6 +1480,7 @@
          this.disableLightmap();
          GlStateManager.matrixMode(5888);
          GlStateManager.popMatrix();
@@ -728,7 +737,7 @@
  
          if (flag1 && this.mc.objectMouseOver != null)
          {
-@@ -1220,6 +1528,12 @@
+@@ -1203,6 +1516,12 @@
  
          GlStateManager.blendFuncSeparate(770, 771, 1, 0);
          GlStateManager.disableBlend();
@@ -739,12 +748,12 @@
 +//        //
 +
          this.enableLightmap();
-         this.fogRenderer.func_217618_a(activerenderinfo, 0);
+         this.fogRenderer.setupFog(activerenderinfo, 0, partialTicks);
          this.mc.getProfiler().endStartSection("particles");
-@@ -1261,10 +1575,29 @@
+@@ -1244,10 +1563,29 @@
  
          GlStateManager.depthMask(true);
-         worldrenderer.func_215322_a(activerenderinfo, partialTicks);
+         worldrenderer.renderWorldBorder(activerenderinfo, partialTicks);
 +        this.mc.getProfiler().endStartSection("VR");
 +    	this.enableLightmap();
 +        boolean forgeHands = false;
@@ -772,11 +781,11 @@
              Shaders.preWater();
          }
  
-@@ -1303,12 +1636,48 @@
-             this.func_215313_a(activerenderinfo, worldrenderer, partialTicks, d0, d1, d2);
+@@ -1286,12 +1624,44 @@
+             this.renderClouds(activerenderinfo, worldrenderer, partialTicks, d0, d1, d2);
          }
  
-+        this.fogRenderer.func_217619_a(activerenderinfo, partialTicks);
++        this.fogRenderer.updateFogColor(activerenderinfo, partialTicks);
 +
 +        this.mc.getProfiler().startSection("hud");
 +
@@ -804,24 +813,21 @@
              this.mc.getProfiler().endStartSection("forge_render_last");
              Reflector.callVoid(Reflector.ForgeHooksClient_dispatchRenderLast, worldrenderer, partialTicks);
          }
-+        
-+        if (mc.currentPass != RenderPass.THIRD) //no fp overlay for 3rd cam.
-+        {
-+        	this.renderFaceOverlay(partialTicks);
-+        }     
-+        
+-
++               
 +        this.mc.getProfiler().endStartSection("ShadersEnd");
 +        if ( flag && !forgeHands && this.renderHand && !Shaders.isShadowPass)
 +        {
 +        	GL11.glDisable(GL11.GL_STENCIL_TEST);
 +        	Shaders.renderCompositeFinal();
 +        }
- 
++    
++      
 +        /*Nope
          this.mc.getProfiler().endStartSection("hand");
  
          if (this.renderHand && !Shaders.isShadowPass)
-@@ -1330,11 +1699,15 @@
+@@ -1313,11 +1683,17 @@
                  this.func_215308_a(activerenderinfo, partialTicks);
              }
          }
@@ -832,12 +838,14 @@
 +        	GL11.glDisable(GL11.GL_STENCIL_TEST);
              Shaders.endRender();
          }
++        
++       
 +       restoreRVEPos((LivingEntity) mc.getRenderViewEntity()); //unhack the RVE position.
 +       
      }
  
-     private void func_215313_a(ActiveRenderInfo p_215313_1_, WorldRenderer p_215313_2_, float p_215313_3_, double p_215313_4_, double p_215313_6_, double p_215313_8_)
-@@ -1344,7 +1717,11 @@
+     private void renderClouds(ActiveRenderInfo p_215313_1_, WorldRenderer p_215313_2_, float p_215313_3_, double p_215313_4_, double p_215313_6_, double p_215313_8_)
+@@ -1327,7 +1703,11 @@
              this.mc.getProfiler().endStartSection("clouds");
              GlStateManager.matrixMode(5889);
              GlStateManager.loadIdentity();
@@ -849,8 +857,8 @@
 +        	//
              GlStateManager.matrixMode(5888);
              GlStateManager.pushMatrix();
-             this.fogRenderer.func_217618_a(p_215313_1_, 0);
-@@ -1353,7 +1730,11 @@
+             this.fogRenderer.setupFog(p_215313_1_, 0, p_215313_3_);
+@@ -1336,7 +1716,11 @@
              GlStateManager.popMatrix();
              GlStateManager.matrixMode(5889);
              GlStateManager.loadIdentity();
@@ -863,7 +871,7 @@
              GlStateManager.matrixMode(5888);
          }
      }
-@@ -2028,35 +2409,28 @@
+@@ -2011,35 +2395,28 @@
      }
  
      private void renderItemActivation(int widthsp, int heightScaled, float partialTicks)
@@ -911,7 +919,7 @@
          }
      }
  
-@@ -2079,4 +2453,2113 @@
+@@ -2062,4 +2439,2124 @@
      {
          return this.activeRender;
      }
@@ -1060,8 +1068,11 @@
 +  				if(i > 1) i = 0;
 +  				GL11.glMultMatrixf(mc.stereoProvider.cloudeyeproj[i]);
 +  			}
-+  			else if (mc.currentPass == RenderPass.THIRD && this.mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_MIXED_REALITY) {
++  			else if (mc.currentPass == RenderPass.THIRD) {
++  			    if (this.mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_MIXED_REALITY)
 +  				GlStateManager.multMatrix(Matrix4f.perspective(this.mc.vrSettings.mixedRealityFov, this.mc.vrSettings.mixedRealityAspectRatio, minClipDistance, clipDistance * 4));
++  			    else
++                    GlStateManager.multMatrix(Matrix4f.perspective(this.mc.vrSettings.mixedRealityFov, (float)this.mc.mainWindow.getWidth() / (float)this.mc.mainWindow.getHeight(), minClipDistance, clipDistance * 4));
 +  			} else {
 +  				GlStateManager.multMatrix(Matrix4f.perspective(this.getFOVModifier(this.activeRender, par1, true), (float)this.mc.mainWindow.getWidth() / (float)this.mc.mainWindow.getHeight(), minClipDistance, clipDistance * 4));
 +  			}
@@ -1180,8 +1191,11 @@
 +            if(i > 1) i = 0;
 +            GL11.glMultMatrixf(mc.stereoProvider.cloudeyeproj[i]);
 +        }
-+        else if (mc.currentPass == RenderPass.THIRD && this.mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_MIXED_REALITY) {
++        else if (mc.currentPass == RenderPass.THIRD) {
++            if (this.mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_MIXED_REALITY)
 +            GlStateManager.multMatrix(Matrix4f.perspective(this.mc.vrSettings.mixedRealityFov, this.mc.vrSettings.mixedRealityAspectRatio, minClipDistance, clipDistance * 4));
++            else
++                GlStateManager.multMatrix(Matrix4f.perspective(this.mc.vrSettings.mixedRealityFov, (float)this.mc.mainWindow.getWidth() / (float)this.mc.mainWindow.getHeight(), minClipDistance, clipDistance * 4));
 +        } else {
 +            GlStateManager.multMatrix(Matrix4f.perspective(this.getFOVModifier(this.activeRender, partialTicks, true), (float)this.mc.mainWindow.getWidth() / (float)this.mc.mainWindow.getHeight(), minClipDistance, clipDistance * 4));
 +        }
@@ -1231,8 +1245,11 @@
 +  			if(i > 1) i = 0;
 +  			GL11.glMultMatrixf(mc.stereoProvider.cloudeyeproj[i]);
 +  		}
-+  		else if (mc.currentPass == RenderPass.THIRD && this.mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_MIXED_REALITY) {
++  		else if (mc.currentPass == RenderPass.THIRD) {
++  		    if (this.mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_MIXED_REALITY)
 +			GlStateManager.multMatrix(Matrix4f.perspective(this.mc.vrSettings.mixedRealityFov, this.mc.vrSettings.mixedRealityAspectRatio , minClipDistance, clipDistance*4));
++  		    else
++                GlStateManager.multMatrix(Matrix4f.perspective(this.mc.vrSettings.mixedRealityFov, (float)this.mc.mainWindow.getWidth() / (float) this.mc.mainWindow.getHeight(), minClipDistance, clipDistance * 4));
 +  		} else {
 +  			GlStateManager.multMatrix(Matrix4f.perspective(this.getFOVModifier(this.activeRender, par1, true), (float)this.mc.mainWindow.getWidth() / (float) this.mc.mainWindow.getHeight(), minClipDistance, clipDistance * 4));
 +  		}
@@ -1803,8 +1820,11 @@
 +  				if(i>1) i = 0;
 +  				GL11.glMultMatrixf(mc.stereoProvider.eyeproj[i]);
 +  			} else {
-+  				if (mc.currentPass == RenderPass.THIRD && this.mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_MIXED_REALITY) {
++  				if (mc.currentPass == RenderPass.THIRD) {
++  				    if (this.mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_MIXED_REALITY)
 +  					GlStateManager.multMatrix(Matrix4f.perspective(this.mc.vrSettings.mixedRealityFov, this.mc.vrSettings.mixedRealityAspectRatio, minClipDistance, clipDistance));
++  				    else
++                        GlStateManager.multMatrix(Matrix4f.perspective(this.mc.vrSettings.mixedRealityFov, (float)this.mc.mainWindow.getWidth() / (float) this.mc.mainWindow.getHeight(), minClipDistance, clipDistance));
 +  				} else {
 +  					GlStateManager.multMatrix(Matrix4f.perspective(this.getFOVModifier(this.activeRender, partialTicks, true), (float)this.mc.mainWindow.getWidth() / (float) this.mc.mainWindow.getHeight(), minClipDistance, clipDistance));
 +  				}
@@ -2583,21 +2603,20 @@
 +  		}
 +  	}
 +  	
-+  private void renderFaceOverlay(float par1){ //replaced with shader
-+  	boolean shadersMod = Config.isShaders();
-+  	if (shadersMod) {
-+  		//just disables caps
-+  		Shaders.beginFPOverlay();
++  	private void setupOverlayStatus(float partialTicks) {
++  		inblock = false;
++  		inwater = false;
++  		onfire = false;
++  		if (!this.mc.player.isSpectator())
++  		{
++  			Vec3d pos = mc.vrPlayer.vrdata_world_render.getEye(mc.currentPass).getPosition();
++  			inblock = itemRenderer.isInsideOpaqueBlock(pos, true); 	
++  			inwater =  this.mc.player.areEyesInFluid(FluidTags.WATER) && !Reflector.callBoolean(Reflector.ForgeEventFactory_renderWaterOverlay, this.mc.player, partialTicks);
++  			onfire = mc.currentPass != RenderPass.THIRD && this.mc.player.isBurning() && !Reflector.callBoolean(Reflector.ForgeEventFactory_renderFireOverlay, this.mc.player, partialTicks);
++  		}
 +  	}
 +  	
-+  	this.itemRenderer.renderOverlays(par1);
-+  	
-+  	if (shadersMod) {
-+  		//does nothing at all.
-+  		Shaders.endFPOverlay();
-+  	}
-+  }
-+  	
++ 	
 +  	private void renderVRMisc(float par1){
 +
 +  		if (this.mc.gameSettings.thirdPersonView == 0)
@@ -2736,7 +2755,7 @@
 +        		  this.mc.getTextureManager().bindTexture(AtlasTexture.LOCATION_EFFECTS_TEXTURE);
 +        		  int w = this.mc.mainWindow.getScaledWidth() / 2 - 109;
 +        		  int h = this.mc.mainWindow.getScaledHeight() -39;      			  
-+        		  AbstractGui.blit(w, h, 0, 18, 18, mc.getPotionSpriteUploader().func_215288_a(e));        			
++        		  AbstractGui.blit(w, h, 0, 18, 18, mc.getPotionSpriteUploader().getSprite(e));        			
 +        	  }       	  
 +          }
 +          //
@@ -2927,7 +2946,7 @@
 +            GlStateManager.enableCull();
 +            GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 +            GlStateManager.alphaFunc(516, 0.1F);
-+            this.fogRenderer.func_217618_a(activeRender, 0);
++            this.fogRenderer.updateFogColor(activeRender, 0);
 +            GlStateManager.enableBlend();
 +            GlStateManager.depthMask(false);
 +            this.mc.getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);

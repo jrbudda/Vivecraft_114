@@ -4,6 +4,7 @@ import org.vivecraft.provider.MCOpenVR;
 import org.vivecraft.render.PlayerModelController;
 import org.vivecraft.render.RenderPass;
 import org.vivecraft.utils.Matrix4f;
+import org.vivecraft.utils.Utils;
 import org.vivecraft.utils.Vector3;
 
 import net.minecraft.client.Minecraft;
@@ -116,11 +117,13 @@ public class VRData{
 			return hmd.getYaw();
 		
 		Vec3d v = (c1.getPosition().subtract(c0.getPosition())).normalize().rotateYaw((float) (-Math.PI/2));
-	
+		
 		if(Minecraft.getInstance().vrSettings.vrReverseHands)
-			return(float) Math.toDegrees(Math.atan2(v.x, -v.z)); 
-		else
-			return(float) Math.toDegrees(Math.atan2(-v.x, v.z)); 
+			v = v.scale(-1);
+
+		v = Utils.vecLerp(hmd.getDirection(), v, 0.5);
+		
+		return (float) Math.toDegrees(Math.atan2(-v.x, v.z)); 		
 	}
 	
 	public float getFacingYaw(){

@@ -96,4 +96,9 @@ public class HapticMusicPlayer {
 			}
 		}
 	}
+
+	public class MusicBuilder {
+		private Music music;
+		private float tempo;
+	}
 }

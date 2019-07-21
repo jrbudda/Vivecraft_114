@@ -1,0 +1,11 @@
+--- a/net/minecraft/client/renderer/model/FaceBakery.java
++++ b/net/minecraft/client/renderer/model/FaceBakery.java
+@@ -129,7 +129,7 @@
+ 
+     private int[] makeQuadVertexData(BlockFaceUV uvs, TextureAtlasSprite sprite, Direction orientation, float[] posDiv16, ModelRotation rotationIn, @Nullable BlockPartRotation partRotation, boolean shade)
+     {
+-        return this.makeQuadVertexData(uvs, sprite, orientation, posDiv16, rotationIn, partRotation, shade);
++        return this.makeQuadVertexData(uvs, sprite, orientation, posDiv16, (ITransformation)rotationIn, partRotation, shade);
+     }
+ 
+     private int[] makeQuadVertexData(BlockFaceUV p_makeQuadVertexData_1_, TextureAtlasSprite p_makeQuadVertexData_2_, Direction p_makeQuadVertexData_3_, float[] p_makeQuadVertexData_4_, ITransformation p_makeQuadVertexData_5_, @Nullable BlockPartRotation p_makeQuadVertexData_6_, boolean p_makeQuadVertexData_7_)

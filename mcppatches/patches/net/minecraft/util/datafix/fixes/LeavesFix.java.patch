@@ -3,7 +3,7 @@
 @@ -362,7 +362,7 @@
              else
              {
-                 Optional < List < Pair < String, Dynamic<? >>> > optional = bufferSize.getOptional(this.paletteFinder);
+                 Optional < List < Pair < String, Dynamic<? >>> > optional = p_i969_1_.getOptional(this.paletteFinder);
 -                this.palette = optional.map((p_208463_0_) ->
 +                this.palette = (List)optional.map((p_208463_0_) ->
                  {

@@ -1,15 +1,15 @@
 --- a/net/minecraft/resources/VanillaPack.java
 +++ b/net/minecraft/resources/VanillaPack.java
-@@ -31,6 +31,8 @@
- import net.minecraft.util.ResourceLocation;
+@@ -32,6 +32,8 @@
  import net.minecraft.util.Util;
+ import net.optifine.reflect.Reflector;
  import net.optifine.reflect.ReflectorForge;
 +
 +import org.apache.commons.io.IOUtils;
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
  
-@@ -303,11 +305,16 @@
+@@ -305,11 +307,16 @@
          try
          {
              URL url = VanillaPack.class.getResource(s);

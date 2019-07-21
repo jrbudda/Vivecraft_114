@@ -4,6 +4,13 @@
 */
 package org.vivecraft.settings;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+
 import org.vivecraft.api.VRData;
 import org.vivecraft.provider.MCOpenVR;
 import org.vivecraft.utils.Angle;
@@ -343,5 +350,66 @@ public class VRHotkeys {
 
 	public static boolean isMovingThirdPersonCam() {
 		return startControllerPose != null;
+	}
+
+	public static void loadExternalCameraConfig() {
+		File file = new File("ExternalCamera.cfg");
+		if (!file.exists())
+			return;
+
+		float x = 0, y = 0, z = 0;
+		float rx = 0, ry = 0, rz = 0;
+		float fov = 40;
+
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
+			String line;
+			while ((line = br.readLine()) != null) {
+				String[] tokens = line.split("=", 2);
+				switch (tokens[0]) {
+					case "x":
+						x = Float.parseFloat(tokens[1]);
+						break;
+					case "y":
+						y = Float.parseFloat(tokens[1]);
+						break;
+					case "z":
+						z = Float.parseFloat(tokens[1]);
+						break;
+					case "rx":
+						rx = Float.parseFloat(tokens[1]);
+						break;
+					case "ry":
+						ry = Float.parseFloat(tokens[1]);
+						break;
+					case "rz":
+						rz = Float.parseFloat(tokens[1]);
+						break;
+					case "fov":
+						fov = Float.parseFloat(tokens[1]);
+						break;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
+
+		Minecraft mc = Minecraft.getInstance();
+		Quaternion quat = new Quaternion(rx, ry, rz, mc.vrSettings.externalCameraAngleOrder);
+
+		// Eh just set everything, the fixed pos is overridden by the moving cam anyways
+		mc.vrSettings.mrMovingCamOffsetX = x;
+		mc.vrSettings.mrMovingCamOffsetY = y;
+		mc.vrSettings.mrMovingCamOffsetZ = z;
+		mc.vrSettings.mrMovingCamOffsetRotQuat.set(quat);
+		mc.vrSettings.vrFixedCamposX = x;
+		mc.vrSettings.vrFixedCamposY = y;
+		mc.vrSettings.vrFixedCamposZ = z;
+		mc.vrSettings.vrFixedCamrotQuat.set(quat);
+		mc.vrSettings.mixedRealityFov = fov;
+	}
+
+	public static boolean hasExternalCameraConfig() {
+		return new File("ExternalCamera.cfg").exists();
 	}
 }
