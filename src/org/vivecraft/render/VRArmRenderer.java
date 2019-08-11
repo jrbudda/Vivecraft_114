@@ -1,10 +1,18 @@
 package org.vivecraft.render;
 
+import org.lwjgl.opengl.ARBTextureEnvCombine;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL20;
+import org.vivecraft.control.ControllerType;
+import org.vivecraft.provider.MCOpenVR;
 import org.vivecraft.utils.MCReflection;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 
+import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.client.renderer.entity.EntityRendererManager;
@@ -12,14 +20,14 @@ import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.entity.LivingEntity;
 
-public class RenderVRPlayer extends PlayerRenderer
+public class VRArmRenderer extends PlayerRenderer
 {
 
-	public RenderVRPlayer(EntityRendererManager renderManager) {
+	public VRArmRenderer(EntityRendererManager renderManager) {
 		super(renderManager);
 	}
 
-	public RenderVRPlayer(EntityRendererManager renderManager, boolean useSmallArms) {
+	public VRArmRenderer(EntityRendererManager renderManager, boolean useSmallArms) {
 		super(renderManager, useSmallArms);
 	}
 	
@@ -36,6 +44,15 @@ public class RenderVRPlayer extends PlayerRenderer
         GlStateManager.enableCull();
         GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
+        if (MCOpenVR.getInputAction(MCOpenVR.keyVRInteract).isEnabledRaw(ControllerType.RIGHT) ||
+        		MCOpenVR.keyVRInteract.isKeyDown(ControllerType.RIGHT)|| 
+        		MCOpenVR.getInputAction(MCOpenVR.keyClimbeyGrab).isEnabledRaw(ControllerType.RIGHT) ||
+        		MCOpenVR.keyClimbeyGrab.isKeyDown(ControllerType.RIGHT)) {
+        	GlStateManager.texEnv(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL13.GL_COMBINE);
+        	GlStateManager.texEnv(GL11.GL_TEXTURE_ENV, ARBTextureEnvCombine.GL_COMBINE_RGB_ARB, GL13.GL_MODULATE);
+        	GlStateManager.texEnv(GL11.GL_TEXTURE_ENV, ARBTextureEnvCombine.GL_RGB_SCALE_ARB, 2);      	
+        }
+        
         modelplayer.swingProgress = 0.0F;
         modelplayer.isSneak = false;
         modelplayer.bipedRightArm.rotateAngleX = 0;
@@ -56,6 +73,11 @@ public class RenderVRPlayer extends PlayerRenderer
         modelplayer.bipedRightArmwear.rotationPointZ = 0.0F;
         modelplayer.bipedRightArmwear.render(0.0625F);
         
+   //     if (Minecraft.getInstance().interactTracker.isInteractActive(0)) {
+        	GlStateManager.texEnv(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL13.GL_MODULATE);
+        	GlStateManager.texEnv(GL11.GL_TEXTURE_ENV, ARBTextureEnvCombine.GL_RGB_SCALE_ARB, 1);      
+    //    }
+        
         GlStateManager.disableBlend();
         GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0f);
     }
@@ -72,7 +94,16 @@ public class RenderVRPlayer extends PlayerRenderer
         GlStateManager.enableBlend();
         GlStateManager.enableCull();
         GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-
+        
+        if (MCOpenVR.getInputAction(MCOpenVR.keyVRInteract).isEnabledRaw(ControllerType.LEFT) ||
+        		MCOpenVR.keyVRInteract.isKeyDown(ControllerType.LEFT)|| 
+        		MCOpenVR.getInputAction(MCOpenVR.keyClimbeyGrab).isEnabledRaw(ControllerType.LEFT) ||
+        		MCOpenVR.keyClimbeyGrab.isKeyDown(ControllerType.LEFT)) {
+        	GlStateManager.texEnv(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL13.GL_COMBINE);
+        	GlStateManager.texEnv(GL11.GL_TEXTURE_ENV, ARBTextureEnvCombine.GL_COMBINE_RGB_ARB, GL13.GL_MODULATE);
+        	GlStateManager.texEnv(GL11.GL_TEXTURE_ENV, ARBTextureEnvCombine.GL_RGB_SCALE_ARB, 2);      	
+        }
+        
         modelplayer.isSneak = false;
         modelplayer.swingProgress = 0.0F;
         modelplayer.bipedLeftArm.rotateAngleX = 0;
@@ -92,7 +123,12 @@ public class RenderVRPlayer extends PlayerRenderer
 //        modelplayer.bipedLeftArmwear.rotationPointY = 0.0F;
         modelplayer.bipedLeftArmwear.rotationPointZ = 0.0F;
         modelplayer.bipedLeftArmwear.render(0.0625F);
-
+        
+     //   if (Minecraft.getInstance().interactTracker.isInteractActive(1)) {
+        	GlStateManager.texEnv(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL13.GL_MODULATE);
+        	GlStateManager.texEnv(GL11.GL_TEXTURE_ENV, ARBTextureEnvCombine.GL_RGB_SCALE_ARB, 1);      
+     //   }
+        
         GlStateManager.disableBlend();
         GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0f);
 

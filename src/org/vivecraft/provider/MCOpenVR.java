@@ -36,7 +36,9 @@ import org.vivecraft.utils.MenuWorldExporter;
 import org.vivecraft.utils.OpenVRUtil;
 import org.vivecraft.utils.Quaternion;
 import org.vivecraft.utils.Utils;
+import org.vivecraft.utils.Vector2;
 import org.vivecraft.utils.Vector3;
+import org.vivecraft.utils.jinfinadeck;
 import org.vivecraft.utils.jkatvr;
 
 import com.google.common.collect.ImmutableList;
@@ -58,6 +60,7 @@ import jopenvr.JOpenVRLibrary.EVREventType;
 import jopenvr.JOpenVRLibrary.EVRInputError;
 import jopenvr.RenderModel_ComponentState_t;
 import jopenvr.RenderModel_ControllerMode_State_t;
+import jopenvr.Texture_t;
 import jopenvr.TrackedDevicePose_t;
 import jopenvr.VRActiveActionSet_t;
 import jopenvr.VREvent_t;
@@ -150,8 +153,8 @@ public class MCOpenVR
 	private int LeftEyeTextureId;
 
 	final static VRTextureBounds_t texBounds = new VRTextureBounds_t();
-	final static VRTextureWithDepth_t texType0 = new VRTextureWithDepth_t();
-	final static VRTextureWithDepth_t texType1 = new VRTextureWithDepth_t();
+	final static Texture_t texType0 = new Texture_t();
+	final static Texture_t texType1 = new Texture_t();
 	// aiming
 
 	static Vec3d[] aimSource = new Vec3d[3];
@@ -201,6 +204,7 @@ public class MCOpenVR
 	private static long rightControllerHandle;
 
 	private static Map<String, TrackpadSwipeSampler> trackpadSwipeSamplers = new HashMap<>();
+	private static Map<String, Boolean> axisUseTracker = new HashMap<>();
 
 	private static InputPoseActionData_t.ByReference poseData;
 	private static InputOriginInfo_t.ByReference originInfo;
@@ -248,13 +252,7 @@ public class MCOpenVR
 	public static final KeyBinding keyMoveThirdPersonCam = new KeyBinding("vivecraft.key.moveThirdPersonCam", GLFW.GLFW_KEY_UNKNOWN, "key.categories.misc");
 	public static final KeyBinding keyTogglePlayerList = new KeyBinding("vivecraft.key.togglePlayerList", GLFW.GLFW_KEY_UNKNOWN, "key.categories.multiplayer");
 	public static final HandedKeyBinding keyTrackpadTouch = new HandedKeyBinding("vivecraft.key.trackpadTouch", GLFW.GLFW_KEY_UNKNOWN, "key.categories.misc"); // used for swipe sampler
-	public static final HandedKeyBinding keyVRInteract = new HandedKeyBinding("vivecraft.key.vrInteract", GLFW.GLFW_KEY_UNKNOWN,"key.categories.gameplay") {
-		@Override
-		public boolean isPriorityOnController(ControllerType type) {
-			// TODO: use this to only take priority on the hand that's interacting
-			return super.isPriorityOnController(type);
-		}
-	};
+	public static final HandedKeyBinding keyVRInteract = new HandedKeyBinding("vivecraft.key.vrInteract", GLFW.GLFW_KEY_UNKNOWN,"key.categories.gameplay");
 	public static final HandedKeyBinding keyClimbeyGrab = new HandedKeyBinding("vivecraft.key.climbeyGrab", GLFW.GLFW_KEY_UNKNOWN,"vivecraft.key.category.climbey");
 	public static final HandedKeyBinding keyClimbeyJump = new HandedKeyBinding("vivecraft.key.climbeyJump", GLFW.GLFW_KEY_UNKNOWN,"vivecraft.key.category.climbey");
 
@@ -383,6 +381,23 @@ public class MCOpenVR
 			}
 		}
 
+		if(Main.infinadeck){
+			try {
+				System.out.println( "Waiting for Infinadeck...." );
+				Utils.unpackNatives("infinadeck");
+				NativeLibrary.addSearchPath(jinfinadeck.INFINADECK_LIBRARY_NAME, new File("openvr/infinadeck").getAbsolutePath());
+
+				if(jinfinadeck.InitConnection()){
+					jinfinadeck.CheckConnection();
+					System.out.println( "Infinadeck Loaded" );
+				}else {
+					System.out.println( "Infinadeck Failed to load" );
+				}
+				
+			} catch (Exception e) {
+				System.out.println( "Infinadeck crashed: " + e.getMessage() );
+			}
+		}
 		return true;
 	}
 
@@ -546,7 +561,8 @@ public class MCOpenVR
 		// TODO: implement VR interact
 		getInputAction(MCOpenVR.keyVRInteract).setPriority(5).setEnabled(false);
 		getInputAction(MCOpenVR.keyClimbeyGrab).setPriority(10).setEnabled(false);
-		getInputAction(MCOpenVR.keyClimbeyJump).setPriority(10).setEnabled(false);
+		//getInputAction(MCOpenVR.keyClimbeyJump).setPriority(10).setEnabled(false);
+		getInputAction(MCOpenVR.keyClimbeyJump).setEnabled(false);
 		getInputAction(GuiHandler.keyKeyboardClick).setPriority(50);
 		getInputAction(GuiHandler.keyKeyboardShift).setPriority(50);
 	}
@@ -721,8 +737,8 @@ public class MCOpenVR
 		list.add(VRInputActionSet.TECHNICAL);
 		if (mc.currentScreen == null) {
 			list.add(VRInputActionSet.INGAME);
-			if (getInputActionsInSet(VRInputActionSet.CONTEXTUAL).stream().anyMatch(VRInputAction::isEnabledRaw))
-				list.add(VRInputActionSet.CONTEXTUAL);
+		//	if (getInputActionsInSet(VRInputActionSet.CONTEXTUAL).stream().anyMatch(VRInputAction::isEnabledRaw))
+			list.add(VRInputActionSet.CONTEXTUAL);
 		} else {
 			list.add(VRInputActionSet.GUI);
 		}
@@ -769,7 +785,7 @@ public class MCOpenVR
 			vrsystem.setAutoSynch(false);
 			vrsystem.read();
 
-			System.out.println("OpenVR initialized & VR connected.");
+			System.out.println("OpenVR System Initialized OK.");
 
 			hmdDisplayFrequency = IntBuffer.allocate(1);
 			hmdDisplayFrequency.put( (int) JOpenVRLibrary.ETrackedDeviceProperty.ETrackedDeviceProperty_Prop_DisplayFrequency_Float);
@@ -800,6 +816,14 @@ public class MCOpenVR
 		p.setString(0, in, StandardCharsets.UTF_8.name());
 		return p;
 	}
+	
+	static float getSuperSampling(){
+		if (vrSettings == null)
+			return -1;
+		return 
+				MCOpenVR.vrSettings.GetFloat.apply(MCOpenVR.ptrFomrString("steamvr"),MCOpenVR.ptrFomrString("supersampleScale"), hmdErrorStore);
+	}
+
 
 	static void debugOut(int deviceindex){
 		System.out.println("******************* VR DEVICE: " + deviceindex + " *************************");
@@ -1074,7 +1098,7 @@ public class MCOpenVR
 		texType0.handle = Pointer.createConstant(-1);
 		VRTextureDepthInfo_t info = new VRTextureDepthInfo_t();
 		info.vRange = new HmdVector2_t(new float[]{0,1});
-		texType0.depth = info;
+	//	texType0.depth = info;
 		texType0.setAutoSynch(false);
 		texType0.setAutoRead(false);
 		texType0.setAutoWrite(false);
@@ -1087,7 +1111,7 @@ public class MCOpenVR
 		texType1.handle = Pointer.createConstant(-1);
 		VRTextureDepthInfo_t info2 = new VRTextureDepthInfo_t();
 		info2.vRange = new HmdVector2_t(new float[]{0,1});
-		texType0.depth = info2;
+	//	texType0.depth = info2;
 		texType1.setAutoSynch(false);
 		texType1.setAutoRead(false);
 		texType1.setAutoWrite(false);
@@ -1117,8 +1141,7 @@ public class MCOpenVR
 	public static void poll(long frameIndex)
 	{
 		if (!initialized) return;
-		boolean sleeping = (mc.world !=null && mc.player != null && mc.player.isSleeping());
-		
+	
 		paused = vrsystem.ShouldApplicationPause.apply() != 0;
 
 		mc.getProfiler().startSection("events");
@@ -1223,6 +1246,8 @@ public class MCOpenVR
 				initialized = false;
 				if(Main.katvr)
 					jkatvr.Halt();
+				if(Main.infinadeck)
+					jinfinadeck.Destroy();
 			} catch (Throwable e) { // wtf valve
 				e.printStackTrace();
 			}
@@ -1307,11 +1332,11 @@ public class MCOpenVR
 	}
 
 	private static void processInputAction(VRInputAction action) {
-		if (!action.isActive() || !action.isEnabled() || unpressBindingsNextFrame) {
+		if (!action.isActive() || !action.isEnabledRaw() || unpressBindingsNextFrame) {
 			action.unpressBinding();
 		} else {
 			if (action.isButtonChanged()) {
-				if (action.isButtonPressed())
+				if (action.isButtonPressed() && action.isEnabled())
 					action.pressBinding();
 				else
 					action.unpressBinding();
@@ -1476,8 +1501,8 @@ public class MCOpenVR
 		}
 
 		if(mc.vrSettings.vrWorldRotationIncrement == 0){
-			float ax = getInputAction(keyRotateAxis).isEnabled() ? getInputAction(keyRotateAxis).getAxis2D(false).getX() : 0;
-			if (ax == 0) ax = getInputAction(keyFreeMoveRotate).isEnabled() ? getInputAction(keyFreeMoveRotate).getAxis2D(false).getX() : 0;
+			float ax = getAxis2D(getInputAction(keyRotateAxis)).getX();
+			if (ax == 0) ax = getAxis2D(getInputAction(keyFreeMoveRotate)).getX();
 			if (ax != 0) {
 				float analogRotSpeed = 10 * ax;
 				mc.vrSettings.vrWorldRotation -= analogRotSpeed;
@@ -1623,6 +1648,7 @@ public class MCOpenVR
 		GuiHandler.processBindingsGui();
 		RadialHandler.processBindings();
 		KeyboardHandler.processBindings();
+		mc.interactTracker.processBindings();
 	}
 
 	private static void changeHotbar(int dir){
@@ -2025,6 +2051,38 @@ public class MCOpenVR
 	public static boolean isControllerTracking(ControllerType controller) {
 		return isControllerTracking(controller.ordinal());
 	}
+
+	// Code duplication to reduce garbage
+	public static float getAxis1D(VRInputAction action) {
+		if (axisUseTracker.getOrDefault(action.keyBinding.getKeyDescription(), false) || action.isEnabled()) {
+			float axis = action.getAxis1D(false);
+			boolean used = axis != 0;
+			axisUseTracker.put(action.keyBinding.getKeyDescription(), used);
+			return axis;
+		}
+		return 0;
+	}
+
+	public static Vector2 getAxis2D(VRInputAction action) {
+		if (axisUseTracker.getOrDefault(action.keyBinding.getKeyDescription(), false) || action.isEnabled()) {
+			Vector2 axis = action.getAxis2D(false);
+			boolean used = axis.getX() != 0 || axis.getY() != 0;
+			axisUseTracker.put(action.keyBinding.getKeyDescription(), used);
+			return axis;
+		}
+		return new Vector2();
+	}
+
+	public static Vector3 getAxis3D(VRInputAction action) {
+		if (axisUseTracker.getOrDefault(action.keyBinding.getKeyDescription(), false) || action.isEnabled()) {
+			Vector3 axis = action.getAxis3D(false);
+			boolean used = axis.getX() != 0 || axis.getY() != 0 || axis.getZ() != 0;
+			axisUseTracker.put(action.keyBinding.getKeyDescription(), used);
+			return axis;
+		}
+		return new Vector3();
+	}
+	// Weeeeee
 
 	/**
 	 * @return The coordinate of the 'center' eye position relative to the head yaw plane
@@ -2458,10 +2516,6 @@ public class MCOpenVR
 					mc.vrSettings.vrFixedCamposZ);
 		}
 
-
-	}
-
-	public static void debugOutput(){
 
 	}
 

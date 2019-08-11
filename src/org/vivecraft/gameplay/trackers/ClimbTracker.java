@@ -76,9 +76,17 @@ public class ClimbTracker extends Tracker{
 	public boolean isGrabbingLadder(){
 		return latched[0] || latched[1];
 	}
+
+	public boolean wasGrabbingLadder(){
+		return waslatched[0] || latched[1];
+	}
 	
 	public boolean isGrabbingLadder(int controller){
 		return latched[controller];
+	}
+
+	public boolean wasGrabbingLadder(int controller){
+		return waslatched[controller];
 	}
 
 	public boolean isClaws(ItemStack i){
@@ -135,12 +143,18 @@ public class ClimbTracker extends Tracker{
 
 	@Override
 	public void idleTick(ClientPlayerEntity player) {
-		if (isGrabbingLadder())
+		if (!isActive(player)) {
+			waslatched[0] = false;
+			waslatched[1] = false;
+		}
+
+		if (wasGrabbingLadder() && !isGrabbingLadder())
 			forceActivate = true;
 		else if (mc.player.onGround || mc.player.abilities.isFlying)
 			forceActivate = false;
 
-		MCOpenVR.getInputAction(MCOpenVR.keyClimbeyGrab).setEnabled(isClimbeyClimb() && (isGrabbingLadder() ||  forceActivate || inblock[0] || inblock[1]));
+		MCOpenVR.getInputAction(MCOpenVR.keyClimbeyGrab).setEnabled(ControllerType.RIGHT, isClimbeyClimb() && (latched[0] || inblock[0] || forceActivate));
+		MCOpenVR.getInputAction(MCOpenVR.keyClimbeyGrab).setEnabled(ControllerType.LEFT, isClimbeyClimb() && (latched[1] || inblock[1] || forceActivate));
 	}
 
 	@Override
@@ -356,7 +370,7 @@ public class ClimbTracker extends Tracker{
 							latched[0] = false;
 						MCOpenVR.triggerHapticPulse(c, 2000);
 						mc.player.stepSound(bp, latchStart[c]);
-						if(!ladder)mc.vrPlayer.blockDust(latchStart[c].x, latchStart[c].y, latchStart[c].z, 5, bs);
+						if(!ladder)mc.vrPlayer.blockDust(latchStart[c].x, latchStart[c].y, latchStart[c].z, 5, bp, bs, 0.1f);
 
 					}
 				}
@@ -382,7 +396,7 @@ public class ClimbTracker extends Tracker{
 					MCOpenVR.triggerHapticPulse(c, 2000);
 					BlockPos bp = new BlockPos(latchStart[c]);
 					BlockState bs = mc.world.getBlockState(bp);
-					if(!ladder)mc.vrPlayer.blockDust(latchStart[c].x, latchStart[c].y, latchStart[c].z, 5, bs);
+					if(!ladder)mc.vrPlayer.blockDust(latchStart[c].x, latchStart[c].y, latchStart[c].z, 5, bp, bs, 0.1f);
 				}
 			}
 		}		
@@ -418,7 +432,7 @@ public class ClimbTracker extends Tracker{
 			mc.player.addExhaustion(.1f);    
 			BlockPos bp = new BlockPos(latchStart[latchStartController]);
 			BlockState bs = mc.world.getBlockState(bp);
-			if(!ladder) mc.vrPlayer.blockDust(latchStart[latchStartController].x, latchStart[latchStartController].y, latchStart[latchStartController].z, 1, bs);
+			if(!ladder) mc.vrPlayer.blockDust(latchStart[latchStartController].x, latchStart[latchStartController].y, latchStart[latchStartController].z, 1, bp, bs, 0.1f);
 		}
 
 

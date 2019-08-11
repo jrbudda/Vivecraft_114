@@ -136,13 +136,14 @@ public class VRSettings
 	public String keyboardKeysShift ="~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL;\':\"ZXCVBNM,./?<>";
 	public String hrtfSelection = "";
 	public boolean firstRun = true;
+    public int rightclickDelay = 6 ;
 	//
 
     //Locomotion
     public int inertiaFactor = INERTIA_NORMAL;
     public boolean walkUpBlocks = true;     // VIVE default to enable climbing
     public boolean simulateFalling = true;  // VIVE if HMD is over empty space, fall
-    public boolean weaponCollision = true;  // VIVE weapon hand collides with blocks/enemies
+    public int weaponCollision = 2;  // VIVE weapon hand collides with blocks/enemies
     public float movementSpeedMultiplier = 1.0f;   // VIVE - use full speed by default
     public int vrFreeMoveMode = this.FREEMOVE_CONTROLLER;
     public boolean vrLimitedSurvivalTeleport = true;
@@ -166,7 +167,6 @@ public class VRSettings
     public boolean vrAllowCrawling = false; //unused
     public boolean vrShowBlueCircleBuddy = true;
     public boolean vehicleRotation = true; 
-    public boolean animaltouching = true;
     public boolean analogMovement = true;
     public boolean autoSprint = true;
     public float autoSprintThreshold = 0.9f;
@@ -490,13 +490,9 @@ public class VRSettings
                     {
                         this.simulateFalling = optionTokens[1].equals("true");
                     }
-                    if (optionTokens[0].equals("weaponCollision"))
+                    if (optionTokens[0].equals("weaponCollisionNew"))
                     {
-                        this.weaponCollision = optionTokens[1].equals("true");
-                    }
-                    if (optionTokens[0].equals("animalTouching"))
-                    {
-                        this.animaltouching = optionTokens[1].equals("true");
+                        this.weaponCollision = Integer.parseInt(optionTokens[1]);
                     }
                     // VIVE END - new options
                     //JRBUDDA
@@ -768,6 +764,22 @@ public class VRSettings
                     if(optionTokens[0].equals("chatNotificationSound")){
                     	this.chatNotificationSound = optionTokens[1];
                     }
+
+                    if(optionTokens[0].equals("autoSprint")){
+                        this.autoSprint = optionTokens[1].equals("true");
+                    }
+
+                    if(optionTokens[0].equals("autoSprintThreshold")){
+                        this.autoSprintThreshold = parseFloat(optionTokens[1]);
+                    }
+
+                    if(optionTokens[0].equals("hrtfSelection")){
+                        this.hrtfSelection = optionTokens[1];
+                    }
+                    
+                    if(optionTokens[0].equals("rightclickDelay")){
+                        this.rightclickDelay = Integer.parseInt(optionTokens[1]);
+                    }
                     
                     if(optionTokens[0].equals("firstRun")){
                     	this.firstRun = optionTokens[1].equals("true");
@@ -1024,11 +1036,12 @@ public class VRSettings
             case SIMULATE_FALLING:
                 return this.simulateFalling ? var4 + "ON" : var4 + "OFF";
             case WEAPON_COLLISION:
-                return this.weaponCollision ? var4 + "ON" : var4 + "OFF";
-            case ANIMAL_TOUCHING:
-                return this.animaltouching ? var4 + "ON" : var4 + "OFF";
-                // VIVE END - new options
-                //JRBUDDA
+              if(this.weaponCollision == 0)
+            	  return var4 + "OFF";
+              else if(this.weaponCollision == 1)
+            	  return var4 + "ON";
+              else if(this.weaponCollision == 2)
+            	  return var4 + "AUTO";
             case ALLOW_CRAWLING:
                 return this.vrAllowCrawling ? var4 + "ON" : var4 + "OFF"; 
             case LIMIT_TELEPORT:
@@ -1156,6 +1169,17 @@ public class VRSettings
                 else
                     return var4 + SoundSystem.hrtfList.get(index);
             }
+            case RIGHT_CLICK_DELAY:
+                switch (this.rightclickDelay) {
+                    case 4:
+                        return var4 + "Default";
+                    case 6:
+                        return var4 + "Slow";
+                    case 8:
+                        return var4 + "Slower";
+                    case 10:
+                        return var4 + "Slowest";
+                }
             case RELOAD_EXTERNAL_CAMERA:
                 return var2;
             default:
@@ -1374,10 +1398,9 @@ public class VRSettings
                 this.simulateFalling = !this.simulateFalling;
                 break;
             case WEAPON_COLLISION:
-                this.weaponCollision = !this.weaponCollision;
-                break;
-            case ANIMAL_TOUCHING:
-                this.animaltouching = !this.animaltouching;
+                this.weaponCollision++;
+                if(this.weaponCollision > 2)
+                	this.weaponCollision = 0;
                 break;
             // VIVE END - new options
                 //JRBUDDA
@@ -1516,6 +1539,10 @@ public class VRSettings
                     mc.getSoundHandler().sndManager.reload();
                 }
                 break;
+            case RIGHT_CLICK_DELAY:
+            	this.rightclickDelay+=2;
+            	if (this.rightclickDelay>10) this.bowMode = 4;
+            	break;
             case RELOAD_EXTERNAL_CAMERA:
                 VRHotkeys.loadExternalCameraConfig();
                 break;
@@ -1695,8 +1722,7 @@ public class VRSettings
             var5.println("smoothTick:" + this.smoothTick);
             //VIVE
             var5.println("simulateFalling:" + this.simulateFalling);
-            var5.println("weaponCollision:" + this.weaponCollision);
-            var5.println("animalTouching:" + this.animaltouching);
+            var5.println("weaponCollisionNew:" + this.weaponCollision);
             //END VIVE
             
             //JRBUDDA
@@ -1756,6 +1782,9 @@ public class VRSettings
             var5.println("bowMode:" + this.bowMode);
             var5.println("keyboardKeys:" + this.keyboardKeys);
             var5.println("keyboardKeysShift:" + this.keyboardKeysShift);
+            var5.println("teleportLimitUp:" + this.vrTeleportUpLimit);
+            var5.println("teleportLimitDown:" + this.vrTeleportDownLimit);
+            var5.println("teleportLimitHoriz:" + this.vrTeleportHorizLimit);
             var5.println("radialModeHold:" + this.radialModeHold);
             var5.println("physicalKeyboard:" + this.physicalKeyboard);
             var5.println("originOffset:" + MCOpenVR.offset.getX() + "," + MCOpenVR.offset.getY() + "," + MCOpenVR.offset.getZ());
@@ -1766,6 +1795,11 @@ public class VRSettings
             var5.println("menuWorldSelection:" + this.menuWorldSelection);
             var5.println("chatNotifications:" + this.chatNotifications);
             var5.println("chatNotificationSound:" + this.chatNotificationSound);
+            var5.println("autoSprint:" + this.autoSprint);
+            var5.println("autoSprintThreshold:" + this.autoSprintThreshold);
+            var5.println("hrtfSelection:" + this.hrtfSelection);
+            var5.println("rightclickDelay:" + this.rightclickDelay);
+
             var5.println("firstRun:" + this.firstRun);
             
             if (vrQuickCommands == null) vrQuickCommands = getQuickCommandsDefaults(); //defaults
@@ -2075,8 +2109,8 @@ public class VRSettings
                 "when standing above empty space. Also allows jumping"
         }),
         WEAPON_COLLISION("Weapon collision", false, true,new String[] {
-                "If enabled, you can swing your pickaxe at blocks to",
-                "mine them, or your sword at enemies to hit them."
+                "Enables hitting blocks and entities in roomscale.",
+                "AUTO is on in survival and off in creative."
         }),
         ANIMAL_TOUCHING("Animal Interaction", false, true,new String[] {
                 "If enabled, touching a passive mob (animal) without a",
@@ -2296,11 +2330,18 @@ public class VRSettings
         }),
         HRTF_SELECTION("HRTF", false, false, new String[] {
                 "HRTF profile to use for directional 3D audio.",
+                "Quality may vary by device and driver.",
                 "",
-                "These are specific to your particular audio device."
+                "Off: Explicitly disable HRTF.",
+                "Default: Use the default HRTF profile.",
+                "Others: Use a specific HRTF profile.",
         }),
         RELOAD_EXTERNAL_CAMERA("Reload External Camera", false, false, new String[] {
                 "Reloads the camera config from ExternalCamera.cfg"
+        }),
+        RIGHT_CLICK_DELAY("Right Click Repeat", false, false, new String[] {
+                "The number of game ticks between 'right clicks'",
+                "while holding the button down."
         });
 //        ANISOTROPIC_FILTERING("options.anisotropicFiltering", true, false, 1.0F, 16.0F, 0.0F)
 //                {

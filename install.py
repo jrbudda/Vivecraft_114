@@ -136,6 +136,11 @@ def installAndPatchMcp( mcp_dir ):
         print "No %s directory or zip file found. Please copy the %s.zip file into %s and re-run the command." % (mcp_version, mcp_version, base_dir)
         exit(1)
            
+    #Remove outdated mcp patches
+    mcppatchesdir = os.path.join(mcp_dir,"conf","patches")
+    if os.path.exists(mcppatchesdir):
+        reallyrmtree(mcppatchesdir)
+        
     # Patch in mcp (if present)
     mappingsdir = os.path.join(base_dir,"mcppatches","mappings")
     mappingstarget = os.path.join(mcp_dir)

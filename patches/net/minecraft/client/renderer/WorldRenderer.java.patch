@@ -52,7 +52,7 @@
              GlStateManager.disableBlend();
          }
      }
-@@ -720,7 +727,20 @@
+@@ -720,7 +727,18 @@
  
              for (Entity entity : this.world.getAllEntities())
              {
@@ -62,9 +62,7 @@
 +            	boolean selfRender = mc.currentPass == RenderPass.THIRD && mc.vrSettings.displayMirrorMode == VRSettings.MIRROR_THIRD_PERSON;
 +            	selfRender |= mc.vrSettings.shouldRenderSelf || mc.vrSettings.tmpRenderSelf;
 +            	//		
-+
-+            	if (!flag  
-+            			&& 	(this.renderManager.shouldRender(entity, p_215326_2_, d0, d1, d2) || 
++            	if ((this.renderManager.shouldRender(entity, p_215326_2_, d0, d1, d2) || 
 +            							entity.isRidingOrBeingRiddenBy(this.mc.player)) &&
 +            					(selfRender || entity != p_215326_1_.getRenderViewEntity() ||
 +            						Shaders.isShadowPass ||
@@ -74,7 +72,7 @@
                  {
                      ++this.countEntitiesRendered;
                      this.renderedEntity = entity;
-@@ -729,10 +749,21 @@
+@@ -729,10 +747,21 @@
                      {
                          Shaders.nextEntity(entity);
                      }
@@ -97,7 +95,7 @@
                      if (entity.isGlowing() || entity instanceof PlayerEntity && this.mc.player.isSpectator() && this.mc.gameSettings.keyBindSpectatorOutlines.isKeyDown())
                      {
                          list.add(entity);
-@@ -771,7 +802,8 @@
+@@ -771,7 +800,8 @@
                  {
                      GlStateManager.depthFunc(519);
                      GlStateManager.disableFog();
@@ -107,7 +105,7 @@
                      RenderHelper.disableStandardItemLighting();
                      this.renderManager.setRenderOutlines(true);
  
-@@ -803,7 +835,8 @@
+@@ -803,7 +833,8 @@
                      GlStateManager.enableAlphaTest();
                  }
  
@@ -117,7 +115,7 @@
              }
  
              if (!this.isRenderEntityOutlines() && (!list.isEmpty() || this.entityOutlinesRendered))
-@@ -1074,7 +1107,9 @@
+@@ -1074,7 +1105,9 @@
          new BlockPos(MathHelper.floor(p_215320_1_.getProjectedView().x / 16.0D) * 16, MathHelper.floor(p_215320_1_.getProjectedView().y / 16.0D) * 16, MathHelper.floor(p_215320_1_.getProjectedView().z / 16.0D) * 16);
          float f = p_215320_1_.getPitch();
          float f1 = p_215320_1_.getYaw();
@@ -128,7 +126,7 @@
          this.lastViewEntityX = p_215320_1_.getProjectedView().x;
          this.lastViewEntityY = p_215320_1_.getProjectedView().y;
          this.lastViewEntityZ = p_215320_1_.getProjectedView().z;
-@@ -1449,7 +1484,7 @@
+@@ -1449,7 +1482,7 @@
          }
      }
  
@@ -137,7 +135,7 @@
      {
          this.mc.gameRenderer.enableLightmap();
  
-@@ -1626,7 +1661,7 @@
+@@ -1626,7 +1659,7 @@
  
              if (flag)
              {
@@ -146,7 +144,7 @@
              }
  
              Vec3d vec3d = this.world.getSkyColor(this.mc.gameRenderer.getActiveRenderInfo().getBlockPos(), partialTicks);
-@@ -1694,7 +1729,7 @@
+@@ -1694,7 +1727,7 @@
  
                  if (flag)
                  {
@@ -155,7 +153,7 @@
                  }
  
                  GlStateManager.shadeModel(7425);
-@@ -1726,7 +1761,7 @@
+@@ -1726,7 +1759,7 @@
  
              if (flag)
              {
@@ -164,7 +162,7 @@
              }
  
              GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-@@ -1785,7 +1820,7 @@
+@@ -1785,7 +1818,7 @@
  
              if (flag)
              {
@@ -173,7 +171,7 @@
              }
  
              float f12 = this.world.getStarBrightness(partialTicks) * f10;
-@@ -1824,7 +1859,7 @@
+@@ -1824,7 +1857,7 @@
  
              if (flag)
              {
@@ -182,7 +180,7 @@
              }
  
              GlStateManager.color3f(0.0F, 0.0F, 0.0F);
-@@ -1894,7 +1929,7 @@
+@@ -1894,7 +1927,7 @@
  
              if (flag)
              {
@@ -191,6 +189,15 @@
              }
  
              GlStateManager.depthMask(true);
+@@ -2484,6 +2517,8 @@
+         }
+     }
+ 
++    public float selR, selG, selB;
++    
+     public void drawSelectionBox(ActiveRenderInfo p_215325_1_, RayTraceResult p_215325_2_, int p_215325_3_)
+     {
+         if (p_215325_3_ == 0 && p_215325_2_.getType() == RayTraceResult.Type.BLOCK)
 @@ -2500,7 +2535,7 @@
  
                  if (Config.isShaders())
@@ -200,6 +207,15 @@
                  }
  
                  GlStateManager.depthMask(false);
+@@ -2510,7 +2545,7 @@
+                 double d0 = p_215325_1_.getProjectedView().x;
+                 double d1 = p_215325_1_.getProjectedView().y;
+                 double d2 = p_215325_1_.getProjectedView().z;
+-                drawShape(blockstate.getShape(this.world, blockpos, ISelectionContext.forEntity(p_215325_1_.getRenderViewEntity())), (double)blockpos.getX() - d0, (double)blockpos.getY() - d1, (double)blockpos.getZ() - d2, 0.0F, 0.0F, 0.0F, 0.4F);
++                drawShape(blockstate.getShape(this.world, blockpos, ISelectionContext.forEntity(p_215325_1_.getRenderViewEntity())), (double)blockpos.getX() - d0, (double)blockpos.getY() - d1, (double)blockpos.getZ() - d2, selR, selG, selB, 0.4F);
+                 GlStateManager.popMatrix();
+                 GlStateManager.matrixMode(5888);
+                 GlStateManager.depthMask(true);
 @@ -2518,7 +2553,7 @@
  
                  if (Config.isShaders())

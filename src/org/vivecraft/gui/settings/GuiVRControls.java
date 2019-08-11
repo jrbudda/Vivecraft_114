@@ -20,7 +20,7 @@ public class GuiVRControls extends GuiVROptionsBase {
 			new VROptionEntry(VRSettings.VrOptions.DUMMY, true),
 			new VROptionEntry(VRSettings.VrOptions.DUMMY, true),
 			new VROptionEntry(VRSettings.VrOptions.DUMMY, true),
-			new VROptionEntry(VRSettings.VrOptions.DUMMY, true),
+			new VROptionEntry(VRSettings.VrOptions.RIGHT_CLICK_DELAY, true),
 			new VROptionEntry(VRSettings.VrOptions.ALLOW_ADVANCED_BINDINGS, true)
 	};
 	
@@ -47,5 +47,6 @@ public class GuiVRControls extends GuiVROptionsBase {
 		protected void loadDefaults() {
 			VRSettings vrSettings = minecraft.vrSettings;
 			vrSettings.allowAdvancedBindings = false;
+			vrSettings.rightclickDelay = 6;
 		}
 }

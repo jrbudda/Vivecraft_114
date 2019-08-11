@@ -57,7 +57,7 @@
 +                    int hrtfEnable;
 +                    if (selectedName.equals("off"))
 +                        hrtfEnable = ALC10.ALC_FALSE;
-+                    // OpenAL fails to detect headphones in most cases, so let's just force enable it
++                    // This usually just results in disabled
 +                    //else if (index == -1)
 +                    //    hrtfEnable = SOFTHRTF.ALC_DONT_CARE_SOFT;
 +                    else

@@ -20,6 +20,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.screen.WinGameScreen;
+import net.minecraft.client.particle.DiggingParticle;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
@@ -264,7 +265,15 @@ public class OpenVRPlayer
 		x = player.posX - campos.x;
 		z = player.posZ - campos.z;
 		y = player.posY;
-	
+		
+		switch (player.getPose())
+		{
+		case SWIMMING:
+		case FALL_FLYING:
+		case SPIN_ATTACK:
+			y -= 1.62 - 0.4f;
+		}
+		
 		setRoomOrigin(x, y, z, reset);
 	}
 
@@ -318,7 +327,7 @@ public class OpenVRPlayer
 		AutoCalibration.logHeadPos(MCOpenVR.hmdPivotHistory.latest());
 
 		doPlayerMoveInRoom(player);
-
+		
 		for (Tracker tracker : trackers) {
 			if (tracker.getEntryPoint() == Tracker.EntryPoint.LIVING_UPDATE) {
 				tracker.idleTick(mc.player);
@@ -517,21 +526,23 @@ public class OpenVRPlayer
 
 
 
-	public void blockDust(double x, double y, double z, int count, BlockState bs){
+	public void blockDust(double x, double y, double z, int count, BlockPos bp, BlockState bs, float scale){
 		Random rand = new Random();
+		Minecraft mc = Minecraft.getInstance();
 		for (int i = 0; i < count; ++i)
 		{
-			
-			Minecraft.getInstance().world.addParticle(
-					new BlockParticleData(ParticleTypes.BLOCK, bs), 
+
+			DiggingParticle p = new DiggingParticle(mc.world,
 					x+ ((double)rand.nextFloat() - 0.5D)*.02f,
 					y + ((double)rand.nextFloat() - 0.5D)*.02f,
 					z + ((double)rand.nextFloat()- 0.5D)*.02f,
 					((double)rand.nextFloat()- 0.5D)*.1f,
 					((double)rand.nextFloat()- 0.5D)*.05f,
-					((double)rand.nextFloat()- 0.5D)*.1f
-					);    
-			 	
+					((double)rand.nextFloat()- 0.5D)*.1f,
+					bs);
+
+			mc.particles.addEffect(p.setBlockPos(bp).multipleParticleScaleBy(scale));
+
 		}
 	}
 
@@ -732,5 +743,7 @@ public class OpenVRPlayer
 		MCOpenVR.getInputAction(MCOpenVR.keyTeleport).setEnabled(isTeleportEnabled());
 		MCOpenVR.getInputAction(MCOpenVR.keyTeleportFallback).setEnabled(!isTeleportEnabled());
 	}
+
+
 }
 

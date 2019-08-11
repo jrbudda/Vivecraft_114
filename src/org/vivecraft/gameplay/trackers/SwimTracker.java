@@ -37,6 +37,8 @@ public class SwimTracker extends Tracker {
 			return false;
 		if(p.moveForward > 0)
 			return false;
+		if(p.moveStrafing > 0)
+			return false;
 		return true;
 	}
 

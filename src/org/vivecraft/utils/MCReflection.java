@@ -20,6 +20,7 @@ import net.minecraft.world.dimension.Dimension;
 public class MCReflection {
 	//public static final ReflectionField SoundManager_sndSystem = new ReflectionField(SoundEngine.class, "field_148620_e");
 	//public static final ReflectionField SoundManager_loaded = new ReflectionField(SoundEngine.class, "field_148617_f");
+	public static final String BlockState_OnBlockActivated = "func_220051_a";
 	public static final ReflectionMethod Dimension_generateLightBrightnessTable = new ReflectionMethod(Dimension.class, "func_76556_a");
 	public static final ReflectionMethod Dimension_hasSkyLight = new ReflectionMethod(Dimension.class, "func_191066_m");
 	public static final ReflectionField PlayerController_blockHitDelay = new ReflectionField(PlayerController.class, "field_78781_i");
@@ -40,7 +41,7 @@ public class MCReflection {
 	public static final ReflectionField ModelManager_texmap = new ReflectionField(ModelManager.class, "field_174956_b");
 	public static final ReflectionField ModelManager_modelRegistry = new ReflectionField(ModelManager.class, "field_174958_a");
 	public static final ReflectionField ModelManager_defaultModel = new ReflectionField(ModelManager.class, "field_174955_d");
-	
+
 	public static class ReflectionField {
 		private final Class<?> clazz;
 		private final String srgName;
@@ -114,6 +115,10 @@ public class MCReflection {
 			reflect();
 		}
 
+		public Method getMethod() {
+			return method;
+		}
+		
 		public Object invoke(Object obj, Object... args) {
 			try {
 				return method.invoke(obj, args);

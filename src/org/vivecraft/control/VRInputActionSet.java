@@ -6,7 +6,7 @@ public enum VRInputActionSet {
 	INGAME("/actions/ingame", "vivecraft.actionset.ingame", "leftright", false),
 	GUI("/actions/gui", "vivecraft.actionset.gui", "leftright", false),
 	GLOBAL("/actions/global", "vivecraft.actionset.global", "leftright", false),
-	CONTEXTUAL("/actions/contextual", "vivecraft.actionset.contextual", "single", true),
+	CONTEXTUAL("/actions/contextual", "vivecraft.actionset.contextual", "single", false),
 	KEYBOARD("/actions/keyboard", "vivecraft.actionset.keyboard", "single", true),
 	MIXED_REALITY("/actions/mixedreality", "vivecraft.actionset.mixedReality", "single", true),
 	TECHNICAL("/actions/technical", "vivecraft.actionset.technical", "leftright", true);

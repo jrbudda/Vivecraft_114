@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/entity/player/ClientPlayerEntity.java
 +++ b/net/minecraft/client/entity/player/ClientPlayerEntity.java
-@@ -1,11 +1,31 @@
+@@ -1,11 +1,32 @@
  package net.minecraft.client.entity.player;
  
  import com.google.common.collect.Lists;
@@ -23,6 +23,7 @@
 +import org.vivecraft.provider.MCOpenVR;
 +import org.vivecraft.settings.VRSettings;
 +import org.vivecraft.utils.TransactionMutex;
++import org.vivecraft.utils.jinfinadeck;
 +import org.vivecraft.utils.jkatvr;
 +
 +import net.minecraft.block.Block;
@@ -32,7 +33,7 @@
  import net.minecraft.client.Minecraft;
  import net.minecraft.client.audio.BubbleColumnAmbientSoundHandler;
  import net.minecraft.client.audio.ElytraSound;
-@@ -22,6 +42,7 @@
+@@ -22,6 +43,7 @@
  import net.minecraft.client.gui.screen.JigsawScreen;
  import net.minecraft.client.gui.screen.Screen;
  import net.minecraft.client.gui.screen.inventory.ContainerScreen;
@@ -40,7 +41,7 @@
  import net.minecraft.client.network.play.ClientPlayNetHandler;
  import net.minecraft.client.util.ClientRecipeBook;
  import net.minecraft.client.world.ClientWorld;
-@@ -32,24 +53,18 @@
+@@ -32,24 +54,18 @@
  import net.minecraft.entity.item.BoatEntity;
  import net.minecraft.entity.item.ItemEntity;
  import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
@@ -70,7 +71,13 @@
  import net.minecraft.particles.ParticleTypes;
  import net.minecraft.potion.Effect;
  import net.minecraft.potion.EffectInstance;
-@@ -76,6 +91,7 @@
+@@ -71,11 +87,13 @@
+ import net.minecraft.util.math.AxisAlignedBB;
+ import net.minecraft.util.math.BlockPos;
+ import net.minecraft.util.math.MathHelper;
++import net.minecraft.util.math.RayTraceResult;
+ import net.minecraft.util.math.Vec2f;
+ import net.minecraft.util.math.Vec3d;
  import net.minecraft.util.math.shapes.ISelectionContext;
  import net.minecraft.util.math.shapes.VoxelShape;
  import net.minecraft.util.text.ITextComponent;
@@ -78,7 +85,7 @@
  import net.minecraft.world.dimension.DimensionType;
  
  public class ClientPlayerEntity extends AbstractClientPlayerEntity
-@@ -99,6 +115,23 @@
+@@ -99,6 +117,23 @@
      public MovementInput movementInput;
      protected final Minecraft mc;
      protected int sprintToggleTimer;
@@ -102,7 +109,7 @@
      public int sprintingTicksLeft;
      public float renderArmYaw;
      public float renderArmPitch;
-@@ -127,12 +160,99 @@
+@@ -127,12 +162,99 @@
          this.ambientSoundHandlers.add(new UnderwaterAmbientSoundHandler(this, p_i2493_1_.getSoundHandler()));
          this.ambientSoundHandlers.add(new BubbleColumnAmbientSoundHandler(this));
      }
@@ -203,7 +210,7 @@
          return false;
      }
  
-@@ -143,6 +263,8 @@
+@@ -143,6 +265,8 @@
      {
      }
  
@@ -212,7 +219,7 @@
      public boolean startRiding(Entity entityIn, boolean force)
      {
          if (!super.startRiding(entityIn, force))
-@@ -162,7 +284,10 @@
+@@ -162,7 +286,10 @@
                  this.rotationYaw = entityIn.rotationYaw;
                  this.setRotationYawHead(entityIn.rotationYaw);
              }
@@ -224,7 +231,7 @@
              return true;
          }
      }
-@@ -174,6 +299,10 @@
+@@ -174,6 +301,10 @@
      {
          super.stopRiding();
          this.rowingBoat = false;
@@ -235,7 +242,7 @@
      }
  
      /**
-@@ -259,29 +388,41 @@
+@@ -259,29 +390,41 @@
              boolean flag1 = d0 * d0 + d1 * d1 + d2 * d2 > 9.0E-4D || this.positionUpdateTicks >= 20;
              boolean flag2 = d3 != 0.0D || d4 != 0.0D;
  
@@ -299,7 +306,7 @@
              if (flag1)
              {
                  this.lastReportedPosX = this.posX;
-@@ -297,6 +438,13 @@
+@@ -297,6 +440,13 @@
              }
  
              this.prevOnGround = this.onGround;
@@ -313,7 +320,7 @@
              this.autoJumpEnabled = this.mc.gameSettings.autoJump;
          }
      }
-@@ -321,8 +469,11 @@
+@@ -321,10 +471,24 @@
      public void sendChatMessage(String message)
      {
          this.connection.sendPacket(new CChatMessagePacket(message));
@@ -324,8 +331,21 @@
 +    
      public void swingArm(Hand hand)
      {
++    	//Vivecraft
++    	if(!this.isSwingInProgress) {
++            if (mc.objectMouseOver != null && mc.objectMouseOver.getType() != RayTraceResult.Type.MISS ) {
++        		mc.getFirstPersonRenderer().xdist = (float) mc.objectMouseOver.getHitVec().subtract(
++            			mc.vrPlayer.vrdata_world_pre.getController(hand.ordinal()).getPosition()).length();    
++            } else {
++            	mc.getFirstPersonRenderer().xdist = 0;
++            }
++    	}
++    	//
++    	
          super.swingArm(hand);
-@@ -798,6 +949,7 @@
+         this.connection.sendPacket(new CAnimateHandPacket(hand));
+     }
+@@ -798,6 +962,7 @@
          boolean flag2 = this.func_223110_ee();
          boolean flag3 = this.shouldRenderSneaking() || this.func_213300_bk();
          this.movementInput.tick(flag3, this.isSpectator());
@@ -333,7 +353,7 @@
          this.mc.getTutorial().handleMovement(this.movementInput);
  
          if (this.isHandActive() && !this.isPassenger())
-@@ -982,6 +1134,9 @@
+@@ -982,6 +1147,9 @@
          }
  
          super.livingTick();
@@ -343,7 +363,7 @@
  
          if (this.onGround && this.abilities.isFlying && !this.mc.playerController.isSpectatorMode())
          {
-@@ -1083,14 +1238,52 @@
+@@ -1083,14 +1251,73 @@
          return super.removeActivePotionEffect(potioneffectin);
      }
  
@@ -378,8 +398,29 @@
 +    			this.stepHeight = 0.6f;
 +    			this.updateAutoJump((float)(this.posX - d0), (float)(this.posZ - d1));
 +    		}
-+
++    		
 +    		double oy = this.posY;
++
++            switch (this.getPose())
++            {
++          case SWIMMING:
++          case FALL_FLYING:
++          case SPIN_ATTACK:
++        	  oy -= 1.62 - 0.4f;
++        	  
++//              return 0.4F;
++//                case SWIMMING:
++//                case FALL_FLYING:
++//                case SPIN_ATTACK:
++//                    return 0.4F;
++//
++//                case SNEAKING:
++//                    return 1.27F;
++//
++//                default:
++//                    return 1.62F;
++            }
++            
 +    		OpenVRPlayer.get().setRoomOrigin(
 +    				posX + ox, 
 +    				oy, 
@@ -402,7 +443,7 @@
      public boolean isAutoJumpEnabled()
      {
          return this.autoJumpEnabled;
-@@ -1114,12 +1307,17 @@
+@@ -1114,12 +1341,17 @@
                      float f = this.getAIMoveSpeed();
                      float f1 = (float)vec3d2.lengthSquared();
  
@@ -422,7 +463,7 @@
                          vec3d2 = new Vec3d((double)(f2 * f5 - f3 * f4), vec3d2.y, (double)(f3 * f5 + f2 * f4));
                          f1 = (float)vec3d2.lengthSquared();
  
-@@ -1293,4 +1491,387 @@
+@@ -1293,4 +1525,400 @@
              return this.eyesInWaterPlayer;
          }
      }
@@ -593,7 +634,20 @@
 +    			}else{
 +
 +    			}
-+    		} else if(mc.vrSettings.seated){
++    		}     		
++    		else if(Main.infinadeck){
++    			jinfinadeck.query();
++
++    			speed =  jinfinadeck.getSpeed() * jinfinadeck.walkDirection() * mc.vrSettings.movementSpeedMultiplier;
++    			directionVec = new Vec3d(0, 0,speed);
++    			directionVec=directionVec.rotateYaw(-jinfinadeck.getYaw()* PIOVER180 + mc.vrPlayer.vrdata_world_pre.rotation_radians);	    		
++
++    			if(this.abilities.isFlying || this.inWater){
++    				directionVec=directionVec.rotatePitch(con.vrdata_world_pre.hmd.getPitch()* PIOVER180);				
++    			}else{
++
++    			}
++    		}else if(mc.vrSettings.seated){
 +    			int c = 0;
 +    			if(mc.vrSettings.seatedUseHMD) c = 1;
 +    			directionVec=directionVec.rotateYaw(-con.vrdata_world_pre.getController(c).getYaw() * PIOVER180);	    		

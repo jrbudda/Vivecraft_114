@@ -331,7 +331,7 @@
          float f = MathHelper.lerp(partialTicks, this.mc.player.prevTimeInPortal, this.mc.player.timeInPortal);
  
          if (f > 0.0F)
-@@ -618,12 +754,109 @@
+@@ -618,13 +754,111 @@
              GlStateManager.scalef(1.0F / f1, 1.0F, 1.0F);
              GlStateManager.rotatef(-((float)this.rendererUpdateCount + partialTicks) * (float)i, 0.0F, 1.0F, 1.0F);
          }
@@ -440,9 +440,11 @@
 +		}	
 +	}
  
++    //unused
      public void renderHand(ActiveRenderInfo p_renderHand_1_, float p_renderHand_2_, boolean p_renderHand_3_, boolean p_renderHand_4_, boolean p_renderHand_5_)
      {
-@@ -683,7 +916,7 @@
+         if (!this.debugView)
+@@ -683,7 +917,7 @@
  
              if (this.mc.gameSettings.thirdPersonView == 0 && !flag)
              {
@@ -451,7 +453,7 @@
                  this.hurtCameraEffect(p_renderHand_2_);
              }
  
-@@ -720,21 +953,26 @@
+@@ -720,21 +954,26 @@
          return i > 200 ? 1.0F : 0.7F + MathHelper.sin(((float)i - partialTicks) * (float)Math.PI * 0.2F) * 0.3F;
      }
  
@@ -492,7 +494,7 @@
  
          if (!this.mc.skipRenderWorld)
          {
-@@ -745,11 +983,13 @@
+@@ -745,11 +984,13 @@
              if (renderWorldIn && this.mc.world != null && !Config.isReloadingResources())
              {
                  this.mc.getProfiler().startSection("level");
@@ -507,7 +509,7 @@
  
                  if (this.mc.isSingleplayer() && this.timeWorldIcon < Util.milliTime() - 1000L)
                  {
-@@ -781,6 +1021,7 @@
+@@ -781,6 +1022,7 @@
  
                  if (!this.mc.gameSettings.hideGUI || this.mc.currentScreen != null)
                  {
@@ -515,7 +517,7 @@
                      GlStateManager.alphaFunc(516, 0.1F);
                      this.mc.mainWindow.loadGUIRenderMatrix(Minecraft.IS_RUNNING_ON_MAC);
                      this.renderItemActivation(this.mc.mainWindow.getScaledWidth(), this.mc.mainWindow.getScaledHeight(), partialTicks);
-@@ -795,22 +1036,27 @@
+@@ -795,22 +1037,27 @@
                      {
                          Lagometer.showLagometer((int)this.mc.mainWindow.getGuiScaleFactor());
                      }
@@ -545,7 +547,7 @@
              if (this.guiLoadingVisible != (this.mc.loadingGui != null))
              {
                  if (this.mc.loadingGui != null)
-@@ -880,16 +1126,47 @@
+@@ -880,16 +1127,47 @@
                      throw new ReportedException(crashreport1);
                  }
              }
@@ -597,7 +599,7 @@
      }
  
      private void createWorldIcon()
-@@ -932,7 +1209,10 @@
+@@ -932,7 +1210,10 @@
  
      private boolean isDrawBlockOutline()
      {
@@ -609,7 +611,7 @@
          {
              return false;
          }
-@@ -969,14 +1249,29 @@
+@@ -969,14 +1250,29 @@
  
      public void renderWorld(float partialTicks, long finishTimeNano)
      {
@@ -640,7 +642,7 @@
  
          if (Config.isShaders())
          {
-@@ -1008,19 +1303,20 @@
+@@ -1008,19 +1304,20 @@
          this.setupCameraTransform(partialTicks);
          ActiveRenderInfo activerenderinfo = this.activeRender;
          activerenderinfo.update(this.mc.world, (Entity)(this.mc.getRenderViewEntity() == null ? this.mc.player : this.mc.getRenderViewEntity()), this.mc.gameSettings.thirdPersonView > 0, this.mc.gameSettings.thirdPersonView == 2, partialTicks);
@@ -665,7 +667,7 @@
          this.fogRenderer.updateFogColor(activerenderinfo, partialTicks);
          GlStateManager.clear(16640, Minecraft.IS_RUNNING_ON_MAC);
  
-@@ -1029,6 +1325,11 @@
+@@ -1029,6 +1326,11 @@
              Shaders.clearRenderBuffer();
          }
  
@@ -677,7 +679,7 @@
          if (flag)
          {
              Shaders.setCamera(activerenderinfo, partialTicks);
-@@ -1055,9 +1356,14 @@
+@@ -1055,9 +1357,14 @@
              this.fogRenderer.setupFog(activerenderinfo, -1, partialTicks);
              this.mc.getProfiler().endStartSection("sky");
              GlStateManager.matrixMode(5889);
@@ -694,7 +696,7 @@
  
              if (flag)
              {
-@@ -1072,9 +1378,13 @@
+@@ -1072,9 +1379,13 @@
              }
  
              GlStateManager.matrixMode(5889);
@@ -710,7 +712,7 @@
          }
          else
          {
-@@ -1106,14 +1416,16 @@
+@@ -1106,14 +1417,16 @@
              worldrenderer.setupTerrain(activerenderinfo, icamera, this.frameCount++, this.mc.player.isSpectator());
          }
  
@@ -729,15 +731,37 @@
          {
              this.mc.getProfiler().endStartSection("finish");
              GL11.glFinish();
-@@ -1168,6 +1480,7 @@
+@@ -1168,15 +1481,27 @@
          this.disableLightmap();
          GlStateManager.matrixMode(5888);
          GlStateManager.popMatrix();
 + //       GlStateManager.pushMatrix();
  
-         if (flag1 && this.mc.objectMouseOver != null)
+-        if (flag1 && this.mc.objectMouseOver != null)
++        if (flag1)
          {
-@@ -1203,6 +1516,12 @@
+             GlStateManager.disableAlphaTest();
+             this.mc.getProfiler().endStartSection("outline");
+ 
+             if (!Reflector.ForgeHooksClient_onDrawBlockHighlight.exists() || !Reflector.callBoolean(Reflector.ForgeHooksClient_onDrawBlockHighlight, worldrenderer, activerenderinfo, this.mc.objectMouseOver, 0, partialTicks))
+             {
+-                worldrenderer.drawSelectionBox(activerenderinfo, this.mc.objectMouseOver, 0);
++    
++            	worldrenderer.selR = worldrenderer.selG = worldrenderer.selB = 1f;
++            	for (int c=0;c<2;c++) {
++            		if(mc.interactTracker.isInteractActive(c) && mc.interactTracker.inBlockHit[c] != null) {
++                        worldrenderer.drawSelectionBox(activerenderinfo, mc.interactTracker.inBlockHit[c], 0);
++                        if (c==0) flag1 = false;
++            		}
++            	}
++            	
++            	worldrenderer.selR = worldrenderer.selG = worldrenderer.selB = 0f;
++            	if(flag1 && this.mc.objectMouseOver!=null)	
++            		worldrenderer.drawSelectionBox(activerenderinfo, this.mc.objectMouseOver, 0);
+             }
+ 
+             GlStateManager.enableAlphaTest();
+@@ -1203,6 +1528,12 @@
  
          GlStateManager.blendFuncSeparate(770, 771, 1, 0);
          GlStateManager.disableBlend();
@@ -750,7 +774,7 @@
          this.enableLightmap();
          this.fogRenderer.setupFog(activerenderinfo, 0, partialTicks);
          this.mc.getProfiler().endStartSection("particles");
-@@ -1244,10 +1563,29 @@
+@@ -1244,10 +1575,29 @@
  
          GlStateManager.depthMask(true);
          worldrenderer.renderWorldBorder(activerenderinfo, partialTicks);
@@ -765,9 +789,9 @@
 +        			//Shaders.isItemToRenderOffTranslucent() || mc.getItemRenderer().getFade() < 1;
 +
 +        if(!correctTranslucentGui) {
-+            if (flag)
-+                Shaders.useProgram(Shaders.ProgramTexturedLit);
-+            renderVRLit(false, partialTicks);
++        	if (flag)
++        		Shaders.useProgram(Shaders.ProgramTexturedLit);
++        	renderVRLit(false, partialTicks);
 +        }
 +        
 +        if (shouldRenderHands())
@@ -781,7 +805,7 @@
              Shaders.preWater();
          }
  
-@@ -1286,12 +1624,44 @@
+@@ -1286,12 +1636,44 @@
              this.renderClouds(activerenderinfo, worldrenderer, partialTicks, d0, d1, d2);
          }
  
@@ -789,10 +813,10 @@
 +
 +        this.mc.getProfiler().startSection("hud");
 +
-+			if(correctTranslucentGui) {
-+			    if (flag)
-+	                Shaders.useProgram(Shaders.ProgramTexturedLit);
-+	            renderVRLit(true, partialTicks);
++	        if(correctTranslucentGui) {
++	        	if (flag)
++	        		Shaders.useProgram(Shaders.ProgramTexturedLit);
++	        	renderVRLit(true, partialTicks);
 +	        }
 +	
 +	        this.mc.getProfiler().endStartSection("misc");
@@ -827,7 +851,7 @@
          this.mc.getProfiler().endStartSection("hand");
  
          if (this.renderHand && !Shaders.isShadowPass)
-@@ -1313,11 +1683,17 @@
+@@ -1313,11 +1695,17 @@
                  this.func_215308_a(activerenderinfo, partialTicks);
              }
          }
@@ -845,7 +869,7 @@
      }
  
      private void renderClouds(ActiveRenderInfo p_215313_1_, WorldRenderer p_215313_2_, float p_215313_3_, double p_215313_4_, double p_215313_6_, double p_215313_8_)
-@@ -1327,7 +1703,11 @@
+@@ -1327,7 +1715,11 @@
              this.mc.getProfiler().endStartSection("clouds");
              GlStateManager.matrixMode(5889);
              GlStateManager.loadIdentity();
@@ -858,7 +882,7 @@
              GlStateManager.matrixMode(5888);
              GlStateManager.pushMatrix();
              this.fogRenderer.setupFog(p_215313_1_, 0, p_215313_3_);
-@@ -1336,7 +1716,11 @@
+@@ -1336,7 +1728,11 @@
              GlStateManager.popMatrix();
              GlStateManager.matrixMode(5889);
              GlStateManager.loadIdentity();
@@ -871,7 +895,7 @@
              GlStateManager.matrixMode(5888);
          }
      }
-@@ -2011,35 +2395,28 @@
+@@ -2011,35 +2407,28 @@
      }
  
      private void renderItemActivation(int widthsp, int heightScaled, float partialTicks)
@@ -919,7 +943,7 @@
          }
      }
  
-@@ -2062,4 +2439,2124 @@
+@@ -2062,4 +2451,2131 @@
      {
          return this.activeRender;
      }
@@ -2234,15 +2258,22 @@
 +  		if (mc.bowTracker.isDrawing)
 +  			return; 	
 +  		
++  		if(MCOpenVR.getInputAction(MCOpenVR.keyVRInteract).isEnabledRaw(ControllerType.RIGHT) ||
++          		MCOpenVR.keyVRInteract.isKeyDown(ControllerType.RIGHT))
++  			return; 
++  		
++  		if(MCOpenVR.getInputAction(MCOpenVR.keyClimbeyGrab).isEnabledRaw(ControllerType.RIGHT) ||
++          		MCOpenVR.keyClimbeyGrab.isKeyDown(ControllerType.RIGHT))
++  			return;
++        
 +  		if (mc.teleportTracker.isAiming())
 +  			return;
 +
 +  		if (mc.climbTracker.isGrabbingLadder(0))
 +  			return;
 +
-+  		if (mc.climbTracker.isClimbeyClimb() && mc.climbTracker.isGrabbingLadder() && (mc.objectMouseOver==null || mc.objectMouseOver.getType() != Type.ENTITY))
-+  			return;
 +  		
++ 		
 +  		this.mc.getProfiler().endStartSection("crosshair");
 +
 +  		GlStateManager.color4f(1.0f, 1.0f, 1.0f, 1.0f); //white crosshair, with blending
@@ -2966,7 +2997,7 @@
 +        this.mc.getProfiler().startSection("hands");
 +
 +        RenderHelper.enableStandardItemLighting();
-+        itemRenderer.setLightmap();
++        itemRenderer.setLightmap(0);
 +        GlStateManager.enableRescaleNormal();
 +        //Render Physical Inventories
 +        mc.physicalGuiManager.doRender(partialTicks);

@@ -103,6 +103,7 @@ public class AutoCalibration {
 		Minecraft mc=Minecraft.getInstance();
 		mc.vrSettings.manualCalibration=(float) MCOpenVR.hmdPivotHistory.latest().y;
 		mc.printChatMessage(String.format("User height set to %.2fm",getPlayerHeight()));
+		mc.vrSettings.saveOptions();
 	}
 
 	public static class MagnetPoint{

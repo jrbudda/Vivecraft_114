@@ -2,6 +2,7 @@ package org.vivecraft.gameplay.trackers;
 
 import java.util.List;
 
+import org.vivecraft.control.ControllerType;
 import org.vivecraft.provider.MCOpenVR;
 import org.vivecraft.utils.MCReflection;
 
@@ -9,6 +10,7 @@ import net.minecraft.block.BambooBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.LadderBlock;
+import net.minecraft.block.NoteBlock;
 import net.minecraft.block.TorchBlock;
 import net.minecraft.block.VineBlock;
 import net.minecraft.block.material.Material;
@@ -76,8 +78,10 @@ public class SwingTracker extends Tracker{
 		if(!p.isAlive()) return false;
 		if(p.isSleeping()) return false;
 		Minecraft mc = Minecraft.getInstance();
-		if (!mc.vrSettings.weaponCollision)
+		if (mc.vrSettings.weaponCollision == 0)
 			return false;
+		if (mc.vrSettings.weaponCollision == 2)
+			return !p.isCreative();
 		if (mc.vrSettings.seated)
 			return false;
 		if(mc.vrSettings.vrFreeMoveMode == mc.vrSettings.FREEMOVE_RUNINPLACE && p.moveForward > 0){
@@ -222,26 +226,7 @@ public class SwingTracker extends Tracker{
         	{
         		Entity hitEntity = (Entity) entities.get(e);
         		if (hitEntity.canBeCollidedWith() && !(hitEntity == mc.getRenderViewEntity().getRidingEntity()) )
-        		{
-        			
-        			if(mc.vrSettings.animaltouching) {
-        				boolean touchable = hitEntity instanceof AnimalEntity || hitEntity instanceof WaterMobEntity;
-        				
-        				if (hitEntity instanceof AbstractHorseEntity && player.isInWater()) {
-        					touchable = false;
-        					inAnEntity = true;
-        				}
-        				
-        				if(touchable && !tool && !lastWeaponSolid[c]){
-							Minecraft.getInstance().physicalGuiManager.preClickAction();
-        					mc.playerController.interactWithEntity(player, hitEntity, c==0?Hand.MAIN_HAND:Hand.OFF_HAND);
-        					disableSwing = 3;
-        					MCOpenVR.triggerHapticPulse(c, 250);
-        					lastWeaponSolid[c] = true;
-        					inAnEntity = true;
-        				}
-        			} 
-        			
+        		{       			       			
         			if(!inAnEntity) {
         				if(canact){
 							Minecraft.getInstance().physicalGuiManager.preClickAction();
@@ -257,8 +242,8 @@ public class SwingTracker extends Tracker{
 
         	if(!inAnEntity && !sword){
         		if(mc.climbTracker.isClimbeyClimb()){
-        			if(c == 0 && mc.gameSettings.keyBindAttack.isKeyDown() || !tool ) continue;
-        			if(c == 1 && mc.gameSettings.keyBindForward.isKeyDown() || !tool ) continue;
+        			if(c == 0 && MCOpenVR.keyClimbeyGrab.isKeyDown(ControllerType.RIGHT) || !tool ) continue;
+        			if(c == 1 && MCOpenVR.keyClimbeyGrab.isKeyDown(ControllerType.LEFT) || !tool ) continue;
         		}
 
         		BlockPos bp =null;
@@ -303,7 +288,10 @@ public class SwingTracker extends Tracker{
         							if(item instanceof HoeItem){
         								mc.physicalGuiManager.preClickAction();
         								mc.playerController.processRightClickBlock(player, (ClientWorld) player.world, c==0 ? Hand.MAIN_HAND:Hand.OFF_HAND, blockHit);
-        							}else{
+        								
+        							} else if(block.getBlock() instanceof NoteBlock) {
+    									mc.playerController.onPlayerDamageBlock(blockHit.getPos(), blockHit.getFace());       								
+        							} else{
         								p += (speed - speedthresh) / 2;
 
         								for (int i = 0; i < p; i++)
@@ -333,7 +321,7 @@ public class SwingTracker extends Tracker{
         								}
 
         							}
-        							mc.vrPlayer.blockDust(blockHit.getHitVec().x, blockHit.getHitVec().y, blockHit.getHitVec().z, 3*p, block);
+        							mc.vrPlayer.blockDust(blockHit.getHitVec().x, blockHit.getHitVec().y, blockHit.getHitVec().z, 3*p, bp, block, 0.6f);
 
         							MCOpenVR.triggerHapticPulse(c, 250*p);
         							//   System.out.println("Hit block speed =" + speed + " mot " + mot + " thresh " + speedthresh) ;            				

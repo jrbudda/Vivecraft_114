@@ -11,6 +11,7 @@ import org.vivecraft.gui.framework.GuiVROptionsBase;
 import org.vivecraft.settings.VRHotkeys;
 import org.vivecraft.settings.VRSettings;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.Widget;
 
@@ -90,6 +91,12 @@ public class GuiRenderOpticsSettings  extends GuiVROptionsBase
     		super.init(TUDOptions, false);
     	}
     	super.addDefaultButtons();
+    }
+    
+    @Override
+    public void render(int mouseX, int mouseY, float partialTicks) {
+    	super.render(mouseX, mouseY, partialTicks);
+    	drawString(font, "SteamVR Scale: " + Minecraft.getInstance().stereoProvider.ss + "x", this.width/2 - 130 , this.height / 6 + 40, 16777215);
     }
     
     @Override

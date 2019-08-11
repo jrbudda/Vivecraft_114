@@ -343,7 +343,7 @@ public class Utils
 					is = new FileInputStream(p5.toFile());
 				}
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			handleAssetException(e, name, required);
 		}
 
@@ -604,6 +604,14 @@ public class Utils
 		double y = start.y + (end.y - start.y) * fraction;
 		double z = start.z + (end.z - start.z) * fraction;
 		return new Vec3d(x, y, z);
+	}
+
+	public static float applyDeadzone(float axis, float deadzone) {
+		final float scalar = 1 / (1 - deadzone);
+		float newAxis = 0;
+		if (Math.abs(axis) > deadzone)
+			newAxis = (Math.abs(axis) - deadzone) * scalar * Math.signum(axis);
+		return newAxis;
 	}
 	
 	private static final Random avRandomizer = new Random();

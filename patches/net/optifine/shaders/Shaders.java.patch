@@ -74,7 +74,7 @@
              shaderPackProgramConditions.clear();
              shaderPackClouds.resetValue();
              shaderPackOldHandLight.resetValue();
-@@ -868,6 +878,23 @@
+@@ -868,6 +878,25 @@
          loadShaderPackResources();
          loadShaderPackDimensions();
          shaderPackOptions = loadShaderPackOptions();
@@ -92,13 +92,15 @@
 +				sh.setValue("false");
 +			if (sh.getName().equalsIgnoreCase("lensflare")) //bsl
 +				sh.setValue("false");
++			if (sh.getName().equalsIgnoreCase("IDLE_HANDS")) //qol
++				sh.setValue("false");
 +		}
 +        //
 +        
          loadShaderPackProperties();
          boolean flag3 = shaderPackLoaded != flag;
          boolean flag4 = isOldLighting() != flag1;
-@@ -1036,7 +1063,7 @@
+@@ -1036,7 +1065,7 @@
                  shaderPackFrustumCulling.loadFrom(properties);
                  shaderPackOptionSliders = ShaderPackParser.parseOptionSliders(properties, shaderPackOptions);
                  shaderPackProfiles = ShaderPackParser.parseProfiles(properties, shaderPackOptions);
@@ -107,7 +109,7 @@
                  shaderPackProgramConditions = ShaderPackParser.parseProgramConditions(properties, shaderPackOptions);
                  customTexturesGbuffers = loadCustomTextures(properties, 0);
                  customTexturesComposite = loadCustomTextures(properties, 1);
-@@ -1541,7 +1568,7 @@
+@@ -1541,7 +1570,7 @@
      {
          ShaderOption[] ashaderoption = (ShaderOption[])shaderPackOptions.clone();
  
@@ -116,7 +118,7 @@
          {
              if (shaderPackProfiles != null)
              {
-@@ -1555,7 +1582,7 @@
+@@ -1555,7 +1584,7 @@
          else
          {
              String s = screenName != null ? "screen." + screenName : "screen";
@@ -125,7 +127,7 @@
  
              if (screenshaderoptions == null)
              {
-@@ -1576,7 +1603,7 @@
+@@ -1576,7 +1605,7 @@
                      }
                      else if (shaderoption instanceof ShaderOptionRest)
                      {
@@ -134,7 +136,7 @@
                          list.addAll(Arrays.asList(ashaderoption2));
                      }
                      else
-@@ -1595,13 +1622,13 @@
+@@ -1595,13 +1624,13 @@
      {
          String s = screenName != null ? "screen." + screenName : "screen";
  
@@ -150,7 +152,7 @@
              return screenshaderoptions == null ? def : screenshaderoptions.getColumns();
          }
      }
-@@ -2029,7 +2056,7 @@
+@@ -2029,7 +2058,7 @@
      public static void startup(Minecraft mc)
      {
          checkShadersModInstalled();
@@ -159,7 +161,7 @@
          mc = Minecraft.getInstance();
          capabilities = GL.getCapabilities();
          glVersionString = GL11.glGetString(GL11.GL_VERSION);
-@@ -2383,6 +2410,8 @@
+@@ -2383,6 +2412,8 @@
              }
  
              checkGLError("Shaders.init");
@@ -168,7 +170,7 @@
          }
      }
  
-@@ -3489,8 +3518,14 @@
+@@ -3489,8 +3520,14 @@
                  setProgramUniform1f(uniform_viewWidth, (float)renderWidth);
                  setProgramUniform1f(uniform_viewHeight, (float)renderHeight);
                  setProgramUniform1f(uniform_near, 0.05F);
@@ -185,7 +187,7 @@
                  setProgramUniform3f(uniform_moonPosition, moonPosition[0], moonPosition[1], moonPosition[2]);
                  setProgramUniform3f(uniform_shadowLightPosition, shadowLightPosition[0], shadowLightPosition[1], shadowLightPosition[2]);
                  setProgramUniform3f(uniform_upPosition, upPosition[0], upPosition[1], upPosition[2]);
-@@ -3858,10 +3893,10 @@
+@@ -3858,10 +3895,11 @@
  
      private static void resize()
      {
@@ -197,10 +199,11 @@
 +        renderDisplayHeight = mc.stereoProvider.framebufferVrRender.framebufferHeight;
 +        renderWidth = renderDisplayWidth; //Vivecraft Math.round((float)renderDisplayWidth * configRenderResMul);
 +        renderHeight = renderDisplayHeight; //Vivecraft Math.round((float)renderDisplayHeight * configRenderResMul);
++        System.out.println("Shaders Render Res: " + renderWidth + " x " + renderHeight);
          setupFrameBuffer();
      }
  
-@@ -3891,20 +3926,23 @@
+@@ -3891,20 +3929,23 @@
          GL32.glDrawBuffers(0);
          GL32.glReadBuffer(0);
  
@@ -233,7 +236,7 @@
          checkGLError("FT d");
  
          for (int k = 0; k < usedColorBuffers; ++k)
-@@ -4043,7 +4081,7 @@
+@@ -4043,7 +4084,7 @@
          checkWorldChanged(mc.world);
          mc = minecraft;
          mc.getProfiler().startSection("init");
@@ -242,7 +245,7 @@
  
          if (!isShaderPackInitialized)
          {
-@@ -4060,12 +4098,13 @@
+@@ -4060,12 +4101,13 @@
                      setShaderPack("OFF");
                      return;
                  }
@@ -258,7 +261,7 @@
          }
  
          if (needResizeShadow)
-@@ -4117,7 +4156,7 @@
+@@ -4117,7 +4159,7 @@
  
              if (entity != null)
              {
@@ -267,7 +270,7 @@
                  eyePosY = (float)activeRenderInfo.getProjectedView().y;
                  eyeBrightness = entity.getBrightnessForRender();
                  float f2 = (float)diffSystemTime * 0.01F;
-@@ -4146,7 +4185,7 @@
+@@ -4146,7 +4188,7 @@
  
                      if (livingentity.isPotionActive(Effects.NIGHT_VISION))
                      {
@@ -276,7 +279,7 @@
                      }
  
                      blindness = 0.0F;
-@@ -4188,7 +4227,9 @@
+@@ -4188,7 +4230,9 @@
          previousModelView.position(0);
          modelView.position(0);
          checkGLError("beginRender");
@@ -287,7 +290,7 @@
          mc.getProfiler().endSection();
          EXTFramebufferObject.glBindFramebufferEXT(36160, dfb);
  
-@@ -4607,13 +4648,24 @@
+@@ -4607,13 +4651,24 @@
          floatbuffer.clear();
          GL32.glGetFloatv(2982, floatbuffer);
          floatbuffer.get(tempMat, 0, 16);
@@ -313,7 +316,7 @@
          if (customUniforms != null)
          {
              customUniforms.update();
-@@ -4901,7 +4953,7 @@
+@@ -4901,7 +4956,7 @@
          isRenderingDfb = false;
          mc.getFramebuffer().bindFramebuffer(true);
          GLX.glFramebufferTexture2D(GLX.GL_FRAMEBUFFER, GLX.GL_COLOR_ATTACHMENT0, 3553, mc.getFramebuffer().framebufferTexture, 0);
@@ -322,7 +325,7 @@
          GlStateManager.depthMask(true);
          GL32.glClearColor(clearColorR, clearColorG, clearColorB, 1.0F);
          GL32.glClear(16640);
-@@ -5395,7 +5447,7 @@
+@@ -5395,7 +5450,7 @@
  
          if (cap == 3553)
          {
@@ -331,7 +334,7 @@
          }
          else if (cap == 2912)
          {
-@@ -5409,7 +5461,7 @@
+@@ -5409,7 +5464,7 @@
  
          if (cap == 3553)
          {
@@ -340,7 +343,7 @@
          }
          else if (cap == 2912)
          {
-@@ -5420,13 +5472,13 @@
+@@ -5420,13 +5475,13 @@
      public static void sglEnableT2D(int cap)
      {
          GL32.glEnable(cap);
@@ -356,7 +359,7 @@
      }
  
      public static void sglEnableFog(int cap)
-@@ -5441,7 +5493,7 @@
+@@ -5441,7 +5496,7 @@
          disableFog();
      }
  
@@ -365,7 +368,7 @@
      {
          if (isRenderingSky)
          {
-@@ -5453,7 +5505,7 @@
+@@ -5453,7 +5508,7 @@
          }
      }
  
