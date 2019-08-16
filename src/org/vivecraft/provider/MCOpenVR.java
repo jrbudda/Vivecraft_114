@@ -1334,7 +1334,7 @@ public class MCOpenVR
 			action.unpressBinding();
 		} else {
 			if (action.isButtonChanged()) {
-				if (action.isButtonPressed()  && action.isEnabled()) {
+				if (action.isButtonPressed() && action.isEnabled()) {
 					// We do this so shit like closing a GUI by clicking a button won't
 					// also click in the world immediately after.
 					if (!ignorePressesNextFrame)

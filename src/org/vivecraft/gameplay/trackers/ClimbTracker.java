@@ -352,11 +352,11 @@ public class ClimbTracker extends Tracker{
 
 			if(!latched[c] && !nope){ //grab
 				if(allowed[c]){
-					
+
 					if(!wasinblock[c] && inblock[c]){
 						MCOpenVR.triggerHapticPulse(c, 750);
 					} //indicate can grab.
-					
+
 					if((!wasinblock[c] && inblock[c] && button[c]) ||
 							(!wasbutton[c] && button[c] && inblock[c])){ //Grab
 						grabbed = true;

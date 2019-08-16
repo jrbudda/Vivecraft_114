@@ -197,10 +197,10 @@ public class VRSettings
     public boolean mixedRealityMRPlusUndistorted = true;
     public boolean mixedRealityAlphaMask = false;
     public float mixedRealityFov = 40;
-    public float vrFixedCamposX = 0;
-    public float vrFixedCamposY = 0;
-    public float vrFixedCamposZ = 0;
-    public Quaternion vrFixedCamrotQuat = new Quaternion();
+    public float vrFixedCamposX = -1.0f;
+    public float vrFixedCamposY = 2.4f;
+    public float vrFixedCamposZ = 2.7f;
+    public Quaternion vrFixedCamrotQuat =new Quaternion(.962f, .125f, .239f, .041f);
     public float mrMovingCamOffsetX = 0;
     public float mrMovingCamOffsetY = 0;
     public float mrMovingCamOffsetZ = 0;
