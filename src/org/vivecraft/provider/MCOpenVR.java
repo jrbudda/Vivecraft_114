@@ -66,7 +66,6 @@ import jopenvr.VRActiveActionSet_t;
 import jopenvr.VREvent_t;
 import jopenvr.VRTextureBounds_t;
 import jopenvr.VRTextureDepthInfo_t;
-import jopenvr.VRTextureWithDepth_t;
 import jopenvr.VR_IVRApplications_FnTable;
 import jopenvr.VR_IVRChaperone_FnTable;
 import jopenvr.VR_IVRCompositor_FnTable;
@@ -80,6 +79,7 @@ import net.minecraft.block.TorchBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.WinGameScreen;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.main.Main;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
@@ -175,7 +175,6 @@ public class MCOpenVR
 
 	private static Queue<VREvent_t> vrEvents = new LinkedList<>();
 
-	public static double startedOpeningInventory = 0;
 	public static boolean hudPopup = true;
 
 	static boolean headIsTracking;
@@ -188,7 +187,7 @@ public class MCOpenVR
 	private static ControllerType freeRotateController;
 	private static float walkaboutYawStart;
 	private static float hmdForwardYaw;
-	public static boolean unpressBindingsNextFrame = false;
+	public static boolean ignorePressesNextFrame = false;
 	
 	private static Map<String, VRInputAction> inputActions = new HashMap<>();
 	private static Map<String, VRInputAction> inputActionsByKeyBinding = new HashMap<>();
@@ -558,7 +557,6 @@ public class MCOpenVR
 			inputActionsByKeyBinding.put(action.keyBinding.getKeyDescription(), action);
 		}
 
-		// TODO: implement VR interact
 		getInputAction(MCOpenVR.keyVRInteract).setPriority(5).setEnabled(false);
 		getInputAction(MCOpenVR.keyClimbeyGrab).setPriority(10).setEnabled(false);
 		//getInputAction(MCOpenVR.keyClimbeyJump).setPriority(10).setEnabled(false);
@@ -1332,14 +1330,18 @@ public class MCOpenVR
 	}
 
 	private static void processInputAction(VRInputAction action) {
-		if (!action.isActive() || !action.isEnabledRaw() || unpressBindingsNextFrame) {
+		if (!action.isActive() || !action.isEnabledRaw()) {
 			action.unpressBinding();
 		} else {
 			if (action.isButtonChanged()) {
-				if (action.isButtonPressed() && action.isEnabled())
-					action.pressBinding();
-				else
+				if (action.isButtonPressed()  && action.isEnabled()) {
+					// We do this so shit like closing a GUI by clicking a button won't
+					// also click in the world immediately after.
+					if (!ignorePressesNextFrame)
+						action.pressBinding();
+				} else {
 					action.unpressBinding();
+				}
 			}
 		}
 	}
@@ -1364,7 +1366,7 @@ public class MCOpenVR
 		processSwipeInput(keyHotbarSwipeY, null, null, () -> changeHotbar(-1), () -> changeHotbar(1));
 
 		// Reset this flag
-		unpressBindingsNextFrame = false;
+		ignorePressesNextFrame = false;
 	}
 
 	public static void processBindings() {
@@ -1485,14 +1487,10 @@ public class MCOpenVR
 			if(mc.player !=null) mc.player.closeScreen();
 		}
 
-		if(!mc.gameSettings.keyBindInventory.isKeyDown()){
-			startedOpeningInventory = 0;
-		}
-
 		//GuiContainer.java only listens directly to the keyboard to close.
-		if(gui && !(mc.currentScreen instanceof WinGameScreen) && mc.gameSettings.keyBindInventory.isKeyDown()){ //inventory will repeat open/close while button is held down. TODO: fix.
-			if((getCurrentTimeSecs() - startedOpeningInventory) > 0.5 && mc.player != null) mc.player.closeScreen();
-			getInputAction(mc.gameSettings.keyBindInventory).unpressKey(); //minecraft.java will open a new window otherwise.
+		if (mc.currentScreen instanceof ContainerScreen && mc.gameSettings.keyBindInventory.isPressed()) {
+			if (mc.player != null)
+				mc.player.closeScreen();
 		}
 
 		// allow toggling chat window with chat keybind

@@ -1,8 +1,5 @@
 package org.vivecraft.gameplay.screenhandlers;
 
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-
 import org.vivecraft.api.VRData.VRDevicePose;
 import org.vivecraft.control.ControllerType;
 import org.vivecraft.control.HandedKeyBinding;
@@ -18,7 +15,6 @@ import com.mojang.blaze3d.platform.GlStateManager;
 
 import org.vivecraft.utils.Matrix4f;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.LoadingGui;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.EditBookScreen;
 import net.minecraft.client.gui.screen.EditSignScreen;
@@ -36,7 +32,6 @@ import net.minecraft.client.gui.screen.inventory.FurnaceScreen;
 import net.minecraft.client.gui.screen.inventory.ShulkerBoxScreen;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.shader.Framebuffer;
-import net.minecraft.util.datafix.fixes.BookPagesStrictJSON;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec2f;
@@ -380,7 +375,7 @@ public class GuiHandler {
 			}
 		}*/
 		if (unpressKeys)
-			MCOpenVR.unpressBindingsNextFrame = true;
+			MCOpenVR.ignorePressesNextFrame = true;
 						
 		if(newScreen == null) {
 			//just insurance

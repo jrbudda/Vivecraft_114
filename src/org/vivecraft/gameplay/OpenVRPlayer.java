@@ -159,7 +159,7 @@ public class OpenVRPlayer
 		VRData temp = new VRData(roomOrigin, mc.vrSettings.walkMultiplier, this.worldScale, vrdata_world_pre.rotation_radians);		
 		float end = mc.vrSettings.vrWorldRotation;
 		float start = (float) Math.toDegrees(vrdata_world_pre.rotation_radians);	
-		rotateOriginAround(-end+start, temp.hmd.getPosition());
+		rotateOriginAround(-end+start, temp.getHeadPivot());
 		//
 		
 		this.vrdata_room_post = new VRData(new Vec3d(0, 0, 0), mc.vrSettings.walkMultiplier, 1, 0);
@@ -258,7 +258,7 @@ public class OpenVRPlayer
 
 		if(instant) temp = new VRData(roomOrigin, mc.vrSettings.walkMultiplier, this.worldScale, (float) Math.toRadians(mc.vrSettings.vrWorldRotation));
 
-		Vec3d campos = temp.hmd.getPosition().subtract(temp.origin);
+		Vec3d campos = temp.getHeadPivot().subtract(temp.origin);
 
 		double x,y,z;
 
@@ -298,11 +298,11 @@ public class OpenVRPlayer
 					Math.sin(rads) * (pt.x-o.x) + Math.cos(rads) * (pt.z-o.z) + o.z
 					,false);
 
-		VRData test = new VRData(roomOrigin, mc.vrSettings.walkMultiplier, this.worldScale, (float) Math.toRadians(mc.vrSettings.vrWorldRotation));
+	//	VRData test = new VRData(roomOrigin, mc.vrSettings.walkMultiplier, this.worldScale, (float) Math.toRadians(mc.vrSettings.vrWorldRotation));
 
-		Vec3d b = vrdata_world_pre.hmd.getPosition();
-		Vec3d a = test.hmd.getPosition();
-		double dist = b.distanceTo(a); //should always be 0 (unless in a vehicle)   		
+	//	Vec3d b = vrdata_world_pre.hmd.getPosition();
+	//	Vec3d a = test.hmd.getPosition();
+	//	double dist = b.distanceTo(a); //should always be 0 (unless in a vehicle)   		
 	}
 
 
@@ -386,7 +386,7 @@ public class OpenVRPlayer
 		
 		if(mc.vehicleTracker.canRoomscaleDismount(mc.player)) {
 			Vec3d mountpos = mc.player.getRidingEntity().getPositionVector();
-			Vec3d tp = vrdata_world_pre.hmd.getPosition();
+			Vec3d tp = vrdata_world_pre.getHeadPivot();
 			double dist = Math.sqrt((tp.x - mountpos.x) * (tp.x - mountpos.x) + (tp.z - mountpos.z) *(tp.z - mountpos.z));
 			if (dist > 0.85) {
 				mc.sneakTracker.sneakCounter = 5;
@@ -405,7 +405,7 @@ public class OpenVRPlayer
 
 		//OK this is the first place I've found where we reallly need to update the VR data before doing this calculation.
 
-		Vec3d eyePos = temp.hmd.getPosition();
+		Vec3d eyePos = temp.getHeadPivot();
 
 		double x = eyePos.x;
 		double y = player.posY;
@@ -526,20 +526,25 @@ public class OpenVRPlayer
 
 
 
-	public void blockDust(double x, double y, double z, int count, BlockPos bp, BlockState bs, float scale){
+	public void blockDust(double x, double y, double z, int count, BlockPos bp, BlockState bs, float scale, float velscale){
 		Random rand = new Random();
 		Minecraft mc = Minecraft.getInstance();
 		for (int i = 0; i < count; ++i)
 		{
 
-			DiggingParticle p = new DiggingParticle(mc.world,
-					x+ ((double)rand.nextFloat() - 0.5D)*.02f,
-					y + ((double)rand.nextFloat() - 0.5D)*.02f,
-					z + ((double)rand.nextFloat()- 0.5D)*.02f,
-					((double)rand.nextFloat()- 0.5D)*.1f,
-					((double)rand.nextFloat()- 0.5D)*.05f,
-					((double)rand.nextFloat()- 0.5D)*.1f,
+//			DiggingParticle p = new DiggingParticle(mc.world,
+//					x + ((double)rand.nextFloat() - 0.5D) *.02f,
+//					y + ((double)rand.nextFloat() - 0.5D) *.02f,
+//					z + ((double)rand.nextFloat() - 0.5D) *.02f,
+//					((double)rand.nextFloat()- 0.5D)*.001f,
+//					((double)rand.nextFloat()- 0.5D)*.05f,
+//					((double)rand.nextFloat()- 0.5D)*.001f,
+//					bs);
+			DiggingParticle p = new DiggingParticle(mc.world,x,y,z,
+					0,0,0,
 					bs);
+			
+			p.multiplyVelocity(velscale);
 
 			mc.particles.addEffect(p.setBlockPos(bp).multipleParticleScaleBy(scale));
 

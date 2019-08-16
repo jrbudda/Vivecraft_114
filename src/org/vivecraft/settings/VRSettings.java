@@ -1460,7 +1460,7 @@ public class VRSettings
                 if(seated) {
                     MCOpenVR.resetPosition();
                 }
-                playerEyeHeight = (float) Minecraft.getInstance().vrPlayer.vrdata_room_pre.hmd.getPosition().y;
+                playerEyeHeight = (float) Minecraft.getInstance().vrPlayer.vrdata_room_pre.getHeadPivot().y;
                 break;
             case FREEMOVE_MODE:
                 switch (this.vrFreeMoveMode) {

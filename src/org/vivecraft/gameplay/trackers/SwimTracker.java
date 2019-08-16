@@ -94,7 +94,7 @@ public class SwimTracker extends Tracker {
 			
 			Vec3d middle= controllerL.subtract(controllerR).scale(0.5).add(controllerR);
 
-			Vec3d hmdPos=mc.vrPlayer.vrdata_world_pre.hmd.getPosition().subtract(0,0.3,0);
+			Vec3d hmdPos=mc.vrPlayer.vrdata_world_pre.getHeadPivot().subtract(0,0.3,0);
 
 			Vec3d movedir=middle.subtract(hmdPos).normalize().add(
 					mc.vrPlayer.vrdata_world_pre.hmd.getDirection()).scale(0.5);

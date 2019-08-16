@@ -139,7 +139,7 @@ public class VehicleTracker extends Tracker {
 		Minecraft mc = Minecraft.getInstance();
 		
 		PreMount_World_Rotation = mc.vrPlayer.vrdata_world_pre.rotation_radians;
-		Vec3d campos = mc.vrPlayer.vrdata_room_pre.hmd.getPosition();	
+		Vec3d campos = mc.vrPlayer.vrdata_room_pre.getHeadPivot();
 		Premount_Pos_Room = new Vec3d(campos.x, 0, campos.z);
 		dismountCooldown = 5;
 		//mc.vrPlayer.snapRoomOriginToPlayerEntity(this, false);

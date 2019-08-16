@@ -351,9 +351,14 @@ public class ClimbTracker extends Tracker{
 			} 
 
 			if(!latched[c] && !nope){ //grab
-				if((!wasinblock[c] && inblock[c] && button[c]) ||
-						(!wasbutton[c] && button[c] && inblock[c])){ //Grab
-					if(allowed[c]){
+				if(allowed[c]){
+					
+					if(!wasinblock[c] && inblock[c]){
+						MCOpenVR.triggerHapticPulse(c, 750);
+					} //indicate can grab.
+					
+					if((!wasinblock[c] && inblock[c] && button[c]) ||
+							(!wasbutton[c] && button[c] && inblock[c])){ //Grab
 						grabbed = true;
 						wantjump = false;
 						latchStart[c] = cpos[c];
@@ -370,7 +375,7 @@ public class ClimbTracker extends Tracker{
 							latched[0] = false;
 						MCOpenVR.triggerHapticPulse(c, 2000);
 						mc.player.stepSound(bp, latchStart[c]);
-						if(!ladder)mc.vrPlayer.blockDust(latchStart[c].x, latchStart[c].y, latchStart[c].z, 5, bp, bs, 0.1f);
+						if(!ladder)mc.vrPlayer.blockDust(latchStart[c].x, latchStart[c].y, latchStart[c].z, 5, bp, bs, 0.1f, 0.2f);
 
 					}
 				}
@@ -396,7 +401,7 @@ public class ClimbTracker extends Tracker{
 					MCOpenVR.triggerHapticPulse(c, 2000);
 					BlockPos bp = new BlockPos(latchStart[c]);
 					BlockState bs = mc.world.getBlockState(bp);
-					if(!ladder)mc.vrPlayer.blockDust(latchStart[c].x, latchStart[c].y, latchStart[c].z, 5, bp, bs, 0.1f);
+					if(!ladder)mc.vrPlayer.blockDust(latchStart[c].x, latchStart[c].y, latchStart[c].z, 5, bp, bs, 0.1f, 0.2f);
 				}
 			}
 		}		
@@ -432,7 +437,7 @@ public class ClimbTracker extends Tracker{
 			mc.player.addExhaustion(.1f);    
 			BlockPos bp = new BlockPos(latchStart[latchStartController]);
 			BlockState bs = mc.world.getBlockState(bp);
-			if(!ladder) mc.vrPlayer.blockDust(latchStart[latchStartController].x, latchStart[latchStartController].y, latchStart[latchStartController].z, 1, bp, bs, 0.1f);
+			if(!ladder) mc.vrPlayer.blockDust(latchStart[latchStartController].x, latchStart[latchStartController].y, latchStart[latchStartController].z, 1, bp, bs, 0.1f, 0.2f);
 		}
 
 
@@ -487,7 +492,7 @@ public class ClimbTracker extends Tracker{
 				}
 			}
 
-			double hmd = mc.vrPlayer.vrdata_room_pre.hmd.getPosition().y;	
+			double hmd = mc.vrPlayer.vrdata_room_pre.getHeadPivot().y;	
 			double con = mc.vrPlayer.vrdata_room_pre.getController(latchStartController).getPosition().y;
 
 			//check for getting off on top
@@ -583,8 +588,10 @@ public class ClimbTracker extends Tracker{
 			Vec3d pl = player.getPositionVector().subtract(delta);
 
 			Vec3d m = MCOpenVR.controllerHistory[latchStartController].netMovement(0.3);
-
-			float limit = 1f;
+			double s = MCOpenVR.controllerHistory[latchStartController].averageSpeed(0.3f);
+			m = m.scale(0.66 * s);
+			float limit = 0.66f;
+			
 			if(m.length() > limit) m = m.scale(limit/m.length());
 
 			if (player.isPotionActive(Effects.JUMP_BOOST))

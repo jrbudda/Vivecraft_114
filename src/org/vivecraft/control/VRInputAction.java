@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import javax.annotation.Nullable;
 
@@ -35,7 +33,7 @@ public class VRInputAction {
 
 	private int priority = 0;
 	private boolean[] enabled = new boolean[ControllerType.values().length];
-	private SortedSet<KeyListener> listeners = new TreeSet<>(Comparator.comparingInt(KeyListener::getPriority).reversed());
+	private List<KeyListener> listeners = new ArrayList<>();
 	private ControllerType currentHand = ControllerType.RIGHT;
 
 	private long handle;
@@ -318,10 +316,12 @@ public class VRInputAction {
 
 	public void registerListener(KeyListener listener) {
 		listeners.add(listener);
+		listeners.sort(Comparator.comparingInt(KeyListener::getPriority).reversed());
 	}
 
 	public void unregisterListener(KeyListener listener) {
 		listeners.remove(listener);
+		// don't need to sort on remove
 	}
 
 	public boolean notifyListeners(boolean pressed, ControllerType hand) {
@@ -354,7 +354,7 @@ public class VRInputAction {
 		}
 	}
 
-	public void pressBinding(ControllerType hand) {
+	private void pressBinding(ControllerType hand) {
 		if (isHanded()) {
 			if (hand == null || this.pressed[hand.ordinal()]) return;
 			this.pressed[hand.ordinal()] = true;

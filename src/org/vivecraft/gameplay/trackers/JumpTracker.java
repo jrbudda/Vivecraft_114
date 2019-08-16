@@ -40,10 +40,10 @@ public class JumpTracker extends Tracker {
 			return false;
 		if(!Minecraft.getInstance().vrSettings.realisticJumpEnabled)
 			return false;
-		if(p==null || !p.isAlive() || !p.onGround)
+		if(p==null || !p.isAlive())
 			return false;
 		if(mc.playerController == null) return false;
-		if(p.isInWater() || p.isInLava())
+		if(p.isInWater() || p.isInLava() || !p.onGround)
 			return false;
 		if(p.isSneaking() || p.isPassenger())
 			return false;
@@ -57,7 +57,7 @@ public class JumpTracker extends Tracker {
 
 	@Override
 	public void idleTick(ClientPlayerEntity player) {
-		MCOpenVR.getInputAction(MCOpenVR.keyClimbeyJump).setEnabled(isClimbeyJump());
+		MCOpenVR.getInputAction(MCOpenVR.keyClimbeyJump).setEnabled(isClimbeyJumpEquipped() && (this.isActive(player) || (mc.climbTracker.isClimbeyClimbEquipped() && mc.climbTracker.isGrabbingLadder())));
 	}
 
 	@Override
@@ -128,9 +128,13 @@ public class JumpTracker extends Tracker {
 
 				Vec3d m = (MCOpenVR.controllerHistory[0].netMovement(0.3)
 						.add(MCOpenVR.controllerHistory[1].netMovement(0.3)));
-	
+				
+				double sp =  (MCOpenVR.controllerHistory[0].averageSpeed(0.3) + MCOpenVR.controllerHistory[1].averageSpeed(0.3)) / 2 ;	
+									
+				m = m.scale(0.33f * sp);
+							
 				//cap
-				float limit = 1.5f;
+				float limit = 0.66f;
 				if(m.length() > limit) m = m.scale(limit/m.length());
 						
 				if (player.isPotionActive(Effects.JUMP_BOOST))

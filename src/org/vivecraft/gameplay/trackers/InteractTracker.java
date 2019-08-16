@@ -96,7 +96,8 @@ public class InteractTracker extends Tracker{
 	Entity[] inEntity = new Entity[2];
 	public EntityRayTraceResult[] inEntityHit = new EntityRayTraceResult[2];
 	boolean[] active = new boolean[2];
-
+	boolean[] wasactive = new boolean[2];
+	
 	@Override
 	public void reset(ClientPlayerEntity player) {
 		for(int c =0 ;c<2;c++){
@@ -194,8 +195,13 @@ public class InteractTracker extends Tracker{
 			
 			}
 			
+			if(!wasactive[c] && active[c]) {
+				MCOpenVR.triggerHapticPulse(c, 250);
+			}
+			
 			MCOpenVR.getInputAction(MCOpenVR.keyVRInteract).setEnabled(ControllerType.values()[c], active[c]);
 			
+			wasactive[c] = active[c];
 		}
 	}
 
@@ -215,14 +221,14 @@ public class InteractTracker extends Tracker{
 					 }
                 	mc.getFirstPersonRenderer().swingType = VRFirstPersonArmSwing.Interact;
 					mc.player.swingArm(hand);
-					MCOpenVR.triggerHapticPulse(c, 250);
+					MCOpenVR.triggerHapticPulse(c, 750);
 				}
 				else if (inBlockHit[c]!=null) {
 					if(	mc.playerController.processRightClickBlock(mc.player, (ClientWorld) mc.player.world, hand, inBlockHit[c]) == ActionResultType.SUCCESS)
 					{
 	                	mc.getFirstPersonRenderer().swingType = VRFirstPersonArmSwing.Interact;
 						mc.player.swingArm(hand);
-						MCOpenVR.triggerHapticPulse(c, 250);	
+						MCOpenVR.triggerHapticPulse(c, 750);	
 					}
 				}
 			}

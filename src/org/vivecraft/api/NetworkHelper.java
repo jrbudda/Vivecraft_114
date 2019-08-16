@@ -67,7 +67,6 @@ public class NetworkHelper {
         return (new SCustomPayloadPlayPacket(channel, pb));
 	}
 	
-	
 	public static boolean serverWantsData = false;
 	public static boolean serverAllowsClimbey = false;
 	public static boolean serverSupportsDirectTeleport = false;
@@ -75,6 +74,15 @@ public class NetworkHelper {
 	private static float worldScallast = 0;
 	private static float heightlast = 0;
 
+	public static void resetServerSettings() {
+		worldScallast = 0;
+		heightlast = 0;
+        serverAllowsClimbey = false;
+        serverWantsData = false;
+        serverSupportsDirectTeleport = false;
+        Minecraft.getInstance().vrSettings.overrides.resetAll();
+	}
+	
 	public static void sendVRPlayerPositions(OpenVRPlayer player) {
 		if(!serverWantsData) return;
 		if(Minecraft.getInstance().getConnection() == null) return;
@@ -111,7 +119,7 @@ public class NetworkHelper {
 			Matrix4f matrix = new Matrix4f();
 			matrix.load(buffer);
 
-			Vec3d headPosition = player.vrdata_world_post.hmd.getPosition();
+			Vec3d headPosition = player.vrdata_world_post.getHeadPivot();
 			Quaternion headRotation = new Quaternion(matrix);
 			
 			ByteBuf payload = Unpooled.buffer();

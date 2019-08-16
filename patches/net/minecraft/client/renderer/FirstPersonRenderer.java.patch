@@ -953,7 +953,7 @@
 +
 +            GlStateManager.rotatef((float)(i * 90.0F - mc.vrPlayer.vrdata_world_render.getBodyYaw()), 0.0F, 1.0F, 0.0F);
 +            float f5 = 0.3f;  
-+            float f6 = (float) (mc.vrPlayer.vrdata_world_render.hmd.getPosition().y - mc.gameRenderer.rveY);
++            float f6 = (float) (mc.vrPlayer.vrdata_world_render.getHeadPivot().y - mc.gameRenderer.rveY);
 +            GlStateManager.translatef(0, -f6, 0.0F);
 +
              bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
