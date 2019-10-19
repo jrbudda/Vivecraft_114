@@ -18,15 +18,12 @@
  import net.optifine.player.CapeUtils;
  import net.optifine.player.PlayerConfigurations;
  import net.optifine.reflect.Reflector;
-@@ -53,6 +57,11 @@
+@@ -53,6 +57,8 @@
  
          CapeUtils.downloadCape(this);
          PlayerConfigurations.getPlayerConfiguration(this);
 +        
-+        PatreonReceiver pr = new PatreonReceiver(nameClear, this);
-+        String s = "http://www.vivecraft.org/patreon/current.txt";
-+        FileDownloadThread filedownloadthread = new FileDownloadThread(s, pr);
-+        filedownloadthread.start();
++        PatreonReceiver.addPlayerInfo(this);
      }
  
      /**
