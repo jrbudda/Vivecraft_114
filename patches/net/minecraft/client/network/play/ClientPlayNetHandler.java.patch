@@ -32,9 +32,9 @@
  public class ClientPlayNetHandler implements IClientPlayNetHandler
  {
 @@ -325,6 +336,9 @@
-         this.profile = p_i780_4_;
-         this.advancementManager = new ClientAdvancementManager(p_i780_1_);
-         this.clientSuggestionProvider = new ClientSuggestionProvider(this, p_i780_1_);
+         this.profile = p_i787_4_;
+         this.advancementManager = new ClientAdvancementManager(p_i787_1_);
+         this.clientSuggestionProvider = new ClientSuggestionProvider(this, p_i787_1_);
 +        //VIVECRAFT
 +        NetworkHelper.resetServerSettings();
 +        //

@@ -19,9 +19,9 @@
 +    //Vivecraft
 +    public float creeperBlowyUppyRadius = 1.75f; //VIVE default is 3.
 +    //
-     public CreeperSwellGoal(CreeperEntity p_i3244_1_)
+     public CreeperSwellGoal(CreeperEntity p_i3246_1_)
      {
-         this.field_75269_a = p_i3244_1_;
+         this.field_75269_a = p_i3246_1_;
 @@ -21,6 +27,14 @@
      public boolean shouldExecute()
      {

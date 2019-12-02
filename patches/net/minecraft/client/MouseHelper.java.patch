@@ -9,16 +9,16 @@
      {
          if (handle == this.minecraft.mainWindow.getHandle())
          {
-@@ -135,7 +135,7 @@
+@@ -136,7 +136,7 @@
  
                  if (flag)
                  {
--                    if (this.minecraft.player.isSpectator() && button == 2)
-+                    if (this.minecraft.player != null && this.minecraft.player.isSpectator() && button == 2)
+-                    if (this.minecraft.player.isSpectator() && i == 2)
++                    if (this.minecraft.player != null && this.minecraft.player.isSpectator() && i == 2)
                      {
                          this.minecraft.ingameGUI.getSpectatorGui().onMiddleClick();
                      }
-@@ -153,7 +153,7 @@
+@@ -154,7 +154,7 @@
       *  
       * @see GLFWScrollCallbackI
       */
@@ -27,7 +27,7 @@
      {
          if (handle == Minecraft.getInstance().mainWindow.getHandle())
          {
-@@ -219,7 +219,7 @@
+@@ -220,7 +220,7 @@
       *  
       * @see GLFWCursorPosCallbackI
       */
@@ -36,7 +36,7 @@
      {
          if (handle == Minecraft.getInstance().mainWindow.getHandle())
          {
-@@ -269,6 +269,11 @@
+@@ -270,6 +270,11 @@
  
      public void updatePlayerLook()
      {
@@ -48,7 +48,7 @@
          double d0 = NativeUtil.func_216394_b();
          double d1 = d0 - this.lastLookTime;
          this.lastLookTime = d0;
-@@ -357,7 +362,11 @@
+@@ -358,7 +363,11 @@
       */
      public void grabMouse()
      {
@@ -61,7 +61,7 @@
          {
              if (!this.mouseGrabbed)
              {
-@@ -382,6 +391,10 @@
+@@ -383,6 +392,10 @@
       */
      public void ungrabMouse()
      {

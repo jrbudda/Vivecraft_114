@@ -110,7 +110,7 @@
      public float renderArmYaw;
      public float renderArmPitch;
 @@ -127,12 +162,99 @@
-         this.ambientSoundHandlers.add(new UnderwaterAmbientSoundHandler(this, p_i2493_1_.getSoundHandler()));
+         this.ambientSoundHandlers.add(new UnderwaterAmbientSoundHandler(this, p_i2499_1_.getSoundHandler()));
          this.ambientSoundHandlers.add(new BubbleColumnAmbientSoundHandler(this));
      }
 -

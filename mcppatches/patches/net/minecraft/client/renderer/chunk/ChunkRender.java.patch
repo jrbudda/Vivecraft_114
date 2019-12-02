@@ -5,7 +5,7 @@
                  BlockRendererDispatcher blockrendererdispatcher = Minecraft.getInstance().getBlockRendererDispatcher();
  
 -                for (BlockPosM blockposm : BlockPosM.getAllInBoxMutable(blockpos, blockpos1))
-+                for (BlockPosM blockposm : (Iterable<BlockPosM>)BlockPosM.getAllInBoxMutable(blockpos, blockpos1))
++                for (BlockPosM blockposm : (Iterable<BlockPosM>)(Iterable<?>)BlockPosM.getAllInBoxMutable(blockpos, blockpos1))
                  {
                      BlockState blockstate = lvt_12_1_.getBlockState(blockposm);
                      Block block = blockstate.getBlock();

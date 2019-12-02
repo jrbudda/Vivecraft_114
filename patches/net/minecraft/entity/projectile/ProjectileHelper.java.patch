@@ -1,6 +1,6 @@
 --- a/net/minecraft/entity/projectile/ProjectileHelper.java
 +++ b/net/minecraft/entity/projectile/ProjectileHelper.java
-@@ -139,7 +139,7 @@
+@@ -132,7 +132,7 @@
      }
  
      @Nullable

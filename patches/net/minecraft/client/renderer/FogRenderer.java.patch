@@ -8,11 +8,11 @@
 +    private final GameRenderer gameRenderer;
      private final Minecraft mc;
  
-     public FogRenderer(GameRenderer p_i91_1_)
+     public FogRenderer(GameRenderer p_i98_1_)
      {
--        this.entityRenderer = p_i91_1_;
-+        this.gameRenderer = p_i91_1_;
-         this.mc = p_i91_1_.getMinecraft();
+-        this.entityRenderer = p_i98_1_;
++        this.gameRenderer = p_i98_1_;
+         this.mc = p_i98_1_.getMinecraft();
          this.blackBuffer.put(0.0F).put(0.0F).put(0.0F).put(1.0F).flip();
      }
 @@ -97,9 +97,9 @@

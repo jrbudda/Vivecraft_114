@@ -5,13 +5,13 @@
          for (int i = 0; i < list.size(); ++i)
          {
 -            List list = (List)list.get(i);
-+            List subList = (List)list.get(i);
++            List lista = (List)list.get(i);
  
 -            if (list != null)
-+            if (subList != null)
++            if (lista != null)
              {
 -                CustomItemProperties[] acustomitemproperties1 = list.toArray(new CustomItemProperties[list.size()]);
-+                CustomItemProperties[] acustomitemproperties1 = (CustomItemProperties[]) subList.toArray(new CustomItemProperties[subList.size()]);
++                CustomItemProperties[] acustomitemproperties1 = (CustomItemProperties[]) lista.toArray(new CustomItemProperties[lista.size()]);
                  Arrays.sort(acustomitemproperties1, new CustomItemsComparator());
                  acustomitemproperties[i] = acustomitemproperties1;
              }
@@ -20,19 +20,19 @@
          }
  
 -        List<CustomItemProperties> list = list.get(id);
-+        List<CustomItemProperties> subList = list.get(id);
++        List<CustomItemProperties> lista = list.get(id);
  
 -        if (list == null)
-+        if (subList == null)
++        if (lista == null)
          {
 -            list = new ArrayList<>();
 -            list.set(id, list);
-+        	subList = new ArrayList<>();
-+            list.set(id, subList);
++            lista = new ArrayList<>();
++            list.set(id, lista);
          }
  
 -        list.add(cp);
-+        subList.add(cp);
++        lista.add(cp);
      }
  
      public static IBakedModel getCustomItemModel(ItemStack itemStack, IBakedModel model, ResourceLocation modelLocation, boolean fullModel)

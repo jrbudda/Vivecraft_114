@@ -75,11 +75,11 @@
 +    private final VRArmRenderer myRenderVRPlayer;
 +    private final Map<String, VRArmRenderer> renderVRPlayerSkinMap = new HashMap<>();
 +    //
-     public FirstPersonRenderer(Minecraft p_i187_1_)
+     public FirstPersonRenderer(Minecraft p_i133_1_)
      {
-         this.mc = p_i187_1_;
-         this.renderManager = p_i187_1_.getRenderManager();
-         this.itemRenderer = p_i187_1_.getItemRenderer();
+         this.mc = p_i133_1_;
+         this.renderManager = p_i133_1_.getRenderManager();
+         this.itemRenderer = p_i133_1_.getItemRenderer();
 +        //Vivecraft
 +        myRenderVRPlayer = new VRArmRenderer(this.renderManager);
 +        renderVRPlayerSkinMap.put("default", this.myRenderVRPlayer);

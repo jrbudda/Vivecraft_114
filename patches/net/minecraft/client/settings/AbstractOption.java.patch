@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/settings/AbstractOption.java
 +++ b/net/minecraft/client/settings/AbstractOption.java
-@@ -159,12 +159,21 @@
+@@ -158,12 +158,21 @@
          double d0 = p_lambda$static$26_1_.func_216726_a(p_lambda$static$26_1_.get(p_lambda$static$26_0_));
          String s = p_lambda$static$26_1_.getDisplayString();
  

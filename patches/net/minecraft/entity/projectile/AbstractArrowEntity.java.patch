@@ -13,9 +13,9 @@
  import net.minecraft.enchantment.EnchantmentHelper;
 @@ -85,6 +89,21 @@
  
-         if (p_i2354_2_ instanceof PlayerEntity)
+         if (p_i2360_2_ instanceof PlayerEntity)
          {
-+        	ServerVivePlayer vp = NetworkHelper.vivePlayers.get(p_i2354_2_.getUniqueID());
++        	ServerVivePlayer vp = NetworkHelper.vivePlayers.get(p_i2360_2_.getUniqueID());
 +        	if (vp !=null && vp.isVR())
 +        	{
 +        		//VIVE SET SPAWNPOS

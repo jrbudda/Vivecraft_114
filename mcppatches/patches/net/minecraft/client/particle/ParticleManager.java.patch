@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/particle/ParticleManager.java
 +++ b/net/minecraft/client/particle/ParticleManager.java
-@@ -173,7 +173,7 @@
+@@ -172,7 +172,7 @@
              preparationsProfiler.endSection();
              preparationsProfiler.endTick();
              return atlastexture$sheetdata;
@@ -9,3 +9,12 @@
          {
              reloadProfiler.startTick();
              reloadProfiler.startSection("upload");
+@@ -258,7 +258,7 @@
+     @Nullable
+     private <T extends IParticleData> Particle makeParticle(T particleData, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed)
+     {
+-        IParticleFactory<T> iparticlefactory = this.factories.get(Registry.PARTICLE_TYPE.getKey(particleData.getType()));
++        IParticleFactory<T> iparticlefactory = (IParticleFactory<T>) this.factories.get(Registry.PARTICLE_TYPE.getKey(particleData.getType()));
+         return iparticlefactory == null ? null : iparticlefactory.makeParticle(particleData, this.world, x, y, z, xSpeed, ySpeed, zSpeed);
+     }
+ 

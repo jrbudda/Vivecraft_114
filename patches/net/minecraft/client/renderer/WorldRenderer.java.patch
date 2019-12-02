@@ -115,7 +115,7 @@
              }
  
              if (!this.isRenderEntityOutlines() && (!list.isEmpty() || this.entityOutlinesRendered))
-@@ -1074,7 +1105,9 @@
+@@ -1084,7 +1115,9 @@
          new BlockPos(MathHelper.floor(p_215320_1_.getProjectedView().x / 16.0D) * 16, MathHelper.floor(p_215320_1_.getProjectedView().y / 16.0D) * 16, MathHelper.floor(p_215320_1_.getProjectedView().z / 16.0D) * 16);
          float f = p_215320_1_.getPitch();
          float f1 = p_215320_1_.getYaw();
@@ -126,7 +126,7 @@
          this.lastViewEntityX = p_215320_1_.getProjectedView().x;
          this.lastViewEntityY = p_215320_1_.getProjectedView().y;
          this.lastViewEntityZ = p_215320_1_.getProjectedView().z;
-@@ -1449,7 +1482,7 @@
+@@ -1459,7 +1492,7 @@
          }
      }
  
@@ -135,7 +135,7 @@
      {
          this.mc.gameRenderer.enableLightmap();
  
-@@ -1626,7 +1659,7 @@
+@@ -1636,7 +1669,7 @@
  
              if (flag)
              {
@@ -144,7 +144,7 @@
              }
  
              Vec3d vec3d = this.world.getSkyColor(this.mc.gameRenderer.getActiveRenderInfo().getBlockPos(), partialTicks);
-@@ -1694,7 +1727,7 @@
+@@ -1704,7 +1737,7 @@
  
                  if (flag)
                  {
@@ -153,7 +153,7 @@
                  }
  
                  GlStateManager.shadeModel(7425);
-@@ -1726,7 +1759,7 @@
+@@ -1736,7 +1769,7 @@
  
              if (flag)
              {
@@ -162,7 +162,7 @@
              }
  
              GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-@@ -1785,7 +1818,7 @@
+@@ -1795,7 +1828,7 @@
  
              if (flag)
              {
@@ -171,7 +171,7 @@
              }
  
              float f12 = this.world.getStarBrightness(partialTicks) * f10;
-@@ -1824,7 +1857,7 @@
+@@ -1834,7 +1867,7 @@
  
              if (flag)
              {
@@ -180,7 +180,7 @@
              }
  
              GlStateManager.color3f(0.0F, 0.0F, 0.0F);
-@@ -1894,7 +1927,7 @@
+@@ -1904,7 +1937,7 @@
  
              if (flag)
              {
@@ -189,7 +189,7 @@
              }
  
              GlStateManager.depthMask(true);
-@@ -2484,6 +2517,8 @@
+@@ -2494,6 +2527,8 @@
          }
      }
  
@@ -198,7 +198,7 @@
      public void drawSelectionBox(ActiveRenderInfo p_215325_1_, RayTraceResult p_215325_2_, int p_215325_3_)
      {
          if (p_215325_3_ == 0 && p_215325_2_.getType() == RayTraceResult.Type.BLOCK)
-@@ -2500,7 +2535,7 @@
+@@ -2510,7 +2545,7 @@
  
                  if (Config.isShaders())
                  {
@@ -207,7 +207,7 @@
                  }
  
                  GlStateManager.depthMask(false);
-@@ -2510,7 +2545,7 @@
+@@ -2520,7 +2555,7 @@
                  double d0 = p_215325_1_.getProjectedView().x;
                  double d1 = p_215325_1_.getProjectedView().y;
                  double d2 = p_215325_1_.getProjectedView().z;
@@ -216,7 +216,7 @@
                  GlStateManager.popMatrix();
                  GlStateManager.matrixMode(5888);
                  GlStateManager.depthMask(true);
-@@ -2518,7 +2553,7 @@
+@@ -2528,7 +2563,7 @@
  
                  if (Config.isShaders())
                  {
@@ -225,7 +225,7 @@
                  }
  
                  GlStateManager.disableBlend();
-@@ -2979,6 +3014,8 @@
+@@ -2989,6 +3024,8 @@
      {
          Random random = this.world.rand;
  
@@ -234,7 +234,7 @@
          switch (type)
          {
              case 1000:
-@@ -3034,18 +3071,26 @@
+@@ -3044,18 +3081,26 @@
                  break;
  
              case 1011:
@@ -261,7 +261,7 @@
                  this.world.playSound(blockPosIn, SoundEvents.BLOCK_FENCE_GATE_CLOSE, SoundCategory.BLOCKS, 1.0F, this.world.rand.nextFloat() * 0.1F + 0.9F, false);
                  break;
  
-@@ -3066,14 +3111,26 @@
+@@ -3076,14 +3121,26 @@
                  break;
  
              case 1019:
@@ -288,7 +288,7 @@
                  this.world.playSound(blockPosIn, SoundEvents.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, SoundCategory.HOSTILE, 2.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F, false);
                  break;
  
-@@ -3102,10 +3159,17 @@
+@@ -3112,10 +3169,17 @@
                  break;
  
              case 1030:
@@ -306,7 +306,7 @@
                  this.world.playSound(blockPosIn, SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.BLOCKS, 0.3F, this.world.rand.nextFloat() * 0.1F + 0.9F, false);
                  break;
  
-@@ -3126,6 +3190,9 @@
+@@ -3136,6 +3200,9 @@
                  break;
  
              case 1036:
@@ -316,7 +316,7 @@
                  this.world.playSound(blockPosIn, SoundEvents.BLOCK_IRON_TRAPDOOR_CLOSE, SoundCategory.BLOCKS, 1.0F, this.world.rand.nextFloat() * 0.1F + 0.9F, false);
                  break;
  
-@@ -3482,4 +3549,11 @@
+@@ -3514,4 +3581,11 @@
              this.setFacing = p_initialize_2_;
          }
      }

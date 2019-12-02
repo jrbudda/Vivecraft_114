@@ -1,6 +1,6 @@
 --- a/net/minecraft/util/MovementInputFromOptions.java
 +++ b/net/minecraft/util/MovementInputFromOptions.java
-@@ -1,31 +1,207 @@
+@@ -1,31 +1,206 @@
  package net.minecraft.util;
  
 +import org.vivecraft.control.ControllerType;
@@ -26,19 +26,16 @@
 +    private boolean autoSprintActive = false;
 +    private boolean movementSetByAnalog = false;
  
--    public MovementInputFromOptions(GameSettings p_i2787_1_)
-+    public MovementInputFromOptions(GameSettings p_i1444_1_)
+     public MovementInputFromOptions(GameSettings p_i2790_1_)
      {
--        this.gameSettings = p_i2787_1_;
-+        this.gameSettings = p_i1444_1_;
+         this.gameSettings = p_i2790_1_;
      }
- 
--    public void tick(boolean slow, boolean noDampening)
 +	public static float getMovementAxisValue(KeyBinding keyBinding) {
 +		VRInputAction action = MCOpenVR.getInputAction(keyBinding);
 +		return Math.abs(MCOpenVR.getAxis1D(action));
 +	}
-+
+ 
+-    public void tick(boolean slow, boolean noDampening)
 +	private float axisToDigitalMovement(float value) {
 +    	if (value > 0.5f)
 +    		return 1;
@@ -47,7 +44,7 @@
 +    	return 0;
 +	}
 +	
-+	@Override
++@Override
 +    public void tick(boolean sneaking, boolean spectator)
      {
 -        this.forwardKeyDown = this.gameSettings.keyBindForward.isKeyDown();
@@ -119,8 +116,7 @@
 +				forwardAxis = rotateAxis.getY();
 +				if (mc.vrSettings.analogMovement) {
 +					this.moveForward = rotateAxis.getY();
- 
--        if (!noDampening && (this.sneak || slow))
++
 +					this.moveStrafe = 0;
 +					this.moveStrafe -= getMovementAxisValue(this.gameSettings.keyBindRight);
 +					this.moveStrafe += getMovementAxisValue(this.gameSettings.keyBindLeft);
@@ -131,7 +127,8 @@
 +				setMovement = true;
 +				this.moveForward = 0;
 +				this.moveStrafe = 0;
-+
+ 
+-        if (!noDampening && (this.sneak || slow))
 +				float forward = getMovementAxisValue(this.gameSettings.keyBindForward);
 +				if (forward == 0) forward = getMovementAxisValue(MCOpenVR.keyTeleportFallback);
 +				forwardAxis = forward;
@@ -196,7 +193,7 @@
 +		this.sneak = (mc.sneakTracker.sneakCounter > 0 || mc.sneakTracker.sneakOverride || this.gameSettings.keyBindSneak.isKeyDown())
 +				&& mc.currentScreen == null;
 +
-+		
++
 +        if (!spectator && (this.sneak || sneaking))
          {
              this.moveStrafe = (float)((double)this.moveStrafe * 0.3D);

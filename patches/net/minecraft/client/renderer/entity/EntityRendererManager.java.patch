@@ -11,7 +11,7 @@
  import net.minecraft.client.Minecraft;
  import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 @@ -134,6 +137,10 @@
-     private final Map <Class, EntityRenderer> renderers = Maps.newHashMap();
+     private final Map<Class, EntityRenderer> renderers = Maps.newHashMap();
      private final Map<String, PlayerRenderer> skinMap = Maps.newHashMap();
      private final PlayerRenderer playerRenderer;
 +	//VIVECRAFT

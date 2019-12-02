@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/gui/overlay/DebugOverlayGui.java
 +++ b/net/minecraft/client/gui/overlay/DebugOverlayGui.java
-@@ -97,8 +97,8 @@
+@@ -98,8 +98,8 @@
          this.mc.getProfiler().startSection("debug");
          GlStateManager.pushMatrix();
          Entity entity = this.mc.getRenderViewEntity();

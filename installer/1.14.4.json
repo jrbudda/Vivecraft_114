@@ -1366,24 +1366,20 @@
 			]
 		},
 		{
-			"name": "org.ow2.asm:asm-all:5.2",
-			"url": "http://files.minecraftforge.net/maven/"
-		},
-		{
-			"url": "http://vivecraft.org/jar/",
-			"name": "org.json:json:20140107"
-		},
+            "name": "cpw.mods:modlauncher:4.1.0",
+			"url": "https://files.minecraftforge.net/maven/"
+        },
 		{
 			"name": "net.minecraft:launchwrapper:1.12"
-		},
+		},	
 		{
-			"url": "http://vivecraft.org/jar/",
-			"name": "com.sun:jna:4.2.1"
-		},
+		"url": "http://vivecraft.org/jar/", 
+		"name": "org.json:json:20140107"
+		}, 
 		{
-            "name": "cpw.mods:modlauncher:3.0.2",
-			"url": "https://files.minecraftforge.net/maven/"
-        }
+			"name": "org.ow2.asm:asm-all:5.2",
+			"url": "http://files.minecraftforge.net/maven/"
+		}
 	],
 	"logging": {
 		"client": {

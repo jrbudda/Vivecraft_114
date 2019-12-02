@@ -1,6 +1,6 @@
 --- a/net/optifine/reflect/Reflector.java
 +++ b/net/optifine/reflect/Reflector.java
-@@ -1240,4 +1240,9 @@
+@@ -1297,4 +1297,9 @@
          Config.dbg(str);
          return true;
      }

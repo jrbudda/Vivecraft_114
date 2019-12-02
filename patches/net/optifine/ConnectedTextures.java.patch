@@ -1,6 +1,6 @@
 --- a/net/optifine/ConnectedTextures.java
 +++ b/net/optifine/ConnectedTextures.java
-@@ -2220,7 +2220,7 @@
+@@ -2271,7 +2271,7 @@
              }
              catch (FileNotFoundException var11)
              {

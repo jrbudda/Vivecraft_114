@@ -1,18 +1,6 @@
 --- a/net/minecraft/client/gui/screen/Screen.java
 +++ b/net/minecraft/client/gui/screen/Screen.java
-@@ -56,7 +56,10 @@
-     public boolean passEvents;
-     protected FontRenderer font;
-     private URI clickedLink;
--
-+    public boolean pressShiftFake;
-+    public static boolean isFakeShift(){
-+    	return Minecraft.getInstance().currentScreen != null ? Minecraft.getInstance().currentScreen.pressShiftFake : false;
-+    }
-     protected Screen(ITextComponent p_i2027_1_)
-     {
-         this.title = p_i2027_1_;
-@@ -437,7 +440,16 @@
+@@ -437,7 +437,16 @@
      {
          if (this.minecraft.world != null)
          {
@@ -30,12 +18,3 @@
          }
          else
          {
-@@ -497,7 +509,7 @@
- 
-     public static boolean hasShiftDown()
-     {
--        return InputMappings.isKeyDown(Minecraft.getInstance().mainWindow.getHandle(), 340) || InputMappings.isKeyDown(Minecraft.getInstance().mainWindow.getHandle(), 344);
-+        return InputMappings.isKeyDown(Minecraft.getInstance().mainWindow.getHandle(), 340) || InputMappings.isKeyDown(Minecraft.getInstance().mainWindow.getHandle(), 344) || isFakeShift();
-     }
- 
-     public static boolean hasAltDown()

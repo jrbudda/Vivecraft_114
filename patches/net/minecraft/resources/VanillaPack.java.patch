@@ -9,22 +9,72 @@
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
  
-@@ -305,11 +307,16 @@
-         try
-         {
-             URL url = VanillaPack.class.getResource(s);
--            return func_223459_a(s, url);
-+            boolean flag = func_223459_a(s, url);
-+            if (!flag) throw new IOException();
-+            return flag;
-         }
-         catch (IOException var51)
-         {
--            return false;
-+            InputStream inputstream = this.getInputStreamVanilla(type, location);
-+            boolean flag = inputstream != null;
-+            IOUtils.closeQuietly(inputstream);
-+            return flag;
-         }
+@@ -290,35 +292,40 @@
+ 
+     public boolean resourceExists(ResourcePackType type, ResourceLocation location)
+     {
+-        String s = func_223458_d(type, location);
+-        InputStream inputstream = ReflectorForge.getOptiFineResourceStream(s);
+-
+-        if (inputstream != null)
+-        {
+-            return true;
+-        }
+-        else
+-        {
+-            if (basePath != null)
+-            {
+-                Path path = basePath.resolve(type.getDirectoryName() + "/" + location.getNamespace() + "/" + location.getPath());
++    	String s = func_223458_d(type, location);
++    	InputStream inputstream = ReflectorForge.getOptiFineResourceStream(s);
+ 
+-                if (Files.exists(path))
+-                {
+-                    return true;
+-                }
+-            }
+-
+-            try
+-            {
+-                URL url = VanillaPack.class.getResource(s);
+-                return func_223459_a(s, url);
+-            }
+-            catch (IOException var6)
+-            {
+-                return false;
+-            }
+-        }
++    	if (inputstream != null)
++    	{
++    		return true;
++    	}
++    	else
++    	{
++    		if (basePath != null)
++    		{
++    			Path path = basePath.resolve(type.getDirectoryName() + "/" + location.getNamespace() + "/" + location.getPath());
++
++    			if (Files.exists(path))
++    			{
++    				return true;
++    			}
++    		}
++
++    		try
++    		{
++    			URL url = VanillaPack.class.getResource(s);
++    			boolean flag = func_223459_a(s, url);
++    			if (!flag) throw new IOException();
++    			return flag;
++    		}
++    		catch (IOException var51)
++    		{
++    			InputStream IS = this.getInputStreamVanilla(type, location);
++    			boolean flag = IS != null;
++    			IOUtils.closeQuietly(IS);
++    			return flag;
++    		}
++    	}
      }
  
+     public Set<String> getResourceNamespaces(ResourcePackType type)

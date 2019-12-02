@@ -12,23 +12,28 @@
                  GlStateManager.enableLighting();
                  GlStateManager.enableDepthTest();
              }
-@@ -397,7 +397,8 @@
+@@ -397,6 +397,7 @@
                              }
                              else
                              {
--                                boolean flag2 = l != -999 && (InputMappings.isKeyDown(Minecraft.getInstance().mainWindow.getHandle(), 340) || InputMappings.isKeyDown(Minecraft.getInstance().mainWindow.getHandle(), 344));
 +                            	//Vivecraft add shift
-+                                boolean flag2 = l != -999 && (isFakeShift() || InputMappings.isKeyDown(Minecraft.getInstance().mainWindow.getHandle(), 340) || InputMappings.isKeyDown(Minecraft.getInstance().mainWindow.getHandle(), 344));
+                                 boolean flag2 = l != -999 && (InputMappings.isKeyDown(Minecraft.getInstance().mainWindow.getHandle(), 340) || InputMappings.isKeyDown(Minecraft.getInstance().mainWindow.getHandle(), 344));
                                  ClickType clicktype = ClickType.PICKUP;
  
-                                 if (flag2)
-@@ -617,7 +618,8 @@
+@@ -489,7 +490,7 @@
+                 }
+             }
+         }
+-        else if (this.dragSplitting && slot != null && !itemstack.isEmpty() && (itemstack.getCount() > this.dragSplittingSlots.size() || this.dragSplittingLimit == 2) && Container.canAddItemToSlot(slot, itemstack, true) && slot.isItemValid(itemstack) && this.container.canDragIntoSlot(slot))
++        else if (!Screen.hasShiftDown() && this.dragSplitting && slot != null && !itemstack.isEmpty() && (itemstack.getCount() > this.dragSplittingSlots.size() || this.dragSplittingLimit == 2) && Container.canAddItemToSlot(slot, itemstack, true) && slot.isItemValid(itemstack) && this.container.canDragIntoSlot(slot))
+         {
+             this.dragSplittingSlots.add(slot);
+             this.updateDragSplitting();
+@@ -617,6 +618,7 @@
                  }
                  else
                  {
--                    boolean flag1 = k != -999 && (InputMappings.isKeyDown(Minecraft.getInstance().mainWindow.getHandle(), 340) || InputMappings.isKeyDown(Minecraft.getInstance().mainWindow.getHandle(), 344));
 +                	//Vivecraft add shift
-+                    boolean flag1 = k != -999 && (isFakeShift() || InputMappings.isKeyDown(Minecraft.getInstance().mainWindow.getHandle(), 340) || InputMappings.isKeyDown(Minecraft.getInstance().mainWindow.getHandle(), 344));
+                     boolean flag1 = k != -999 && (InputMappings.isKeyDown(Minecraft.getInstance().mainWindow.getHandle(), 340) || InputMappings.isKeyDown(Minecraft.getInstance().mainWindow.getHandle(), 344));
  
                      if (flag1)
-                     {

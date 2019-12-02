@@ -1,8 +1,8 @@
 --- a/net/optifine/gui/GuiScreenCapeOF.java
 +++ b/net/optifine/gui/GuiScreenCapeOF.java
-@@ -17,10 +17,10 @@
-     private String message;
-     private long messageHideTimeMs;
+@@ -19,10 +19,10 @@
+     private String linkUrl;
+     private GuiButtonOF buttonCopyLink;
  
 -    public GuiScreenCapeOF(Screen parentScreenIn)
 +    public GuiScreenCapeOF(Screen parentGuiScreenIn)

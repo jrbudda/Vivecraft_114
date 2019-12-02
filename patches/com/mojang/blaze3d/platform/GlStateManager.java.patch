@@ -9,7 +9,7 @@
      private static final GlStateManager.DepthState DEPTH = new GlStateManager.DepthState();
      private static final GlStateManager.FogState FOG = new GlStateManager.FogState();
      private static final GlStateManager.CullState CULL = new GlStateManager.CullState();
-@@ -218,7 +218,7 @@
+@@ -219,7 +219,7 @@
          }
          else
          {
@@ -18,7 +18,7 @@
          }
      }
  
-@@ -230,7 +230,7 @@
+@@ -231,7 +231,7 @@
          }
          else
          {
@@ -27,7 +27,7 @@
          }
      }
  
-@@ -247,12 +247,12 @@
+@@ -248,12 +248,12 @@
          }
          else
          {
@@ -45,7 +45,7 @@
  
                  if (Config.isShaders())
                  {
-@@ -277,12 +277,12 @@
+@@ -278,12 +278,12 @@
          }
          else
          {
@@ -63,7 +63,7 @@
  
                  if (Config.isShaders())
                  {
-@@ -728,12 +728,12 @@
+@@ -729,12 +729,12 @@
  
      public static void clearColor(float p_clearColor_0_, float p_clearColor_1_, float p_clearColor_2_, float p_clearColor_3_)
      {
@@ -81,7 +81,7 @@
              GL11.glClearColor(p_clearColor_0_, p_clearColor_1_, p_clearColor_2_, p_clearColor_3_);
          }
      }
-@@ -747,13 +747,13 @@
+@@ -748,13 +748,13 @@
          }
      }
  
@@ -97,7 +97,7 @@
              {
                  getError();
              }
-@@ -777,7 +777,7 @@
+@@ -778,7 +778,7 @@
  
      public static void popMatrix()
      {
@@ -106,7 +106,7 @@
      }
  
      public static void getMatrix(int p_getMatrix_0_, FloatBuffer p_getMatrix_1_)
-@@ -844,12 +844,12 @@
+@@ -845,12 +845,12 @@
  
      public static void color4f(float p_color4f_0_, float p_color4f_1_, float p_color4f_2_, float p_color4f_3_)
      {
@@ -124,7 +124,7 @@
              GL11.glColor4f(p_color4f_0_, p_color4f_1_, p_color4f_2_, p_color4f_3_);
          }
      }
-@@ -871,10 +871,10 @@
+@@ -872,10 +872,10 @@
  
      public static void clearCurrentColor()
      {
@@ -139,7 +139,7 @@
      }
  
      public static void normalPointer(int p_normalPointer_0_, int p_normalPointer_1_, int p_normalPointer_2_)
-@@ -1148,7 +1148,7 @@
+@@ -1183,7 +1183,7 @@
          }
          else
          {
@@ -148,7 +148,7 @@
          }
      }
  
-@@ -1160,7 +1160,7 @@
+@@ -1195,7 +1195,7 @@
          }
          else
          {
@@ -157,7 +157,7 @@
  
              if (!p_setBlendState_0_.isSeparate())
              {
-@@ -1199,13 +1199,13 @@
+@@ -1266,13 +1266,13 @@
          }
      }
  
@@ -177,7 +177,7 @@
  
          private BlendState()
          {
-@@ -1261,12 +1261,12 @@
+@@ -1328,12 +1328,12 @@
          }
      }
  
@@ -195,18 +195,18 @@
  
          public Color()
          {
-@@ -1275,10 +1275,10 @@
+@@ -1342,10 +1342,10 @@
  
-         public Color(float p_i90_1_, float p_i90_2_, float p_i90_3_, float p_i90_4_)
+         public Color(float p_i96_1_, float p_i96_2_, float p_i96_3_, float p_i96_4_)
          {
--            this.field_179195_a = p_i90_1_;
--            this.field_179193_b = p_i90_2_;
--            this.field_179194_c = p_i90_3_;
--            this.field_179192_d = p_i90_4_;
-+            this.red = p_i90_1_;
-+            this.green = p_i90_2_;
-+            this.blue = p_i90_3_;
-+            this.alpha = p_i90_4_;
+-            this.field_179195_a = p_i96_1_;
+-            this.field_179193_b = p_i96_2_;
+-            this.field_179194_c = p_i96_3_;
+-            this.field_179192_d = p_i96_4_;
++            this.red = p_i96_1_;
++            this.green = p_i96_2_;
++            this.blue = p_i96_3_;
++            this.alpha = p_i96_4_;
          }
      }
  

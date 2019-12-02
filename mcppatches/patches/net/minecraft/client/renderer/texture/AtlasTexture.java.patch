@@ -5,7 +5,7 @@
                      GlStateManager.bindTexture(this.getMultiTexID().norm);
  
 -                    for (TextureAtlasSprite textureatlassprite2 : list)
-+                    for (TextureAtlasSprite textureatlassprite2 : (List<TextureAtlasSprite>)list)
++                    for (TextureAtlasSprite textureatlassprite2 : (Set<TextureAtlasSprite>)(Set<?>)list)
                      {
                          TextureAtlasSprite textureatlassprite4 = textureatlassprite2.spriteNormal;
  
@@ -14,46 +14,50 @@
                      GlStateManager.bindTexture(this.getMultiTexID().spec);
  
 -                    for (TextureAtlasSprite textureatlassprite3 : list)
-+                    for (TextureAtlasSprite textureatlassprite3 : (List<TextureAtlasSprite>)list)
++                    for (TextureAtlasSprite textureatlassprite3 : (Set<TextureAtlasSprite>)(Set<?>)list)
                      {
                          TextureAtlasSprite textureatlassprite5 = textureatlassprite3.spriteSpecular;
  
-@@ -763,9 +763,8 @@
-                 PngSizeInfo pngsizeinfo = new PngSizeInfo(iresource.toString(), iresource.getInputStream());
-                 AnimationMetadataSection animationmetadatasection = iresource.getMetadata(AnimationMetadataSection.SERIALIZER);
-                 TextureAtlasSprite textureatlassprite = new TextureAtlasSprite(p_loadTexture_3_, pngsizeinfo, animationmetadatasection);
--                ResourceLocation resourcelocation2;
- 
--                for (resourcelocation2 : textureatlassprite.getDependencies())
-+                for (ResourceLocation resourcelocation2 : textureatlassprite.getDependencies())
+@@ -776,7 +776,7 @@
+                 if (!textureatlassprite.hasCustomLoader(p_loadTexture_2_, p_loadTexture_3_) || !textureatlassprite.load(p_loadTexture_2_, p_loadTexture_3_, this.mapUploadedSprites::get))
                  {
-                     if (!this.sprites.contains(resourcelocation2))
+                     p_loadTexture_4_ = Math.min(p_loadTexture_4_, Math.min(textureatlassprite.getWidth(), textureatlassprite.getHeight()));
+-                    j1 = Math.min(Integer.lowestOneBit(textureatlassprite.getWidth()), Integer.lowestOneBit(textureatlassprite.getHeight()));
++                    i = Math.min(Integer.lowestOneBit(textureatlassprite.getWidth()), Integer.lowestOneBit(textureatlassprite.getHeight()));
+ 
+                     if (i < p_loadTexture_5_)
                      {
-@@ -790,8 +789,7 @@
-                         p_loadTexture_1_.addSprite(textureatlassprite);
-                     }
- 
--                    resourcelocation2 = (ResourceLocation)object;
--                    return (int)resourcelocation2;
-+                    return (int)object;
-                 }
- 
-                 k = p_loadTexture_4_;
-@@ -900,7 +898,7 @@
- 
-     private int detectMinimumSpriteSize(Set<ResourceLocation> p_detectMinimumSpriteSize_1_, IResourceManager p_detectMinimumSpriteSize_2_, int p_detectMinimumSpriteSize_3_)
-     {
--        Map map = new HashMap();
-+        Map<Integer, Integer> map = new HashMap();
- 
-         for (ResourceLocation resourcelocation : p_detectMinimumSpriteSize_1_)
-         {
-@@ -944,7 +942,7 @@
+@@ -924,7 +924,7 @@
+                             }
+                             else
+                             {
+-                                int k = map.get(j);
++                                int k = (int) map.get(j);
+                                 map.put(j, k + 1);
+                             }
+                         }
+@@ -938,12 +938,12 @@
+         }
  
          int l = 0;
-         Set set = map.keySet();
+-        Set set = map.keySet();
 -        Set set1 = new TreeSet(set);
++        Set<Integer> set = map.keySet();
 +        Set<Integer> set1 = new TreeSet(set);
  
          for (int j1 : set1)
          {
+-            int l1 = map.get(j1);
++            int l1 = (int) map.get(j1);
+             l += l1;
+         }
+ 
+@@ -953,7 +953,7 @@
+ 
+         for (int j2 : set1)
+         {
+-            int k2 = map.get(j2);
++            int k2 = (int) map.get(j2);
+             k1 += k2;
+ 
+             if (j2 > i1)

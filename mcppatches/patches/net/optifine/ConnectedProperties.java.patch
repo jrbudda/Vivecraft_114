@@ -22,7 +22,7 @@
      public static IProperty getProperty(String key, Collection properties)
      {
 -        for (IProperty iproperty : properties)
-+        for (IProperty iproperty : (Collection<IProperty>)properties)
++        for (IProperty iproperty : (Set<IProperty>)(Set<?>)properties)
          {
              if (key.equals(iproperty.getName()))
              {

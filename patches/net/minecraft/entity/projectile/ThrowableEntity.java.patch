@@ -12,9 +12,9 @@
  import net.minecraft.entity.Entity;
  import net.minecraft.entity.EntityType;
 @@ -49,6 +53,15 @@
-         this(p_i1351_1_, p_i1351_2_.posX, p_i1351_2_.posY + (double)p_i1351_2_.getEyeHeight() - (double)0.1F, p_i1351_2_.posZ, p_i1351_3_);
-         this.owner = p_i1351_2_;
-         this.ownerId = p_i1351_2_.getUniqueID();
+         this(p_i1358_1_, p_i1358_2_.posX, p_i1358_2_.posY + (double)p_i1358_2_.getEyeHeight() - (double)0.1F, p_i1358_2_.posZ, p_i1358_3_);
+         this.owner = p_i1358_2_;
+         this.ownerId = p_i1358_2_.getUniqueID();
 +        //VIVE SET SPAWNPOS
 +        ServerVivePlayer vp = NetworkHelper.vivePlayers.get(owner.getUniqueID());
 +        if (vp !=null && vp.isVR())

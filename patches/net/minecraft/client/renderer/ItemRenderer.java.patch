@@ -30,9 +30,9 @@
 +    private GlAlphaState alphaState = new GlAlphaState();
 +    //
  
-     public ItemRenderer(TextureManager p_i171_1_, ModelManager p_i171_2_, ItemColors p_i171_3_)
+     public ItemRenderer(TextureManager p_i73_1_, ModelManager p_i73_2_, ItemColors p_i73_3_)
      {
-@@ -150,11 +161,46 @@
+@@ -149,11 +160,46 @@
          {
              GlStateManager.pushMatrix();
              GlStateManager.translatef(-0.5F, -0.5F, -0.5F);
@@ -81,7 +81,7 @@
  
                  if (Reflector.IForgeItem_getTileEntityItemStackRenderer.exists())
                  {
-@@ -198,9 +244,24 @@
+@@ -201,9 +247,24 @@
                  }
              }
  
@@ -106,7 +106,7 @@
  
      public static void renderEffect(TextureManager textureManagerIn, Runnable renderModelFunction, int scale)
      {
-@@ -313,6 +374,20 @@
+@@ -316,6 +377,20 @@
                      k = CustomColors.getColorFromItemStack(stack, bakedquad.getTintIndex(), k);
                  }
  
@@ -127,7 +127,7 @@
                  k = k | -16777216;
              }
  
-@@ -408,7 +483,7 @@
+@@ -403,7 +478,7 @@
              GlStateManager.enableRescaleNormal();
              GlStateManager.alphaFunc(516, 0.1F);
              GlStateManager.enableBlend();
@@ -136,7 +136,7 @@
              GlStateManager.pushMatrix();
  
              if (Config.isCustomItems())
-@@ -463,10 +538,15 @@
+@@ -458,10 +533,15 @@
          this.textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
          this.textureManager.getTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
          GlStateManager.enableRescaleNormal();
@@ -153,7 +153,7 @@
          GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
  
          if (Config.isCustomItems())
-@@ -486,7 +566,7 @@
+@@ -481,7 +561,7 @@
          }
  
          this.renderItem(stack, bakedmodel);
@@ -162,7 +162,7 @@
          GlStateManager.disableRescaleNormal();
          GlStateManager.disableLighting();
          GlStateManager.popMatrix();
-@@ -660,4 +740,9 @@
+@@ -655,4 +735,9 @@
      {
          return VanillaResourceType.MODELS;
      }
