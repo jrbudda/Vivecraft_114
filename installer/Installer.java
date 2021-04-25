@@ -580,8 +580,7 @@ public class Installer extends JPanel  implements PropertyChangeListener
 					}
 				}
 			}
-			catch (NoSuchFieldException e) {}
-			catch (IllegalAccessException e) {}
+			catch (Exception e) {}
 
 
 			finalMessage = "Failed: Couldn't download C++ redistributables. ";
