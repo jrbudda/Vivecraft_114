@@ -53,19 +53,7 @@ public class GuiHUDSettings extends GuiVROptionsBase
     {
     	vrTitle = "HUD and GUI Settings";
 
-        VROptionEntry[] optionEntries = hudOptions;
-
-		if(!minecraft.vrSettings.seated) {
-            BiFunction<GuiVROptionButton, Vec2f, Boolean> func = (button, mousePos) -> {
-				GuiHUDSettings.this.settings.saveOptions();
-				GuiVRControls guiVRControls = new GuiVRControls(GuiHUDSettings.this);
-				minecraft.displayGuiScreen(guiVRControls);
-				return false;
-			};
-            optionEntries = ArrayUtils.add(optionEntries, new VROptionEntry("GUI Bindings...", func));
-		}
-
-    	super.init(optionEntries, true);
+    	super.init(hudOptions, true);
         super.addDefaultButtons();
     }
     

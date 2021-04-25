@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.vivecraft.api.VRData;
 import org.vivecraft.provider.MCOpenVR;
+import org.vivecraft.settings.VRSettings.VrOptions;
 import org.vivecraft.utils.Angle;
 import org.vivecraft.utils.Axis;
 import org.vivecraft.utils.Quaternion;
@@ -35,7 +36,7 @@ public class VRHotkeys {
 
 	static long nextRead = 0;
 	static final long COOLOFF_PERIOD_MILLIS = 500;
-	static boolean debug = false;
+	static boolean debug = true;
 
 	private static int startController;
 	private static VRData.VRDevicePose startControllerPose;
@@ -167,7 +168,11 @@ public class VRHotkeys {
             mc.displayGuiScreen(new WinGameScreen(false, Runnables.doNothing()));
 			gotKey = true;
 		}
-
+		
+		if(mc.world == null && action == GLFW.GLFW_PRESS && key == GLFW.GLFW_KEY_F5) {
+			mc.vrSettings.setOptionValue(VrOptions.MIRROR_DISPLAY);
+		}
+		
 		// VIVE END - hotkeys
 
 		if (gotKey) {

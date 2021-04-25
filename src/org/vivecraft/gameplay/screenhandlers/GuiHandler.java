@@ -135,8 +135,8 @@ public class GuiHandler {
 				&& controllerMouseY >=0 && controllerMouseY < mc.mainWindow.getHeight())
 		{
 			// mouse on screen
-			int mouseX = Math.min(Math.max((int) controllerMouseX, 0), mc.mainWindow.getWidth());
-			int mouseY = Math.min(Math.max((int) controllerMouseY, 0), mc.mainWindow.getHeight());
+			double mouseX = Math.min(Math.max((int) controllerMouseX, 0), mc.mainWindow.getWidth());
+			double mouseY = Math.min(Math.max((int) controllerMouseY, 0), mc.mainWindow.getHeight());
 
 			int deltaX = 0;//?
 			int deltaY = 0;//?
@@ -145,7 +145,6 @@ public class GuiHandler {
 			{
 				InputSimulator.setMousePos(mouseX, mouseY);
 				controllerMouseValid = true;
-
 			}
 		} else { //mouse off screen
 			if(controllerMouseTicks == 0)

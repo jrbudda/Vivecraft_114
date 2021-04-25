@@ -134,7 +134,7 @@ public class VRSettings
 	public int bowMode = BOW_MODE_ON;
 	public String keyboardKeys =  "`1234567890-=qwertyuiop[]\\asdfghjkl;\':\"zxcvbnm,./?<>";
 	public String keyboardKeysShift ="~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL;\':\"ZXCVBNM,./?<>";
-	public String hrtfSelection = "";
+	public int hrtfSelection = 0;
 	public boolean firstRun = true;
     public int rightclickDelay = 6 ;
 	//
@@ -774,7 +774,7 @@ public class VRSettings
                     }
 
                     if(optionTokens[0].equals("hrtfSelection")){
-                        this.hrtfSelection = optionTokens[1];
+                    	this.hrtfSelection = Integer.parseInt(optionTokens[1]);
                     }
                     
                     if(optionTokens[0].equals("rightclickDelay")){
@@ -1161,13 +1161,12 @@ public class VRSettings
                         return var4 + "Official Only";
                 }
             case HRTF_SELECTION: {
-                int index = SoundSystem.hrtfList.indexOf(this.hrtfSelection);
-                if (this.hrtfSelection.equals("off"))
+                if (this.hrtfSelection == -1)
                     return var4 + "Off";
-                else if (index == -1)
+                else if (this.hrtfSelection == 0)
                     return var4 + "Default";
-                else
-                    return var4 + SoundSystem.hrtfList.get(index);
+                else if (this.hrtfSelection <= SoundSystem.hrtfList.size())
+                    return var4 + SoundSystem.hrtfList.get(this.hrtfSelection - 1);
             }
             case RIGHT_CLICK_DELAY:
                 switch (this.rightclickDelay) {
@@ -1527,13 +1526,9 @@ public class VRSettings
                 break;
             case HRTF_SELECTION:
                 {
-                    int nextIndex = SoundSystem.hrtfList.indexOf(this.hrtfSelection) + 1;
-                    if (nextIndex == SoundSystem.hrtfList.size())
-                        this.hrtfSelection = "off";
-                    else if (this.hrtfSelection.equals("off"))
-                        this.hrtfSelection = "";
-                    else
-                        this.hrtfSelection = SoundSystem.hrtfList.get(nextIndex);
+                    this.hrtfSelection++;
+                    if (this.hrtfSelection > SoundSystem.hrtfList.size())
+                        this.hrtfSelection = -1;
 
                     // Reload the sound engine to get the new HRTF
                     mc.getSoundHandler().sndManager.reload();
@@ -1541,7 +1536,7 @@ public class VRSettings
                 break;
             case RIGHT_CLICK_DELAY:
             	this.rightclickDelay+=2;
-            	if (this.rightclickDelay>10) this.bowMode = 4;
+            	if (this.rightclickDelay>10) this.rightclickDelay = 4;
             	break;
             case RELOAD_EXTERNAL_CAMERA:
                 VRHotkeys.loadExternalCameraConfig();

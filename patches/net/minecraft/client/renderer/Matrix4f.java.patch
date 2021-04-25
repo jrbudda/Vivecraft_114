@@ -1,0 +1,47 @@
+--- a/net/minecraft/client/renderer/Matrix4f.java
++++ b/net/minecraft/client/renderer/Matrix4f.java
+@@ -3,6 +3,8 @@
+ import java.nio.FloatBuffer;
+ import java.util.Arrays;
+ 
++import jopenvr.HmdMatrix44_t;
++
+ public final class Matrix4f
+ {
+     private final float[] elements = new float[16];
+@@ -93,7 +95,7 @@
+         {
+             for (int j = 0; j < 4; ++j)
+             {
+-                stringbuilder.append(this.elements[i + j * 4]);
++                stringbuilder.append(this.elements[i  + j * 4 ]);
+ 
+                 if (j != 3)
+                 {
+@@ -160,4 +162,26 @@
+         matrix4f.set(2, 3, -(farPlane + nearPlane) / f);
+         return matrix4f;
+     }
++
++    public void setFromOpenVR(jopenvr.HmdMatrix44_t in) {
++    	//TODO check for transpose
++    	//yes must transpose.
++    	this.elements[0]= in.m[0];
++    	this.elements[1] = in.m[4];
++    	this.elements[2] = in.m[8];
++    	this.elements[3] = in.m[12];
++    	this.elements[4] = in.m[1];
++    	this.elements[5] = in.m[5];
++    	this.elements[6] = in.m[9];
++    	this.elements[7] = in.m[13];
++    	this.elements[8] = in.m[2];
++    	this.elements[9] = in.m[6];
++    	this.elements[10] = in.m[10];
++    	this.elements[11] = in.m[14];
++    	this.elements[12] = in.m[3];
++    	this.elements[13] = in.m[7];
++    	this.elements[14] = in.m[11];
++    	this.elements[15] = in.m[15];
++    }
++    //
+ }

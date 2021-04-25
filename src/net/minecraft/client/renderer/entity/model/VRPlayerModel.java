@@ -43,10 +43,11 @@ public class VRPlayerModel<T extends LivingEntity> extends BipedModel<T>
         this.bipedCape = new RendererModel(this, 0, 0);
         this.bipedCape.setTextureSize(64, 32);
         this.bipedCape.addBox(-5.0F, 0.0F, -1.0F, 10, 16, 1, p_i63_1_);
+        //Vivecraft
         this.vrHMD = new RendererModel(this, 0, 0);
         this.vrHMD.setTextureSize(16, 16);
         this.vrHMD.addBox(-3.5F, -6.0F, -7.5F, 7, 4, 5, p_i63_1_);
-
+        //
         if (p_i63_2_)
         {
             this.bipedLeftArm = new RendererModel(this, 32, 48);
@@ -61,6 +62,7 @@ public class VRPlayerModel<T extends LivingEntity> extends BipedModel<T>
             this.bipedRightArmwear = new RendererModel(this, 40, 32);
             this.bipedRightArmwear.addBox(-2.0F, -2.0F, -2.0F, 3, 12, 4, p_i63_1_ + 0.25F);
             this.bipedRightArmwear.setRotationPoint(-5.0F, 2.5F, 10.0F);
+            //Vivecraft
 	        this.rightShoulder = new RendererModel(this, 24, 18);
 	        this.rightShoulder.addBox(-3.0F, -2.0F, -2.0F, 3, 8, 4, p_i63_1_);
 	        this.rightShoulder.setRotationPoint(-5.0F, 2.5F , 0.0F);
@@ -68,6 +70,7 @@ public class VRPlayerModel<T extends LivingEntity> extends BipedModel<T>
 	        this.leftShoulder.mirror = true;
 	        this.leftShoulder.addBox(-1.0F, -2.0F, -2.0F, 3, 8, 4, p_i63_1_);
 	        this.leftShoulder.setRotationPoint(5.0F, 2.5F, 0.0F);
+	        //
         }
         else
         {

@@ -74,7 +74,7 @@
              shaderPackProgramConditions.clear();
              shaderPackClouds.resetValue();
              shaderPackOldHandLight.resetValue();
-@@ -877,6 +887,25 @@
+@@ -877,6 +887,27 @@
          loadShaderPackResources();
          loadShaderPackDimensions();
          shaderPackOptions = loadShaderPackOptions();
@@ -94,13 +94,15 @@
 +				sh.setValue("false");
 +			if (sh.getName().equalsIgnoreCase("IDLE_HANDS")) //qol
 +				sh.setValue("false");
++			if (sh.getName().equalsIgnoreCase("taa")) //sildurs
++				sh.setValue("false");
 +		}
 +        //
 +        
          loadShaderPackProperties();
          boolean flag3 = shaderPackLoaded != flag;
          boolean flag4 = isOldLighting() != flag1;
-@@ -1050,7 +1079,7 @@
+@@ -1050,7 +1081,7 @@
                  shaderPackFrustumCulling.loadFrom(properties);
                  shaderPackOptionSliders = ShaderPackParser.parseOptionSliders(properties, shaderPackOptions);
                  shaderPackProfiles = ShaderPackParser.parseProfiles(properties, shaderPackOptions);
@@ -109,7 +111,7 @@
                  shaderPackProgramConditions = ShaderPackParser.parseProgramConditions(properties, shaderPackOptions);
                  customTexturesGbuffers = loadCustomTextures(properties, 0);
                  customTexturesComposite = loadCustomTextures(properties, 1);
-@@ -1555,7 +1584,7 @@
+@@ -1555,7 +1586,7 @@
      {
          ShaderOption[] ashaderoption = (ShaderOption[])shaderPackOptions.clone();
  
@@ -118,7 +120,7 @@
          {
              if (shaderPackProfiles != null)
              {
-@@ -1569,7 +1598,7 @@
+@@ -1569,7 +1600,7 @@
          else
          {
              String s = screenName != null ? "screen." + screenName : "screen";
@@ -127,7 +129,7 @@
  
              if (screenshaderoptions == null)
              {
-@@ -1590,7 +1619,7 @@
+@@ -1590,7 +1621,7 @@
                      }
                      else if (shaderoption instanceof ShaderOptionRest)
                      {
@@ -136,7 +138,7 @@
                          list.addAll(Arrays.asList(ashaderoption2));
                      }
                      else
-@@ -1609,13 +1638,13 @@
+@@ -1609,13 +1640,13 @@
      {
          String s = screenName != null ? "screen." + screenName : "screen";
  
@@ -152,7 +154,7 @@
              return screenshaderoptions == null ? def : screenshaderoptions.getColumns();
          }
      }
-@@ -2043,7 +2072,7 @@
+@@ -2043,7 +2074,7 @@
      public static void startup(Minecraft mc)
      {
          checkShadersModInstalled();
@@ -161,7 +163,7 @@
          mc = Minecraft.getInstance();
          capabilities = GL.getCapabilities();
          glVersionString = GL11.glGetString(GL11.GL_VERSION);
-@@ -2397,6 +2426,8 @@
+@@ -2397,6 +2428,8 @@
              }
  
              checkGLError("Shaders.init");
@@ -170,7 +172,7 @@
          }
      }
  
-@@ -3513,8 +3544,14 @@
+@@ -3513,8 +3546,14 @@
                  setProgramUniform1f(uniform_viewWidth, (float)renderWidth);
                  setProgramUniform1f(uniform_viewHeight, (float)renderHeight);
                  setProgramUniform1f(uniform_near, 0.05F);
@@ -187,7 +189,7 @@
                  setProgramUniform3f(uniform_moonPosition, moonPosition[0], moonPosition[1], moonPosition[2]);
                  setProgramUniform3f(uniform_shadowLightPosition, shadowLightPosition[0], shadowLightPosition[1], shadowLightPosition[2]);
                  setProgramUniform3f(uniform_upPosition, upPosition[0], upPosition[1], upPosition[2]);
-@@ -3882,10 +3919,11 @@
+@@ -3882,10 +3921,11 @@
  
      private static void resize()
      {
@@ -203,7 +205,7 @@
          setupFrameBuffer();
      }
  
-@@ -3915,20 +3953,23 @@
+@@ -3915,20 +3955,23 @@
          GL32.glDrawBuffers(0);
          GL32.glReadBuffer(0);
  
@@ -236,7 +238,7 @@
          checkGLError("FT d");
  
          for (int k = 0; k < usedColorBuffers; ++k)
-@@ -4067,7 +4108,7 @@
+@@ -4067,7 +4110,7 @@
          checkWorldChanged(mc.world);
          mc = minecraft;
          mc.getProfiler().startSection("init");
@@ -245,7 +247,7 @@
  
          if (!isShaderPackInitialized)
          {
-@@ -4084,12 +4125,13 @@
+@@ -4084,12 +4127,13 @@
                      setShaderPack("OFF");
                      return;
                  }
@@ -261,7 +263,7 @@
          }
  
          if (needResizeShadow)
-@@ -4141,7 +4183,7 @@
+@@ -4141,7 +4185,7 @@
  
              if (entity != null)
              {
@@ -270,7 +272,7 @@
                  eyePosY = (float)activeRenderInfo.getProjectedView().y;
                  eyeBrightness = entity.getBrightnessForRender();
                  float f2 = (float)diffSystemTime * 0.01F;
-@@ -4170,7 +4212,7 @@
+@@ -4170,7 +4214,7 @@
  
                      if (livingentity.isPotionActive(Effects.NIGHT_VISION))
                      {
@@ -279,7 +281,7 @@
                      }
  
                      blindness = 0.0F;
-@@ -4212,7 +4254,9 @@
+@@ -4212,7 +4256,9 @@
          previousModelView.position(0);
          modelView.position(0);
          checkGLError("beginRender");
@@ -290,7 +292,7 @@
          mc.getProfiler().endSection();
          EXTFramebufferObject.glBindFramebufferEXT(36160, dfb);
  
-@@ -4631,13 +4675,24 @@
+@@ -4631,13 +4677,24 @@
          floatbuffer.clear();
          GL32.glGetFloatv(2982, floatbuffer);
          floatbuffer.get(tempMat, 0, 16);
@@ -316,7 +318,7 @@
          if (customUniforms != null)
          {
              customUniforms.update();
-@@ -4958,7 +5013,7 @@
+@@ -4958,7 +5015,7 @@
          isRenderingDfb = false;
          mc.getFramebuffer().bindFramebuffer(true);
          GLX.glFramebufferTexture2D(GLX.GL_FRAMEBUFFER, GLX.GL_COLOR_ATTACHMENT0, 3553, mc.getFramebuffer().framebufferTexture, 0);
@@ -325,7 +327,7 @@
          GlStateManager.depthMask(true);
          GL32.glClearColor(clearColorR, clearColorG, clearColorB, 1.0F);
          GL32.glClear(16640);
-@@ -5452,7 +5507,7 @@
+@@ -5452,7 +5509,7 @@
  
          if (cap == 3553)
          {
@@ -334,7 +336,7 @@
          }
          else if (cap == 2912)
          {
-@@ -5466,7 +5521,7 @@
+@@ -5466,7 +5523,7 @@
  
          if (cap == 3553)
          {
@@ -343,7 +345,7 @@
          }
          else if (cap == 2912)
          {
-@@ -5477,13 +5532,13 @@
+@@ -5477,13 +5534,13 @@
      public static void sglEnableT2D(int cap)
      {
          GL32.glEnable(cap);
@@ -359,7 +361,7 @@
      }
  
      public static void sglEnableFog(int cap)
-@@ -5498,7 +5553,7 @@
+@@ -5498,7 +5555,7 @@
          disableFog();
      }
  
@@ -368,7 +370,7 @@
      {
          if (isRenderingSky)
          {
-@@ -5510,7 +5565,7 @@
+@@ -5510,7 +5567,7 @@
          }
      }
  

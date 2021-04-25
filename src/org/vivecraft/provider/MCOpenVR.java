@@ -66,6 +66,7 @@ import jopenvr.VRActiveActionSet_t;
 import jopenvr.VREvent_t;
 import jopenvr.VRTextureBounds_t;
 import jopenvr.VRTextureDepthInfo_t;
+import jopenvr.VRTextureWithDepth_t;
 import jopenvr.VR_IVRApplications_FnTable;
 import jopenvr.VR_IVRChaperone_FnTable;
 import jopenvr.VR_IVRCompositor_FnTable;
@@ -666,6 +667,7 @@ public class MCOpenVR
 		defaultBindings.add(ImmutableMap.<String, Object>builder().put("controller_type", "oculus_touch").put("binding_url", "oculus_defaults.json").build());
 		defaultBindings.add(ImmutableMap.<String, Object>builder().put("controller_type", "holographic_controller").put("binding_url", "wmr_defaults.json").build());
 		defaultBindings.add(ImmutableMap.<String, Object>builder().put("controller_type", "knuckles").put("binding_url", "knuckles_defaults.json").build());
+		defaultBindings.add(ImmutableMap.<String, Object>builder().put("controller_type", "vive_cosmos_controller").put("binding_url", "cosmos_defaults.json").build());
 		defaultBindings.add(ImmutableMap.<String, Object>builder().put("controller_type", "vive_tracker_camera").put("binding_url", "tracker_defaults.json").build());
 		jsonMap.put("default_bindings", defaultBindings);
 
@@ -683,6 +685,7 @@ public class MCOpenVR
 		Utils.loadAssetToFile("input/oculus_defaults" + rev + ".json", new File("openvr/input/oculus_defaults.json"), false);
 		Utils.loadAssetToFile("input/wmr_defaults" + rev + ".json", new File("openvr/input/wmr_defaults.json"), false);
 		Utils.loadAssetToFile("input/knuckles_defaults" + rev + ".json", new File("openvr/input/knuckles_defaults.json"), false);
+		Utils.loadAssetToFile("input/cosmos_defaults" + rev + ".json", new File("openvr/input/cosmos_defaults.json"), false);
 		Utils.loadAssetToFile("input/tracker_defaults.json", new File("openvr/input/tracker_defaults.json"), false);
 	}
 
@@ -1094,8 +1097,8 @@ public class MCOpenVR
 		texType0.eColorSpace = JOpenVRLibrary.EColorSpace.EColorSpace_ColorSpace_Gamma;
 		texType0.eType = JOpenVRLibrary.ETextureType.ETextureType_TextureType_OpenGL;
 		texType0.handle = Pointer.createConstant(-1);
-		VRTextureDepthInfo_t info = new VRTextureDepthInfo_t();
-		info.vRange = new HmdVector2_t(new float[]{0,1});
+	//	VRTextureDepthInfo_t info = new VRTextureDepthInfo_t();
+	//	info.vRange = new HmdVector2_t(new float[]{0,1});
 	//	texType0.depth = info;
 		texType0.setAutoSynch(false);
 		texType0.setAutoRead(false);
@@ -1107,9 +1110,9 @@ public class MCOpenVR
 		texType1.eColorSpace = JOpenVRLibrary.EColorSpace.EColorSpace_ColorSpace_Gamma;
 		texType1.eType = JOpenVRLibrary.ETextureType.ETextureType_TextureType_OpenGL;
 		texType1.handle = Pointer.createConstant(-1);
-		VRTextureDepthInfo_t info2 = new VRTextureDepthInfo_t();
-		info2.vRange = new HmdVector2_t(new float[]{0,1});
-	//	texType0.depth = info2;
+	//	VRTextureDepthInfo_t info2 = new VRTextureDepthInfo_t();
+		//info2.vRange = new HmdVector2_t(new float[]{0,1});
+	//	texType1.depth = info2;
 		texType1.setAutoSynch(false);
 		texType1.setAutoRead(false);
 		texType1.setAutoWrite(false);
@@ -2375,6 +2378,7 @@ public class MCOpenVR
 					hei-=1; //fix drifting vertical mouse.
 
 				double v = -mc.mouseHelper.getMouseY() / (double) hei * vRange + (vRange / 2);		
+
 				double nPitch=-v;
 				if(mc.isGameFocused()){
 					float rotStart = mc.vrSettings.keyholeX;
@@ -2404,10 +2408,10 @@ public class MCOpenVR
 					double ySpeed=0.5 * mc.vrSettings.ySensitivity;
 					nPitch=aimPitch+(v)*ySpeed;
 					nPitch=MathHelper.clamp(nPitch,-89.9,89.9);
-							
+					
 					InputSimulator.setMousePos(xpos, hei/2);
 					GLFW.glfwSetCursorPos(mc.mainWindow.getHandle(), xpos, hei/2);
-					
+
 					temp.rotate((float) Math.toRadians(-nPitch), new org.vivecraft.utils.lwjgl.Vector3f(1,0,0));
 					temp.rotate((float) Math.toRadians(-180 + h - hmdForwardYaw), new org.vivecraft.utils.lwjgl.Vector3f(0,1,0));
 				}
@@ -2526,16 +2530,6 @@ public class MCOpenVR
 		return mc.vrSettings.forceHardwareDetection > 0 ? HardwareType.values()[mc.vrSettings.forceHardwareDetection - 1] : detectedHardware;
 	}
 
-	public static boolean isVive() {
-		switch (getHardwareType()) {
-		case VIVE:
-		case WINDOWSMR:
-			return true;
-		default:
-			return false;
-		}
-	}
-	
 	private static boolean gunStyle = false; 
 	
 	public static boolean isGunStyle() {

@@ -163,14 +163,21 @@
              {
                  this.overlayPlayerList.setVisible(true);
                  this.overlayPlayerList.render(this.scaledWidth, scoreboard, scoreobjective1);
-@@ -427,8 +470,9 @@
+@@ -408,6 +451,7 @@
+         }
+     }
+ 
++    //unused
+     private void renderAttackIndicator()
+     {
+         GameSettings gamesettings = this.mc.gameSettings;
+@@ -427,8 +471,8 @@
              }
              else
              {
 -                GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 -                int i = 15;
-+				// VIVECRAFT: DestFactor of ONE is really what we want here, because math
-+				GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
++				GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 +				int i = 15;
                  this.blit((this.scaledWidth - 15) / 2, (this.scaledHeight - 15) / 2, 0, 0, 15, 15);
  
@@ -240,7 +247,7 @@
          if (timeInPortal < 1.0F)
          {
              timeInPortal = timeInPortal * timeInPortal;
-@@ -1526,4 +1583,54 @@
+@@ -1526,4 +1583,53 @@
      {
          this.overlayDebug.func_212921_a();
      }
@@ -287,7 +294,6 @@
 +		float f1 = 0.00390625F;
 +		Tessellator tessellator = Tessellator.getInstance();
 +		tessellator.getBuffer().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-+		tessellator.getBuffer().pos(0, 0, 0).tex(u, v);
 +		tessellator.getBuffer().pos((double)(centreX - (width / 2f)), (double)(centreY + (height / 2f)), (double)this.blitOffset).tex((double)((float)(u + 0) * f), (double)((float)(v + texHeight) * f1)).endVertex();
 +		tessellator.getBuffer().pos((double)(centreX + (width / 2f)), (double)(centreY + (height / 2f)), (double)this.blitOffset).tex( (double)((float)(u + texWidth) * f), (double)((float)(v + texHeight) * f1)).endVertex();
 +		tessellator.getBuffer().pos((double)(centreX + (width / 2f)), (double)(centreY - (height / 2f)), (double)this.blitOffset).tex( (double)((float)(u + texWidth) * f), (double)((float)(v + 0) * f1)).endVertex();

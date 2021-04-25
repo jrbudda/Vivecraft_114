@@ -169,7 +169,7 @@
 +        {        	
 +            //Vivecraft, set spwanpos of dropped item.
 +            ServerVivePlayer vp = NetworkHelper.vivePlayers.get(this.getUniqueID());    
-+            if (vp != null && vp.isVR() == false && !dropAround) {
++            if (vp != null && vp.isVR() && !dropAround) {
 +    			Vec3d pos = vp.getControllerPos(0);    	
 +    			Vec3d aim = vp.getControllerDir(0);
 +    			float f2 = 0.3F;

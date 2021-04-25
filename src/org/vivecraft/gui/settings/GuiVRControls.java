@@ -20,7 +20,8 @@ public class GuiVRControls extends GuiVROptionsBase {
 			new VROptionEntry(VRSettings.VrOptions.DUMMY, true),
 			new VROptionEntry(VRSettings.VrOptions.DUMMY, true),
 			new VROptionEntry(VRSettings.VrOptions.DUMMY, true),
-			new VROptionEntry(VRSettings.VrOptions.RIGHT_CLICK_DELAY, true),
+			new VROptionEntry(VRSettings.VrOptions.REVERSE_HANDS),
+			new VROptionEntry(VRSettings.VrOptions.RIGHT_CLICK_DELAY),
 			new VROptionEntry(VRSettings.VrOptions.ALLOW_ADVANCED_BINDINGS, true)
 	};
 	
@@ -30,7 +31,7 @@ public class GuiVRControls extends GuiVROptionsBase {
    
 	@Override
     public void init() {
-        vrTitle = "VR Control Remapping";
+        vrTitle = "Controller Settings";
         super.init(controlsSettings, true);
         super.addDefaultButtons();
     }
@@ -38,14 +39,15 @@ public class GuiVRControls extends GuiVROptionsBase {
 	@Override
 	public void render(int mouseX, int mouseY, float partialTicks) {
 		super.render(mouseX, mouseY, partialTicks);
-		this.drawCenteredString(minecraft.fontRenderer, "Bindings are now handled by SteamVR Input.", this.width / 2, this.height / 2 - minecraft.fontRenderer.FONT_HEIGHT / 2 - minecraft.fontRenderer.FONT_HEIGHT - 3, 16777215);
-		this.drawCenteredString(minecraft.fontRenderer, "Go to Settings > Controller Binding in the dashboard.", this.width / 2, this.height / 2 - minecraft.fontRenderer.FONT_HEIGHT / 2, 16777215);
+		this.drawCenteredString(minecraft.fontRenderer, "Bindings are handled by SteamVR Input.", this.width / 2, this.height / 2 - minecraft.fontRenderer.FONT_HEIGHT / 2 - minecraft.fontRenderer.FONT_HEIGHT - 3, 16777215);
+		this.drawCenteredString(minecraft.fontRenderer, "Go to Settings > Controllers > Manage Controller Bindings in the dashboard.", this.width / 2, this.height / 2 - minecraft.fontRenderer.FONT_HEIGHT / 2, 16777215);
 		this.drawCenteredString(minecraft.fontRenderer, TextFormatting.GOLD + "Steam must be running " + TextFormatting.ITALIC + "before" + TextFormatting.RESET + TextFormatting.GOLD + " SteamVR is started, or bindings will not save.", this.width / 2, this.height / 2 - minecraft.fontRenderer.FONT_HEIGHT / 2 + minecraft.fontRenderer.FONT_HEIGHT + 3, 16777215);
 	}
 	
 		@Override
 		protected void loadDefaults() {
 			VRSettings vrSettings = minecraft.vrSettings;
+			vrSettings.vrReverseHands = false;
 			vrSettings.allowAdvancedBindings = false;
 			vrSettings.rightclickDelay = 6;
 		}

@@ -12,15 +12,7 @@
                  GlStateManager.enableLighting();
                  GlStateManager.enableDepthTest();
              }
-@@ -397,6 +397,7 @@
-                             }
-                             else
-                             {
-+                            	//Vivecraft add shift
-                                 boolean flag2 = l != -999 && (InputMappings.isKeyDown(Minecraft.getInstance().mainWindow.getHandle(), 340) || InputMappings.isKeyDown(Minecraft.getInstance().mainWindow.getHandle(), 344));
-                                 ClickType clicktype = ClickType.PICKUP;
- 
-@@ -489,7 +490,7 @@
+@@ -489,7 +489,7 @@
                  }
              }
          }
@@ -29,7 +21,7 @@
          {
              this.dragSplittingSlots.add(slot);
              this.updateDragSplitting();
-@@ -617,6 +618,7 @@
+@@ -617,6 +617,7 @@
                  }
                  else
                  {

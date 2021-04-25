@@ -17,12 +17,11 @@ public class GuiStandingSettings extends GuiVROptionsBase
 {
 	private VROptionEntry[] locomotionSettings = new VROptionEntry[]
 			{
-					new VROptionEntry(VRSettings.VrOptions.REVERSE_HANDS),
 					new VROptionEntry(VRSettings.VrOptions.WALK_UP_BLOCKS),
 					new VROptionEntry(VRSettings.VrOptions.VEHICLE_ROTATION),
-					new VROptionEntry(VRSettings.VrOptions.BCB_ON),
 					new VROptionEntry(VRSettings.VrOptions.WALK_MULTIPLIER),
 					new VROptionEntry(VRSettings.VrOptions.WORLD_ROTATION_INCREMENT),
+					new VROptionEntry(VRSettings.VrOptions.BCB_ON),
 					new VROptionEntry(VRSettings.VrOptions.ALLOW_STANDING_ORIGIN_OFFSET),
 					new VROptionEntry(VRSettings.VrOptions.FORCE_STANDING_FREE_MOVE, true),
 					new VROptionEntry(VRSettings.VrOptions.DUMMY, true),

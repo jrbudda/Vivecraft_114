@@ -49,8 +49,8 @@ public class OpenVRStereoRenderer
 	public Framebuffer fsaaFirstPassResultFBO;
 	public Framebuffer fsaaLastPassResultFBO;
 	
-	public FloatBuffer[] eyeproj = new FloatBuffer[2]; //i dislike you.
-	public FloatBuffer[] cloudeyeproj = new FloatBuffer[2]; //i dislike you too.
+	public net.minecraft.client.renderer.Matrix4f[] eyeproj = new net.minecraft.client.renderer.Matrix4f[2];
+	public net.minecraft.client.renderer.Matrix4f[] cloudeyeproj = new net.minecraft.client.renderer.Matrix4f[2];
 
 	public int mirrorFBWidth;     /* Actual width of the display buffer */
 	public int mirrorFBHeight;  
@@ -114,21 +114,23 @@ public class OpenVRStereoRenderer
 		return resolution;
 	}
 
-	public Matrix4f getProjectionMatrix(int eyeType,float nearClip,float farClip)
+	public net.minecraft.client.renderer.Matrix4f getProjectionMatrix(int eyeType,float nearClip,float farClip)
 	{
 		if ( eyeType == 0 )
 		{
 			HmdMatrix44_t mat = MCOpenVR.vrsystem.GetProjectionMatrix.apply(JOpenVRLibrary.EVREye.EVREye_Eye_Left, nearClip, farClip);
 		//	MCOpenVR.texType0.depth.mProjection = mat;
 		//	MCOpenVR.texType0.depth.write();
-			MCOpenVR.hmdProjectionLeftEye = new Matrix4f();
-			return OpenVRUtil.convertSteamVRMatrix4ToMatrix4f(mat, MCOpenVR.hmdProjectionLeftEye);
-		}else{
+			net.minecraft.client.renderer.Matrix4f left  = new net.minecraft.client.renderer.Matrix4f();
+			left.setFromOpenVR(mat);
+			return left;
+			}else{
 			HmdMatrix44_t mat = MCOpenVR.vrsystem.GetProjectionMatrix.apply(JOpenVRLibrary.EVREye.EVREye_Eye_Right, nearClip, farClip);
 		//	MCOpenVR.texType1.depth.mProjection = mat;
 		//	MCOpenVR.texType1.depth.write();
-			MCOpenVR.hmdProjectionRightEye = new Matrix4f();
-			return OpenVRUtil.convertSteamVRMatrix4ToMatrix4f(mat, MCOpenVR.hmdProjectionRightEye);
+			net.minecraft.client.renderer.Matrix4f right  = new net.minecraft.client.renderer.Matrix4f();
+			right.setFromOpenVR(mat);
+			return right;
 		}
 	}
 
@@ -493,11 +495,15 @@ public class OpenVRStereoRenderer
 			
 			eyew = displayFBWidth;
 			eyeh = displayFBHeight;
-
+			
+			if (Config.openGlRenderer.toLowerCase().contains("intel")) {
+				throw new RenderConfigException("Incompatible", "Intel Integrated Grpahics are not supported. If this is a laptop, please force the high-performance GPU. Detected GPU: " + Config.openGlRenderer);
+			}
+			
 			if (!isInitialized()) {
 				throw new RenderConfigException(RENDER_SETUP_FAILURE_MESSAGE + getName(), " " + getinitError());
-			}
-
+			}		
+			
 			Tuple<Integer, Integer> renderTextureInfo = getRenderTextureSizes(mc.vrSettings.renderScaleFactor);
 
 			eyew  = renderTextureInfo.getA();
@@ -644,10 +650,10 @@ public class OpenVRStereoRenderer
 			
 			mc.gameRenderer.setupClipPlanes();
 
-			eyeproj[0] = getProjectionMatrix(0, mc.gameRenderer.minClipDistance, mc.gameRenderer.clipDistance).transposed().toFloatBuffer();
-			eyeproj[1] = getProjectionMatrix(1, mc.gameRenderer.minClipDistance, mc.gameRenderer.clipDistance).transposed().toFloatBuffer();
-			cloudeyeproj[0] = getProjectionMatrix(0, mc.gameRenderer.minClipDistance, mc.gameRenderer.clipDistance * 4).transposed().toFloatBuffer();
-			cloudeyeproj[1] = getProjectionMatrix(1, mc.gameRenderer.minClipDistance, mc.gameRenderer.clipDistance * 4).transposed().toFloatBuffer();
+			eyeproj[0] = getProjectionMatrix(0, mc.gameRenderer.minClipDistance, mc.gameRenderer.clipDistance);
+			eyeproj[1] = getProjectionMatrix(1, mc.gameRenderer.minClipDistance, mc.gameRenderer.clipDistance);
+			cloudeyeproj[0] = getProjectionMatrix(0, mc.gameRenderer.minClipDistance, mc.gameRenderer.clipDistance * 4);
+			cloudeyeproj[1] = getProjectionMatrix(1, mc.gameRenderer.minClipDistance, mc.gameRenderer.clipDistance * 4);
 
 			if (mc.vrSettings.useFsaa)
 			{

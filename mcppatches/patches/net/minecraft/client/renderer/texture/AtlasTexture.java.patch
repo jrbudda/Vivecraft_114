@@ -5,7 +5,7 @@
                      GlStateManager.bindTexture(this.getMultiTexID().norm);
  
 -                    for (TextureAtlasSprite textureatlassprite2 : list)
-+                    for (TextureAtlasSprite textureatlassprite2 : (Set<TextureAtlasSprite>)(Set<?>)list)
++                    for (TextureAtlasSprite textureatlassprite2 : (List<TextureAtlasSprite>)(List<?>)list)
                      {
                          TextureAtlasSprite textureatlassprite4 = textureatlassprite2.spriteNormal;
  
@@ -14,7 +14,7 @@
                      GlStateManager.bindTexture(this.getMultiTexID().spec);
  
 -                    for (TextureAtlasSprite textureatlassprite3 : list)
-+                    for (TextureAtlasSprite textureatlassprite3 : (Set<TextureAtlasSprite>)(Set<?>)list)
++                    for (TextureAtlasSprite textureatlassprite3 : (List<TextureAtlasSprite>)(List<?>)list)
                      {
                          TextureAtlasSprite textureatlassprite5 = textureatlassprite3.spriteSpecular;
  
