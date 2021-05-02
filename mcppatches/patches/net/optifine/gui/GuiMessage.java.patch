@@ -9,25 +9,21 @@
          {
              this.drawCenteredString(this.fontRenderer, s, this.width / 2, i, 16777215);
              i += 9;
-@@ -58,8 +58,9 @@
+@@ -58,7 +58,7 @@
      {
          this.ticksUntilEnable = ticksUntilEnable;
  
 -        for (Button button : this.buttonList)
-+        for (Widget w : this.buttonList)
++        for (Widget button : this.buttonList)
          {
-+        	Button button = (Button) w;
              button.active = false;
          }
-     }
-@@ -70,8 +71,9 @@
+@@ -70,7 +70,7 @@
  
          if (--this.ticksUntilEnable == 0)
          {
 -            for (Button button : this.buttonList)
-+            for (Widget w : this.buttonList)
++            for (Widget button : this.buttonList)
              {
-+            	Button button = (Button) w;
                  button.active = true;
              }
-         }

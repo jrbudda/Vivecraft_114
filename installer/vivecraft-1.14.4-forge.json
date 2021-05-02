@@ -1,0 +1,267 @@
+{
+	"id": "$MCVERSION-Vivecraft-$VERSION",
+	"time": "1979-06-01T00:00:00-05:00", 
+	"releaseTime": "1979-06-02T00:00:00-05:00",
+    "type": "release",
+    "mainClass": "cpw.mods.modlauncher.Launcher",
+    "inheritsFrom": "$MCVERSION",
+	"name": "Vivecraft(Forge)",
+	"version": "$VERSION",
+	"mcVersion": "$MCVERSION",
+	"fileId": "$FILE",
+    "logging": {
+        
+    },
+    "arguments": {
+        "game": [
+            "--launchTarget",
+            "fmlclient",
+            "--fml.forgeVersion",
+            "$FORGEVERSION",
+            "--fml.mcVersion",
+            "1.14.4",
+            "--fml.forgeGroup",
+            "net.minecraftforge",
+            "--fml.mcpVersion",
+            "20190829.143755"
+        ]
+    },
+    "libraries": [
+        {
+            "name": "net.minecraftforge:forge:$MCVERSION-$FORGEVERSION",
+			"url": "http://files.minecraftforge.net/maven/"
+        },
+        {
+            "name": "org.ow2.asm:asm:6.2",
+            "downloads": {
+                "artifact": {
+                    "path": "org/ow2/asm/asm/6.2/asm-6.2.jar",
+                    "url": "https://files.minecraftforge.net/maven/org/ow2/asm/asm/6.2/asm-6.2.jar",
+                    "sha1": "1b6c4ff09ce03f3052429139c2a68e295cae6604",
+                    "size": 111214
+                }
+            }
+        },
+        {
+            "name": "org.ow2.asm:asm-commons:6.2",
+            "downloads": {
+                "artifact": {
+                    "path": "org/ow2/asm/asm-commons/6.2/asm-commons-6.2.jar",
+                    "url": "https://files.minecraftforge.net/maven/org/ow2/asm/asm-commons/6.2/asm-commons-6.2.jar",
+                    "sha1": "f0df1c69e34a0463679d7c8db36ddb4312836e76",
+                    "size": 78919
+                }
+            }
+        },
+        {
+            "name": "org.ow2.asm:asm-tree:6.2",
+            "downloads": {
+                "artifact": {
+                    "path": "org/ow2/asm/asm-tree/6.2/asm-tree-6.2.jar",
+                    "url": "https://files.minecraftforge.net/maven/org/ow2/asm/asm-tree/6.2/asm-tree-6.2.jar",
+                    "sha1": "61570e046111559f38d4e0e580c005f75988c0a6",
+                    "size": 50370
+                }
+            }
+        },
+        {
+            "name": "cpw.mods:modlauncher:4.1.0",
+            "downloads": {
+                "artifact": {
+                    "path": "cpw/mods/modlauncher/4.1.0/modlauncher-4.1.0.jar",
+                    "url": "https://files.minecraftforge.net/maven/cpw/mods/modlauncher/4.1.0/modlauncher-4.1.0.jar",
+                    "sha1": "113c9ea1a20ff347f972c25b184a9b530c03cd53",
+                    "size": 115195
+                }
+            }
+        },
+        {
+            "name": "cpw.mods:grossjava9hacks:1.1.0",
+            "downloads": {
+                "artifact": {
+                    "path": "cpw/mods/grossjava9hacks/1.1.0/grossjava9hacks-1.1.0.jar",
+                    "url": "https://files.minecraftforge.net/maven/cpw/mods/grossjava9hacks/1.1.0/grossjava9hacks-1.1.0.jar",
+                    "sha1": "ba432ff9b3477370a2317eff223ad3b6a82d37b1",
+                    "size": 1759
+                }
+            }
+        },
+        {
+            "name": "net.minecraftforge:accesstransformers:1.0.1-milestone.0.1+94458e7-shadowed",
+            "downloads": {
+                "artifact": {
+                    "path": "net/minecraftforge/accesstransformers/1.0.1-milestone.0.1+94458e7-shadowed/accesstransformers-1.0.1-milestone.0.1+94458e7-shadowed.jar",
+                    "url": "https://files.minecraftforge.net/maven/net/minecraftforge/accesstransformers/1.0.1-milestone.0.1+94458e7/accesstransformers-1.0.1-milestone.0.1+94458e7-shadowed.jar",
+                    "sha1": "88bab5e041ae458e6b2cd6bc4de6c3d738def6b6",
+                    "size": 444436
+                }
+            }
+        },
+        {
+            "name": "net.minecraftforge:eventbus:1.0.0-service",
+            "downloads": {
+                "artifact": {
+                    "path": "net/minecraftforge/eventbus/1.0.0-service/eventbus-1.0.0-service.jar",
+                    "url": "https://files.minecraftforge.net/maven/net/minecraftforge/eventbus/1.0.0/eventbus-1.0.0-service.jar",
+                    "sha1": "dfdaccd05f2d127a3633e45eb9119c9d1669e3ad",
+                    "size": 39634
+                }
+            }
+        },
+        {
+            "name": "net.minecraftforge:forgespi:1.5.0",
+            "downloads": {
+                "artifact": {
+                    "path": "net/minecraftforge/forgespi/1.5.0/forgespi-1.5.0.jar",
+                    "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forgespi/1.5.0/forgespi-1.5.0.jar",
+                    "sha1": "50212f863b1e5119f0e4fced4c5f8d838269318f",
+                    "size": 19447
+                }
+            }
+        },
+        {
+            "name": "net.minecraftforge:coremods:1.0.0",
+            "downloads": {
+                "artifact": {
+                    "path": "net/minecraftforge/coremods/1.0.0/coremods-1.0.0.jar",
+                    "url": "https://files.minecraftforge.net/maven/net/minecraftforge/coremods/1.0.0/coremods-1.0.0.jar",
+                    "sha1": "b26ab79f66a4b0dd9c236733e79a0c4670c7b269",
+                    "size": 21771
+                }
+            }
+        },
+        {
+            "name": "net.minecraftforge:unsafe:0.2.0",
+            "downloads": {
+                "artifact": {
+                    "path": "net/minecraftforge/unsafe/0.2.0/unsafe-0.2.0.jar",
+                    "url": "https://files.minecraftforge.net/maven/net/minecraftforge/unsafe/0.2.0/unsafe-0.2.0.jar",
+                    "sha1": "54d7a0a5e8fdb71b973025caa46f341ae5904f39",
+                    "size": 2834
+                }
+            }
+        },
+        {
+            "name": "com.electronwill.night-config:core:3.6.0",
+            "downloads": {
+                "artifact": {
+                    "path": "com/electronwill/night-config/core/3.6.0/core-3.6.0.jar",
+                    "url": "https://files.minecraftforge.net/maven/com/electronwill/night-config/core/3.6.0/core-3.6.0.jar",
+                    "sha1": "0412f2edf0ef6cc9178ab38751af4e507f413bef",
+                    "size": 199763
+                }
+            }
+        },
+        {
+            "name": "com.electronwill.night-config:toml:3.6.0",
+            "downloads": {
+                "artifact": {
+                    "path": "com/electronwill/night-config/toml/3.6.0/toml-3.6.0.jar",
+                    "url": "https://files.minecraftforge.net/maven/com/electronwill/night-config/toml/3.6.0/toml-3.6.0.jar",
+                    "sha1": "f0c2c48748bdfc8d1f3798ec478f003bccc7e0b1",
+                    "size": 31256
+                }
+            }
+        },
+        {
+            "name": "org.jline:jline:3.12.1",
+            "downloads": {
+                "artifact": {
+                    "path": "org/jline/jline/3.12.1/jline-3.12.1.jar",
+                    "url": "https://files.minecraftforge.net/maven/org/jline/jline/3.12.1/jline-3.12.1.jar",
+                    "sha1": "de2bd909cb9f8eaa741bd03df4a1bd3f6eb593c7",
+                    "size": 732926
+                }
+            }
+        },
+        {
+            "name": "org.apache.maven:maven-artifact:3.6.0",
+            "downloads": {
+                "artifact": {
+                    "path": "org/apache/maven/maven-artifact/3.6.0/maven-artifact-3.6.0.jar",
+                    "url": "https://files.minecraftforge.net/maven/org/apache/maven/maven-artifact/3.6.0/maven-artifact-3.6.0.jar",
+                    "sha1": "d4c0da647de59c9ccc304a112fe1f1474d49e8eb",
+                    "size": 55051
+                }
+            }
+        },
+        {
+            "name": "net.jodah:typetools:0.6.0",
+            "downloads": {
+                "artifact": {
+                    "path": "net/jodah/typetools/0.6.0/typetools-0.6.0.jar",
+                    "url": "https://files.minecraftforge.net/maven/net/jodah/typetools/0.6.0/typetools-0.6.0.jar",
+                    "sha1": "a1552ecd6f5b9444585a7c4b05f6312cf7d32fd3",
+                    "size": 14734
+                }
+            }
+        },
+        {
+            "name": "java3d:vecmath:1.5.2",
+            "downloads": {
+                "artifact": {
+                    "path": "java3d/vecmath/1.5.2/vecmath-1.5.2.jar",
+                    "url": "https://libraries.minecraft.net/java3d/vecmath/1.5.2/vecmath-1.5.2.jar",
+                    "sha1": "79846ba34cbd89e2422d74d53752f993dcc2ccaf",
+                    "size": 318956
+                }
+            }
+        },
+        {
+            "name": "org.apache.logging.log4j:log4j-api:2.11.2",
+            "downloads": {
+                "artifact": {
+                    "path": "org/apache/logging/log4j/log4j-api/2.11.2/log4j-api-2.11.2.jar",
+                    "url": "https://files.minecraftforge.net/maven/org/apache/logging/log4j/log4j-api/2.11.2/log4j-api-2.11.2.jar",
+                    "sha1": "f5e9a2ffca496057d6891a3de65128efc636e26e",
+                    "size": 266283
+                }
+            }
+        },
+        {
+            "name": "org.apache.logging.log4j:log4j-core:2.11.2",
+            "downloads": {
+                "artifact": {
+                    "path": "org/apache/logging/log4j/log4j-core/2.11.2/log4j-core-2.11.2.jar",
+                    "url": "https://files.minecraftforge.net/maven/org/apache/logging/log4j/log4j-core/2.11.2/log4j-core-2.11.2.jar",
+                    "sha1": "6c2fb3f5b7cd27504726aef1b674b542a0c9cf53",
+                    "size": 1629585
+                }
+            }
+        },
+        {
+            "name": "net.minecrell:terminalconsoleappender:1.2.0",
+            "downloads": {
+                "artifact": {
+                    "path": "net/minecrell/terminalconsoleappender/1.2.0/terminalconsoleappender-1.2.0.jar",
+                    "url": "https://files.minecraftforge.net/maven/net/minecrell/terminalconsoleappender/1.2.0/terminalconsoleappender-1.2.0.jar",
+                    "sha1": "96d02cd3b384ff015a8fef4223bcb4ccf1717c95",
+                    "size": 15977
+                }
+            }
+        },
+        {
+            "name": "net.sf.jopt-simple:jopt-simple:5.0.4",
+            "downloads": {
+                "artifact": {
+                    "path": "net/sf/jopt-simple/jopt-simple/5.0.4/jopt-simple-5.0.4.jar",
+                    "url": "https://files.minecraftforge.net/maven/net/sf/jopt-simple/jopt-simple/5.0.4/jopt-simple-5.0.4.jar",
+                    "sha1": "4fdac2fbe92dfad86aa6e9301736f6b4342a3f5c",
+                    "size": 78146
+                }
+            }
+        },
+		{
+			"name": "org.json:json:20140107",
+			"url": "http://vivecraft.org/jar/"
+		}, 
+		{
+			"name": "optifine:OptiFine:$OFVERSION",
+			"MMC-hint": "local"
+		},
+		{
+			"url": "http://vivecraft.org/jar/", 
+			"name": "com.sun:jna:4.2.1"
+		}
+    ]
+}

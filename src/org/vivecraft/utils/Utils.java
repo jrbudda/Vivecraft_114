@@ -28,7 +28,6 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.particles.IParticleData;
 import net.minecraft.particles.ParticleType;
 import org.apache.logging.log4j.LogManager;
-import org.vivecraft.render.VRShaders;
 import org.vivecraft.tweaker.MinecriftClassTransformer;
 import org.vivecraft.utils.lwjgl.Matrix3f;
 import org.vivecraft.utils.lwjgl.Matrix4f;
@@ -40,7 +39,6 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.mojang.blaze3d.platform.GlStateManager;
 
-import jopenvr.HmdMatrix34_t;
 import net.minecraft.util.math.Vec3d;
 import org.apache.commons.io.IOUtils;
 
@@ -100,23 +98,6 @@ public class Utils
 		return mat;
 	}
 	
-	public static HmdMatrix34_t convertToMatrix34(Matrix4f matrix) {
-		HmdMatrix34_t mat = new HmdMatrix34_t();
-		mat.m[0 + 0 * 4] = matrix.m00;
-		mat.m[1 + 0 * 4] = matrix.m10;
-		mat.m[2 + 0 * 4] = matrix.m20;
-		mat.m[3 + 0 * 4] = matrix.m30;
-		mat.m[0 + 1 * 4] = matrix.m01;
-		mat.m[1 + 1 * 4] = matrix.m11;
-		mat.m[2 + 1 * 4] = matrix.m21;
-		mat.m[3 + 1 * 4] = matrix.m31;
-		mat.m[0 + 2 * 4] = matrix.m02;
-		mat.m[1 + 2 * 4] = matrix.m12;
-		mat.m[2 + 2 * 4] = matrix.m22;
-		mat.m[3 + 2 * 4] = matrix.m32;
-		return mat;
-	}
-
 	public static double lerp(double from, double to, double percent){
 		return from+(to-from)*percent;
 	}
@@ -139,10 +120,6 @@ public class Utils
 		}else {
 			return target;
 		}
-	}
-	
-	public static void glRotate(Quaternion quaternion){
-		GlStateManager.multMatrix(Convert.matrix(quaternion.inverse()).toMCMatrix4f());
 	}
 	
 	public static Vector3f directionFromMatrix(Matrix4f matrix, float x, float y, float z) {
@@ -257,62 +234,11 @@ public class Utils
 		return mat;
 	}
 
-	/**
-	 * HSB to RGB conversion, pinched from java.awt.Color.
-	 * @param hue (0..1.0f)
-	 * @param saturation (0..1.0f)
-	 * @param brightness (0..1.0f)
-	 */
-	public static GlStateManager.Color colorFromHSB(float hue, float saturation, float brightness) {
-		GlStateManager.Color color = new GlStateManager.Color();
-		if (saturation == 0.0F) {
-			color.red = color.green = color.blue = brightness;
-		} else {
-			float f3 = (hue - (float) Math.floor(hue)) * 6F;
-			float f4 = f3 - (float) Math.floor(f3);
-			float f5 = brightness * (1.0F - saturation);
-			float f6 = brightness * (1.0F - saturation * f4);
-			float f7 = brightness * (1.0F - saturation * (1.0F - f4));
-			switch ((int) f3) {
-				case 0 :
-					color.red = brightness;
-					color.green = f7;
-					color.blue = f5;
-					break;
-				case 1 :
-					color.red = f6;
-					color.green = brightness;
-					color.blue = f5;
-					break;
-				case 2 :
-					color.red = f5;
-					color.green = brightness;
-					color.blue = f7;
-					break;
-				case 3 :
-					color.red = f5;
-					color.green = f6;
-					color.blue = brightness;
-					break;
-				case 4 :
-					color.red = f7;
-					color.green = f5;
-					color.blue = brightness;
-					break;
-				case 5 :
-					color.red = brightness;
-					color.green = f5;
-					color.blue = f6;
-					break;
-			}
-		}
-		return color;
-	}
 
 	public static InputStream getAssetAsStream(String name, boolean required) {
 		InputStream is = null;
 		try {
-			is = VRShaders.class.getResourceAsStream("/assets/vivecraft/" + name);
+			is = Utils.class.getResourceAsStream("/assets/vivecraft/" + name);
 			if (is == null) {
 				//uhh debugging?
 				Path dir = Paths.get(System.getProperty("user.dir")); // ../mcpxxx/jars/

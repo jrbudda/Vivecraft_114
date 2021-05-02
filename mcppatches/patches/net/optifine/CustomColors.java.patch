@@ -53,13 +53,13 @@
          for (int i = 0; i < list.size(); ++i)
          {
 -            List list = (List)list.get(i);
-+            List sublist = (List)list.get(i);
++            List lista = (List)list.get(i);
  
 -            if (list != null)
-+            if (sublist != null)
++            if (lista != null)
              {
 -                CustomColormap[] acustomcolormap1 = list.toArray(new CustomColormap[list.size()]);
-+                CustomColormap[] acustomcolormap1 = (CustomColormap[]) sublist.toArray(new CustomColormap[sublist.size()]);
++                CustomColormap[] acustomcolormap1 = (CustomColormap[]) lista.toArray(new CustomColormap[lista.size()]);
                  acustomcolormap[i] = acustomcolormap1;
              }
          }

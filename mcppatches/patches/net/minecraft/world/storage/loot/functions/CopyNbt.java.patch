@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/storage/loot/functions/CopyNbt.java
++++ b/net/minecraft/world/storage/loot/functions/CopyNbt.java
+@@ -91,7 +91,7 @@
+         {
+             public void func_216227_a(INBT p_216227_1_, NBTPathArgument.NBTPath p_216227_2_, List<INBT> p_216227_3_) throws CommandSyntaxException
+             {
+-                p_216227_2_.func_218076_b(p_216227_1_, (INBT)Iterables.getLast(p_216227_3_)::copy);
++                p_216227_2_.func_218076_b(p_216227_1_, (Supplier<INBT>)Iterables.getLast(p_216227_3_)::copy);
+             }
+         },
+         APPEND("append")

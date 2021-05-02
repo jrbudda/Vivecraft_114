@@ -1,6 +1,6 @@
 --- a/net/optifine/Config.java
 +++ b/net/optifine/Config.java
-@@ -1148,7 +1148,7 @@
+@@ -1154,7 +1154,7 @@
              }
          }
  
@@ -9,7 +9,7 @@
          return airesourcepack;
      }
  
-@@ -1469,7 +1469,7 @@
+@@ -1475,7 +1475,7 @@
              list.add(s);
          }
  
@@ -18,7 +18,7 @@
          return astring;
      }
  
-@@ -1601,7 +1601,7 @@
+@@ -1607,7 +1607,7 @@
  
              if (s == null)
              {
@@ -27,7 +27,7 @@
                  return astring;
              }
  
-@@ -1909,7 +1909,7 @@
+@@ -1915,7 +1915,7 @@
          {
              int i = arr.length;
              int j = i + 1;
@@ -36,7 +36,7 @@
              System.arraycopy(arr, 0, aobject, 0, i);
              aobject[i] = obj;
              return aobject;
-@@ -1920,7 +1920,7 @@
+@@ -1926,7 +1926,7 @@
      {
          List list = new ArrayList<>(Arrays.asList(arr));
          list.add(index, obj);
@@ -45,7 +45,7 @@
          return list.toArray(aobject);
      }
  
-@@ -1938,7 +1938,7 @@
+@@ -1944,7 +1944,7 @@
          {
              int i = arr.length;
              int j = i + objs.length;
@@ -54,3 +54,12 @@
              System.arraycopy(arr, 0, aobject, 0, i);
              System.arraycopy(objs, 0, aobject, i, objs.length);
              return aobject;
+@@ -1975,7 +1975,7 @@
+         }
+         else
+         {
+-            Object[] aobject = Array.newInstance(elementClass, coll.size());
++            Object[] aobject = (Object[]) Array.newInstance(elementClass, coll.size());
+             return coll.toArray(aobject);
+         }
+     }

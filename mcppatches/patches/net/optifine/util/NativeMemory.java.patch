@@ -1,35 +1,33 @@
 --- a/net/optifine/util/NativeMemory.java
 +++ b/net/optifine/util/NativeMemory.java
-@@ -74,9 +74,9 @@
-         else
-         {
+@@ -76,7 +76,7 @@
              Class oclass = Class.forName(path[0]);
--            final Method method = oclass.getMethod(path[1]);
-+            Method method = oclass.getMethod(path[1]);
+             Method method = oclass.getMethod(path[1]);
              method.setAccessible(true);
 -            final Object object = null;
 +            Object object = null;
  
              for (int i = 2; i < path.length; ++i)
              {
-@@ -85,7 +85,10 @@
+@@ -85,8 +85,10 @@
                  method = object.getClass().getMethod(s);
                  method.setAccessible(true);
              }
 -
 +            
-+            final Object objectF = object;
-+            final Method methodF = method;
++        	final Object o = object;
+             final Method method1 = method;
 +            
              LongSupplier longsupplier = new LongSupplier()
              {
                  private boolean disabled = false;
-@@ -99,7 +102,7 @@
+@@ -100,7 +102,8 @@
                      {
                          try
                          {
--                            return method.invoke(object);
-+                            return (long) methodF.invoke(objectF);
+-                            return method1.invoke(object);
++                    
++                            return (long) method1.invoke(o);
                          }
                          catch (Throwable throwable)
                          {

@@ -43,7 +43,7 @@
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
 +import org.vivecraft.api.NetworkHelper;
-+import org.vivecraft.api.VivePlayer;
++import org.vivecraft.api.ServerVivePlayer;
  
  public class ServerPlayerEntity extends PlayerEntity implements IContainerListener
  {
@@ -52,7 +52,7 @@
      {
          this.openContainer.addListener(this);
 +
-+		VivePlayer vp = NetworkHelper.vivePlayers.get(this.getUniqueID());
++		ServerVivePlayer vp = NetworkHelper.vivePlayers.get(this.getUniqueID());
 +		if (vp != null && vp.isVR()) {
 +			if (rand.nextInt(20) == 3) {
 +				ItemStack stack;
@@ -74,7 +74,7 @@
      }
 +	@Override
 +	public void spawnSweepParticles() {
-+		VivePlayer vp = NetworkHelper.vivePlayers.get(this.getUniqueID());
++		ServerVivePlayer vp = NetworkHelper.vivePlayers.get(this.getUniqueID());
 +		if (vp == null || vp.isVR() == false) {
 +			super.spawnSweepParticles();
 +		} else {
@@ -99,7 +99,7 @@
 +
 +	@Override
 +	protected void updateItemUse(ItemStack stack, int eatingParticleCount) {
-+		VivePlayer vp = NetworkHelper.vivePlayers.get(this.getUniqueID());
++		ServerVivePlayer vp = NetworkHelper.vivePlayers.get(this.getUniqueID());
 +		if (vp == null || vp.isVR() == false) {
 +			super.updateItemUse(stack, eatingParticleCount);
 +		} else {
@@ -144,7 +144,7 @@
  
      public void sendChunkLoad(ChunkPos p_213844_1_, IPacket<?> p_213844_2_, IPacket<?> p_213844_3_)
      {
-@@ -1703,35 +1796,66 @@
+@@ -1703,21 +1796,27 @@
          return new SSpawnPlayerPacket(this);
      }
  
@@ -156,85 +156,35 @@
 -    public ItemEntity dropItem(ItemStack droppedItem, boolean dropAround, boolean traceItem)
 -    {
 -        ItemEntity itementity = super.dropItem(droppedItem, dropAround, traceItem);
+-
 +    public ItemEntity dropItem(ItemStack droppedItem, boolean dropAround, boolean traceItem) {
-+    	VivePlayer vp = NetworkHelper.vivePlayers.get(this.getUniqueID());
-+    	if (vp == null || vp.isVR() == false) {
-+    		return super.dropItem(droppedItem, dropAround, traceItem);
-+    	} else {
-+    		if (droppedItem.isEmpty()) {
-+    			return null;
-+    		} else {
-+    			double d0 = this.posY - 0.30000001192092896D + (double) this.getEyeHeight();
-+    			ItemEntity entityitem;
- 
--        if (itementity == null)
++        ItemEntity itementity = super.dropItem(droppedItem, dropAround, traceItem); 
++        
+         if (itementity == null)
+         {
+             return null;
+         }
+         else
 -        {
--            return null;
--        }
--        else
--        {
--            this.world.addEntity(itementity);
--            ItemStack itemstack = itementity.getItem();
-+    			// VIVE use controller
-+    			Vec3d pos = vp.getControllerPos(0);
++        {        	
++            //Vivecraft, set spwanpos of dropped item.
++            ServerVivePlayer vp = NetworkHelper.vivePlayers.get(this.getUniqueID());    
++            if (vp != null && vp.isVR() == false && !dropAround) {
++    			Vec3d pos = vp.getControllerPos(0);    	
 +    			Vec3d aim = vp.getControllerDir(0);
++    			float f2 = 0.3F;
++    			itementity.setMotion(aim.x * f2, aim.y * f2, aim.z * f2);
++    			itementity.setPosition(itementity.posX + itementity.getMotion().getX(), 
++    					itementity.posY+itementity.getMotion().getY(), 
++    					itementity.posZ + itementity.getMotion().getZ());
++            }
++            //         
+             this.world.addEntity(itementity);
+             ItemStack itemstack = itementity.getItem();
  
--            if (traceItem)
--            {
--                if (!itemstack.isEmpty())
--                {
--                    this.addStat(Stats.ITEM_DROPPED.get(itemstack.getItem()), droppedItem.getCount());
--                }
-+    			entityitem = new ItemEntity(this.world, pos.x + aim.x * 0.2f, pos.y + aim.y * 0.2f - 0.2f,
-+    					pos.z + aim.z * 0.2f, droppedItem);
- 
--                this.addStat(Stats.DROP);
--            }
-+    			entityitem.setPickupDelay(40);
- 
--            return itementity;
--        }
-+    			if (traceItem) {
-+    				entityitem.setThrowerId(this.getUniqueID());
-+    			}
-+
-+    			if (dropAround) {
-+    				float f = this.rand.nextFloat() * 0.5F;
-+    				float f1 = this.rand.nextFloat() * ((float) Math.PI * 2F);
-+
-+    				entityitem.setMotion(
-+    						(double) (-MathHelper.sin(f1) * f),
-+    						0.20000000298023224D,
-+    						(double) (MathHelper.cos(f1) * f));
-+    			} else {
-+
-+    				float f2 = 0.3F;
-+
-+    				// float pitch = (float)Math.toDegrees(Math.asin(aim.y/aim.lengthVector()));
-+    				// float yaw = (float)Math.toDegrees(Math.atan2(-aim.x, aim.z));
-+
-+    				// vive use controller
-+    				entityitem.setMotion(aim.x * f2, aim.y * f2, aim.z * f2);
-+
-+    				entityitem.setPosition(entityitem.posX + entityitem.getMotion().x, entityitem.posY + entityitem.getMotion().y,
-+    						entityitem.posZ + entityitem.getMotion().z);
-+
-+    			}
-+
-+    			this.world.addEntity(entityitem);
-+    			ItemStack itemstack = entityitem.getItem();
-+
-+    			if (traceItem) {
-+    				if (!itemstack.isEmpty()) {
-+    					this.addStat(Stats.ITEM_DROPPED.get(itemstack.getItem()), droppedItem.getCount());
-+    				}
-+
-+    				this.addStat(Stats.DROP);
-+    			}
-+
-+    			return entityitem;
-+    		}
-+    	}
+@@ -1734,4 +1833,4 @@
+             return itementity;
+         }
      }
 -}
 +}

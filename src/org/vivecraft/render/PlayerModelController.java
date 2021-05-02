@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-import org.vivecraft.api.VRData;
 import org.vivecraft.utils.Quaternion;
 import org.vivecraft.utils.Utils;
 import org.vivecraft.utils.Vector3;
@@ -55,11 +54,22 @@ public class PlayerModelController {
 		public Quaternion leftArmQuat, rightArmQuat, headQuat; 
 		public Vec3d leftArmRot, rightArmRot, headRot; 
 		public Vec3d leftArmPos, rightArmPos, Headpos;
+		public float worldScale;
+		public float heightScale;
+		
+		public double getBodyYawRadians() {
+			Vec3d diff = leftArmPos.subtract(rightArmPos).rotateYaw((float)-Math.PI/2);
+    		if(reverse) diff = diff.scale(-1);
+    		if(seated) diff = rightArmRot;    		
+    		Vec3d avg = Utils.vecLerp(diff, headRot, 0.5); 		
+    		double ltor = Math.atan2(-avg.x, avg.z);
+    		return ltor;
+		}
 	}
 	
 	private Random rand = new Random();
 
-	public void Update(UUID uuid, byte[] hmddata, byte[] c0data, byte[] c1data, boolean localPlayer) {
+	public void Update(UUID uuid, byte[] hmddata, byte[] c0data, byte[] c1data, float worldscale, float heightscale, boolean localPlayer) {
 		if (!localPlayer && mc.player.getUniqueID().equals(uuid))
 			return; // Don't update local player from server packet
 	
@@ -143,13 +153,21 @@ public class PlayerModelController {
 		out.leftArmQuat = c1q;
 		out.rightArmQuat = c0q;
 		out.headQuat = hmdq;	
-	
+		out.worldScale = worldscale;
+		
+		if(heightscale < 0.5f)
+			heightscale = 0.5f;
+		if(heightscale > 1.5f)
+			heightscale = 1.5f;
+		
+		out.heightScale =  heightscale;
+
 		vivePlayersReceived.put(uuid, out);
 
 	}
 	
-	public void Update(UUID uuid, byte[] hmddata, byte[] c0data, byte[] c1data) {
-		Update(uuid, hmddata, c0data, c1data, false);
+	public void Update(UUID uuid, byte[] hmddata, byte[] c0data, byte[] c1data, float worldscale, float heightscale) {
+		Update(uuid, hmddata, c0data, c1data,worldscale, heightscale, false);
 	}
 	
 	public void tick() {
@@ -235,42 +253,11 @@ public class PlayerModelController {
 			rotLerp.leftArmRot = Utils.vecLerp(rotLast.leftArmRot,Utils.convertToVec3d(rotLerp.leftArmQuat.multiply(forward)), pt);
 			rotLerp.rightArmRot = Utils.vecLerp(rotLast.rightArmRot, Utils.convertToVec3d(rotLerp.rightArmQuat.multiply(forward)), pt);
 			rotLerp.headRot = Utils.vecLerp(rotLast.headRot,Utils.convertToVec3d(rotLerp.headQuat.multiply(forward)), pt);
+			rotLerp.heightScale = rot.heightScale;
+			rotLerp.worldScale = rot.worldScale;
 			return rotLerp;
 		}
 		return rot;
-	}
-
-	/**
-	 * gets the {@link RotInfo} for both SinglePlayer and Multiplayer {@link PlayerEntity}s
-	 * */
-	public RotInfo getRotationFromEntity(PlayerEntity player){
-		UUID playerId = player.getGameProfile().getId();
-		if (mc.player.getUniqueID().equals(playerId)) {
-			VRData data=Minecraft.getInstance().vrPlayer.vrdata_world_render;
-			return getMainPlayerRotInfo(data);
-			
-		} else {
-			return PlayerModelController.getInstance().getRotationsForPlayer(playerId);
-		}
-	}
-	
-	public static RotInfo getMainPlayerRotInfo(VRData data){
-			RotInfo rotInfo=new RotInfo();
-
-			Quaternion quatLeft=new Quaternion(data.getController(1).getMatrix());
-			Quaternion quatRight=new Quaternion(data.getController(0).getMatrix());
-			Quaternion quatHmd=new Quaternion(data.hmd.getMatrix());
-
-			rotInfo.headQuat=quatHmd;
-			rotInfo.leftArmQuat=quatLeft;
-			rotInfo.rightArmQuat=quatRight;
-			rotInfo.seated=Minecraft.getInstance().vrSettings.seated;
-
-			rotInfo.leftArmPos = data.getController(1).getPosition();
-			rotInfo.rightArmPos = data.getController(0).getPosition();
-			rotInfo.Headpos = data.hmd.getPosition(); 
-
-			return rotInfo;
 	}
 
 	public boolean debug = false;
@@ -297,31 +284,5 @@ public class PlayerModelController {
 		Vec3d facingPlaneNormal=quat.multiply(new Vec3d(0,0,-1))
 				.crossProduct(quat.multiply(new Vec3d(0,1,0))).normalize();
 		return new Vec3d(0,1,0).crossProduct(facingPlaneNormal).normalize();
-	}
-	
-	
-	public static float getBodyYaw(RotInfo rotInfo){
-		
-		if(rotInfo.seated)
-			return rotInfo.headQuat.toEuler().getYaw();
-		
-		Vec3d leftCDir=getOrientVec(rotInfo.leftArmQuat);
-		Vec3d rightCDir=getOrientVec(rotInfo.rightArmQuat);
-		
-		Vec3d hmdDir=getOrientVec(rotInfo.headQuat);
-		
-		Vec3d dirVec=leftCDir.add(leftCDir).add(rightCDir).add(hmdDir);
-		
-		return (float)Math.toDegrees( Math.atan2(dirVec.x,dirVec.z));
-		
-		
-		/*Vec3d v = (c1.getPosition().subtract(c0.getPosition())).normalize().rotateYaw((float) (-Math.PI/2));
-		
-		if(Minecraft.getInstance().vrSettings.vrReverseHands)
-			return(float) Math.toDegrees(Math.atan2(v.x, -v.z));
-		else
-			return(float) Math.toDegrees(Math.atan2(-v.x, v.z));*/
-		
-	}
-	
+	}	
 }

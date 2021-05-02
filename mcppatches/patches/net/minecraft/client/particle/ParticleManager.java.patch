@@ -1,11 +1,20 @@
 --- a/net/minecraft/client/particle/ParticleManager.java
 +++ b/net/minecraft/client/particle/ParticleManager.java
-@@ -193,7 +193,7 @@
-                     Stream stream = p_lambda$null$4_3_.stream();
-                     AtlasTexture atlastexture = this.atlas;
-                     this.atlas.getClass();
--                    immutablelist = stream.map(atlastexture::getSprite).collect(ImmutableList.toImmutableList());
-+                    immutablelist = (ImmutableList) ((Stream<ResourceLocation>)stream).map(atlastexture::getSprite).collect(ImmutableList.toImmutableList());
-                 }
+@@ -172,7 +172,7 @@
+             preparationsProfiler.endSection();
+             preparationsProfiler.endTick();
+             return atlastexture$sheetdata;
+-        }, backgroundExecutor).<Void>thenCompose(stage::markCompleteAwaitingOthers).thenAcceptAsync((p_lambda$reload$5_3_) ->
++        }, backgroundExecutor).thenCompose(stage::markCompleteAwaitingOthers).thenAcceptAsync((p_lambda$reload$5_3_) ->
+         {
+             reloadProfiler.startTick();
+             reloadProfiler.startSection("upload");
+@@ -258,7 +258,7 @@
+     @Nullable
+     private <T extends IParticleData> Particle makeParticle(T particleData, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed)
+     {
+-        IParticleFactory<T> iparticlefactory = this.factories.get(Registry.PARTICLE_TYPE.getKey(particleData.getType()));
++        IParticleFactory<T> iparticlefactory = (IParticleFactory<T>) this.factories.get(Registry.PARTICLE_TYPE.getKey(particleData.getType()));
+         return iparticlefactory == null ? null : iparticlefactory.makeParticle(particleData, this.world, x, y, z, xSpeed, ySpeed, zSpeed);
+     }
  
-                 this.sprites.get(p_lambda$null$4_2_).func_217592_a(immutablelist);

@@ -1,24 +1,11 @@
 --- a/net/minecraft/client/renderer/texture/Stitcher.java
 +++ b/net/minecraft/client/renderer/texture/Stitcher.java
-@@ -12,15 +12,15 @@
+@@ -13,7 +13,7 @@
  
  public class Stitcher
  {
 -    private static final Comparator<Stitcher.Holder> field_217797_a = Comparator.comparing((p_lambda$static$0_0_) ->
-+    private static final Comparator<Stitcher.Holder> field_217797_a = Comparator.comparing( (Stitcher.Holder a) ->
++    private static final Comparator<Stitcher.Holder> field_217797_a = Comparator.comparing((Stitcher.Holder p_lambda$static$0_0_) ->
      {
--        return -p_lambda$static$0_0_.height;
--    }).thenComparing((p_lambda$static$1_0_) ->
-+        return -a.height;
-+    }).thenComparing((Stitcher.Holder a) ->
-     {
--        return -p_lambda$static$1_0_.width;
--    }).thenComparing((p_lambda$static$2_0_) ->
-+        return -a.width;
-+    }).thenComparing((Stitcher.Holder a) ->
-     {
--        return p_lambda$static$2_0_.sprite.getName();
-+        return a.sprite.getName();
-     });
-     private final int mipmapLevelStitcher;
-     private final Set<Stitcher.Holder> setStitchHolders = Sets.newHashSetWithExpectedSize(256);
+         return -p_lambda$static$0_0_.height;
+     }).thenComparing((p_lambda$static$1_0_) ->

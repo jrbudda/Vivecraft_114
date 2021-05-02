@@ -1681,13 +1681,16 @@ class Commands(object):
             self.logger.debug("runcmd: '%s'", truncate(forkcmd, 500))
             self.logger.debug("shlex: %s", truncate(str(forklist), 500))
         process = subprocess.Popen(forklist, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=-1)
-        output, _ = process.communicate()
-        if log_file is not None:
-            with open(log_file, 'w') as log:
-                log.write(output)
-        if not quiet:
-            for line in output.splitlines():
-                self.logger.debug(line)
+        output = ""
+        for c in iter(lambda: process.stdout.readline(), ''):
+            output += c
+            if log_file is not None:
+                with open(log_file, 'w') as log:
+                    log.write(c)
+            if not quiet:
+                print c,
+        remainder, _ = process.communicate()
+        output += remainder
         if process.returncode:
             if not quiet:
                 self.logger.error("'%s' failed : %d", truncate(forkcmd, 100), process.returncode)

@@ -1,17 +1,13 @@
 --- a/net/minecraft/client/renderer/entity/layers/MooshroomMushroomLayer.java
 +++ b/net/minecraft/client/renderer/entity/layers/MooshroomMushroomLayer.java
-@@ -24,11 +24,11 @@
-     private static boolean hasTextureMushroomRed = false;
-     private static boolean hasTextureMushroomBrown = false;
- 
--    public MooshroomMushroomLayer(IEntityRenderer<T, CowModel<T>> p_i137_1_)
-+    public MooshroomMushroomLayer(IEntityRenderer p_i137_1_)
+@@ -27,8 +27,8 @@
+     public MooshroomMushroomLayer(IEntityRenderer<T, CowModel<T>> p_i14_1_)
      {
-         super(p_i137_1_);
--        MooshroomRenderer mooshroomrenderer = (MooshroomRenderer)p_i137_1_;
--        this.modelRendererMushroom = new RendererModel(mooshroomrenderer.field_77045_g);
-+        MooshroomRenderer mooshroomrenderer = (MooshroomRenderer) p_i137_1_;
-+        this.modelRendererMushroom = new RendererModel(((MooshroomRenderer)mooshroomrenderer).field_77045_g);
+         super(p_i14_1_);
+-        MooshroomRenderer mooshroomrenderer = (MooshroomRenderer)p_i14_1_;
+-        this.modelRendererMushroom = new RendererModel(mooshroomrenderer.entityModel);
++        IEntityRenderer<T, CowModel<T>>  mooshroomrenderer = p_i14_1_;
++        this.modelRendererMushroom = new RendererModel(mooshroomrenderer.getEntityModel());
          this.modelRendererMushroom.setTextureSize(16, 16);
          this.modelRendererMushroom.rotationPointX = -6.0F;
          this.modelRendererMushroom.rotationPointZ = -8.0F;

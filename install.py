@@ -136,6 +136,11 @@ def installAndPatchMcp( mcp_dir ):
         print "No %s directory or zip file found. Please copy the %s.zip file into %s and re-run the command." % (mcp_version, mcp_version, base_dir)
         exit(1)
            
+    #Remove outdated mcp patches
+    mcppatchesdir = os.path.join(mcp_dir,"conf","patches")
+    if os.path.exists(mcppatchesdir):
+        reallyrmtree(mcppatchesdir)
+        
     # Patch in mcp (if present)
     mappingsdir = os.path.join(base_dir,"mcppatches","mappings")
     mappingstarget = os.path.join(mcp_dir)
@@ -312,7 +317,7 @@ def download_deps( mcp_dir, download_mc, forgedep=False ):
     if download_mc == True:
         repo = "https://s3.amazonaws.com/Minecraft.Download/"
         jar_file = os.path.join(versions,mc_version+".jar")
-        jar_url = "https://launcher.mojang.com/v1/objects/af100b34ec7ef2b8b9cf7775b544d21d690dddec/client.jar"
+        jar_url = "https://launcher.mojang.com/v1/objects/8c325a0c5bd674dd747d6ebaa4c791fd363ad8a9/client.jar"
         download_file( jar_url, jar_file, mc_file_md5 )
         shutil.copy(jar_file,os.path.join(flat_lib_dir, os.path.basename(jar_file))) 
         

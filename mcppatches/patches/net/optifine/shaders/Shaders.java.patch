@@ -1,6 +1,6 @@
 --- a/net/optifine/shaders/Shaders.java
 +++ b/net/optifine/shaders/Shaders.java
-@@ -106,6 +106,7 @@
+@@ -110,6 +110,7 @@
  import net.optifine.util.TimedEvent;
  import org.apache.commons.io.IOUtils;
  import org.lwjgl.BufferUtils;
@@ -8,15 +8,15 @@
  import org.lwjgl.opengl.ARBGeometryShader4;
  import org.lwjgl.opengl.ARBShaderObjects;
  import org.lwjgl.opengl.ARBVertexShader;
-@@ -794,6 +795,7 @@
+@@ -800,6 +801,7 @@
  
      public static void loadShaderPack()
      {
 +    	mc = Minecraft.getInstance();
          boolean flag = shaderPackLoaded;
          boolean flag1 = isOldLighting();
-         shaderPackLoaded = false;
-@@ -1062,7 +1064,7 @@
+ 
+@@ -1079,7 +1081,7 @@
          Set set = props.keySet();
          List<ICustomTexture> list = new ArrayList<>();
  
@@ -25,7 +25,7 @@
          {
              if (s1.startsWith(s))
              {
-@@ -2294,11 +2296,11 @@
+@@ -2455,11 +2457,11 @@
  
      private static int getDrawBuffer(Program p, String str, int i)
      {
@@ -39,48 +39,26 @@
          }
          else
          {
-@@ -2308,23 +2310,23 @@
-             {
-                 if (j >= 0 && j <= 1)
-                 {
--                    i = j + 36064;
-+                    d = j + 36064;
-                     usedShadowColorBuffers = Math.max(usedShadowColorBuffers, j);
-                 }
- 
--                return i;
-+                return d;
-             }
-             else
-             {
-                 if (j >= 0 && j <= 7)
-                 {
-                     p.getToggleColorTextures()[j] = true;
--                    i = j + 36064;
-+                    d = j + 36064;
-                     usedColorAttachs = Math.max(usedColorAttachs, j);
-                     usedColorBuffers = Math.max(usedColorBuffers, j);
-                 }
- 
--                return i;
-+                return d;
-             }
-         }
+@@ -4287,14 +4289,14 @@
+         GlStateManager.activeTexture(33984);
      }
-@@ -4165,10 +4167,10 @@
+ 
+-    public static void checkWorldChanged(World world)
++    public static void checkWorldChanged(World worldin)
      {
-         if (currentWorld != world)
+-        if (currentWorld != world)
++        if (currentWorld != worldin)
          {
--            World world = currentWorld;
-+            World oldworld = currentWorld;
-             currentWorld = world;
+             World world = currentWorld;
+-            currentWorld = world;
++            currentWorld = worldin;
              setCameraOffset(mc.getRenderViewEntity());
 -            int i = getDimensionId(world);
-+            int i = getDimensionId(oldworld);
++            int i = getDimensionId(worldin);
              int j = getDimensionId(world);
  
              if (j != i)
-@@ -5573,7 +5575,7 @@
+@@ -5738,7 +5740,7 @@
                          Lang.loadLocaleData(inputstream, properties);
                          inputstream.close();
  

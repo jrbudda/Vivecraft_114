@@ -3,6 +3,8 @@ package net.minecraft.client.renderer.entity.model;
 import org.vivecraft.render.PlayerModelController;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+
+import net.minecraft.client.renderer.entity.layers.BipedArmorLayer;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -29,6 +31,7 @@ public class VRPlayerModel<T extends LivingEntity> extends BipedModel<T>
     ResourceLocation DIAMOND_HMD = new ResourceLocation("vivecraft:textures/diamond_hmd.png");
     ResourceLocation GOLD_HMD = new ResourceLocation("vivecraft:textures/gold_hmd.png");
     ResourceLocation BLACK_HMD = new ResourceLocation("vivecraft:textures/black_hmd.png");
+    public BipedArmorLayer armor = null;
     //VIVE END
     
     public VRPlayerModel(float p_i63_1_, boolean p_i63_2_)
@@ -44,13 +47,6 @@ public class VRPlayerModel<T extends LivingEntity> extends BipedModel<T>
         this.vrHMD.setTextureSize(16, 16);
         this.vrHMD.addBox(-3.5F, -6.0F, -7.5F, 7, 4, 5, p_i63_1_);
 
-        /*try { // TODO: Should this be here?
-            Minecraft.getMinecraft().getTextureManager().loadTexture(this.BLACK_HMD, new StaticTexture(this.BLACK_HMD));
-            Minecraft.getMinecraft().getTextureManager().loadTexture(this.GOLD_HMD, new StaticTexture(this.GOLD_HMD));
-            Minecraft.getMinecraft().getTextureManager().loadTexture(this.DIAMOND_HMD, new StaticTexture(this.DIAMOND_HMD));
-		} catch (Exception e) {
-        	e.printStackTrace();
-		}*/
         if (p_i63_2_)
         {
             this.bipedLeftArm = new RendererModel(this, 32, 48);
@@ -109,7 +105,16 @@ public class VRPlayerModel<T extends LivingEntity> extends BipedModel<T>
 
     public void render(T entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
     {
+    	
+    	PlayerModelController.RotInfo rotInfo = PlayerModelController.getInstance().getRotationsForPlayer(((PlayerEntity)entityIn).getUniqueID());
+        
+    	if (rotInfo != null) {
+            GlStateManager.scalef(rotInfo.heightScale, rotInfo.heightScale, rotInfo.heightScale);
+         //   GlStateManager.translatef(0.0F, -0.75f, 0.0F);
+    	}
+    	
         super.render(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
+        
         GlStateManager.pushMatrix();
 
         if (this.isChild)
@@ -125,11 +130,11 @@ public class VRPlayerModel<T extends LivingEntity> extends BipedModel<T>
         }
         else
         {
-            if (entityIn.func_213287_bg())
+            if (entityIn.shouldRenderSneaking())
             {
                 GlStateManager.translatef(0.0F, 0.2F, 0.0F);
             }
-
+     	
             this.bipedLeftLegwear.render(scale);
             this.bipedRightLegwear.render(scale);
             this.bipedLeftArmwear.render(scale);
@@ -146,7 +151,7 @@ public class VRPlayerModel<T extends LivingEntity> extends BipedModel<T>
 
     public void renderDeadmau5Head(float scale)
     {
-        this.bipedDeadmau5Head.func_217177_a(this.bipedHead);
+        this.bipedDeadmau5Head.copyModelAngles(this.bipedHead);
         this.bipedDeadmau5Head.rotationPointX = 0.0F;
         this.bipedDeadmau5Head.rotationPointY = 0.0F;
         this.bipedDeadmau5Head.render(scale);
@@ -164,43 +169,39 @@ public class VRPlayerModel<T extends LivingEntity> extends BipedModel<T>
      */
     public void setRotationAngles(T entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor)
     {
-        super.setRotationAngles(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor);
-
+    	super.setRotationAngles(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor);
+   
     	//Lasciate ogne speranza, voi ch'intrate
-    	PlayerModelController.RotInfo rotInfo=PlayerModelController.getInstance().getRotationsForPlayer(((PlayerEntity)entityIn).getGameProfile().getId());
-    	if(rotInfo == null) {
+    	PlayerModelController.RotInfo rotInfo = PlayerModelController.getInstance().getRotationsForPlayer(((PlayerEntity)entityIn).getUniqueID());
+    
+    	if(rotInfo != null) {
 
-    	} else {
-
-    		double minecraftBullshit = -1.501F;
+    		double minecraftBullshit = -1.501F * rotInfo.heightScale;
 
     		Vec3d pos = this.renderPos;
     		float eyaw = (float) Math.toRadians(entityIn.rotationYaw);
-    		float yaw1 = (float) Math.atan2(-rotInfo.headRot.x, -rotInfo.headRot.z); 
-    		float pitch1 = (float) Math.asin(rotInfo.headRot.y/rotInfo.headRot.length()); 
+    		float hmdYaw = (float) Math.atan2(-rotInfo.headRot.x, -rotInfo.headRot.z); 
+    		float hmdPitch = (float) Math.asin(rotInfo.headRot.y/rotInfo.headRot.length()); 
 
-    		float yaw3 = (float) Math.atan2(-rotInfo.leftArmRot.x, -rotInfo.leftArmRot.z); 
-    		float pitch3 = (float) Math.asin(rotInfo.leftArmRot.y/rotInfo.leftArmRot.length());           	
+    		float leftControllerYaw = (float) Math.atan2(-rotInfo.leftArmRot.x, -rotInfo.leftArmRot.z); 
+    		float leftControllerPitch = (float) Math.asin(rotInfo.leftArmRot.y/rotInfo.leftArmRot.length());           	
 
-    		this.bipedHead.rotateAngleX = (float) -pitch1;
+    		this.bipedHead.rotateAngleX = (float) -hmdPitch;
 
-    		Vec3d diff = rotInfo.leftArmPos.subtract(rotInfo.rightArmPos).rotateYaw((float)-Math.PI/2);
-    		if(rotInfo.reverse) diff = diff.scale(-1);
-    		if(rotInfo.seated) diff = rotInfo.rightArmRot;
-    		double ltor = Math.atan2(-diff.x, diff.z);     		
+    		double bodyYaw = rotInfo.getBodyYawRadians();	
 
     		//        		this.bipedHead.rotateAngleY = (float) (0);
-    		this.bipedHead.rotateAngleY = (float) (Math.PI -yaw1 - ltor);
+    		this.bipedHead.rotateAngleY = (float) (Math.PI - hmdYaw - bodyYaw);
     		//        		this.bipedBody.rotateAngleY = (float) (ltor);
     		//        		this.bipedRightLeg.rotateAngleY = (float) (ltor);
     		//        		this.bipedLeftLeg.rotateAngleY = (float) (ltor);
     		//        		this.bipedRightArm.rotateAngleY = (float) (ltor);
     		//        		this.bipedLeftArm.rotateAngleY = (float) (ltor);
 
-    	//	ModelArmorVR armor = this.armor.getModelFromSlot(EquipmentSlotType.HEAD);
+    		BipedModel a = this.armor.func_215337_a(EquipmentSlotType.HEAD);
+    		a.bipedHead.rotateAngleY = (float) (this.bipedHead.rotateAngleY);  				
+    		a.bipedHead.rotateAngleX = this.bipedHead.rotateAngleX;
 
-    	//	armor.bipedHead.rotateAngleY = (float) (this.bipedHead.rotateAngleY);  				
-    	//	armor.bipedHead.rotateAngleX = this.bipedHead.rotateAngleX;
     		//        		
     		//        		this.armor.getModelFromSlot(EntityEquipmentSlot.CHEST).bipedBody.rotateAngleY = this.bipedBody.rotateAngleY;
     		//        		this.armor.getModelFromSlot(EntityEquipmentSlot.CHEST).bipedBody.rotateAngleX = this.bipedBody.rotateAngleX;
@@ -221,7 +222,8 @@ public class VRPlayerModel<T extends LivingEntity> extends BipedModel<T>
     		//        		Vec3d rotatedlleg = new Vec3d(bipedLeftLeg.rotationPointX, bipedLeftLeg.rotationPointY, bipedLeftLeg.rotationPointZ)
     		//        				.rotateYaw((float) ((float)ltor));
     		//        		this.bipedLeftLeg.setRotationPoint((float)rotatedlleg.x, (float)rotatedlleg.y, (float)rotatedlleg.z);
-    		//        		
+    		//        	
+    		
     		this.bipedLeftArm.setRotationPoint(5.0F, smallArms ? 2.5F : 2.0F, 0.0F);
     		Vec3d rotatedlarm = new Vec3d(bipedLeftArm.rotationPointX, bipedLeftArm.rotationPointY, bipedLeftArm.rotationPointZ);
 
@@ -247,14 +249,15 @@ public class VRPlayerModel<T extends LivingEntity> extends BipedModel<T>
     			//this.bipedLeftLeg.setRotationPoint((float)head.x, (float)head.y, -(float)head.z);
     			//this.bipedLeftLeg.scaleY = (float) (rotInfo.Headpos.subtract(pos).y / 1.62f);         		
 
-    			float yaw2 = (float) Math.atan2(-rotInfo.rightArmRot.x, -rotInfo.rightArmRot.z); 
-    			float pitch2 = (float) Math.asin(rotInfo.rightArmRot.y/rotInfo.rightArmRot.length()); 
+    			float rightControllerYaw = (float) Math.atan2(-rotInfo.rightArmRot.x, -rotInfo.rightArmRot.z); 
+    			float rightControllerPitch = (float) Math.asin(rotInfo.rightArmRot.y/rotInfo.rightArmRot.length()); 
+
     			if(pos !=null){
     				Vec3d larm = rotInfo.leftArmPos.subtract(pos).add(0,minecraftBullshit,0);
-    				larm = larm.rotateYaw((float)(-Math.PI + ltor)).add(rotInfo.leftArmRot.scale(-0.2)).scale(-1/scaleFactor);      		      		        		
+    				larm = larm.rotateYaw((float)(-Math.PI + bodyYaw)).add(rotInfo.leftArmRot.scale(-0.2)).scale(-1/scaleFactor);      		      		        		
     				this.bipedLeftArm.setRotationPoint((float)larm.x, (float)larm.y, -(float)larm.z);          
-    				this.bipedLeftArm.rotateAngleX=(float) (-pitch3+ 3*Math.PI/2);
-    				this.bipedLeftArm.rotateAngleY=(float) (Math.PI - yaw3 - ltor);
+    				this.bipedLeftArm.rotateAngleX=(float) (-leftControllerPitch+ 3*Math.PI/2);
+    				this.bipedLeftArm.rotateAngleY=(float) (Math.PI - leftControllerYaw - bodyYaw);
 
     				Vec3d lsh = new Vec3d(leftShoulder.rotationPointX - larm.x, 
     						leftShoulder.rotationPointY - larm.y,
@@ -266,10 +269,10 @@ public class VRPlayerModel<T extends LivingEntity> extends BipedModel<T>
     				leftShoulder.rotateAngleX = (float) (-pitchls+ 3*Math.PI/2);
 
     				Vec3d rarm = rotInfo.rightArmPos.subtract(pos).add(0,minecraftBullshit,0);
-    				rarm = rarm.rotateYaw((float)(-Math.PI + ltor)).add(rotInfo.rightArmRot.scale(-0.2)).scale(-1/scaleFactor);           
+    				rarm = rarm.rotateYaw((float)(-Math.PI + bodyYaw)).add(rotInfo.rightArmRot.scale(-0.2)).scale(-1/scaleFactor);           
     				this.bipedRightArm.setRotationPoint((float)rarm.x, (float)rarm.y, -(float)rarm.z);   
-    				this.bipedRightArm.rotateAngleX=(float) (-pitch2+ 3*Math.PI/2);
-    				this.bipedRightArm.rotateAngleY=(float) (Math.PI-yaw2 - ltor);
+    				this.bipedRightArm.rotateAngleX=(float) (-rightControllerPitch+ 3*Math.PI/2);
+    				this.bipedRightArm.rotateAngleY=(float) (Math.PI-rightControllerYaw - bodyYaw);
 
 
     				Vec3d rsh = new Vec3d(rightShoulder.rotationPointX - rarm.x, 
@@ -282,10 +285,10 @@ public class VRPlayerModel<T extends LivingEntity> extends BipedModel<T>
     				rightShoulder.rotateAngleX = (float) (-pitchrs+ 3*Math.PI/2);
 
 
-    			//	armor.bipedLeftArm.rotateAngleY = this.leftShoulder.rotateAngleY;  				
-    			//	armor.bipedLeftArm.rotateAngleX = this.leftShoulder.rotateAngleX;
-    			//	armor.bipedRightArm.rotateAngleY = this.rightShoulder.rotateAngleY;  				
-    			//	armor.bipedRightArm.rotateAngleX = this.rightShoulder.rotateAngleX;
+    				//	armor.bipedLeftArm.rotateAngleY = this.leftShoulder.rotateAngleY;  				
+    				//	armor.bipedLeftArm.rotateAngleX = this.leftShoulder.rotateAngleX;
+    				//	armor.bipedRightArm.rotateAngleY = this.rightShoulder.rotateAngleY;  				
+    				//	armor.bipedRightArm.rotateAngleX = this.rightShoulder.rotateAngleX;
     				this.bipedLeftArm.scaleY = 0.5f;
     				this.bipedLeftArmwear.scaleY = 0.5f;
     				this.bipedRightArm.scaleY = 0.5f;
@@ -298,6 +301,12 @@ public class VRPlayerModel<T extends LivingEntity> extends BipedModel<T>
     					this.rightShoulder.setRotationPoint(-5.0F, smallArms ? 2.5F : 2.0F, 0.0F);
     					this.leftShoulder.setRotationPoint(5.0F, smallArms ? 2.5F : 2.0F, 0.0F);
     				}
+    				
+    	    		BipedModel c = this.armor.func_215337_a(EquipmentSlotType.CHEST);
+    	    		c.bipedLeftArm.rotateAngleY = (float) (this.leftShoulder.rotateAngleY);  				
+    	    		c.bipedLeftArm.rotateAngleX = this.leftShoulder.rotateAngleX;
+    	    		c.bipedRightArm.rotateAngleY = (float) (this.rightShoulder.rotateAngleY);  				
+    	    		c.bipedRightArm.rotateAngleX = this.rightShoulder.rotateAngleX;
 
     			} 
     		}else {
@@ -330,13 +339,13 @@ public class VRPlayerModel<T extends LivingEntity> extends BipedModel<T>
     		break;
     	}
 
-        this.bipedHeadwear.func_217177_a(this.bipedHead);
-        this.vrHMD.func_217177_a(this.bipedHead);      
-        this.bipedLeftLegwear.func_217177_a(this.bipedLeftLeg);
-        this.bipedRightLegwear.func_217177_a(this.bipedRightLeg);
-        this.bipedLeftArmwear.func_217177_a(this.bipedLeftArm);
-        this.bipedRightArmwear.func_217177_a(this.bipedRightArm);
-        this.bipedBodyWear.func_217177_a(this.bipedBody);
+    	this.bipedHeadwear.copyModelAngles(this.bipedHead);
+    	this.vrHMD.copyModelAngles(this.bipedHead);      
+    	this.bipedLeftLegwear.copyModelAngles(this.bipedLeftLeg);
+    	this.bipedRightLegwear.copyModelAngles(this.bipedRightLeg);
+    	this.bipedLeftArmwear.copyModelAngles(this.bipedLeftArm);
+    	this.bipedRightArmwear.copyModelAngles(this.bipedRightArm);
+    	this.bipedBodyWear.copyModelAngles(this.bipedBody);
     }
 
     public void setVisible(boolean visible)

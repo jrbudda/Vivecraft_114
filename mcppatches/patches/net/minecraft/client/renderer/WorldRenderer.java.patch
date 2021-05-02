@@ -1,11 +1,11 @@
 --- a/net/minecraft/client/renderer/WorldRenderer.java
 +++ b/net/minecraft/client/renderer/WorldRenderer.java
-@@ -883,7 +883,7 @@
-             SignTileEntityRenderer.updateTextRenderDistance();
-             label219:
+@@ -869,7 +869,7 @@
+             boolean flag2 = Reflector.IForgeTileEntity_getRenderBoundingBox.exists();
+             label198:
  
 -            for (WorldRenderer.LocalRenderInformationContainer worldrenderer$localrenderinformationcontainer : this.renderInfosTileEntities)
-+            for (WorldRenderer.LocalRenderInformationContainer worldrenderer$localrenderinformationcontainer : (List<WorldRenderer.LocalRenderInformationContainer>)this.renderInfosTileEntities)
++            for (WorldRenderer.LocalRenderInformationContainer worldrenderer$localrenderinformationcontainer : (Iterable<WorldRenderer.LocalRenderInformationContainer>)(Iterable<?>)this.renderInfosTileEntities)
              {
                  List<TileEntity> list2 = worldrenderer$localrenderinformationcontainer.renderChunk.getCompiledChunk().getTileEntities();
  

@@ -11,7 +11,7 @@
  
              if (jsonobject2 == null)
              {
-@@ -153,13 +153,13 @@
+@@ -154,13 +154,13 @@
          jsonobject1.put("type", "release");
          JSONArray jsonarray = new JSONArray();
          jsonobject1.put("libraries", jsonarray);
@@ -27,7 +27,7 @@
  
              if (s2 != null)
              {
-@@ -347,7 +347,7 @@
+@@ -349,7 +349,7 @@
  
          try
          {

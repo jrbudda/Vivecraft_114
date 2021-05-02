@@ -6,7 +6,7 @@
  import javax.annotation.Nullable;
 +
 +import org.vivecraft.api.NetworkHelper;
-+import org.vivecraft.api.VivePlayer;
++import org.vivecraft.api.ServerVivePlayer;
 +
  import net.minecraft.advancements.CriteriaTriggers;
  import net.minecraft.block.Block;
@@ -20,7 +20,7 @@
 -        double d2 = this.angler.posZ - (double)f2 * 0.3D;
 +        
 +    	//VIVE USE CONTROLLER  	
-+    	VivePlayer vp = NetworkHelper.vivePlayers.get(angler.getUniqueID());
++    	ServerVivePlayer vp = NetworkHelper.vivePlayers.get(angler.getUniqueID());
 +    	if (vp !=null && vp.isVR())
 +    	{
 +    		Vec3d aim = vp.getControllerDir(0);

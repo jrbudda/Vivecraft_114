@@ -38,9 +38,9 @@ public class Installer extends JPanel  implements PropertyChangeListener
 	private static final boolean ALLOW_FORGE_INSTALL = false; 
 	private static final boolean DEFAULT_FORGE_INSTALL = false; 
 	private static final boolean ALLOW_HYDRA_INSTALL = false; 
-	private static final boolean ALLOW_KATVR_INSTALL = true; 
-	private static final boolean ALLOW_KIOSK_INSTALL = true; 
-	private static final boolean ALLOW_HRTF_INSTALL = true; 
+	private static final boolean ALLOW_KATVR_INSTALL = false; 
+	private static final boolean ALLOW_KIOSK_INSTALL = false; 
+	private static final boolean ALLOW_HRTF_INSTALL = false; 
 	private static final boolean ALLOW_SHADERSMOD_INSTALL = false;  
 
 	private static final boolean NEEDS_2010_REDIST = false;
@@ -54,19 +54,19 @@ public class Installer extends JPanel  implements PropertyChangeListener
 	public static String winredist2010_32url = "http://download.microsoft.com/download/C/6/D/C6D0FD4E-9E53-4897-9B91-836EBA2AACD3/vcredist_x86.exe";
 
 	/* DO NOT RENAME THESE STRING CONSTS - THEY ARE USED IN (AND THE VALUES UPDATED BY) THE AUTOMATED BUILD SCRIPTS */
-    private static final String MINECRAFT_VERSION = "1.14.3";
-    private static final String MC_VERSION        = "1.14.3";
-    private static final String MC_MD5            = "43648a75fe4364c4c83b19bfe64f00f0";
+    private static final String MINECRAFT_VERSION = "1.14.4";
+    private static final String MC_VERSION        = "1.14.4";
+    private static final String MC_MD5            = "5dd255be377ac11a4414c4bc6426daa7";
 	private static final String OF_LIB_PATH       = "libraries/optifine/OptiFine/";
-    private static final String OF_FILE_NAME      = "1.14.3_HD_U_F1";
-    private static final String OF_MD5            = "4ED93C34F52B111706D77D582A8CC5DC";
+    private static final String OF_FILE_NAME      = "1.14.4_HD_U_F4";
+    private static final String OF_MD5            = "8CB59BA35215F2D48FACFB58FF27ABBD";
     private static final String OF_VERSION_EXT    = ".jar";
-    private static String FORGE_VERSION     = "14.25.0.110";
+    private static String FORGE_VERSION     = "28.1.87";
 	/* END OF DO NOT RENAME */
 
-	private static final String DEFAULT_PROFILE_NAME = "ViveCraft " + MINECRAFT_VERSION;
-	private static final String DEFAULT_PROFILE_NAME_FORGE = "ViveCraft-Forge " + MINECRAFT_VERSION;
-	private static final String GITHUB_LINK = "https://github.com/jrbudda/Vivecraft_112";
+	private static final String DEFAULT_PROFILE_NAME = "Vivecraft NonVR " + MINECRAFT_VERSION;
+	private static final String DEFAULT_PROFILE_NAME_FORGE = "Vivecraft-Forge " + MINECRAFT_VERSION;
+	private static final String GITHUB_LINK = "https://github.com/jrbudda/Vivecraft_114";
 	private static final String HOMEPAGE_LINK = "http://www.vivecraft.org";
 	private static final String DONATION_LINK = "https://www.patreon.com/jrbudda";
     private static final String ORIG_FORGE_VERSION = FORGE_VERSION;
@@ -579,8 +579,7 @@ public class Installer extends JPanel  implements PropertyChangeListener
 					}
 				}
 			}
-			catch (NoSuchFieldException e) {}
-			catch (IllegalAccessException e) {}
+			catch (Exception e) {}
 
 
 			finalMessage = "Failed: Couldn't download C++ redistributables. ";
@@ -1605,6 +1604,9 @@ public class Installer extends JPanel  implements PropertyChangeListener
 
 	public static void main(String[] args)
 	{
+			// I'm gonna shit a JVM
+		System.setProperty("java.net.preferIPv4Stack" , "true");
+
 		try {
 			// Set System L&F
 			UIManager.setLookAndFeel(
