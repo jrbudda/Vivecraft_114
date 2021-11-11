@@ -45,7 +45,7 @@
 +    
 +    //Vivecraft Additions
 +
-+    public final String minecriftVerString = "Vivecraft 1.14.4 jrbudda-NONVR-3-a1";
++    public final String minecriftVerString = "Vivecraft 1.14.4 jrbudda-NONVR-3-a2";
 +
 +    public void printChatMessage(String msg)
 +    {
